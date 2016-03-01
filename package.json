@@ -1,0 +1,33 @@
+{
+  "author": {
+    "name": "Carnival <support@carnival.io>"
+  },
+  "bugs": {
+    "url": "https://github.com/carnivalmobile/carnival-sdk-react-native/issues"
+  },
+  "description": "React Native wrapper for Carnival SDK",
+  "homepage": "https://github.com/carnivalmobile/carnival-sdk-react-native",
+  "keywords": [
+    "android",
+    "ios",
+    "native",
+    "react",
+    "react-component",
+    "react-native",
+    "sdk",
+    "carnival",
+    "push notifications",
+    "messaging"
+  ],
+  "main": "index.js",
+  "name": "react-native-carnival",
+  "optionalDependencies": {},
+  "peerDependencies": {
+    "react-native": ">=0.19"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carnivalmobile/carnival-sdk-react-native.git"
+  },
+  "version": "0.0.1"
+}

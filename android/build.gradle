@@ -1,0 +1,24 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+}
+
+repositories {
+    maven {
+        url "https://github.com/carnivalmobile/maven-repository/raw/master/"
+    }
+}
+
+dependencies {
+    compile 'com.carnival.sdk:carnival:2.15.0'
+    compile 'com.facebook.react:react-native:0.20.1'
+}
