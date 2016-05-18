@@ -1,8 +1,10 @@
 package com.carnivalmobile.reactnative;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
 
+import com.carnival.sdk.AttributeMap;
 import com.carnival.sdk.Carnival;
 import com.carnival.sdk.CarnivalImpressionType;
 import com.carnival.sdk.Message;
@@ -27,12 +29,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.HashMap;
 import java.util.Map;
-import android.content.Context;
 
+@SuppressWarnings("unused")
 public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
 
     private static final String IMPRESSION_TYPE_IN_APP_VIEW = "IMPRESSION_TYPE_IN_APP_VIEW";
@@ -82,7 +84,7 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(Error error) {
-                promise.reject(error.getMessage());
+                promise.reject("carnival.tags", error.getMessage());
             }
         });
     }
@@ -106,7 +108,7 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(Error error) {
-                promise.reject(error.getMessage());
+                promise.reject("carnival.device", error.getMessage());
             }
         });
     }
@@ -132,21 +134,23 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
                         array.pushMap(convertJsonToMap(messageJson));
                     }
                 } catch (Exception e) {
-                    promise.reject(e.getMessage());
+                    promise.reject("carnival.messages", e.getMessage());
                 }
                 promise.resolve(array);
             }
 
             @Override
             public void onFailure(Error error) {
-                promise.reject(error.getMessage());
+                promise.reject("carnival.messages", error.getMessage());
             }
         });
     }
 
     @ReactMethod
     public void setBoolean(String key, Boolean value, final Promise promise) {
-        Carnival.setAttribute(key, value, new Carnival.AttributesHandler() {
+        AttributeMap map = new AttributeMap();
+        map.putBoolean(key, value);
+        Carnival.setAttributes(map, new Carnival.AttributesHandler() {
             @Override
             public void onSuccess() {
                 promise.resolve(null);
@@ -154,14 +158,16 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(Error error) {
-                promise.reject(error.getMessage());
+                promise.reject("carnival.attributes", error.getMessage());
             }
         });
     }
 
     @ReactMethod
     public void setInteger(String key, int value, final Promise promise) {
-        Carnival.setAttribute(key, value, new Carnival.AttributesHandler() {
+        AttributeMap map = new AttributeMap();
+        map.putInt(key, value);
+        Carnival.setAttributes(map, new Carnival.AttributesHandler() {
             @Override
             public void onSuccess() {
                 promise.resolve(null);
@@ -169,7 +175,7 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(Error error) {
-                promise.reject(error.getMessage());
+                promise.reject("carnival.attributes", error.getMessage());
             }
         });
     }
@@ -182,7 +188,9 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
             list.add(value.getInt(i));
         }
 
-        Carnival.setAttribute(key, list, new Carnival.AttributesHandler() {
+        AttributeMap map = new AttributeMap();
+        map.putIntArray(key, list);
+        Carnival.setAttributes(map, new Carnival.AttributesHandler() {
             @Override
             public void onSuccess() {
                 promise.resolve(null);
@@ -190,14 +198,16 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(Error error) {
-                promise.reject(error.getMessage());
+                promise.reject("carnival.attributes", error.getMessage());
             }
         });
     }
 
     @ReactMethod
     public void setFloat(String key, float value, final Promise promise) {
-        Carnival.setAttribute(key, value, new Carnival.AttributesHandler() {
+        AttributeMap map = new AttributeMap();
+        map.putFloat(key, value);
+        Carnival.setAttributes(map, new Carnival.AttributesHandler() {
             @Override
             public void onSuccess() {
                 promise.resolve(null);
@@ -205,7 +215,7 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(Error error) {
-                promise.reject(error.getMessage());
+                promise.reject("carnival.attributes", error.getMessage());
             }
         });
     }
@@ -218,7 +228,9 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
             list.add((float) value.getDouble(i));
         }
 
-        Carnival.setAttribute(key, list, new Carnival.AttributesHandler() {
+        AttributeMap map = new AttributeMap();
+        map.putFloatArray(key, list);
+        Carnival.setAttributes(map, new Carnival.AttributesHandler() {
             @Override
             public void onSuccess() {
                 promise.resolve(null);
@@ -226,14 +238,16 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(Error error) {
-                promise.reject(error.getMessage());
+                promise.reject("carnival.attributes", error.getMessage());
             }
         });
     }
 
     @ReactMethod
     public void setString(String key, String value, final Promise promise) {
-        Carnival.setAttribute(key, value, new Carnival.AttributesHandler() {
+        AttributeMap map = new AttributeMap();
+        map.putString(key, value);
+        Carnival.setAttributes(map, new Carnival.AttributesHandler() {
             @Override
             public void onSuccess() {
                 promise.resolve(null);
@@ -241,7 +255,7 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(Error error) {
-                promise.reject(error.getMessage());
+                promise.reject("carnival.attributes", error.getMessage());
             }
         });
     }
@@ -254,7 +268,9 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
             list.add(value.getString(i));
         }
 
-        Carnival.setAttribute(key, list, new Carnival.AttributesHandler() {
+        AttributeMap map = new AttributeMap();
+        map.putStringArray(key, list);
+        Carnival.setAttributes(map, new Carnival.AttributesHandler() {
             @Override
             public void onSuccess() {
                 promise.resolve(null);
@@ -262,7 +278,7 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(Error error) {
-                promise.reject(error.getMessage());
+                promise.reject("carnival.attributes", error.getMessage());
             }
         });
     }
@@ -270,7 +286,9 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
     @ReactMethod
     public void setDate(String key, int value, final Promise promise) {
         Date date = new Date(value * 1000);
-        Carnival.setAttribute(key, date, new Carnival.AttributesHandler() {
+        AttributeMap map = new AttributeMap();
+        map.putDate(key, date);
+        Carnival.setAttributes(map, new Carnival.AttributesHandler() {
             @Override
             public void onSuccess() {
                 promise.resolve(null);
@@ -278,7 +296,7 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(Error error) {
-                promise.reject(error.getMessage());
+                promise.reject("carnival.attributes", error.getMessage());
             }
         });
     }
@@ -288,10 +306,13 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
         ArrayList<Date> list = new ArrayList<>();
 
         for (int i = 0; i < value.size(); i++) {
-            list.add(new Date(value.getInt(i) * 1000));
+
+            list.add(new Date((long) value.getDouble(i) * 1000));
         }
 
-        Carnival.setAttribute(key, list, new Carnival.AttributesHandler() {
+        AttributeMap map = new AttributeMap();
+        map.putDateArray(key, list);
+        Carnival.setAttributes(map, new Carnival.AttributesHandler() {
             @Override
             public void onSuccess() {
                 promise.resolve(null);
@@ -299,7 +320,7 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(Error error) {
-                promise.reject(error.getMessage());
+                promise.reject("carnival.attributes", error.getMessage());
             }
         });
     }
@@ -315,7 +336,7 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void getUnreadMessageCount(Promise promise) {
+    public void getUnreadCount(Promise promise) {
         int unreadCount = Carnival.getUnreadMessageCount();
         promise.resolve(unreadCount);
     }
@@ -337,10 +358,7 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
 
         if (type != null) {
             Carnival.registerMessageImpression(type, message);
-        } else {
-
         }
-
     }
 
     @ReactMethod
@@ -354,7 +372,7 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
 
             @Override
             public void onFailure(Error error) {
-                promise.reject(error.getMessage());
+                promise.reject("carnival.messages", error.getMessage());
             }
         });
     }
@@ -370,7 +388,10 @@ public class CarnivalReactNativePlugin extends ReactContextBaseJavaModule {
     public void showMessageDetail(String messageId) {
         Intent i = new Intent(getCurrentActivity(), MessageActivity.class);
         i.putExtra(Carnival.EXTRA_MESSAGE_ID, messageId);
-        getCurrentActivity().startActivity(i);
+        Activity activity = getCurrentActivity();
+        if (activity != null) {
+            getCurrentActivity().startActivity(i);
+        }
     }
 
     /*

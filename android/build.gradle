@@ -19,6 +19,6 @@ repositories {
 }
 
 dependencies {
-    compile 'com.carnival.sdk:carnival:2.15.0'
-    compile 'com.facebook.react:react-native:0.20.1'
+    compile 'com.carnival.sdk:carnival:3.1.+'
+    compile 'com.facebook.react:react-native:+'
 }
