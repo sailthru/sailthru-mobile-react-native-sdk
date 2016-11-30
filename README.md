@@ -43,19 +43,19 @@ dependencies {
 }
 ```
 
-* register module (in MainActivity.java)
+* register module (in MainApplication.java)
 
 ```java
 import com.carnivalmobile.reactnative.CarnivalReactPackage;  // <--- import
 
-public class MainActivity extends ReactActivity {
+public class MainApplication extends Application implements ReactApplication {
   ...
 
-      @Override
+    @Override
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
-        new MainReactPackage(),
-        new CarnivalReactPackage()
+          new MainReactPackage(),
+          new CarnivalReactPackage()
       );
     }
   ...
