@@ -25,7 +25,7 @@ RCT_EXPORT_MODULE()
 #pragma mark - Initialization
 
 RCT_EXPORT_METHOD(startEngine:(NSString *)key registerForPushNotifications:(BOOL)registerForPushNotifications) {
-    [Carnival startEngine:key registerForPushNotifications:registerForPushNotifications ignoreAutoAnalyticsSources:@[CarnivalAutoAnalyticsSourceAll]]; // Turn off Auto-Analytics for React Native
+    [Carnival startEngine:key registerForPushNotifications:registerForPushNotifications];
 }
 
 #pragma mark - Messages
