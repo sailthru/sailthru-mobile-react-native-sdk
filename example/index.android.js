@@ -2,72 +2,57 @@
  * Sample React Native App
  * https://github.com/facebook/react-native
  */
-'use strict';
-import React, {
+
+import React, { Component } from 'react';
+import {
   AppRegistry,
-  Component,
   StyleSheet,
   Text,
   View
 } from 'react-native';
 
-var { NativeModules } = require('react-native');
-module.exports = NativeModules.CarnivalReactNativePlugin;
 
-var APP_KEY = "<Your Carnival App Key>"
-var Carnival = NativeModules.CarnivalReactNativePlugin
+var Carnival = require('react-native-carnival');
+var SDK_KEY = ''; // Put your SDK key in here.
 
-class AwesomeProject extends Component {
+import { NativeEventEmitter } from 'react-native'
+
+const myModuleEvt = new NativeEventEmitter(Carnival)
+myModuleEvt.addListener('inappnotification', (data) => console.log(data))
+
+class ReactNativeSampleApp extends Component {
   constructor(props) {
     super(props);
-    Carnival.startEngine(APP_KEY);
+    Carnival.setDisplayInAppNotifications(true);
+
+    Carnival.startEngine(SDK_KEY, true);
 
     Carnival.getMessages()
       .then(messages => {
         if (messages.length > 2) {
           Carnival.markMessageAsRead(messages[0]);
         }
-        Carnival.showMessageDetail(messages[0]);
 
-        Carnival.registerMessageImpression(messages[1], Carnival.IMPRESSION_TYPE_IN_APP_VIEW);
+        Carnival.showMessageDetail(messages[0].id);
+
+        Carnival.registerMessageImpression(Carnival.MessageImpressionType.InAppView, messages[1]);
       })
       .catch(e => {
         console.log(e);
-      });
-
-    Carnival.setString("string_key", "This is the string value").catch( e => {
-      console.log(e);
     });
 
-    Carnival.setStrings("strings_key", ["This is first value", "This is the second value"]).catch( e => {
-      console.log(e);
-    });
+    var attrMap = new Carnival.AttributeMap();
+    attrMap.setString("string_key", "This is the string value");
+    attrMap.setStringArray("strings_key", ["This is first value", "This is the second value"]);
+    attrMap.setDate("date_key", new Date());
+    attrMap.setDateArray("dates_key", [new Date(), new Date(), new Date()]);
+    attrMap.setFloat("float_key", 3.141);
+    attrMap.setFloatArray("floats_key", [1.1, 2.2, 3.3, 4.4]);
+    attrMap.setInteger("integer_key", 3);
+    attrMap.setIntegerArray("integers_key", [1, 2, 3, 4]);
+    attrMap.setBoolean("boolean_key", true);
 
-    Carnival.setDate("date_key", new Date().getTime()).catch( e => {
-      console.log(e);
-    });
-
-    Carnival.setDates("dates_key", [new Date().getTime(), new Date().getTime(), new Date().getTime()]).catch( e => {
-      console.log(e);
-    });
-
-    Carnival.setFloat("float_key", 3.141).catch( e => {
-      console.log(e);
-    });
-
-    Carnival.setFloats("floats_key", [1.1, 2.2, 3.3, 4.4]).catch( e => {
-      console.log(e);
-    });
-
-    Carnival.setInteger("integer_key", 3).catch( e => {
-      console.log(e);
-    });
-
-    Carnival.setIntegers("integers_key", [1, 2, 3, 4]).catch( e => {
-      console.log(e);
-    });
-
-    Carnival.setBool("boolean_key", true).catch( e => {
+    Carnival.setAttributes(attrMap).catch(e => {
       console.log(e);
     });
 
@@ -88,8 +73,6 @@ class AwesomeProject extends Component {
     });
 
     Carnival.setUserId("person@domain.com");
-
-    //Carnival.setInAppNotificationsEnabled(true);
 
     //Carnival.setGeoIPTrackingEnabled(true);
 
@@ -137,4 +120,4 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('AwesomeProject', () => AwesomeProject);
+AppRegistry.registerComponent('ReactNativeSampleApp', () => ReactNativeSampleApp);

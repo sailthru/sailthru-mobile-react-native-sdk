@@ -10,8 +10,9 @@ Open your Project's Xcode Project.
 
 Drag into "Libraries" the following files from node_modules/react-native-carnival:
 
- * CarnivalReactNativePlugin.h
- * CarnivalReactNativePlugin.m
+ * RNCarnival.h
+ * RNCarnival.m (Make sure this file's Target Membership is your main app's target)
+ * Carnival.framework
 
 Next, Install Carnival iOS SDK from Cocoapods (add `pod 'Carnival'` to your Podfile) or install the framework [manually](http://docs.carnival.io/docs/ios-integration#section-manual-integration).
 
@@ -23,8 +24,8 @@ Build and Run from Xcode.
 
 ```gradle
 ...
-include ':CarnivalReactNativePlugin', ':app'
-project(':CarnivalReactNativePlugin').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-carnival/android')
+include ':react-native-carnival'
+project(':react-native-carnival').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-carnival/android')
 ```
 
 * In `android/app/build.gradle`
@@ -39,14 +40,16 @@ repositories {
 
 dependencies {
     ...
-    compile project(':CarnivalReactNativePlugin')
+    compile project(':react-native-carnival')
+    compile 'com.carnival.sdk:carnival:4.+'
 }
 ```
+
 
 * register module (in MainApplication.java)
 
 ```java
-import com.carnivalmobile.reactnative.CarnivalReactPackage;  // <--- import
+import com.reactlibrary.reactnative.RNCarnivalPackage;  // <--- import
 
 public class MainApplication extends Application implements ReactApplication {
   ...
@@ -55,13 +58,15 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-          new CarnivalReactPackage()
+          new RNCarnivalPackage()
       );
     }
   ...
 
 }
 ```
+
+For push set up, follow the usual [Android Integration](https://docs.carnival.io/docs/android-integration) documentation.
 
 ## Example
 
