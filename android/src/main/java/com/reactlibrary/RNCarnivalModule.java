@@ -51,6 +51,26 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
   public void startEngine(String appKey, boolean optInForPush) {
     // optInForPush is not used. It's there to share signatures with iOS.
     Carnival.startEngine(reactApplicationContext, appKey);
+    setWrapperInfo();
+  }
+
+  private static void setWrapperInfo(){
+    Method setWrapperMethod = null;
+    try {
+      Class[] cArg = new Class[2];
+      cArg[0] = String.class;
+      cArg[1] = String.class;
+
+      setWrapperMethod = Carnival.class.getDeclaredMethod("setWrapper", cArg);
+      setWrapperMethod.setAccessible(true);
+      setWrapperMethod.invoke(null, "React Native", "1.0.0");
+    } catch (NoSuchMethodException e) {
+      e.printStackTrace();
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    } catch (InvocationTargetException e) {
+      e.printStackTrace();
+    }
   }
 
   @ReactMethod
@@ -68,7 +88,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void getDeviceId(final Promise promise) {
+  public void getDeviceID(final Promise promise) {
     Carnival.getDeviceId(new Carnival.CarnivalHandler<String>() {
       @Override
       public void onSuccess(String s) {
@@ -186,7 +206,13 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
             JSONObject messageJson = (JSONObject) toJsonMethod.invoke(message);
             array.pushMap(convertJsonToMap(messageJson));
           }
-        } catch (Exception e) {
+        } catch (NoSuchMethodException e) {
+          promise.reject("carnival.messages", e.getMessage());
+        } catch (IllegalAccessException e) {
+          promise.reject("carnival.messages", e.getMessage());
+        } catch (JSONException e) {
+          promise.reject("carnival.messages", e.getMessage());
+        } catch (InvocationTargetException e) {
           promise.reject("carnival.messages", e.getMessage());
         }
         promise.resolve(array);
@@ -417,7 +443,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
       constructor.setAccessible(true);
       message = constructor.newInstance(messageJson.toString());
     } catch (Exception e) {
-      //wat
+      e.printStackTrace();
     }
     return message;
   }

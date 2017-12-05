@@ -1,11 +1,11 @@
 {
   "author": {
-    "name": "Carnival <support@carnival.io>"
+    "name": "Carnival <support@sailthru.com>"
   },
   "bugs": {
     "url": "https://github.com/carnivalmobile/carnival-sdk-react-native/issues"
   },
-  "description": "React Native wrapper for Carnival SDK",
+  "description": "React Native wrapper for the Carnival.io Android and iOS SDKs",
   "homepage": "https://github.com/carnivalmobile/carnival-sdk-react-native",
   "keywords": [
     "android",
@@ -29,5 +29,5 @@
     "type": "git",
     "url": "git+https://github.com/carnivalmobile/carnival-sdk-react-native.git"
   },
-  "version": "0.0.3"
+  "version": "1.0.0"
 }
