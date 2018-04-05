@@ -29,7 +29,8 @@ android {
 repositories {
     mavenCentral()
     maven {
-        url "https://github.com/carnivalmobile/maven-repository/raw/master/"
+    // FIXME: change me to `master` before merging
+        url "https://github.com/carnivalmobile/maven-repository/raw/snapshots/"
     }
     maven {
         url 'https://maven.google.com'
@@ -38,6 +39,7 @@ repositories {
 
 dependencies {
     compile 'com.facebook.react:react-native:+'
-    compile 'com.carnival.sdk:carnival:5.+'
+    // FIXME: Change me to a stable version before merging
+    compile 'com.carnival.sdk:carnival:5.7.3-SNAPSHOT'
 }
   

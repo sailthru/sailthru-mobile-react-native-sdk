@@ -243,6 +243,62 @@ RCT_EXPORT_METHOD(setUserEmail:(NSString *)userEmail resolver:(RCTPromiseResolve
     }];
 }
 
+
+#pragma mark - Recommendations
+
+RCT_EXPORT_METHOD(getRecommendations:(NSString *)sectionID resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+  [Carnival recommendationsWithSection:sectionID withResponse:^(NSArray * _Nullable contentItems, NSError * _Nullable error) {
+    if(error) {
+      [RNCarnival rejectPromise:reject withError:error];
+    } else {
+      resolve([RNCarnival arrayOfContentItemsDictionaryFromContentItemsArray:contentItems]);
+    }
+  }];
+}
+
+RCT_EXPORT_METHOD(trackClick:(NSString *)sectionID url:(NSString *)url resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    NSURL *nsUrl = [[NSURL alloc] initWithString:url];
+    [Carnival trackClickWithSection:sectionID andUrl:nsUrl andResponse:^(NSError * _Nullable error) {
+        if (error) {
+            [RNCarnival rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(trackPageview:(NSString *)url tags:(NSArray *)tags resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    NSURL *nsUrl = [[NSURL alloc] initWithString:url];
+    [Carnival trackPageviewWithUrl:nsUrl andTags:tags andResponse:^(NSError * _Nullable error) {
+        if (error) {
+            [RNCarnival rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(trackImpressions:(NSString *)sectionID url:(NSArray *)urls resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    NSMutableArray *nsUrls = [[NSMutableArray alloc] init];
+    for (NSString *url in urls) {
+        NSURL *nsUrl = [[NSURL alloc] initWithString:url];
+        [nsUrls addObject:nsUrl];
+    }
+    [Carnival trackImpressionWithSection:sectionID andUrls:nsUrls andResponse:^(NSError * _Nullable error) {
+        if (error) {
+            [RNCarnival rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
+}
+
+
+
 #pragma mark - Switches
 RCT_EXPORT_METHOD(setGeoIPTrackingEnabled:(BOOL)enabled) {
     [Carnival setGeoIPTrackingEnabled:enabled];
@@ -284,6 +340,14 @@ RCT_EXPORT_METHOD(registerForPushNotifications) {
 
 + (CarnivalMessage *) messageFromDict:(NSDictionary *)jsDict {
     return [[CarnivalMessage alloc] initWithDictionary:jsDict];
+}
+
++ (NSArray *)arrayOfContentItemsDictionaryFromContentItemsArray:(NSArray *)contentItemsArray {
+  NSMutableArray *items = [NSMutableArray array];
+  for (CarnivalContentItem *contentItem in contentItemsArray) {
+    [items addObject:[contentItem dictionary]];
+  }
+  return items;
 }
 
 @end

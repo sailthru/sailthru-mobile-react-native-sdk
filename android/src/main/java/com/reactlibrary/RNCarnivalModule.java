@@ -8,6 +8,7 @@ import android.location.Location;
 import com.carnival.sdk.AttributeMap;
 import com.carnival.sdk.Carnival;
 import com.carnival.sdk.CarnivalImpressionType;
+import com.carnival.sdk.ContentItem;
 import com.carnival.sdk.Message;
 import com.carnival.sdk.MessageActivity;
 import com.facebook.react.bridge.Promise;
@@ -27,12 +28,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 public class RNCarnivalModule extends ReactContextBaseJavaModule {
 
@@ -206,6 +212,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
             JSONObject messageJson = (JSONObject) toJsonMethod.invoke(message);
             array.pushMap(convertJsonToMap(messageJson));
           }
+          promise.resolve(array);
         } catch (NoSuchMethodException e) {
           promise.reject("carnival.messages", e.getMessage());
         } catch (IllegalAccessException e) {
@@ -215,7 +222,6 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
         } catch (InvocationTargetException e) {
           promise.reject("carnival.messages", e.getMessage());
         }
-        promise.resolve(array);
       }
 
       @Override
@@ -421,13 +427,108 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void presentMessageDetail(String messageId) {
-    Intent i = new Intent(reactApplicationContext.getCurrentActivity(), MessageActivity.class);
+    Intent i = new Intent(getCurrentActivity(), MessageActivity.class);
     i.putExtra(Carnival.EXTRA_MESSAGE_ID, messageId);
-    Activity activity = reactApplicationContext.getCurrentActivity();
+    Activity activity = getCurrentActivity();
     if (activity != null) {
-      reactApplicationContext.getCurrentActivity().startActivity(i);
+      getCurrentActivity().startActivity(i);
     }
   }
+
+  /*
+  TRACK SPM
+   */
+  @ReactMethod
+  public void getRecommendations(String sectionId, final Promise promise) {
+    Carnival.getRecommendations(sectionId, new Carnival.RecommendationsHandler() {
+
+      @Override
+      public void onSuccess(ArrayList<ContentItem> contentItems) {
+        WritableArray array = new WritableNativeArray();
+        try {
+          for (ContentItem contentItem : contentItems) {
+            array.pushMap(convertJsonToMap(contentItem.toJSON()));
+          }
+          promise.resolve(array);
+        } catch (Exception e) {
+          promise.reject(e.getMessage(),  "Ignored message");
+        }
+      }
+
+      @Override
+      public void onFailure(Error error) {
+        promise.reject(error.getMessage(),  "Ignored message");
+      }
+    });
+  }
+
+  @ReactMethod
+  public void trackClick(String sectionId, String url, final Promise promise) {
+    try {
+      Carnival.trackClick(sectionId, new URI(url), new Carnival.TrackHandler() {
+        @Override
+        public void onSuccess() {
+          promise.resolve(true);
+        }
+
+        @Override
+        public void onFailure(Error error) {
+          promise.reject("carnival.messages", error.getMessage());
+        }
+      });
+    } catch (URISyntaxException e) {
+      promise.reject("carnival.messages", e.getMessage());
+    }
+  }
+
+  @ReactMethod
+  public void trackPageview(String url, ReadableArray tags, final Promise promise) {
+    try {
+      List<String> convertedTags = new ArrayList<>();
+      for (int i = 0; i < tags.size(); i++) {
+        convertedTags.add(tags.getString(i));
+      }
+      Carnival.trackPageview(new URI(url), convertedTags, new Carnival.TrackHandler() {
+        @Override
+        public void onSuccess() {
+          promise.resolve(true);
+        }
+
+        @Override
+        public void onFailure(Error error) {
+          promise.reject("carnival.messages", error.getMessage());
+        }
+      });
+    } catch (URISyntaxException e) {
+      promise.reject("carnival.messages", e.getMessage());
+    }
+  }
+
+  @ReactMethod
+  public void trackImpressions(String sectionId, ReadableArray urls, final Promise promise) {
+    try {
+
+      List<URI> convertedUrls = new ArrayList<>();
+      for (int i = 0; i < urls.size(); i++) {
+        convertedUrls.add(new URI(urls.getString(i)));
+      }
+      Carnival.trackImpression(sectionId, convertedUrls, new Carnival.TrackHandler() {
+        @Override
+        public void onSuccess() {
+          promise.resolve(true);
+        }
+
+        @Override
+        public void onFailure(Error error) {
+          promise.reject("carnival.messages", error.getMessage());
+        }
+      });
+    } catch (URISyntaxException e) {
+      promise.reject("carnival.messages", e.getMessage());
+    }
+  }
+
+
 
     /*
      * Helper Methods
