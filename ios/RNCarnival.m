@@ -8,6 +8,13 @@
 
 @end
 
+@interface CarnivalContentItem ()
+
+- (nullable instancetype)initWithDictionary:(nonnull NSDictionary *)dictionary;
+- (nonnull NSDictionary *)dictionary;
+
+@end
+
 
 @implementation RNCarnival
 
@@ -272,29 +279,43 @@ RCT_EXPORT_METHOD(trackClick:(NSString *)sectionID url:(NSString *)url resolver:
 RCT_EXPORT_METHOD(trackPageview:(NSString *)url tags:(NSArray *)tags resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     NSURL *nsUrl = [[NSURL alloc] initWithString:url];
-    [Carnival trackPageviewWithUrl:nsUrl andTags:tags andResponse:^(NSError * _Nullable error) {
+    void (^responseBlock)(NSError * _Nullable) = ^(NSError * _Nullable error) {
         if (error) {
             [RNCarnival rejectPromise:reject withError:error];
         } else {
             resolve(nil);
         }
-    }];
+    };
+    
+    if(tags) {
+        [Carnival trackPageviewWithUrl:nsUrl andTags:tags andResponse:responseBlock];
+    }
+    else {
+        [Carnival trackPageviewWithUrl:nsUrl andResponse:responseBlock];
+    }
 }
 
 RCT_EXPORT_METHOD(trackImpressions:(NSString *)sectionID url:(NSArray *)urls resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    NSMutableArray *nsUrls = [[NSMutableArray alloc] init];
-    for (NSString *url in urls) {
-        NSURL *nsUrl = [[NSURL alloc] initWithString:url];
-        [nsUrls addObject:nsUrl];
-    }
-    [Carnival trackImpressionWithSection:sectionID andUrls:nsUrls andResponse:^(NSError * _Nullable error) {
+    void (^responseBlock)(NSError * _Nullable) = ^(NSError * _Nullable error) {
         if (error) {
             [RNCarnival rejectPromise:reject withError:error];
         } else {
             resolve(nil);
         }
-    }];
+    };
+    
+    if(urls) {
+        NSMutableArray *nsUrls = [[NSMutableArray alloc] init];
+        for (NSString *url in urls) {
+            NSURL *nsUrl = [[NSURL alloc] initWithString:url];
+            [nsUrls addObject:nsUrl];
+        }
+        [Carnival trackImpressionWithSection:sectionID andUrls:nsUrls andResponse:responseBlock];
+    }
+    else {
+        [Carnival trackImpressionWithSection:sectionID andResponse:responseBlock];
+    }
 }
 
 
