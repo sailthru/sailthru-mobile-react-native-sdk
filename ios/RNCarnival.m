@@ -42,7 +42,9 @@ RCT_EXPORT_MODULE();
 
 RCT_EXPORT_METHOD(startEngine:(NSString *)key registerForPushNotifications:(BOOL)registerForPushNotifications) {
     [CarnivalMessageStream setDelegate:self];
-    [Carnival startEngine:key registerForPushNotifications:registerForPushNotifications];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [Carnival startEngine:key registerForPushNotifications:registerForPushNotifications];
+    });
 }
 
 
