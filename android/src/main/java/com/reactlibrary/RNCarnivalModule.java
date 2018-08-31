@@ -451,13 +451,13 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
           }
           promise.resolve(array);
         } catch (Exception e) {
-          promise.reject(e.getMessage(),  "Ignored message");
+          promise.reject("carnival.recommendations", e.getMessage());
         }
       }
 
       @Override
       public void onFailure(Error error) {
-        promise.reject(error.getMessage(),  "Ignored message");
+        promise.reject("carnival.recommendations", error.getMessage());
       }
     });
   }
@@ -473,21 +473,25 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
 
         @Override
         public void onFailure(Error error) {
-          promise.reject("carnival.messages", error.getMessage());
+          promise.reject("carnival.tracking.clicks", error.getMessage());
         }
       });
     } catch (URISyntaxException e) {
-      promise.reject("carnival.messages", e.getMessage());
+      promise.reject("carnival.tracking.clicks", e.getMessage());
     }
   }
 
   @ReactMethod
   public void trackPageview(String url, ReadableArray tags, final Promise promise) {
     try {
-      List<String> convertedTags = new ArrayList<>();
-      for (int i = 0; i < tags.size(); i++) {
-        convertedTags.add(tags.getString(i));
+      List<String> convertedTags = null;
+      if(tags != null) {
+        convertedTags = new ArrayList<>();
+        for (int i = 0; i < tags.size(); i++) {
+          convertedTags.add(tags.getString(i));
+        }
       }
+
       Carnival.trackPageview(new URI(url), convertedTags, new Carnival.TrackHandler() {
         @Override
         public void onSuccess() {
@@ -496,22 +500,25 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
 
         @Override
         public void onFailure(Error error) {
-          promise.reject("carnival.messages", error.getMessage());
+          promise.reject("carnival.tracking.pageviews", error.getMessage());
         }
       });
     } catch (URISyntaxException e) {
-      promise.reject("carnival.messages", e.getMessage());
+      promise.reject("carnival.tracking.pageviews", e.getMessage());
     }
   }
 
   @ReactMethod
   public void trackImpressions(String sectionId, ReadableArray urls, final Promise promise) {
     try {
-
-      List<URI> convertedUrls = new ArrayList<>();
-      for (int i = 0; i < urls.size(); i++) {
-        convertedUrls.add(new URI(urls.getString(i)));
+      List<URI> convertedUrls = null;
+      if(urls != null) {
+        convertedUrls = new ArrayList<>();
+        for (int i = 0; i < urls.size(); i++) {
+          convertedUrls.add(new URI(urls.getString(i)));
+        }
       }
+
       Carnival.trackImpression(sectionId, convertedUrls, new Carnival.TrackHandler() {
         @Override
         public void onSuccess() {
@@ -520,11 +527,11 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
 
         @Override
         public void onFailure(Error error) {
-          promise.reject("carnival.messages", error.getMessage());
+          promise.reject("carnival.tracking.impressions", error.getMessage());
         }
       });
     } catch (URISyntaxException e) {
-      promise.reject("carnival.messages", e.getMessage());
+      promise.reject("carnival.tracking.impressions", e.getMessage());
     }
   }
 
