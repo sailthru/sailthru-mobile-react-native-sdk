@@ -8,13 +8,6 @@
 
 @end
 
-@interface CarnivalContentItem ()
-
-- (nullable instancetype)initWithDictionary:(nonnull NSDictionary *)dictionary;
-- (nonnull NSDictionary *)dictionary;
-
-@end
-
 @interface Carnival ()
 
 + (void)setWrapperName:(NSString *)wrapperName andVersion:(NSString *)wrapperVersion;
