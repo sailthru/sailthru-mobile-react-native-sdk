@@ -8,6 +8,19 @@
 
 @end
 
+@interface CarnivalContentItem ()
+
+- (nullable instancetype)initWithDictionary:(nonnull NSDictionary *)dictionary;
+- (nonnull NSDictionary *)dictionary;
+
+@end
+
+@interface Carnival ()
+
++ (void)setWrapperName:(NSString *)wrapperName andVersion:(NSString *)wrapperVersion;
+
+@end
+
 
 @implementation RNCarnival
 
@@ -35,7 +48,10 @@ RCT_EXPORT_MODULE();
 
 RCT_EXPORT_METHOD(startEngine:(NSString *)key registerForPushNotifications:(BOOL)registerForPushNotifications) {
     [CarnivalMessageStream setDelegate:self];
-    [Carnival startEngine:key registerForPushNotifications:registerForPushNotifications];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [Carnival startEngine:key registerForPushNotifications:registerForPushNotifications];
+        [Carnival setWrapperName:@"React Native" andVersion:@"1.0.0"];
+    });
 }
 
 
