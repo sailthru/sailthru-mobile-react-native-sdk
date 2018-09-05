@@ -21,6 +21,15 @@ BOOL displayInAppNotifications = YES;
 
 RCT_EXPORT_MODULE();
 
+-(instancetype)init {
+    self = [super init];
+    if(self) {
+        [CarnivalMessageStream setDelegate:self];
+        [Carnival setWrapperName:@"React Native" andVersion:@"1.0.0"];
+    }
+    return self;
+}
+
 - (NSArray<NSString *> *)supportedEvents
 {
     return @[@"inappnotification"];
@@ -36,18 +45,6 @@ RCT_EXPORT_MODULE();
     [self sendEventWithName:@"inappnotification" body:payload];
     return displayInAppNotifications;
 }
-
-#pragma mark - Initialization
-
-RCT_EXPORT_METHOD(startEngine:(NSString *)key registerForPushNotifications:(BOOL)registerForPushNotifications) {
-    [CarnivalMessageStream setDelegate:self];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [Carnival startEngine:key registerForPushNotifications:registerForPushNotifications];
-        [Carnival setWrapperName:@"React Native" andVersion:@"1.0.0"];
-    });
-}
-
-
 
 #pragma mark - Messages
 // Note: We use promises for our return values, not callbacks.
