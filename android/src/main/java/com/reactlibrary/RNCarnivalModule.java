@@ -40,18 +40,12 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
   public RNCarnivalModule(ReactApplicationContext reactContext) {
     super(reactContext);
     reactApplicationContext = reactContext;
+    setWrapperInfo();
   }
 
   @Override
   public String getName() {
     return "RNCarnival";
-  }
-
-  @ReactMethod
-  public void startEngine(String appKey, boolean optInForPush) {
-    // optInForPush is not used. It's there to share signatures with iOS.
-    Carnival.startEngine(reactApplicationContext, appKey);
-    setWrapperInfo();
   }
 
   private static void setWrapperInfo(){
