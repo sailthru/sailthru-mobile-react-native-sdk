@@ -4,6 +4,7 @@ package com.reactlibrary;
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
+import android.util.Log;
 
 import com.carnival.sdk.AttributeMap;
 import com.carnival.sdk.Carnival;
@@ -36,6 +37,9 @@ import java.util.Iterator;
 
 public class RNCarnivalModule extends ReactContextBaseJavaModule {
 
+  protected final static String ERROR_CODE_DEVICE = "carnival.device";
+  protected final static String ERROR_CODE_MESSAGES = "carnival.messages";
+
   private ReactApplicationContext reactApplicationContext;
   public RNCarnivalModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -48,7 +52,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
     return "RNCarnival";
   }
 
-  private static void setWrapperInfo(){
+  protected static void setWrapperInfo(){
     Method setWrapperMethod = null;
     try {
       Class[] cArg = new Class[2];
@@ -91,7 +95,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
 
       @Override
       public void onFailure(Error error) {
-        promise.reject("carnival.device", error.getMessage());
+        promise.reject(ERROR_CODE_DEVICE, error.getMessage());
       }
     });
   }
@@ -102,7 +106,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  private void setAttributes(ReadableMap attributeMap, final Promise promise) throws JSONException {
+  public void setAttributes(ReadableMap attributeMap, final Promise promise) throws JSONException {
     JSONObject attributeMapJson = convertMapToJson(attributeMap);
     JSONObject attributes = attributeMapJson.getJSONObject("attributes");
     AttributeMap carnivalAttributeMap = new AttributeMap();
@@ -191,32 +195,37 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
       @Override
       public void onSuccess(ArrayList<Message> messages) {
 
-        WritableArray array = new WritableNativeArray();
+        WritableArray array = getWritableArray();
         try {
           Method toJsonMethod = Message.class.getDeclaredMethod("toJSON");
           toJsonMethod.setAccessible(true);
 
           for (Message message : messages) {
             JSONObject messageJson = (JSONObject) toJsonMethod.invoke(message);
+            System.out.println(message.toString());
             array.pushMap(convertJsonToMap(messageJson));
           }
         } catch (NoSuchMethodException e) {
-          promise.reject("carnival.messages", e.getMessage());
+          promise.reject(ERROR_CODE_MESSAGES, e.getMessage());
         } catch (IllegalAccessException e) {
-          promise.reject("carnival.messages", e.getMessage());
+          promise.reject(ERROR_CODE_MESSAGES, e.getMessage());
         } catch (JSONException e) {
-          promise.reject("carnival.messages", e.getMessage());
+          promise.reject(ERROR_CODE_MESSAGES, e.getMessage());
         } catch (InvocationTargetException e) {
-          promise.reject("carnival.messages", e.getMessage());
+          promise.reject(ERROR_CODE_MESSAGES, e.getMessage());
         }
         promise.resolve(array);
       }
 
       @Override
       public void onFailure(Error error) {
-        promise.reject("carnival.messages", error.getMessage());
+        promise.reject(ERROR_CODE_MESSAGES, error.getMessage());
       }
     });
+  }
+
+  protected static WritableArray getWritableArray() {
+    return new WritableNativeArray();
   }
 
   private static WritableMap convertJsonToMap(JSONObject jsonObject) throws JSONException {
@@ -371,7 +380,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
 
       @Override
       public void onFailure(Error error) {
-        promise.reject("carnival.messages", error.getMessage());
+        promise.reject(ERROR_CODE_MESSAGES, error.getMessage());
       }
     });
   }
@@ -427,7 +436,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
      * Helper Methods
      */
 
-  private Message getMessage(ReadableMap messageMap) {
+  protected Message getMessage(ReadableMap messageMap) {
 
     Message message = null;
     try {
