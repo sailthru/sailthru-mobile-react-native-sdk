@@ -136,18 +136,15 @@ RCT_EXPORT_METHOD(setAttributes:(NSDictionary *)attributeMap resolver:(RCTPromis
             
             [carnivalAttributeMap setDates:dates forKey:key];
         }
-        
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            [Carnival setAttributes:carnivalAttributeMap withResponse:^(NSError * _Nullable error) {
-                if (error) {
-                    [RNCarnival rejectPromise:reject withError:error];
-                } else {
-                    resolve(nil);
-                }
-            }];
-        });
     }
+    
+    [Carnival setAttributes:carnivalAttributeMap withResponse:^(NSError * _Nullable error) {
+        if (error) {
+            [RNCarnival rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
 }
 
 
