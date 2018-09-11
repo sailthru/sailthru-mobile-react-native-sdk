@@ -224,6 +224,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
     });
   }
 
+  // Moved out to separate method for testing as WritableNativeArray cannot be mocked
   protected static WritableArray getWritableArray() {
     return new WritableNativeArray();
   }
