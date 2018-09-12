@@ -1,6 +1,6 @@
 # React Native : Carnival SDK
 
-Wraps the native Carnival SDK for React Native apps. 
+Wraps the native Carnival SDK for React Native apps.
 
 ## Installation
 
@@ -9,7 +9,7 @@ Wraps the native Carnival SDK for React Native apps.
 
 ### iOS
 
-Open your Project's Xcode Project. 
+Open your Project's Xcode Project.
 
 Drag into "Libraries" the following files from node_modules/react-native-carnival:
 
@@ -18,6 +18,17 @@ Drag into "Libraries" the following files from node_modules/react-native-carniva
  * Carnival.framework
 
 Next, Install Carnival iOS SDK from Cocoapods (add `pod 'Carnival'` to your Podfile) or install the framework [manually](http://docs.carnival.io/docs/ios-integration#section-manual-integration).
+
+Then add a call to startEngine to the native AppDelegate.m
+
+```Objective-C
+#import <Carnival/Carnival.h>
+
+- (BOOL)application:(UIApplication * )application didFinishLaunchingWithOptions:(NSDictionary * )launchOptions {
+	[Carnival startEngine:SDK_KEY]; // Obtain SDK key from your Carnival app settings
+  return YES;
+}
+```
 
 Build and Run from Xcode.
 
@@ -53,7 +64,7 @@ dependencies {
 ```
 
 
-* Register module (in MainApplication.java)
+* Register module and call startEngine (in MainApplication.java)
 
 ```java
 import com.reactlibrary.RNCarnivalPackage; // <--- import
@@ -70,6 +81,15 @@ public class MainApplication extends Application implements ReactApplication {
     }
   ...
 
+    @Override
+    public void onCreate() {
+      super.onCreate();
+      SoLoader.init(this, /* native exopackage */ false);
+      Carnival.startEngine(getApplicationContext(), SDK_KEY); // Obtain SDK key from your Carnival app settings
+    }
+  ...
+}
+
 }
 ```
 
@@ -83,5 +103,3 @@ For push set up, follow the usual [Android Integration](https://docs.carnival.io
 ## Example
 
 We have provided an example JS file for both iOS and Android. Examples of the promises-based wrapper can be found there.
-
-
