@@ -25,8 +25,8 @@ Then add a call to startEngine to the native AppDelegate.m
 #import <Carnival/Carnival.h>
 
 - (BOOL)application:(UIApplication * )application didFinishLaunchingWithOptions:(NSDictionary * )launchOptions {
-	[Carnival startEngine:SDK_KEY]; // Obtain SDK key from your Carnival app settings
-  return YES;
+      [Carnival startEngine:SDK_KEY]; // Obtain SDK key from your Carnival app settings
+      return YES;
 }
 ```
 
@@ -68,6 +68,7 @@ dependencies {
 
 ```java
 import com.reactlibrary.RNCarnivalPackage; // <--- import
+import com.carnival.sdk.Carnival;          // <--- import
 
 public class MainApplication extends Application implements ReactApplication {
   ...
