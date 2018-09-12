@@ -1,0 +1,549 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		867F24541602668E5F01E85F /* libPods-CarnivalSDKReactNativeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 37BFC163AA4381A21892516B /* libPods-CarnivalSDKReactNativeTests.a */; };
+		D7FCAC7F9F0651A51E0860F9 /* libPods-CarnivalSDKReactNative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9C408A0D6A66A8C7C87FABF /* libPods-CarnivalSDKReactNative.a */; };
+		FA5EF5B6213F42EA00D9E6A9 /* RNCarnival.m in Sources */ = {isa = PBXBuildFile; fileRef = FA5EF5B5213F42E900D9E6A9 /* RNCarnival.m */; };
+		FA5EF5BE213F433200D9E6A9 /* RNCarnivalTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FA5EF5BD213F433200D9E6A9 /* RNCarnivalTests.m */; };
+		FA5EF5C6213F4CB600D9E6A9 /* RNCarnival.m in Sources */ = {isa = PBXBuildFile; fileRef = FA5EF5B5213F42E900D9E6A9 /* RNCarnival.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		FA5EF5A5213F41AF00D9E6A9 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		37BFC163AA4381A21892516B /* libPods-CarnivalSDKReactNativeTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CarnivalSDKReactNativeTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		530EE07669ABA8AC020F634F /* Pods-CarnivalSDKReactNative.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CarnivalSDKReactNative.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CarnivalSDKReactNative/Pods-CarnivalSDKReactNative.debug.xcconfig"; sourceTree = "<group>"; };
+		A9C408A0D6A66A8C7C87FABF /* libPods-CarnivalSDKReactNative.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CarnivalSDKReactNative.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D93E281A183B895257A2EF63 /* Pods-CarnivalSDKReactNativeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CarnivalSDKReactNativeTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-CarnivalSDKReactNativeTests/Pods-CarnivalSDKReactNativeTests.release.xcconfig"; sourceTree = "<group>"; };
+		F493186627791EBF10C74AC3 /* Pods-CarnivalSDKReactNative.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CarnivalSDKReactNative.release.xcconfig"; path = "Pods/Target Support Files/Pods-CarnivalSDKReactNative/Pods-CarnivalSDKReactNative.release.xcconfig"; sourceTree = "<group>"; };
+		F6911E2E0920C3875B29FBEC /* Pods-CarnivalSDKReactNativeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CarnivalSDKReactNativeTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CarnivalSDKReactNativeTests/Pods-CarnivalSDKReactNativeTests.debug.xcconfig"; sourceTree = "<group>"; };
+		FA5EF5A7213F41AF00D9E6A9 /* libCarnivalSDKReactNative.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libCarnivalSDKReactNative.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA5EF5B4213F42E900D9E6A9 /* RNCarnival.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNCarnival.h; sourceTree = "<group>"; };
+		FA5EF5B5213F42E900D9E6A9 /* RNCarnival.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNCarnival.m; sourceTree = "<group>"; };
+		FA5EF5BB213F433200D9E6A9 /* CarnivalSDKReactNativeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CarnivalSDKReactNativeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA5EF5BD213F433200D9E6A9 /* RNCarnivalTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNCarnivalTests.m; sourceTree = "<group>"; };
+		FA5EF5BF213F433200D9E6A9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FA5EF5A4213F41AF00D9E6A9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D7FCAC7F9F0651A51E0860F9 /* libPods-CarnivalSDKReactNative.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FA5EF5B8213F433200D9E6A9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				867F24541602668E5F01E85F /* libPods-CarnivalSDKReactNativeTests.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7E963D0E64ED8336B871DE9F /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				530EE07669ABA8AC020F634F /* Pods-CarnivalSDKReactNative.debug.xcconfig */,
+				F493186627791EBF10C74AC3 /* Pods-CarnivalSDKReactNative.release.xcconfig */,
+				F6911E2E0920C3875B29FBEC /* Pods-CarnivalSDKReactNativeTests.debug.xcconfig */,
+				D93E281A183B895257A2EF63 /* Pods-CarnivalSDKReactNativeTests.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		FA5EF59E213F41AF00D9E6A9 = {
+			isa = PBXGroup;
+			children = (
+				FA917315213F4FA9004C6974 /* CarnivalSDKReactNative */,
+				FA5EF5BC213F433200D9E6A9 /* CarnivalSDKReactNativeTests */,
+				FA5EF5A8213F41AF00D9E6A9 /* Products */,
+				FA91736F213F7A95004C6974 /* Frameworks */,
+				7E963D0E64ED8336B871DE9F /* Pods */,
+			);
+			sourceTree = "<group>";
+		};
+		FA5EF5A8213F41AF00D9E6A9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FA5EF5A7213F41AF00D9E6A9 /* libCarnivalSDKReactNative.a */,
+				FA5EF5BB213F433200D9E6A9 /* CarnivalSDKReactNativeTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FA5EF5BC213F433200D9E6A9 /* CarnivalSDKReactNativeTests */ = {
+			isa = PBXGroup;
+			children = (
+				FA5EF5BD213F433200D9E6A9 /* RNCarnivalTests.m */,
+				FA5EF5BF213F433200D9E6A9 /* Info.plist */,
+			);
+			path = CarnivalSDKReactNativeTests;
+			sourceTree = "<group>";
+		};
+		FA917315213F4FA9004C6974 /* CarnivalSDKReactNative */ = {
+			isa = PBXGroup;
+			children = (
+				FA5EF5B4213F42E900D9E6A9 /* RNCarnival.h */,
+				FA5EF5B5213F42E900D9E6A9 /* RNCarnival.m */,
+			);
+			name = CarnivalSDKReactNative;
+			sourceTree = "<group>";
+		};
+		FA91736F213F7A95004C6974 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A9C408A0D6A66A8C7C87FABF /* libPods-CarnivalSDKReactNative.a */,
+				37BFC163AA4381A21892516B /* libPods-CarnivalSDKReactNativeTests.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FA5EF5A6213F41AF00D9E6A9 /* CarnivalSDKReactNative */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FA5EF5B0213F41AF00D9E6A9 /* Build configuration list for PBXNativeTarget "CarnivalSDKReactNative" */;
+			buildPhases = (
+				3BC764DC5DE02361F52F7E56 /* [CP] Check Pods Manifest.lock */,
+				FA5EF5A3213F41AF00D9E6A9 /* Sources */,
+				FA5EF5A4213F41AF00D9E6A9 /* Frameworks */,
+				FA5EF5A5213F41AF00D9E6A9 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CarnivalSDKReactNative;
+			productName = CarnivalSDKReactNative;
+			productReference = FA5EF5A7213F41AF00D9E6A9 /* libCarnivalSDKReactNative.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		FA5EF5BA213F433200D9E6A9 /* CarnivalSDKReactNativeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FA5EF5C3213F433200D9E6A9 /* Build configuration list for PBXNativeTarget "CarnivalSDKReactNativeTests" */;
+			buildPhases = (
+				26387082FCAA229E575467BB /* [CP] Check Pods Manifest.lock */,
+				FA5EF5B7213F433200D9E6A9 /* Sources */,
+				FA5EF5B8213F433200D9E6A9 /* Frameworks */,
+				FA5EF5B9213F433200D9E6A9 /* Resources */,
+				2F5BC4F62D4BAA3068CA21CB /* [CP] Embed Pods Frameworks */,
+				3EA15CE30EBF1A1D4DA92F9A /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CarnivalSDKReactNativeTests;
+			productName = CarnivalSDKReactNativeTests;
+			productReference = FA5EF5BB213F433200D9E6A9 /* CarnivalSDKReactNativeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FA5EF59F213F41AF00D9E6A9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0940;
+				ORGANIZATIONNAME = Carnival;
+				TargetAttributes = {
+					FA5EF5A6213F41AF00D9E6A9 = {
+						CreatedOnToolsVersion = 9.4.1;
+					};
+					FA5EF5BA213F433200D9E6A9 = {
+						CreatedOnToolsVersion = 9.4.1;
+					};
+				};
+			};
+			buildConfigurationList = FA5EF5A2213F41AF00D9E6A9 /* Build configuration list for PBXProject "CarnivalSDKReactNative" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = FA5EF59E213F41AF00D9E6A9;
+			productRefGroup = FA5EF5A8213F41AF00D9E6A9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FA5EF5A6213F41AF00D9E6A9 /* CarnivalSDKReactNative */,
+				FA5EF5BA213F433200D9E6A9 /* CarnivalSDKReactNativeTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		FA5EF5B9213F433200D9E6A9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		26387082FCAA229E575467BB /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-CarnivalSDKReactNativeTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		2F5BC4F62D4BAA3068CA21CB /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-CarnivalSDKReactNativeTests/Pods-CarnivalSDKReactNativeTests-frameworks.sh",
+				"${PODS_ROOT}/Carnival/Carnival.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Carnival.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CarnivalSDKReactNativeTests/Pods-CarnivalSDKReactNativeTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		3BC764DC5DE02361F52F7E56 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-CarnivalSDKReactNative-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		3EA15CE30EBF1A1D4DA92F9A /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-CarnivalSDKReactNativeTests/Pods-CarnivalSDKReactNativeTests-resources.sh",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_close_button@2x.png",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_close_button_white@2x.png",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_message_close_button@2x.png",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_refresh.png",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_safari-7@2x~ipad.png",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_safari-7@2x~iphone.png",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_safari-7@3x~iphone.png",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_safari-7~ipad.png",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_safari-7~iphone.png",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_safari@2x~ipad.png",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_safari@2x~iphone.png",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_safari@3x~iphone.png",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_safari~ipad.png",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_safari~iphone.png",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_share_button_white@2x.png",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_stream_back_button@2x.png",
+				"${PODS_ROOT}/Carnival/Carnival.framework/cp_stream_back_button_white@2x.png",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_close_button@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_close_button_white@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_message_close_button@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_refresh.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_safari-7@2x~ipad.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_safari-7@2x~iphone.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_safari-7@3x~iphone.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_safari-7~ipad.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_safari-7~iphone.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_safari@2x~ipad.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_safari@2x~iphone.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_safari@3x~iphone.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_safari~ipad.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_safari~iphone.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_share_button_white@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_stream_back_button@2x.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/cp_stream_back_button_white@2x.png",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CarnivalSDKReactNativeTests/Pods-CarnivalSDKReactNativeTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		FA5EF5A3213F41AF00D9E6A9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA5EF5B6213F42EA00D9E6A9 /* RNCarnival.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FA5EF5B7213F433200D9E6A9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA5EF5C6213F4CB600D9E6A9 /* RNCarnival.m in Sources */,
+				FA5EF5BE213F433200D9E6A9 /* RNCarnivalTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		FA5EF5AE213F41AF00D9E6A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		FA5EF5AF213F41AF00D9E6A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		FA5EF5B1213F41AF00D9E6A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 530EE07669ABA8AC020F634F /* Pods-CarnivalSDKReactNative.debug.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9ZEH62KRVF;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"$(inherited)",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		FA5EF5B2213F41AF00D9E6A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F493186627791EBF10C74AC3 /* Pods-CarnivalSDKReactNative.release.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9ZEH62KRVF;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"$(inherited)",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		FA5EF5C4213F433200D9E6A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F6911E2E0920C3875B29FBEC /* Pods-CarnivalSDKReactNativeTests.debug.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9ZEH62KRVF;
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = CarnivalSDKReactNativeTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.carnivalmobile.CarnivalSDKReactNativeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		FA5EF5C5213F433200D9E6A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D93E281A183B895257A2EF63 /* Pods-CarnivalSDKReactNativeTests.release.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9ZEH62KRVF;
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = CarnivalSDKReactNativeTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.carnivalmobile.CarnivalSDKReactNativeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FA5EF5A2213F41AF00D9E6A9 /* Build configuration list for PBXProject "CarnivalSDKReactNative" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA5EF5AE213F41AF00D9E6A9 /* Debug */,
+				FA5EF5AF213F41AF00D9E6A9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FA5EF5B0213F41AF00D9E6A9 /* Build configuration list for PBXNativeTarget "CarnivalSDKReactNative" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA5EF5B1213F41AF00D9E6A9 /* Debug */,
+				FA5EF5B2213F41AF00D9E6A9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FA5EF5C3213F433200D9E6A9 /* Build configuration list for PBXNativeTarget "CarnivalSDKReactNativeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA5EF5C4213F433200D9E6A9 /* Debug */,
+				FA5EF5C5213F433200D9E6A9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FA5EF59F213F41AF00D9E6A9 /* Project object */;
+}

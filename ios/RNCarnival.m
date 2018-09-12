@@ -15,12 +15,27 @@
 
 @end
 
+@interface Carnival ()
+
++ (void)setWrapperName:(NSString *)wrapperName andVersion:(NSString *)wrapperVersion;
+
+@end
+
 
 @implementation RNCarnival
 
 BOOL displayInAppNotifications = YES;
 
 RCT_EXPORT_MODULE();
+
+-(instancetype)init {
+    self = [super init];
+    if(self) {
+        [CarnivalMessageStream setDelegate:self];
+        [Carnival setWrapperName:@"React Native" andVersion:@"1.0.0"];
+    }
+    return self;
+}
 
 - (NSArray<NSString *> *)supportedEvents
 {
@@ -37,17 +52,6 @@ RCT_EXPORT_MODULE();
     [self sendEventWithName:@"inappnotification" body:payload];
     return displayInAppNotifications;
 }
-
-#pragma mark - Initialization
-
-RCT_EXPORT_METHOD(startEngine:(NSString *)key registerForPushNotifications:(BOOL)registerForPushNotifications) {
-    [CarnivalMessageStream setDelegate:self];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [Carnival startEngine:key registerForPushNotifications:registerForPushNotifications];
-    });
-}
-
-
 
 #pragma mark - Messages
 // Note: We use promises for our return values, not callbacks.
@@ -139,18 +143,15 @@ RCT_EXPORT_METHOD(setAttributes:(NSDictionary *)attributeMap resolver:(RCTPromis
             
             [carnivalAttributeMap setDates:dates forKey:key];
         }
-        
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            [Carnival setAttributes:carnivalAttributeMap withResponse:^(NSError * _Nullable error) {
-                if (error) {
-                    [RNCarnival rejectPromise:reject withError:error];
-                } else {
-                    resolve(nil);
-                }
-            }];
-        });
     }
+    
+    [Carnival setAttributes:carnivalAttributeMap withResponse:^(NSError * _Nullable error) {
+        if (error) {
+            [RNCarnival rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
 }
 
 
