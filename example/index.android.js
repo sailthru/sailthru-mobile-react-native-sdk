@@ -25,8 +25,6 @@ class ReactNativeSampleApp extends Component {
     super(props);
     Carnival.setDisplayInAppNotifications(true);
 
-    Carnival.startEngine(SDK_KEY, true);
-
     Carnival.getMessages()
       .then(messages => {
         if (messages.length > 2) {
