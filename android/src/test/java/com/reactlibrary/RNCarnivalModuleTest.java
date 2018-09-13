@@ -7,12 +7,15 @@ import android.location.Location;
 import com.carnival.sdk.AttributeMap;
 import com.carnival.sdk.Carnival;
 import com.carnival.sdk.CarnivalImpressionType;
+import com.carnival.sdk.ContentItem;
 import com.carnival.sdk.Message;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,18 +28,24 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.lang.reflect.Constructor;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -372,6 +381,162 @@ public class RNCarnivalModuleTest {
 
         // Verify result
         verify(activity).startActivity(intent);
+    }
+
+    @Test
+    public void testGetRecommendations() throws Exception {
+        // Setup mocks
+        Promise promise = mock(Promise.class);
+        WritableArray writableArray = mock(WritableArray.class);
+        Error error = mock(Error.class);
+        String sectionID = "Section ID";
+
+        // Mock Carnival method
+        PowerMockito.doNothing().when(Carnival.class, "getRecommendations", eq(sectionID), any(Carnival.RecommendationsHandler.class));
+
+        // Initiate test
+        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
+        rnCarnivalModule.getRecommendations(sectionID, promise);
+
+        // Capture MessagesHandler to verify behaviour
+        ArgumentCaptor<Carnival.RecommendationsHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.RecommendationsHandler.class);
+        PowerMockito.verifyStatic();
+        Carnival.getRecommendations(eq(sectionID), argumentCaptor.capture());
+        Carnival.RecommendationsHandler recommendationsHandler = argumentCaptor.getValue();
+
+        // Replace native array with mock
+        PowerMockito.when(RNCarnivalModule.class, "getWritableArray").thenReturn(writableArray);
+
+        // Setup message array
+        ArrayList<ContentItem> contentItems = new ArrayList<>();
+
+        // Test success handler
+        recommendationsHandler.onSuccess(contentItems);
+        verify(promise).resolve(writableArray);
+
+        // Setup error
+        String errorMessage = "error message";
+        when(error.getMessage()).thenReturn(errorMessage);
+
+        // Test error handler
+        recommendationsHandler.onFailure(error);
+        verify(promise).reject(RNCarnivalModule.ERROR_CODE_RECOMMENDATIONS, errorMessage);
+    }
+
+    @Test
+    public void testTrackClick() throws Exception {
+        // Create input
+        Promise promise = mock(Promise.class);
+        String sectionID = "Section ID";
+        String urlString = "www.notarealurl.com";
+
+        // Mock methods
+        PowerMockito.doNothing().when(Carnival.class, "trackClick", eq(sectionID), any(URI.class), any(Carnival.TrackHandler.class));
+
+        // Initiate test
+        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
+        rnCarnivalModule.trackClick(sectionID, urlString, promise);
+
+        // Verify result
+        PowerMockito.verifyStatic();
+        Carnival.trackClick(eq(sectionID), any(URI.class), any(Carnival.TrackHandler.class));
+    }
+
+    @Test
+    public void testTrackClickException() throws Exception {
+        // Create input
+        Promise promise = mock(Promise.class);
+        String sectionID = "Section ID";
+        String urlString = "Wrong URL Format";
+
+        // Mock methods
+        PowerMockito.doNothing().when(Carnival.class, "trackClick", eq(sectionID), any(URI.class), any(Carnival.TrackHandler.class));
+
+        // Initiate test
+        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
+        rnCarnivalModule.trackClick(sectionID, urlString, promise);
+
+        // Verify result
+        verify(promise).reject(eq(RNCarnivalModule.ERROR_CODE_TRACKING), anyString());
+    }
+
+    @Test
+    public void testTrackPageview() throws Exception {
+        // Create input
+        Promise promise = mock(Promise.class);
+        String urlString = "www.notarealurl.com";
+
+        // Mock methods
+        PowerMockito.doNothing().when(Carnival.class, "trackPageview", any(URI.class), eq(null), any(Carnival.TrackHandler.class));
+
+        // Initiate test
+        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
+        rnCarnivalModule.trackPageview(urlString, null, promise);
+
+        // Verify result
+        PowerMockito.verifyStatic();
+        List<String> nullList = null;
+        Carnival.trackPageview(any(URI.class), eq(nullList), any(Carnival.TrackHandler.class));
+    }
+
+    @Test
+    public void testTrackPageviewException() throws Exception {
+        // Create input
+        Promise promise = mock(Promise.class);
+        String urlString = "Wrong URL Format";
+
+        // Mock methods
+        PowerMockito.doNothing().when(Carnival.class, "trackPageview", any(URI.class), eq(null), any(Carnival.TrackHandler.class));
+
+        // Initiate test
+        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
+        rnCarnivalModule.trackPageview(urlString, null, promise);
+
+        // Verify result
+        verify(promise).reject(eq(RNCarnivalModule.ERROR_CODE_TRACKING), anyString());
+    }
+
+    @Test
+    public void testTrackImpressions() throws Exception {
+        // Create input
+        Promise promise = mock(Promise.class);
+        String sectionID = "Section ID";
+        String urlString = "www.notarealurl.com";
+        ReadableArray readableArray = mock(ReadableArray.class);
+
+        // Mock methods
+        doReturn(1).when(readableArray).size();
+        doReturn(urlString).when(readableArray).getString(anyInt());
+        PowerMockito.doNothing().when(Carnival.class, "trackImpression", eq(sectionID), anyObject(), any(Carnival.TrackHandler.class));
+
+        // Initiate test
+        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
+        rnCarnivalModule.trackImpressions(sectionID, readableArray, promise);
+
+        // Verify result
+        PowerMockito.verifyStatic();
+        Carnival.trackImpression(eq(sectionID), anyList(), any(Carnival.TrackHandler.class));
+    }
+
+    @Test
+    public void testTrackImpressionsException() throws Exception {
+        // Create input
+        Promise promise = mock(Promise.class);
+        String sectionID = "Section ID";
+        String urlString = "Wrong URL Format";
+        ReadableArray readableArray = mock(ReadableArray.class);
+
+        // Mock methods
+        doReturn(1).when(readableArray).size();
+        doReturn(urlString).when(readableArray).getString(anyInt());
+        PowerMockito.doNothing().when(Carnival.class, "trackImpression", eq(sectionID), anyObject(), any(Carnival.TrackHandler.class));
+
+        // Initiate test
+        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
+        rnCarnivalModule.trackImpressions(sectionID, readableArray, promise);
+
+        // Verify result
+        verify(promise).reject(eq(RNCarnivalModule.ERROR_CODE_TRACKING), anyString());
     }
 
 }

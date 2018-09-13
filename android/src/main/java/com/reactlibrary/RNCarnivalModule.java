@@ -45,6 +45,8 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
 
   protected final static String ERROR_CODE_DEVICE = "carnival.device";
   protected final static String ERROR_CODE_MESSAGES = "carnival.messages";
+  protected final static String ERROR_CODE_RECOMMENDATIONS = "carnival.recommendations";
+  protected final static String ERROR_CODE_TRACKING = "carnival.tracking";
 
   private ReactApplicationContext reactApplicationContext;
   public RNCarnivalModule(ReactApplicationContext reactContext) {
@@ -448,20 +450,20 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
 
       @Override
       public void onSuccess(ArrayList<ContentItem> contentItems) {
-        WritableArray array = new WritableNativeArray();
+        WritableArray array = getWritableArray();
         try {
           for (ContentItem contentItem : contentItems) {
             array.pushMap(convertJsonToMap(contentItem.toJSON()));
           }
           promise.resolve(array);
         } catch (Exception e) {
-          promise.reject("carnival.recommendations", e.getMessage());
+          promise.reject(ERROR_CODE_RECOMMENDATIONS, e.getMessage());
         }
       }
 
       @Override
       public void onFailure(Error error) {
-        promise.reject("carnival.recommendations", error.getMessage());
+        promise.reject(ERROR_CODE_RECOMMENDATIONS, error.getMessage());
       }
     });
   }
@@ -477,11 +479,11 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
 
         @Override
         public void onFailure(Error error) {
-          promise.reject("carnival.tracking.clicks", error.getMessage());
+          promise.reject(ERROR_CODE_TRACKING, error.getMessage());
         }
       });
     } catch (URISyntaxException e) {
-      promise.reject("carnival.tracking.clicks", e.getMessage());
+      promise.reject(ERROR_CODE_TRACKING, e.getMessage());
     }
   }
 
@@ -504,11 +506,11 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
 
         @Override
         public void onFailure(Error error) {
-          promise.reject("carnival.tracking.pageviews", error.getMessage());
+          promise.reject(ERROR_CODE_TRACKING, error.getMessage());
         }
       });
     } catch (URISyntaxException e) {
-      promise.reject("carnival.tracking.pageviews", e.getMessage());
+      promise.reject(ERROR_CODE_TRACKING, e.getMessage());
     }
   }
 
@@ -531,11 +533,11 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule {
 
         @Override
         public void onFailure(Error error) {
-          promise.reject("carnival.tracking.impressions", error.getMessage());
+          promise.reject(ERROR_CODE_TRACKING, error.getMessage());
         }
       });
     } catch (URISyntaxException e) {
-      promise.reject("carnival.tracking.impressions", e.getMessage());
+      promise.reject(ERROR_CODE_TRACKING, e.getMessage());
     }
   }
 
