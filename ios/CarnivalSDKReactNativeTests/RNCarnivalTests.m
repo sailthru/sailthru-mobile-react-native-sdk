@@ -28,9 +28,12 @@
 -(void)getDeviceID:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)setUserId:(NSString *)userID resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)setUserEmail:(NSString *)userEmail resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)getRecommendations:(NSString *)sectionID resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)trackClick:(NSString *)sectionID url:(NSString *)url resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)trackPageview:(NSString *)url tags:(NSArray *)tags resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)trackImpressions:(NSString *)sectionID url:(NSArray *)urls resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)setGeoIPTrackingEnabled:(BOOL)enabled;
 -(void)setCrashHandlersEnabled:(BOOL)enabled;
-
 @end
 
 
@@ -378,6 +381,135 @@ describe(@"RNCarnival", ^{
             [[Carnival should] receive:@selector(setUserEmail:withResponse:)];
             
             [rnCarnival setUserEmail:nil resolver:nil rejecter:nil];
+        });
+    });
+    
+    context(@"the getRecommendations:resolver:rejecter: method", ^{
+        __block RNCarnival *rnCarnival = nil;
+        beforeEach(^{
+            [Carnival stub:@selector(recommendationsWithSection:withResponse:)];
+            rnCarnival = [[RNCarnival alloc] init];
+        });
+        
+        it(@"should call native method", ^{
+            [[Carnival should] receive:@selector(recommendationsWithSection:withResponse:)];
+            
+            [rnCarnival getRecommendations:nil resolver:nil rejecter:nil];
+        });
+        
+        it(@"should return recommendations on success", ^{
+            // Setup variables
+            __block NSArray *check = nil;
+            NSString *sectionID = @"not-a-real-section";
+            NSArray *returnedItems = @[];
+            RCTPromiseResolveBlock resolve = ^(NSArray* contentItems) {
+                check = contentItems;
+            };
+            KWCaptureSpy *capture = [Carnival captureArgument:@selector(recommendationsWithSection:withResponse:) atIndex:1];
+            
+            // Start test
+            [rnCarnival getRecommendations:sectionID resolver:resolve rejecter:nil];
+            
+            // Capture argument
+            void (^completeBlock)(NSArray * _Nullable, NSError * _Nullable) = capture.argument;
+            completeBlock(returnedItems, nil);
+            
+            // Verify result
+            [[check shouldNot] beNil];
+            [[check should] equal:returnedItems];
+        });
+        
+        it(@"should return error on failure", ^{
+            // Setup variables
+            __block NSError *check = nil;
+            RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
+                check = error;
+            };
+            KWCaptureSpy *capture = [Carnival captureArgument:@selector(recommendationsWithSection:withResponse:) atIndex:1];
+            
+            // Start test
+            [rnCarnival getRecommendations:nil resolver:nil rejecter:reject];
+            
+            // Capture argument
+            void (^completeBlock)(NSString * _Nullable, NSError * _Nullable) = capture.argument;
+            NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
+            completeBlock(0, error);
+            
+            // Verify result
+            [[check should] equal:error];
+        });
+    });
+    
+    context(@"the trackClick:url:resolver:rejecter: method", ^{
+        __block RNCarnival *rnCarnival = nil;
+        beforeEach(^{
+            [Carnival stub:@selector(trackClickWithSection:andUrl:andResponse:)];
+            rnCarnival = [[RNCarnival alloc] init];
+        });
+        
+        it(@"should call native method", ^{
+            NSString *url = @"www.notarealurl.com";
+            
+            [[Carnival should] receive:@selector(trackClickWithSection:andUrl:andResponse:)];
+            
+            [rnCarnival trackClick:nil url:url resolver:nil rejecter:nil];
+        });
+    });
+    
+    context(@"the trackPageview:tags:resolver:rejecter: method", ^{
+        __block RNCarnival *rnCarnival = nil;
+        beforeEach(^{
+            rnCarnival = [[RNCarnival alloc] init];
+        });
+        
+        context(@"when tags are nil", ^{
+            it(@"should call native method without tags", ^{
+                NSString *url = @"www.notarealurl.com";
+                
+                [Carnival stub:@selector(trackPageviewWithUrl:andResponse:)];
+                [[Carnival should] receive:@selector(trackPageviewWithUrl:andResponse:)];
+                
+                [rnCarnival trackPageview:url tags:nil resolver:nil rejecter:nil];
+            });
+        });
+        
+        context(@"when tags are not nil", ^{
+            it(@"should call native method with tags", ^{
+                NSString *url = @"www.notarealurl.com";
+                NSArray *tags = @[];
+                
+                [Carnival stub:@selector(trackPageviewWithUrl:andTags:andResponse:)];
+                [[Carnival should] receive:@selector(trackPageviewWithUrl:andTags:andResponse:)];
+                
+                [rnCarnival trackPageview:url tags:tags resolver:nil rejecter:nil];
+            });
+        });
+    });
+    
+    context(@"the trackImpressions:url:resolver:rejecter: method", ^{
+        __block RNCarnival *rnCarnival = nil;
+        beforeEach(^{
+            rnCarnival = [[RNCarnival alloc] init];
+        });
+        
+        context(@"when urls are nil", ^{
+            it(@"should call native method without urls", ^{
+                [Carnival stub:@selector(trackImpressionWithSection:andResponse:)];
+                [[Carnival should] receive:@selector(trackImpressionWithSection:andResponse:)];
+                
+                [rnCarnival trackImpressions:nil url:nil resolver:nil rejecter:nil];
+            });
+        });
+        
+        context(@"when urls are not nil", ^{
+            it(@"should call native method with urls", ^{
+                NSArray *urls = @[];
+                
+                [Carnival stub:@selector(trackImpressionWithSection:andUrls:andResponse:)];
+                [[Carnival should] receive:@selector(trackImpressionWithSection:andUrls:andResponse:)];
+                
+                [rnCarnival trackImpressions:nil url:urls resolver:nil rejecter:nil];
+            });
         });
     });
     
