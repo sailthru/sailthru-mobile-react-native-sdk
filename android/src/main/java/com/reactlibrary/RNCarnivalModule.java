@@ -4,7 +4,6 @@ package com.reactlibrary;
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
-import android.util.Log;
 
 import com.carnival.sdk.AttributeMap;
 import com.carnival.sdk.Carnival;

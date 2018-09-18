@@ -15,7 +15,6 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,13 +38,11 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -78,7 +75,7 @@ public class RNCarnivalModuleTest {
     public void testUpdateLocation() throws Exception {
         double latitude = 10, longitude = 10;
 
-        PowerMockito.doNothing().when(Carnival.class, "updateLocation", anyObject());
+        PowerMockito.doNothing().when(Carnival.class, "updateLocation", any());
         Location location = mock(Location.class);
         PowerMockito.whenNew(Location.class).withAnyArguments().thenReturn(location);
         doNothing().when(location).setLatitude(anyDouble());
@@ -102,7 +99,7 @@ public class RNCarnivalModuleTest {
         Error error = mock(Error.class);
 
         // Mock methods
-        PowerMockito.doNothing().when(Carnival.class, "getDeviceId", anyObject());
+        PowerMockito.doNothing().when(Carnival.class, "getDeviceId", any());
         doReturn(errorMessage).when(error).getMessage();
 
         // Start test
@@ -475,8 +472,7 @@ public class RNCarnivalModuleTest {
 
         // Verify result
         PowerMockito.verifyStatic();
-        List<String> nullList = null;
-        Carnival.trackPageview(any(URI.class), eq(nullList), any(Carnival.TrackHandler.class));
+        Carnival.trackPageview(any(URI.class), isNull(List.class), any(Carnival.TrackHandler.class));
     }
 
     @Test
@@ -507,7 +503,7 @@ public class RNCarnivalModuleTest {
         // Mock methods
         doReturn(1).when(readableArray).size();
         doReturn(urlString).when(readableArray).getString(anyInt());
-        PowerMockito.doNothing().when(Carnival.class, "trackImpression", eq(sectionID), anyObject(), any(Carnival.TrackHandler.class));
+        PowerMockito.doNothing().when(Carnival.class, "trackImpression", eq(sectionID), anyList(), any(Carnival.TrackHandler.class));
 
         // Initiate test
         RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
@@ -529,7 +525,7 @@ public class RNCarnivalModuleTest {
         // Mock methods
         doReturn(1).when(readableArray).size();
         doReturn(urlString).when(readableArray).getString(anyInt());
-        PowerMockito.doNothing().when(Carnival.class, "trackImpression", eq(sectionID), anyObject(), any(Carnival.TrackHandler.class));
+        PowerMockito.doNothing().when(Carnival.class, "trackImpression", eq(sectionID), any(), any(Carnival.TrackHandler.class));
 
         // Initiate test
         RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
