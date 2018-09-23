@@ -32,8 +32,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyInt;
@@ -55,18 +53,20 @@ public class RNCarnivalModuleTest {
     @Mock
     private ReactApplicationContext mockContext;
 
+    private RNCarnivalModule rnCarnivalModule;
+
     @Before
     public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
         PowerMockito.mockStatic(Carnival.class);
         PowerMockito.mockStatic(RNCarnivalModule.class);
         PowerMockito.doNothing().when(RNCarnivalModule.class, "setWrapperInfo");
+
+        rnCarnivalModule = new RNCarnivalModule(mockContext, true);
     }
 
     @Test
     public void testConstructor() {
-        new RNCarnivalModule(mockContext);
-
         PowerMockito.verifyStatic();
         RNCarnivalModule.setWrapperInfo();
     }
@@ -81,7 +81,6 @@ public class RNCarnivalModuleTest {
         doNothing().when(location).setLatitude(anyDouble());
         doNothing().when(location).setLongitude(anyDouble());
 
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
         rnCarnivalModule.updateLocation(latitude, longitude);
 
         verify(location).setLatitude(latitude);
@@ -103,7 +102,6 @@ public class RNCarnivalModuleTest {
         doReturn(errorMessage).when(error).getMessage();
 
         // Start test
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
         rnCarnivalModule.getDeviceID(promise);
 
         // Capture handler for verification
@@ -127,7 +125,6 @@ public class RNCarnivalModuleTest {
 
         PowerMockito.doNothing().when(Carnival.class, "logEvent", event);
 
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
         rnCarnivalModule.logEvent(event);
 
         PowerMockito.verifyStatic();
@@ -160,7 +157,6 @@ public class RNCarnivalModuleTest {
         PowerMockito.doNothing().when(Carnival.class, "setAttributes", eq(attributeMap), any(Carnival.AttributesHandler.class));
 
         // Initiate test
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
         rnCarnivalModule.setAttributes(readableMap, null);
 
         // Verify results
@@ -179,7 +175,6 @@ public class RNCarnivalModuleTest {
         PowerMockito.doNothing().when(Carnival.class, "getMessages", any(Carnival.MessagesHandler.class));
 
         // Initiate test
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
         rnCarnivalModule.getMessages(promise);
 
         // Capture MessagesHandler to verify behaviour
@@ -213,7 +208,6 @@ public class RNCarnivalModuleTest {
 
         PowerMockito.doNothing().when(Carnival.class, "setUserId", userID, null);
 
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
         rnCarnivalModule.setUserId(userID);
 
         PowerMockito.verifyStatic();
@@ -226,7 +220,6 @@ public class RNCarnivalModuleTest {
 
         PowerMockito.doNothing().when(Carnival.class, "setUserEmail", userEmail, null);
 
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
         rnCarnivalModule.setUserEmail(userEmail);
 
         PowerMockito.verifyStatic();
@@ -240,7 +233,6 @@ public class RNCarnivalModuleTest {
 
         PowerMockito.when(Carnival.class, "getUnreadMessageCount").thenReturn(unreadCount);
 
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
         rnCarnivalModule.getUnreadCount(promise);
 
         PowerMockito.verifyStatic();
@@ -255,17 +247,17 @@ public class RNCarnivalModuleTest {
         ReadableMap readableMap = mock(ReadableMap.class);
 
         // Create message to remove
-        RNCarnivalModule rnCarnivalModule = spy(new RNCarnivalModule(mockContext));
         Constructor<Message> constructor = Message.class.getDeclaredConstructor();
         constructor.setAccessible(true);
         Message message = constructor.newInstance();
-        doReturn(message).when(rnCarnivalModule).getMessage(readableMap);
+        RNCarnivalModule moduleSpy = spy(rnCarnivalModule);
+        doReturn(message).when(moduleSpy).getMessage(readableMap);
 
         // Mock Carnival method
         PowerMockito.doNothing().when(Carnival.class, "deleteMessage", message, null);
 
         // Initiate test
-        rnCarnivalModule.removeMessage(readableMap);
+        moduleSpy.removeMessage(readableMap);
 
         // Verify result
         PowerMockito.verifyStatic();
@@ -279,17 +271,17 @@ public class RNCarnivalModuleTest {
         int typeCode = 0;
 
         // Create message to remove
-        RNCarnivalModule rnCarnivalModule = spy(new RNCarnivalModule(mockContext));
         Constructor<Message> constructor = Message.class.getDeclaredConstructor();
         constructor.setAccessible(true);
         Message message = constructor.newInstance();
-        doReturn(message).when(rnCarnivalModule).getMessage(readableMap);
+        RNCarnivalModule moduleSpy = spy(rnCarnivalModule);
+        doReturn(message).when(moduleSpy).getMessage(readableMap);
 
         // Mock Carnival method
         PowerMockito.doNothing().when(Carnival.class, "registerMessageImpression", CarnivalImpressionType.IMPRESSION_TYPE_IN_APP_VIEW, message);
 
         // Initiate test
-        rnCarnivalModule.registerMessageImpression(typeCode, readableMap);
+        moduleSpy.registerMessageImpression(typeCode, readableMap);
 
         // Verify result
         PowerMockito.verifyStatic();
@@ -303,59 +295,21 @@ public class RNCarnivalModuleTest {
         Promise promise = mock(Promise.class);
 
         // Create message to remove
-        RNCarnivalModule rnCarnivalModule = spy(new RNCarnivalModule(mockContext));
         Constructor<Message> constructor = Message.class.getDeclaredConstructor();
         constructor.setAccessible(true);
         Message message = constructor.newInstance();
-        doReturn(message).when(rnCarnivalModule).getMessage(readableMap);
+        RNCarnivalModule moduleSpy = spy(rnCarnivalModule);
+        doReturn(message).when(moduleSpy).getMessage(readableMap);
 
         // Mock Carnival method
         PowerMockito.doNothing().when(Carnival.class, "setMessageRead", eq(message), any(Carnival.MessagesReadHandler.class));
 
         // Initiate test
-        rnCarnivalModule.markMessageAsRead(readableMap, promise);
+        moduleSpy.markMessageAsRead(readableMap, promise);
 
         // Verify result
         PowerMockito.verifyStatic();
         Carnival.setMessageRead(eq(message), any(Carnival.MessagesReadHandler.class));
-    }
-
-    @Test
-    public void testSetDisplayInAppNotificationsTrue() throws Exception {
-        // Mock Carnival method
-        PowerMockito.doNothing().when(Carnival.class, "setOnInAppNotificationDisplayListener", any(Carnival.OnInAppNotificationDisplayListener.class));
-
-        // Initiate true test
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
-        rnCarnivalModule.setDisplayInAppNotifications(true);
-
-        // Capture listener to verify behaviour
-        ArgumentCaptor<Carnival.OnInAppNotificationDisplayListener> argumentCaptor = ArgumentCaptor.forClass(Carnival.OnInAppNotificationDisplayListener.class);
-        PowerMockito.verifyStatic();
-        Carnival.setOnInAppNotificationDisplayListener(argumentCaptor.capture());
-        Carnival.OnInAppNotificationDisplayListener listener = argumentCaptor.getValue();
-
-        // Verify result
-        assertNull(listener);
-    }
-
-    @Test
-    public void testSetDisplayInAppNotificationsFalse() throws Exception {
-        // Mock Carnival method
-        PowerMockito.doNothing().when(Carnival.class, "setOnInAppNotificationDisplayListener", any(Carnival.OnInAppNotificationDisplayListener.class));
-
-        // Initiate true test
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
-        rnCarnivalModule.setDisplayInAppNotifications(false);
-
-        // Capture listener to verify behaviour
-        ArgumentCaptor<Carnival.OnInAppNotificationDisplayListener> argumentCaptor = ArgumentCaptor.forClass(Carnival.OnInAppNotificationDisplayListener.class);
-        PowerMockito.verifyStatic();
-        Carnival.setOnInAppNotificationDisplayListener(argumentCaptor.capture());
-        Carnival.OnInAppNotificationDisplayListener listener = argumentCaptor.getValue();
-
-        // Verify result
-        assertNotNull(listener);
     }
 
     @Test
@@ -373,7 +327,6 @@ public class RNCarnivalModuleTest {
         doReturn(intent).when(intent).putExtra(Carnival.EXTRA_MESSAGE_ID, messageID);
 
         // Initiate test
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
         rnCarnivalModule.presentMessageDetail(messageID);
 
         // Verify result
@@ -392,7 +345,6 @@ public class RNCarnivalModuleTest {
         PowerMockito.doNothing().when(Carnival.class, "getRecommendations", eq(sectionID), any(Carnival.RecommendationsHandler.class));
 
         // Initiate test
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
         rnCarnivalModule.getRecommendations(sectionID, promise);
 
         // Capture MessagesHandler to verify behaviour
@@ -431,7 +383,6 @@ public class RNCarnivalModuleTest {
         PowerMockito.doNothing().when(Carnival.class, "trackClick", eq(sectionID), any(URI.class), any(Carnival.TrackHandler.class));
 
         // Initiate test
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
         rnCarnivalModule.trackClick(sectionID, urlString, promise);
 
         // Verify result
@@ -450,7 +401,6 @@ public class RNCarnivalModuleTest {
         PowerMockito.doNothing().when(Carnival.class, "trackClick", eq(sectionID), any(URI.class), any(Carnival.TrackHandler.class));
 
         // Initiate test
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
         rnCarnivalModule.trackClick(sectionID, urlString, promise);
 
         // Verify result
@@ -467,7 +417,6 @@ public class RNCarnivalModuleTest {
         PowerMockito.doNothing().when(Carnival.class, "trackPageview", any(URI.class), eq(null), any(Carnival.TrackHandler.class));
 
         // Initiate test
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
         rnCarnivalModule.trackPageview(urlString, null, promise);
 
         // Verify result
@@ -485,7 +434,6 @@ public class RNCarnivalModuleTest {
         PowerMockito.doNothing().when(Carnival.class, "trackPageview", any(URI.class), eq(null), any(Carnival.TrackHandler.class));
 
         // Initiate test
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
         rnCarnivalModule.trackPageview(urlString, null, promise);
 
         // Verify result
@@ -506,7 +454,6 @@ public class RNCarnivalModuleTest {
         PowerMockito.doNothing().when(Carnival.class, "trackImpression", eq(sectionID), anyList(), any(Carnival.TrackHandler.class));
 
         // Initiate test
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
         rnCarnivalModule.trackImpressions(sectionID, readableArray, promise);
 
         // Verify result
@@ -528,7 +475,6 @@ public class RNCarnivalModuleTest {
         PowerMockito.doNothing().when(Carnival.class, "trackImpression", eq(sectionID), any(), any(Carnival.TrackHandler.class));
 
         // Initiate test
-        RNCarnivalModule rnCarnivalModule = new RNCarnivalModule(mockContext);
         rnCarnivalModule.trackImpressions(sectionID, readableArray, promise);
 
         // Verify result

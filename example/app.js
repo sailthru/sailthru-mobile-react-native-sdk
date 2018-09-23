@@ -27,8 +27,6 @@ const instructions = Platform.select({
 
 export default class App extends Component<{}> {
   render() {
-    Carnival.setDisplayInAppNotifications(true);
-    Carnival.startEngine(SDK_KEY, true);
     Carnival.getMessages()
       .then(messages => {
         if (messages.length > 2) {
@@ -115,5 +113,3 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
 });
-
-

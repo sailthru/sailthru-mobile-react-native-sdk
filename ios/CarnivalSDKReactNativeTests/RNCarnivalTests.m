@@ -1,10 +1,3 @@
-//
-//  CarnivalSDKReactNativeTests.m
-//  CarnivalSDKReactNativeTests
-//
-//  Created by Ian Stewart on 5/09/18.
-//  Copyright © 2018 Carnival. All rights reserved.
-//
 
 #import <XCTest/XCTest.h>
 #import "RNCarnival.h"
@@ -57,20 +50,39 @@ SPEC_BEGIN(RNCarnivalSpec)
 
 describe(@"RNCarnival", ^{
     context(@"the init method", ^{
+        it(@"should throw an exception", ^{
+            BOOL exceptionThrown = NO;
+            @try {
+                RNCarnival *rnCarnival = [[RNCarnival alloc] init];
+                (void)rnCarnival;
+            }
+            @catch(NSException *e) {
+                exceptionThrown = YES;
+            }
+            [[theValue(exceptionThrown) should] beYes];
+        });
+    });
+    
+    context(@"the initWithDisplayInAppNotifications method", ^{
         beforeEach(^{
             [Carnival stub:@selector(setWrapperName:andVersion:)];
         });
         
         it(@"should set message stream delegate as self", ^{
             [[CarnivalMessageStream should] receive:@selector(setDelegate:)];
-            RNCarnival *rnCarnival = [[RNCarnival alloc] init];
+            RNCarnival *rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
             (void)rnCarnival;
         });
         
         it(@"should set the wrapper name and version", ^{
             [[Carnival should] receive:@selector(setWrapperName:andVersion:)];
-            RNCarnival *rnCarnival = [[RNCarnival alloc] init];
+            RNCarnival *rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
             (void)rnCarnival;
+        });
+        
+        it(@"should set the displayInAppNotifications", ^{
+            RNCarnival *rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:NO];
+            [[theValue(rnCarnival.displayInAppNotifications) should] beNo];
         });
     });
     
@@ -78,7 +90,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [CarnivalMessageStream stub:@selector(messages:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -132,7 +144,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [Carnival stub:@selector(setAttributes:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -145,7 +157,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [Carnival stub:@selector(updateLocation:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -165,7 +177,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [Carnival stub:@selector(logEvent:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -180,7 +192,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [CarnivalMessageStream stub:@selector(unreadCount:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -235,7 +247,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [CarnivalMessageStream stub:@selector(markMessageAsRead:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -249,7 +261,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [CarnivalMessageStream stub:@selector(removeMessage:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -263,7 +275,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [CarnivalMessageStream stub:@selector(presentMessageDetailForMessage:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -277,7 +289,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [CarnivalMessageStream stub:@selector(dismissMessageDetail)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -291,7 +303,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [CarnivalMessageStream stub:@selector(registerImpressionWithType:forMessage:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -305,7 +317,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [Carnival stub:@selector(deviceID:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -360,7 +372,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [Carnival stub:@selector(setUserId:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -374,7 +386,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [Carnival stub:@selector(setUserEmail:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -388,7 +400,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [Carnival stub:@selector(recommendationsWithSection:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -444,7 +456,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [Carnival stub:@selector(trackClickWithSection:andUrl:andResponse:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -459,7 +471,7 @@ describe(@"RNCarnival", ^{
     context(@"the trackPageview:tags:resolver:rejecter: method", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         context(@"when tags are nil", ^{
@@ -489,7 +501,7 @@ describe(@"RNCarnival", ^{
     context(@"the trackImpressions:url:resolver:rejecter: method", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         context(@"when urls are nil", ^{
@@ -517,7 +529,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [Carnival stub:@selector(setGeoIPTrackingEnabled:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -531,7 +543,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [Carnival stub:@selector(setCrashHandlersEnabled:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
@@ -545,7 +557,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [Carnival stub:@selector(setCrashHandlersEnabled:)];
-            rnCarnival = [[RNCarnival alloc] init];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
