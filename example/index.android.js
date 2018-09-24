@@ -23,10 +23,6 @@ myModuleEvt.addListener('inappnotification', (data) => console.log(data))
 class ReactNativeSampleApp extends Component {
   constructor(props) {
     super(props);
-    Carnival.setDisplayInAppNotifications(true);
-
-    Carnival.startEngine(SDK_KEY, true);
-
     Carnival.getMessages()
       .then(messages => {
         if (messages.length > 2) {

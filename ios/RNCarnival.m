@@ -8,6 +8,13 @@
 
 @end
 
+@interface CarnivalContentItem ()
+
+- (nullable instancetype)initWithDictionary:(nonnull NSDictionary *)dictionary;
+- (nonnull NSDictionary *)dictionary;
+
+@end
+
 @interface Carnival ()
 
 + (void)setWrapperName:(NSString *)wrapperName andVersion:(NSString *)wrapperVersion;
@@ -17,13 +24,15 @@
 
 @implementation RNCarnival
 
-BOOL displayInAppNotifications = YES;
-
-RCT_EXPORT_MODULE();
-
 -(instancetype)init {
+    [NSException raise:@"Unsupported Method" format:@"Default initializer should not be called"];
+    return nil;
+}
+
+-(instancetype)initWithDisplayInAppNotifications:(BOOL)displayNotifications {
     self = [super init];
     if(self) {
+        self.displayInAppNotifications = displayNotifications;
         [CarnivalMessageStream setDelegate:self];
         [Carnival setWrapperName:@"React Native" andVersion:@"1.0.0"];
     }
@@ -43,7 +52,7 @@ RCT_EXPORT_MODULE();
     }
     
     [self sendEventWithName:@"inappnotification" body:payload];
-    return displayInAppNotifications;
+    return self.displayInAppNotifications;
 }
 
 #pragma mark - Messages
@@ -58,10 +67,6 @@ RCT_REMAP_METHOD(getMessages, resolver:(RCTPromiseResolveBlock)resolve
             resolve([RNCarnival arrayOfMessageDictionariesFromMessageArray:messages]);
         }
     }];
-}
-
-RCT_EXPORT_METHOD(setDisplayInAppNotifications:(BOOL)enabled) {
-    displayInAppNotifications = enabled;
 }
 
 #pragma mark - Attributes
@@ -246,6 +251,76 @@ RCT_EXPORT_METHOD(setUserEmail:(NSString *)userEmail resolver:(RCTPromiseResolve
     }];
 }
 
+
+#pragma mark - Recommendations
+
+RCT_EXPORT_METHOD(getRecommendations:(NSString *)sectionID resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+  [Carnival recommendationsWithSection:sectionID withResponse:^(NSArray * _Nullable contentItems, NSError * _Nullable error) {
+    if(error) {
+      [RNCarnival rejectPromise:reject withError:error];
+    } else {
+      resolve([RNCarnival arrayOfContentItemsDictionaryFromContentItemsArray:contentItems]);
+    }
+  }];
+}
+
+RCT_EXPORT_METHOD(trackClick:(NSString *)sectionID url:(NSString *)url resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    NSURL *nsUrl = [[NSURL alloc] initWithString:url];
+    [Carnival trackClickWithSection:sectionID andUrl:nsUrl andResponse:^(NSError * _Nullable error) {
+        if (error) {
+            [RNCarnival rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(trackPageview:(NSString *)url tags:(NSArray *)tags resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    NSURL *nsUrl = [[NSURL alloc] initWithString:url];
+    void (^responseBlock)(NSError * _Nullable) = ^(NSError * _Nullable error) {
+        if (error) {
+            [RNCarnival rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    };
+    
+    if(tags) {
+        [Carnival trackPageviewWithUrl:nsUrl andTags:tags andResponse:responseBlock];
+    }
+    else {
+        [Carnival trackPageviewWithUrl:nsUrl andResponse:responseBlock];
+    }
+}
+
+RCT_EXPORT_METHOD(trackImpressions:(NSString *)sectionID url:(NSArray *)urls resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    void (^responseBlock)(NSError * _Nullable) = ^(NSError * _Nullable error) {
+        if (error) {
+            [RNCarnival rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    };
+    
+    if(urls) {
+        NSMutableArray *nsUrls = [[NSMutableArray alloc] init];
+        for (NSString *url in urls) {
+            NSURL *nsUrl = [[NSURL alloc] initWithString:url];
+            [nsUrls addObject:nsUrl];
+        }
+        [Carnival trackImpressionWithSection:sectionID andUrls:nsUrls andResponse:responseBlock];
+    }
+    else {
+        [Carnival trackImpressionWithSection:sectionID andResponse:responseBlock];
+    }
+}
+
+
+
 #pragma mark - Switches
 RCT_EXPORT_METHOD(setGeoIPTrackingEnabled:(BOOL)enabled) {
     [Carnival setGeoIPTrackingEnabled:enabled];
@@ -287,6 +362,14 @@ RCT_EXPORT_METHOD(registerForPushNotifications) {
 
 + (CarnivalMessage *) messageFromDict:(NSDictionary *)jsDict {
     return [[CarnivalMessage alloc] initWithDictionary:jsDict];
+}
+
++ (NSArray *)arrayOfContentItemsDictionaryFromContentItemsArray:(NSArray *)contentItemsArray {
+  NSMutableArray *items = [NSMutableArray array];
+  for (CarnivalContentItem *contentItem in contentItemsArray) {
+    [items addObject:[contentItem dictionary]];
+  }
+  return items;
 }
 
 @end
