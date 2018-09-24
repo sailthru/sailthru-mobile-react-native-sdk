@@ -24,13 +24,15 @@
 
 @implementation RNCarnival
 
-BOOL displayInAppNotifications = YES;
-
-RCT_EXPORT_MODULE();
-
 -(instancetype)init {
+    [NSException raise:@"Unsupported Method" format:@"Default initializer should not be called"];
+    return nil;
+}
+
+-(instancetype)initWithDisplayInAppNotifications:(BOOL)displayNotifications {
     self = [super init];
     if(self) {
+        self.displayInAppNotifications = displayNotifications;
         [CarnivalMessageStream setDelegate:self];
         [Carnival setWrapperName:@"React Native" andVersion:@"1.0.0"];
     }
@@ -50,7 +52,7 @@ RCT_EXPORT_MODULE();
     }
     
     [self sendEventWithName:@"inappnotification" body:payload];
-    return displayInAppNotifications;
+    return self.displayInAppNotifications;
 }
 
 #pragma mark - Messages
@@ -65,10 +67,6 @@ RCT_REMAP_METHOD(getMessages, resolver:(RCTPromiseResolveBlock)resolve
             resolve([RNCarnival arrayOfMessageDictionariesFromMessageArray:messages]);
         }
     }];
-}
-
-RCT_EXPORT_METHOD(setDisplayInAppNotifications:(BOOL)enabled) {
-    displayInAppNotifications = enabled;
 }
 
 #pragma mark - Attributes

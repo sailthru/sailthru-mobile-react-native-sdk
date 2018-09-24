@@ -1,65 +1,56 @@
 
 package com.reactlibrary;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.location.Location;
+import android.content.Context;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import com.carnival.sdk.AttributeMap;
 import com.carnival.sdk.Carnival;
-import com.carnival.sdk.CarnivalImpressionType;
-import com.carnival.sdk.Message;
-import com.carnival.sdk.MessageActivity;
 import com.facebook.react.ReactPackage;
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.NativeModule;
-import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.ReadableArray;
-import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.ReadableMapKeySetIterator;
-import com.facebook.react.bridge.WritableArray;
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.bridge.WritableNativeArray;
-import com.facebook.react.bridge.WritableNativeMap;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.facebook.react.uimanager.ViewManager;
 import com.facebook.react.bridge.JavaScriptModule;
+import com.facebook.react.bridge.NativeModule;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.uimanager.ViewManager;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class RNCarnivalPackage implements ReactPackage {
-    private ReactApplicationContext context;
+    protected ReactApplicationContext reactApplicationContext;
+    protected boolean displayInAppNotifications;
+
+    /**
+     * Default constructor - should not be used
+     */
+    protected RNCarnivalPackage() {
+        throw new UnsupportedOperationException("RNCarnivalPackage constructor with parameters must be used");
+    }
+
+    /**
+     * Constructor for the RNCarnivalPackage.
+     *
+     * @param context                   the application context
+     * @param appKey                    the app key provided when you registered your application.
+     * @param displayInAppNotifications whether the SDK should handle displaying in app notifications
+     */
+    public RNCarnivalPackage(Context context, String appKey, boolean displayInAppNotifications) {
+        Carnival.startEngine(context, appKey);
+        this.displayInAppNotifications = displayInAppNotifications;
+    }
 
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-      context = reactContext;
-      List<NativeModule> modules = new ArrayList<>();
-      modules.add(new RNCarnivalModule(context));
-      return modules;
+        reactApplicationContext = reactContext;
+        List<NativeModule> modules = new ArrayList<>();
+        modules.add(new RNCarnivalModule(reactApplicationContext, displayInAppNotifications));
+        return modules;
     }
 
     public List<Class<? extends JavaScriptModule>> createJSModules() {
-      return Collections.emptyList();
+        return Collections.emptyList();
     }
 
     @Override
     public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
-      return Collections.emptyList();
+        return Collections.emptyList();
     }
 }
