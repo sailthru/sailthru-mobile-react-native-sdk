@@ -34,7 +34,7 @@
     if(self) {
         self.displayInAppNotifications = displayNotifications;
         [CarnivalMessageStream setDelegate:self];
-        [Carnival setWrapperName:@"React Native" andVersion:@"1.0.0"];
+        [Carnival setWrapperName:@"React Native" andVersion:@"2.0.0"];
     }
     return self;
 }
@@ -46,11 +46,11 @@
 
 - (BOOL)shouldPresentInAppNotificationForMessage:(CarnivalMessage *)message {
     NSMutableDictionary *payload = [NSMutableDictionary dictionaryWithDictionary:[message dictionary]];
-    
+
     if ([message attributes]) {
         [payload setObject:[message attributes] forKey:@"attributes"];
     }
-    
+
     [self sendEventWithName:@"inappnotification" body:payload];
     return self.displayInAppNotifications;
 }
@@ -71,78 +71,78 @@ RCT_REMAP_METHOD(getMessages, resolver:(RCTPromiseResolveBlock)resolve
 
 #pragma mark - Attributes
 RCT_EXPORT_METHOD(setAttributes:(NSDictionary *)attributeMap resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)  {
-    
+
     CarnivalAttributes *carnivalAttributeMap = [[CarnivalAttributes alloc] init];
     [carnivalAttributeMap setAttributesMergeRule:(CarnivalAttributesMergeRule)[attributeMap valueForKey:@"mergeRule"]];
-    
+
     NSDictionary *attributes = [attributeMap valueForKey:@"attributes"];
 
     for (NSString *key in attributes) {
         NSString *type = [[attributes valueForKey:key] valueForKey:@"type"];
-        
+
         if ([type isEqualToString:@"string"]) {
             NSString *value = [[attributes valueForKey:key] valueForKey:@"value"];
             [carnivalAttributeMap setString:value forKey:key];
-            
+
         } else if ([type isEqualToString:@"stringArray"]) {
             NSArray<NSString *> *value = [[attributes valueForKey:key] valueForKey:@"value"];
             [carnivalAttributeMap setStrings:value forKey:key];
-            
+
         } else if ([type isEqualToString:@"integer"]) {
             NSNumber *value = [[attributes valueForKey:key] objectForKey:@"value"];
             [carnivalAttributeMap setInteger:[value integerValue] forKey:key];
-            
+
         } else if ([type isEqualToString:@"integerArray"]) {
             NSArray<NSNumber *> *value = [[attributes valueForKey:key] valueForKey:@"value"];
             [carnivalAttributeMap setIntegers:value forKey:key];
-            
+
         } else if ([type isEqualToString:@"boolean"]) {
             BOOL value = [[[attributes valueForKey:key] valueForKey:@"value"] boolValue];
             [carnivalAttributeMap setBool:value forKey:key];
-            
+
         } else if ([type isEqualToString:@"float"]) {
             NSNumber *numberValue = [[attributes valueForKey:key] objectForKey:@"value"];
             [carnivalAttributeMap setFloat:[numberValue floatValue] forKey:key];
-            
+
         } else if ([type isEqualToString:@"floatArray"]) {
             NSArray<NSNumber *> *value = [[attributes valueForKey:key] objectForKey:@"value"];
             [carnivalAttributeMap setFloats:value forKey:key];
-            
+
         } else if ([type isEqualToString:@"date"]) {
             NSNumber *millisecondsValue = [[attributes valueForKey:key] objectForKey:@"value"];
             NSNumber *value = @([millisecondsValue doubleValue] / 1000);
-            
+
             if (![value isKindOfClass:[NSNumber class]]) {
                 return;
             }
-            
+
             NSDate *date = [NSDate dateWithTimeIntervalSince1970:[value doubleValue]];
             if (date) {
                 [carnivalAttributeMap setDate:date forKey:key];
             } else {
                 return;
             }
-            
+
         } else if ([type isEqualToString:@"dateArray"]) {
             NSArray<NSNumber *> *value = [[attributes valueForKey:key] objectForKey:@"value"];
             NSMutableArray<NSDate *> *dates = [[NSMutableArray alloc] init];
             for (NSNumber *millisecondsValue in value) {
                 NSNumber *secondsValue = @([millisecondsValue doubleValue] / 1000);
-                
+
                 if (![secondsValue isKindOfClass:[NSNumber class]]) {
                     continue;
                 }
-                
+
                 NSDate *date = [NSDate dateWithTimeIntervalSince1970:[secondsValue doubleValue]];
                 if (date) {
                     [dates addObject:date];
                 }
             }
-            
+
             [carnivalAttributeMap setDates:dates forKey:key];
         }
     }
-    
+
     [Carnival setAttributes:carnivalAttributeMap withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNCarnival rejectPromise:reject withError:error];
@@ -287,7 +287,7 @@ RCT_EXPORT_METHOD(trackPageview:(NSString *)url tags:(NSArray *)tags resolver:(R
             resolve(nil);
         }
     };
-    
+
     if(tags) {
         [Carnival trackPageviewWithUrl:nsUrl andTags:tags andResponse:responseBlock];
     }
@@ -305,7 +305,7 @@ RCT_EXPORT_METHOD(trackImpressions:(NSString *)sectionID url:(NSArray *)urls res
             resolve(nil);
         }
     };
-    
+
     if(urls) {
         NSMutableArray *nsUrls = [[NSMutableArray alloc] init];
         for (NSString *url in urls) {
@@ -333,7 +333,7 @@ RCT_EXPORT_METHOD(setCrashHandlersEnabled:(BOOL)enabled) {
 // Push Registration
 RCT_EXPORT_METHOD(registerForPushNotifications) {
     UIUserNotificationType types = UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound;
-    
+
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) { // iOS 8+
         UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
         [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
