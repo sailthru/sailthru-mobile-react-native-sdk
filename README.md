@@ -15,18 +15,29 @@ Drag into "Libraries" the following files from node_modules/react-native-carniva
 
  * RNCarnival.h
  * RNCarnival.m (Make sure this file's Target Membership is your main app's target)
- * Carnival.framework
 
-Next, Install Carnival iOS SDK from Cocoapods (add `pod 'Carnival'` to your Podfile) or install the framework [manually](http://docs.carnival.io/docs/ios-integration#section-manual-integration).
+Next, Install Carnival iOS SDK from Cocoapods (add `pod 'Carnival'` to your Podfile) or install the framework [manually](http://docs.carnival.io/docs/ios-integration#section-manual-integration) (Carnival.framework can be obtained from node_modules/react-native-carnival).
 
-Then add a call to startEngine to the native AppDelegate.m
+You will then need replace the code that creates your RCTRootView with the code below. This adds the Carnival React Native modules to the root view.
 
 ```Objective-C
-#import <Carnival/Carnival.h>
+#import "RNCarnivalBridge.h"
 
 - (BOOL)application:(UIApplication * )application didFinishLaunchingWithOptions:(NSDictionary * )launchOptions {
-      [Carnival startEngine:SDK_KEY]; // Obtain SDK key from your Carnival app settings
-      return YES;
+      ...
+      id<RCTBridgeDelegate> moduleInitialiser = [[RNCarnivalBridge alloc]
+                                                 initWithJSCodeLocation:jsCodeLocation   // JS Code location used here should be same location used before
+                                                 appKey:SDK_KEY                          // Obtain SDK key from your Carnival app settings
+                                                 registerForPushNotifications:YES        // Whether the SDK should handle push notification registration
+                                                 displayInAppNotifications:YES];         // Whether the SDK should display in app notifications automatically
+
+      RCTBridge * bridge = [[RCTBridge alloc] initWithDelegate:moduleInitialiser launchOptions:launchOptions];
+
+      RCTRootView * rootView = [[RCTRootView alloc]
+                                initWithBridge:bridge
+                                moduleName:@"YOUR_MODULE_NAME"
+                                initialProperties:nil];
+      ...
 }
 ```
 
@@ -47,9 +58,7 @@ project(':react-native-carnival').projectDir = new File(rootProject.projectDir, 
 ```gradle
 ...
 repositories {
-    maven {
-        url "https://maven.google.com"
-    }
+    google()
 
     maven {
         url "https://github.com/carnivalmobile/maven-repository/raw/master/"
@@ -59,7 +68,7 @@ repositories {
 dependencies {
     ...
     compile project(':react-native-carnival')
-    compile 'com.carnival.sdk:carnival:5.+'
+    compile 'com.carnival.sdk:carnival:6.+'
 }
 ```
 
@@ -68,7 +77,6 @@ dependencies {
 
 ```java
 import com.reactlibrary.RNCarnivalPackage; // <--- import
-import com.carnival.sdk.Carnival;          // <--- import
 
 public class MainApplication extends Application implements ReactApplication {
   ...
@@ -77,7 +85,9 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-          new RNCarnivalPackage()
+          new RNCarnivalPackage(getApplicationContext(), // Should pass in application context
+                                SDK_KEY,                 // Obtain SDK key from your Carnival app settings
+                                true)                    // Whether SDK should display in app notifications automatically
       );
     }
   ...
@@ -86,7 +96,6 @@ public class MainApplication extends Application implements ReactApplication {
     public void onCreate() {
       super.onCreate();
       SoLoader.init(this, /* native exopackage */ false);
-      Carnival.startEngine(getApplicationContext(), SDK_KEY); // Obtain SDK key from your Carnival app settings
     }
   ...
 }
@@ -94,7 +103,7 @@ public class MainApplication extends Application implements ReactApplication {
 }
 ```
 
-Finally, make sure your `compileSdkVersion` is set to 26 or higher and  buildToolsVersion is "26.0.2" or higher
+Finally, make sure your `compileSdkVersion` is set to 26 or higher and buildToolsVersion is "26.0.2" or higher
 
 
 Note: You may see an error about missing bundle on Android if you dont have the server running first. You an start the server by running `react-native start` and relaunch from Android Studio.
