@@ -296,7 +296,7 @@ RCT_EXPORT_METHOD(trackPageview:(NSString *)url tags:(NSArray *)tags resolver:(R
     }
 }
 
-RCT_EXPORT_METHOD(trackImpressions:(NSString *)sectionID url:(NSArray *)urls resolver:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(trackImpression:(NSString *)sectionID url:(NSArray *)urls resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     void (^responseBlock)(NSError * _Nullable) = ^(NSError * _Nullable error) {
         if (error) {
