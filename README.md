@@ -73,7 +73,7 @@ dependencies {
 ```
 
 
-* Register module and call startEngine (in MainApplication.java)
+* Register module and (in MainApplication.java)
 
 ```java
 import com.reactlibrary.RNCarnivalPackage; // <--- import
