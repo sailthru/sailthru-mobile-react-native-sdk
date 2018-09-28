@@ -9,6 +9,7 @@ import com.carnival.sdk.Carnival;
 import com.carnival.sdk.CarnivalImpressionType;
 import com.carnival.sdk.ContentItem;
 import com.carnival.sdk.Message;
+import com.carnival.sdk.MessageActivity;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReadableArray;
@@ -33,10 +34,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.booleanThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.doNothing;
@@ -45,6 +49,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Carnival.class, RNCarnivalModule.class})
@@ -228,17 +233,38 @@ public class RNCarnivalModuleTest {
 
     @Test
     public void testGetUnreadCount() throws Exception {
-        int unreadCount = 4;
+        Integer unreadCount = 4;
+
+        // Setup mocks
         Promise promise = mock(Promise.class);
+        Error error = mock(Error.class);
 
-        PowerMockito.when(Carnival.class, "getUnreadMessageCount").thenReturn(unreadCount);
+        // Mock Carnival method
+        PowerMockito.doNothing().when(Carnival.class, "getUnreadMessageCount", any(Carnival.CarnivalHandler.class));
 
+        // Initiate test
         rnCarnivalModule.getUnreadCount(promise);
 
+        // Capture MessagesHandler to verify behaviour
+        ArgumentCaptor<Carnival.CarnivalHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.CarnivalHandler.class);
         PowerMockito.verifyStatic();
-        Carnival.getUnreadMessageCount();
+        Carnival.getUnreadMessageCount(argumentCaptor.capture());
+        Carnival.CarnivalHandler countHandler = argumentCaptor.getValue();
 
-        verify(promise).resolve(unreadCount);
+        // Setup message array
+        ArrayList<Message> messages = new ArrayList<>();
+
+        // Test success handler
+        countHandler.onSuccess(unreadCount);
+        verify(promise).resolve(unreadCount.intValue());
+
+        // Setup error
+        String errorMessage = "error message";
+        when(error.getMessage()).thenReturn(errorMessage);
+
+        // Test error handler
+        countHandler.onFailure(error);
+        verify(promise).reject(RNCarnivalModule.ERROR_CODE_MESSAGES, errorMessage);
     }
 
     @Test
@@ -317,17 +343,19 @@ public class RNCarnivalModuleTest {
         // Setup input
         String messageID = "message ID";
 
-        // Mock activity
+        // Setup mocks
+        ReadableMap message = mock(ReadableMap.class);
         Activity activity = mock(Activity.class);
-        when(mockContext.getCurrentActivity()).thenReturn(activity);
-
-        // Mock Intent
         Intent intent = mock(Intent.class);
+
+        // Mock behaviour
+        when(message.getString(RNCarnivalModule.MESSAGE_ID)).thenReturn(messageID);
+        when(mockContext.getCurrentActivity()).thenReturn(activity);
         PowerMockito.whenNew(Intent.class).withAnyArguments().thenReturn(intent);
         doReturn(intent).when(intent).putExtra(Carnival.EXTRA_MESSAGE_ID, messageID);
 
         // Initiate test
-        rnCarnivalModule.presentMessageDetail(messageID);
+        rnCarnivalModule.presentMessageDetail(message);
 
         // Verify result
         verify(activity).startActivity(intent);
@@ -481,4 +509,51 @@ public class RNCarnivalModuleTest {
         verify(promise).reject(eq(RNCarnivalModule.ERROR_CODE_TRACKING), anyString());
     }
 
+    @Test
+    public void testSetGeoIPTrackingEnabled() throws Exception {
+        // Create input
+        boolean enabled = true;
+
+        // Mock methods
+        PowerMockito.doNothing().when(Carnival.class, "setGeoIpTrackingEnabled", anyBoolean());
+
+        // Initiate test
+        rnCarnivalModule.setGeoIPTrackingEnabled(enabled);
+
+        // Verify result
+        PowerMockito.verifyStatic();
+        Carnival.setGeoIpTrackingEnabled(enabled);
+    }
+
+    @Test
+    public void testClearDevice() throws Exception {
+        // Create input
+        int clearValue = Carnival.ATTRIBUTES;
+        Promise promise = mock(Promise.class);
+        Error error = mock(Error.class);
+
+        // Mock methods
+        PowerMockito.doNothing().when(Carnival.class, "setGeoIpTrackingEnabled", anyBoolean());
+
+        // Initiate test
+        rnCarnivalModule.clearDevice(clearValue, promise);
+
+        // Verify result
+        ArgumentCaptor<Carnival.CarnivalHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.CarnivalHandler.class);
+        PowerMockito.verifyStatic();
+        Carnival.clearDevice(eq(clearValue), argumentCaptor.capture());
+        Carnival.CarnivalHandler clearHandler = argumentCaptor.getValue();
+
+        // Test success handler
+        clearHandler.onSuccess(null);
+        verify(promise).resolve(true);
+
+        // Setup error
+        String errorMessage = "error message";
+        when(error.getMessage()).thenReturn(errorMessage);
+
+        // Test error handler
+        clearHandler.onFailure(error);
+        verify(promise).reject(RNCarnivalModule.ERROR_CODE_DEVICE, errorMessage);
+    }
 }

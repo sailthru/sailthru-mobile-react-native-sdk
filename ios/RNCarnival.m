@@ -202,7 +202,7 @@ RCT_EXPORT_METHOD(removeMessage:(NSDictionary *)jsDict resolver:(RCTPromiseResol
     }];
 }
 
-RCT_EXPORT_METHOD(presentDetailForMessage:(NSDictionary *)jsDict) {
+RCT_EXPORT_METHOD(presentMessageDetail:(NSDictionary *)jsDict) {
     [CarnivalMessageStream presentMessageDetailForMessage:[RNCarnival messageFromDict:jsDict]];
 }
 
@@ -342,6 +342,16 @@ RCT_EXPORT_METHOD(registerForPushNotifications) {
     else { //iOS 7
         [[UIApplication sharedApplication] registerForRemoteNotificationTypes:(UIRemoteNotificationType)types];
     }
+}
+
+RCT_EXPORT_METHOD(clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    [Carnival clearDeviceData:(CarnivalDeviceDataType)options withResponse:^(NSError * _Nullable error) {
+        if (error) {
+            [RNCarnival rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
 }
 
 

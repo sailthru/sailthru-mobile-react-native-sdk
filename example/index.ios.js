@@ -25,7 +25,7 @@ export default class ReactNativeSampleApp extends Component {
       .then(messages => {
         if (messages.length > 2) {
           Carnival.markMessageAsRead(messages[0]);
-          Carnival.presentDetailForMessage(messages[0]);
+          Carnival.presentMessageDetail(messages[0]);
           setTimeout(function(){ Carnival.dismissMessageDetail(); }, 5000);
           Carnival.registerMessageImpression(Carnival.MessageImpressionType.InAppView, messages[1]);
         }
@@ -68,11 +68,17 @@ export default class ReactNativeSampleApp extends Component {
       console.log(e);
     });
 
-    //Carnival.setGeoIPTrackingEnabled(true);
+    Carnival.setGeoIPTrackingEnabled(true);
 
     //Carnival.setCrashHandlersEnabled(true);
 
     //Carnival.registerForPushNotifications();
+
+    // Carnival.clearDevice(Carnival.DeviceValues.Attributes).then(result => {
+    //   console.log("Clear Attributes Success");
+    // }).catch(e => {
+    //   console.log(e);
+    // });
 
     return (
       <View style={styles.container}>
