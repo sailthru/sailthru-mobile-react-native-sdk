@@ -441,7 +441,7 @@ public class RNCarnivalModuleTest {
     }
 
     @Test
-    public void testTrackImpressions() throws Exception {
+    public void testTrackImpression() throws Exception {
         // Create input
         Promise promise = mock(Promise.class);
         String sectionID = "Section ID";
@@ -454,7 +454,7 @@ public class RNCarnivalModuleTest {
         PowerMockito.doNothing().when(Carnival.class, "trackImpression", eq(sectionID), anyList(), any(Carnival.TrackHandler.class));
 
         // Initiate test
-        rnCarnivalModule.trackImpressions(sectionID, readableArray, promise);
+        rnCarnivalModule.trackImpression(sectionID, readableArray, promise);
 
         // Verify result
         PowerMockito.verifyStatic();
@@ -462,7 +462,7 @@ public class RNCarnivalModuleTest {
     }
 
     @Test
-    public void testTrackImpressionsException() throws Exception {
+    public void testTrackImpressionException() throws Exception {
         // Create input
         Promise promise = mock(Promise.class);
         String sectionID = "Section ID";
@@ -475,7 +475,7 @@ public class RNCarnivalModuleTest {
         PowerMockito.doNothing().when(Carnival.class, "trackImpression", eq(sectionID), any(), any(Carnival.TrackHandler.class));
 
         // Initiate test
-        rnCarnivalModule.trackImpressions(sectionID, readableArray, promise);
+        rnCarnivalModule.trackImpression(sectionID, readableArray, promise);
 
         // Verify result
         verify(promise).reject(eq(RNCarnivalModule.ERROR_CODE_TRACKING), anyString());
