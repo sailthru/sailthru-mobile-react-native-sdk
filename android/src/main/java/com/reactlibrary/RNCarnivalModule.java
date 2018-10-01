@@ -527,7 +527,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
     }
 
     @ReactMethod
-    public void trackImpressions(String sectionId, ReadableArray urls, final Promise promise) {
+    public void trackImpression(String sectionId, ReadableArray urls, final Promise promise) {
         try {
             List<URI> convertedUrls = null;
             if (urls != null) {
