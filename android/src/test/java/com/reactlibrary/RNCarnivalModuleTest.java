@@ -12,6 +12,7 @@ import com.carnival.sdk.Message;
 import com.carnival.sdk.MessageActivity;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
@@ -347,15 +348,16 @@ public class RNCarnivalModuleTest {
         ReadableMap message = mock(ReadableMap.class);
         Activity activity = mock(Activity.class);
         Intent intent = mock(Intent.class);
+        RNCarnivalModule moduleSpy = spy(rnCarnivalModule);
 
         // Mock behaviour
         when(message.getString(RNCarnivalModule.MESSAGE_ID)).thenReturn(messageID);
-        when(mockContext.getCurrentActivity()).thenReturn(activity);
+        doReturn(activity).when(moduleSpy).currentActivity();
         PowerMockito.whenNew(Intent.class).withAnyArguments().thenReturn(intent);
         doReturn(intent).when(intent).putExtra(Carnival.EXTRA_MESSAGE_ID, messageID);
 
         // Initiate test
-        rnCarnivalModule.presentMessageDetail(message);
+        moduleSpy.presentMessageDetail(message);
 
         // Verify result
         verify(activity).startActivity(intent);
@@ -533,7 +535,7 @@ public class RNCarnivalModuleTest {
         Error error = mock(Error.class);
 
         // Mock methods
-        PowerMockito.doNothing().when(Carnival.class, "setGeoIpTrackingEnabled", anyBoolean());
+        PowerMockito.doNothing().when(Carnival.class, "clearDevice", anyInt(), any(Carnival.CarnivalHandler.class));
 
         // Initiate test
         rnCarnivalModule.clearDevice(clearValue, promise);

@@ -434,13 +434,18 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
 
     @ReactMethod
     public void presentMessageDetail(ReadableMap message) {
-        Intent i = new Intent(getCurrentActivity(), MessageActivity.class);
+        Intent i = new Intent(currentActivity(), MessageActivity.class);
         String messageId = message.getString(MESSAGE_ID);
         i.putExtra(Carnival.EXTRA_MESSAGE_ID, messageId);
-        Activity activity = getCurrentActivity();
+        Activity activity = currentActivity();
         if (activity != null) {
-            getCurrentActivity().startActivity(i);
+            activity.startActivity(i);
         }
+    }
+
+    // wrapped to expose for testing
+    protected Activity currentActivity() {
+        return getCurrentActivity();
     }
 
     @ReactMethod
