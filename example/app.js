@@ -73,18 +73,6 @@ export default class App extends Component<{}> {
     Carnival.setUserId("person");
     Carnival.setUserEmail("person@domain.com");
 
-    Carnival.setGeoIPTrackingEnabled(true);
-
-    // Carnival.setCrashHandlersEnabled(true);
-
-    // Carnival.registerForPushNotifications();
-
-    // Carnival.clearDevice(Carnival.DeviceValues.Attributes).then(result => {
-    //   console.log("Clear Attributes Success");
-    // }).catch(e => {
-    //   console.log(e);
-    // });
-
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
