@@ -44,6 +44,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
     protected final static String ERROR_CODE_MESSAGES = "carnival.messages";
     protected final static String ERROR_CODE_RECOMMENDATIONS = "carnival.recommendations";
     protected final static String ERROR_CODE_TRACKING = "carnival.tracking";
+    protected final static String MESSAGE_ID = "id";
 
     private boolean displayInAppNotifications;
 
@@ -381,9 +382,18 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
     }
 
     @ReactMethod
-    public void getUnreadCount(Promise promise) {
-        int unreadCount = Carnival.getUnreadMessageCount();
-        promise.resolve(unreadCount);
+    public void getUnreadCount(final Promise promise) {
+        Carnival.getUnreadMessageCount(new Carnival.CarnivalHandler<Integer>() {
+            @Override
+            public void onSuccess(Integer integer) {
+                promise.resolve(integer.intValue());
+            }
+
+            @Override
+            public void onFailure(Error error) {
+                promise.reject(ERROR_CODE_MESSAGES, error.getMessage());
+            }
+        });
     }
 
     @ReactMethod
@@ -423,13 +433,24 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
     }
 
     @ReactMethod
-    public void presentMessageDetail(String messageId) {
-        Intent i = new Intent(getCurrentActivity(), MessageActivity.class);
+    public void presentMessageDetail(ReadableMap message) {
+        Intent i = new Intent(currentActivity(), MessageActivity.class);
+        String messageId = message.getString(MESSAGE_ID);
         i.putExtra(Carnival.EXTRA_MESSAGE_ID, messageId);
-        Activity activity = getCurrentActivity();
+        Activity activity = currentActivity();
         if (activity != null) {
-            getCurrentActivity().startActivity(i);
+            activity.startActivity(i);
         }
+    }
+
+    // wrapped to expose for testing
+    protected Activity currentActivity() {
+        return getCurrentActivity();
+    }
+
+    @ReactMethod
+    public void dismissMessageDetail() {
+        // noop. It's here to share signatures with iOS.
     }
 
     /*
@@ -532,7 +553,30 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
         }
     }
 
+    @ReactMethod
+    public void setGeoIPTrackingEnabled(boolean enabled) {
+        Carnival.setGeoIpTrackingEnabled(enabled);
+    }
 
+    @ReactMethod
+    public void setCrashHandlersEnabled(boolean enabled) {
+        // noop. It's here to share signatures with iOS.
+    }
+
+    @ReactMethod
+    public void clearDevice(int options, final Promise promise) {
+        Carnival.clearDevice(options, new Carnival.CarnivalHandler<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                promise.resolve(true);
+            }
+
+            @Override
+            public void onFailure(Error error) {
+                promise.reject(ERROR_CODE_DEVICE, error.getMessage());
+            }
+        });
+    }
 
     /*
      * Helper Methods

@@ -15,7 +15,7 @@
 -(void)getUnreadCount:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)markMessageAsRead:(NSDictionary*)jsDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)removeMessage:(NSDictionary *)jsDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
--(void)presentDetailForMessage:(NSDictionary *)jsDict;
+-(void)presentMessageDetail:(NSDictionary *)jsDict;
 -(void)dismissMessageDetail;
 -(void)registerMessageImpression:(NSInteger)impressionType forMessage:(NSDictionary *)jsDict;
 -(void)getDeviceID:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
@@ -27,6 +27,7 @@
 -(void)trackImpression:(NSString *)sectionID url:(NSArray *)urls resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)setGeoIPTrackingEnabled:(BOOL)enabled;
 -(void)setCrashHandlersEnabled:(BOOL)enabled;
+-(void)clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 @end
 
 
@@ -271,7 +272,7 @@ describe(@"RNCarnival", ^{
         });
     });
 
-    context(@"the presentDetailForMessage: method", ^{
+    context(@"the presentMessageDetail: method", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [CarnivalMessageStream stub:@selector(presentMessageDetailForMessage:)];
@@ -280,8 +281,8 @@ describe(@"RNCarnival", ^{
 
         it(@"should call native method", ^{
             [[CarnivalMessageStream should] receive:@selector(presentMessageDetailForMessage:)];
-
-            [rnCarnival presentDetailForMessage:nil];
+            
+            [rnCarnival presentMessageDetail:nil];
         });
     });
 
@@ -564,6 +565,59 @@ describe(@"RNCarnival", ^{
             [[Carnival should] receive:@selector(setCrashHandlersEnabled:)];
 
             [rnCarnival setCrashHandlersEnabled:YES];
+        });
+    });
+    
+    context(@"the clearDevice:resolver:rejecter: method", ^{
+        __block RNCarnival *rnCarnival = nil;
+        beforeEach(^{
+            [Carnival stub:@selector(clearDeviceData:withResponse:)];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
+        });
+        
+        it(@"should call native method", ^{
+            [[Carnival should] receive:@selector(clearDeviceData:withResponse:) withArguments:theValue(CarnivalDeviceDataTypeAttributes), any()];
+            
+            [rnCarnival clearDevice:CarnivalDeviceDataTypeAttributes resolver:nil rejecter:nil];
+        });
+        
+        it(@"should return success", ^{
+            // Setup variables
+            __block BOOL check = NO;
+            RCTPromiseResolveBlock resolve = ^(NSObject *ignored) {
+                check = YES;
+            };
+            KWCaptureSpy *capture = [Carnival captureArgument:@selector(clearDeviceData:withResponse:) atIndex:1];
+            
+            // Start test
+            [rnCarnival clearDevice:CarnivalDeviceDataTypeAttributes resolver:resolve rejecter:nil];
+            
+            // Capture argument
+            void (^completeBlock)(NSError * _Nullable) = capture.argument;
+            completeBlock(nil);
+            
+            // Verify result
+            [[theValue(check) should] equal:theValue(YES)];
+        });
+        
+        it(@"should return error on failure", ^{
+            // Setup variables
+            __block NSError *check = nil;
+            RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
+                check = error;
+            };
+            KWCaptureSpy *capture = [Carnival captureArgument:@selector(clearDeviceData:withResponse:) atIndex:1];
+            
+            // Start test
+            [rnCarnival clearDevice:CarnivalDeviceDataTypeAttributes resolver:nil rejecter:reject];
+            
+            // Capture argument
+            void (^completeBlock)(NSError * _Nullable) = capture.argument;
+            NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
+            completeBlock(error);
+            
+            // Verify result
+            [[check should] equal:error];
         });
     });
 });

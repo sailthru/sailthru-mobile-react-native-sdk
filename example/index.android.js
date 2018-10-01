@@ -29,7 +29,7 @@ class ReactNativeSampleApp extends Component {
           Carnival.markMessageAsRead(messages[0]);
         }
 
-        Carnival.showMessageDetail(messages[0].id);
+        Carnival.presentMessageDetail(messages[0]);
 
         Carnival.registerMessageImpression(Carnival.MessageImpressionType.InAppView, messages[1]);
       })
@@ -69,12 +69,6 @@ class ReactNativeSampleApp extends Component {
     });
 
     Carnival.setUserId("person@domain.com");
-
-    //Carnival.setGeoIPTrackingEnabled(true);
-
-    //Carnival.setCrashHandlersEnabled(true);
-
-    //Carnival.registerForPushNotifications();
   }
 
   render() {

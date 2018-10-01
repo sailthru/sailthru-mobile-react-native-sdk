@@ -31,7 +31,7 @@ export default class App extends Component<{}> {
       .then(messages => {
         if (messages.length > 2) {
           Carnival.markMessageAsRead(messages[0]);
-          Carnival.presentMessageDetail(messages[0].id);
+          Carnival.presentMessageDetail(messages[0]);
           Carnival.registerMessageImpression(Carnival.MessageImpressionType.InAppView, messages[1]);
         }
       })
@@ -72,12 +72,6 @@ export default class App extends Component<{}> {
 
     Carnival.setUserId("person");
     Carnival.setUserEmail("person@domain.com");
-
-    //Carnival.setGeoIPTrackingEnabled(true);
-
-    //Carnival.setCrashHandlersEnabled(true);
-
-    //Carnival.registerForPushNotifications();
 
     return (
       <View style={styles.container}>
