@@ -44,6 +44,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
     protected final static String ERROR_CODE_MESSAGES = "carnival.messages";
     protected final static String ERROR_CODE_RECOMMENDATIONS = "carnival.recommendations";
     protected final static String ERROR_CODE_TRACKING = "carnival.tracking";
+    protected final static String ERROR_CODE_VARS = "carnival.vars";
     protected final static String MESSAGE_ID = "id";
 
     private boolean displayInAppNotifications;
@@ -574,6 +575,42 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
             @Override
             public void onFailure(Error error) {
                 promise.reject(ERROR_CODE_DEVICE, error.getMessage());
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setProfileVars(ReadableMap vars, final Promise promise) throws JSONException {
+        JSONObject varsJson = convertMapToJson(vars);
+        Carnival.setProfileVars(varsJson, new Carnival.CarnivalHandler<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                promise.resolve(true);
+            }
+
+            @Override
+            public void onFailure(Error error) {
+                promise.reject(ERROR_CODE_VARS, error.getMessage());
+            }
+        });
+    }
+
+    @ReactMethod
+    public void getProfileVars(final Promise promise) {
+        Carnival.getProfileVars(new Carnival.CarnivalHandler<JSONObject>() {
+            @Override
+            public void onSuccess(JSONObject jsonObject) {
+                try {
+                    WritableMap vars = convertJsonToMap(jsonObject);
+                    promise.resolve(vars);
+                } catch (JSONException e) {
+                    promise.reject(ERROR_CODE_VARS, e.getMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(Error error) {
+                promise.reject(ERROR_CODE_VARS, error.getMessage());
             }
         });
     }

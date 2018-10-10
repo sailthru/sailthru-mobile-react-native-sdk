@@ -3,6 +3,7 @@ package com.reactlibrary;
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
+import android.support.annotation.RequiresPermission;
 
 import com.carnival.sdk.AttributeMap;
 import com.carnival.sdk.Carnival;
@@ -15,7 +16,9 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableNativeMap;
 import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
 
 import org.json.JSONObject;
 import org.junit.Before;
@@ -557,5 +560,73 @@ public class RNCarnivalModuleTest {
         // Test error handler
         clearHandler.onFailure(error);
         verify(promise).reject(RNCarnivalModule.ERROR_CODE_DEVICE, errorMessage);
+    }
+
+    @Test
+    public void testSetProfileVars() throws Exception {
+        // Create input
+        ReadableMap vars = mock(ReadableMap.class);
+        JSONObject varsJson = mock(JSONObject.class);
+        Promise promise = mock(Promise.class);
+        Error error = mock(Error.class);
+
+        // Mock methods
+        PowerMockito.doNothing().when(Carnival.class, "setProfileVars", any(JSONObject.class), any(Carnival.CarnivalHandler.class));
+        PowerMockito.when(RNCarnivalModule.class, "convertMapToJson", vars).thenReturn(varsJson);
+
+        // Initiate test
+        rnCarnivalModule.setProfileVars(vars, promise);
+
+        // Verify result
+        ArgumentCaptor<Carnival.CarnivalHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.CarnivalHandler.class);
+        PowerMockito.verifyStatic();
+        Carnival.setProfileVars(eq(varsJson), argumentCaptor.capture());
+        Carnival.CarnivalHandler setVarsHandler = argumentCaptor.getValue();
+
+        // Test success handler
+        setVarsHandler.onSuccess(null);
+        verify(promise).resolve(true);
+
+        // Setup error
+        String errorMessage = "error message";
+        when(error.getMessage()).thenReturn(errorMessage);
+
+        // Test error handler
+        setVarsHandler.onFailure(error);
+        verify(promise).reject(RNCarnivalModule.ERROR_CODE_VARS, errorMessage);
+    }
+
+
+
+    @Test
+    public void testGetProfileVars() throws Exception {
+        // Create input
+        JSONObject varsJson = new JSONObject();
+        Promise promise = mock(Promise.class);
+        Error error = mock(Error.class);
+
+        // Mock methods
+        PowerMockito.doNothing().when(Carnival.class, "getProfileVars", any(Carnival.CarnivalHandler.class));
+
+        // Initiate test
+        rnCarnivalModule.getProfileVars(promise);
+
+        // Verify result
+        ArgumentCaptor<Carnival.CarnivalHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.CarnivalHandler.class);
+        PowerMockito.verifyStatic();
+        Carnival.getProfileVars(argumentCaptor.capture());
+        Carnival.CarnivalHandler getVarsHandler = spy(argumentCaptor.getValue());
+
+        // Test success handler
+        getVarsHandler.onSuccess(varsJson);
+        verify(promise).resolve(any(WritableMap.class));
+
+        // Setup error
+        String errorMessage = "error message";
+        when(error.getMessage()).thenReturn(errorMessage);
+
+        // Test error handler
+        getVarsHandler.onFailure(error);
+        verify(promise).reject(RNCarnivalModule.ERROR_CODE_VARS, errorMessage);
     }
 }
