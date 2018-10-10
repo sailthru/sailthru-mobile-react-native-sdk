@@ -354,6 +354,28 @@ RCT_EXPORT_METHOD(clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBloc
     }];
 }
 
+#pragma mark - Profile Vars
+
+RCT_EXPORT_METHOD(setProfileVars:(NSDictionary *)vars resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    [Carnival setProfileVars:vars withResponse:^(NSError * _Nullable error) {
+        if (error) {
+            [RNCarnival rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(getProfileVars:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    [Carnival getProfileVarsWithResponse:^(NSDictionary<NSString *,id> * _Nullable vars, NSError * _Nullable error) {
+        if (error) {
+            [RNCarnival rejectPromise:reject withError:error];
+        } else {
+            resolve(vars);
+        }
+    }];
+}
+
 
 #pragma mark - Helper Fuctions
 
