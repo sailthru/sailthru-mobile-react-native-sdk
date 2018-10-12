@@ -68,6 +68,22 @@ export default class ReactNativeSampleApp extends Component {
       console.log(e);
     });
 
+    var profileVars = {
+      "string_key" : "string_value",
+      "boolean_key" : true
+    };
+    Carnival.setProfileVars(profileVars).then(result => {
+      console.log("Set Profile Vars Success");
+    }).catch(e => {
+      console.log(e);
+    });
+
+    Carnival.getProfileVars().then(profileVars => {
+      console.log(profileVars);
+    }).catch(e => {
+      console.log(e);
+    });
+
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>

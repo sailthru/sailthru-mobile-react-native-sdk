@@ -28,6 +28,8 @@
 -(void)setGeoIPTrackingEnabled:(BOOL)enabled;
 -(void)setCrashHandlersEnabled:(BOOL)enabled;
 -(void)clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)setProfileVars:(NSDictionary *)vars resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)getProfileVars:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 @end
 
 
@@ -615,6 +617,116 @@ describe(@"RNCarnival", ^{
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
             NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
             completeBlock(error);
+            
+            // Verify result
+            [[check should] equal:error];
+        });
+    });
+    
+    context(@"the setProfileVars:resolver:rejecter: method", ^{
+        __block RNCarnival *rnCarnival = nil;
+        beforeEach(^{
+            [Carnival stub:@selector(setProfileVars:withResponse:)];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
+        });
+        
+        it(@"should call native method", ^{
+            NSDictionary *vars = @{};
+            [[Carnival should] receive:@selector(setProfileVars:withResponse:) withArguments:vars, any()];
+            
+            [rnCarnival setProfileVars:vars resolver:nil rejecter:nil];
+        });
+        
+        it(@"should return success", ^{
+            // Setup variables
+            NSDictionary *vars = @{};
+            __block BOOL check = NO;
+            RCTPromiseResolveBlock resolve = ^(NSObject *ignored) {
+                check = YES;
+            };
+            KWCaptureSpy *capture = [Carnival captureArgument:@selector(setProfileVars:withResponse:) atIndex:1];
+            
+            // Start test
+            [rnCarnival setProfileVars:vars resolver:resolve rejecter:nil];
+            
+            // Capture argument
+            void (^completeBlock)(NSError * _Nullable) = capture.argument;
+            completeBlock(nil);
+            
+            // Verify result
+            [[theValue(check) should] equal:theValue(YES)];
+        });
+        
+        it(@"should return error on failure", ^{
+            // Setup variables
+            NSDictionary *vars = @{};
+            __block NSError *check = nil;
+            RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
+                check = error;
+            };
+            KWCaptureSpy *capture = [Carnival captureArgument:@selector(setProfileVars:withResponse:) atIndex:1];
+            
+            // Start test
+            [rnCarnival setProfileVars:vars resolver:nil rejecter:reject];
+            
+            // Capture argument
+            void (^completeBlock)(NSError * _Nullable) = capture.argument;
+            NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
+            completeBlock(error);
+            
+            // Verify result
+            [[check should] equal:error];
+        });
+    });
+    
+    context(@"the getProfileVars:rejecter: method", ^{
+        __block RNCarnival *rnCarnival = nil;
+        beforeEach(^{
+            [Carnival stub:@selector(getProfileVarsWithResponse:)];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
+        });
+        
+        it(@"should call native method", ^{
+            [[Carnival should] receive:@selector(getProfileVarsWithResponse:) withArguments:any()];
+            
+            [rnCarnival getProfileVars:nil rejecter:nil];
+        });
+        
+        it(@"should return vars on success", ^{
+            // Setup variables
+            NSDictionary *vars = @{};
+            __block NSDictionary *check = nil;
+            RCTPromiseResolveBlock resolve = ^(NSDictionary *retVars) {
+                check = retVars;
+            };
+            KWCaptureSpy *capture = [Carnival captureArgument:@selector(getProfileVarsWithResponse:) atIndex:0];
+            
+            // Start test
+            [rnCarnival getProfileVars:resolve rejecter:nil];
+            
+            // Capture argument
+            void (^completeBlock)(NSDictionary *, NSError * _Nullable) = capture.argument;
+            completeBlock(vars, nil);
+            
+            // Verify result
+            [[check should] equal:vars];
+        });
+        
+        it(@"should return error on failure", ^{
+            // Setup variables
+            __block NSError *check = nil;
+            RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
+                check = error;
+            };
+            KWCaptureSpy *capture = [Carnival captureArgument:@selector(getProfileVarsWithResponse:) atIndex:0];
+            
+            // Start test
+            [rnCarnival getProfileVars:nil rejecter:reject];
+            
+            // Capture argument
+            void (^completeBlock)(NSDictionary *, NSError * _Nullable) = capture.argument;
+            NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
+            completeBlock(nil, error);
             
             // Verify result
             [[check should] equal:error];
