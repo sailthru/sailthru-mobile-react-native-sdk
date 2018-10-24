@@ -15,6 +15,8 @@ Drag into "Libraries" the following files from node_modules/react-native-carniva
 
  * RNCarnival.h
  * RNCarnival.m (Make sure this file's Target Membership is your main app's target)
+ * RNCarnivalBridge.h
+ * RNCarnivalBridge.m (Make sure this file's Target Membership is your main app's target)
 
 Next, Install Carnival iOS SDK from Cocoapods (add `pod 'Carnival'` to your Podfile) or install the framework [manually](http://docs.carnival.io/docs/ios-integration#section-manual-integration) (Carnival.framework can be obtained from node_modules/react-native-carnival).
 
