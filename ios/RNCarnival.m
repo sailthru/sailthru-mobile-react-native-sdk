@@ -34,7 +34,7 @@
     if(self) {
         self.displayInAppNotifications = displayNotifications;
         [CarnivalMessageStream setDelegate:self];
-        [Carnival setWrapperName:@"React Native" andVersion:@"2.1.0"];
+        [Carnival setWrapperName:@"React Native" andVersion:@"2.2.0"];
     }
     return self;
 }
