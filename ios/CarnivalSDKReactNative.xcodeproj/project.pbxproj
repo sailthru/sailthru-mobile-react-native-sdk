@@ -491,8 +491,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F6911E2E0920C3875B29FBEC /* Pods-CarnivalSDKReactNativeTests.debug.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9ZEH62KRVF;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = CarnivalSDKReactNativeTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -502,6 +502,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.carnivalmobile.CarnivalSDKReactNativeTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -510,8 +511,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D93E281A183B895257A2EF63 /* Pods-CarnivalSDKReactNativeTests.release.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9ZEH62KRVF;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = CarnivalSDKReactNativeTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -521,6 +522,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.carnivalmobile.CarnivalSDKReactNativeTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
