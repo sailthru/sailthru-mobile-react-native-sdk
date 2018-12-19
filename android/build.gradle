@@ -22,6 +22,17 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    testOptions {
+        unitTests {
+            returnDefaultValues = true
+            includeAndroidResources = true
+            all {
+                testLogging {
+                    events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
+                }
+            }
+        }
+    }
     lintOptions {
         abortOnError false
     }
