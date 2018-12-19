@@ -459,8 +459,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 530EE07669ABA8AC020F634F /* Pods-CarnivalSDKReactNative.debug.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9ZEH62KRVF;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"$(inherited)",
@@ -475,8 +475,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F493186627791EBF10C74AC3 /* Pods-CarnivalSDKReactNative.release.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9ZEH62KRVF;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"$(inherited)",
