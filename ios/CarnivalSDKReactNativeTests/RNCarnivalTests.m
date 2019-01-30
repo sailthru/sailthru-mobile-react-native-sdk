@@ -12,6 +12,7 @@
 -(void)setAttributes:(NSDictionary *)attributeMap resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)updateLocation:(CGFloat)lat lon:(CGFloat)lon;
 -(void)logEvent:(NSString *)name;
+-(void)logEvent:(NSString *)name withVars:(NSDictionary*)varsDict;
 -(void)getUnreadCount:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)markMessageAsRead:(NSDictionary*)jsDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)removeMessage:(NSDictionary *)jsDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
@@ -176,7 +177,7 @@ describe(@"RNCarnival", ^{
         });
     });
 
-    context(@"the logEvent method", ^{
+    context(@"the logEvent: method", ^{
         __block RNCarnival *rnCarnival = nil;
         beforeEach(^{
             [Carnival stub:@selector(logEvent:)];
@@ -188,6 +189,22 @@ describe(@"RNCarnival", ^{
             [[Carnival should] receive:@selector(logEvent:) withArguments:event];
 
             [rnCarnival logEvent:event];
+        });
+    });
+    
+    context(@"the logEvent:withVars method", ^{
+        __block RNCarnival *rnCarnival = nil;
+        beforeEach(^{
+            [Carnival stub:@selector(logEvent:withVars:)];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
+        });
+        
+        it(@"should call native method", ^{
+            NSString *event = @"Test Event";
+            NSDictionary* eventVars = @{ @"varKey" : @"varValue" };
+            [[Carnival should] receive:@selector(logEvent:withVars:) withArguments:event, eventVars];
+            
+            [rnCarnival logEvent:event withVars:eventVars];
         });
     });
 
