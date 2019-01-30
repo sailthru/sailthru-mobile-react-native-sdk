@@ -58,6 +58,11 @@ export default class App extends Component<{}> {
 
     Carnival.logEvent("This is my event");
 
+    var eventVars = {
+      "varKey" : "varValue"
+    };
+    Carnival.logEvent("this is my event with vars", eventVars);
+
     Carnival.getUnreadCount().then(function(count) {
       console.log(count);
     }, function(e){
