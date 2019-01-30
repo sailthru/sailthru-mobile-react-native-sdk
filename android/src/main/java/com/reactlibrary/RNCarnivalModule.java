@@ -144,6 +144,12 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
     }
 
     @ReactMethod
+    public void logEvent(String eventName, ReadableMap varsMap) throws JSONException {
+        JSONObject varsJson = convertMapToJson(varsMap);
+        Carnival.logEvent(eventName, varsJson);
+    }
+
+    @ReactMethod
     public void setAttributes(ReadableMap attributeMap, final Promise promise) throws JSONException {
         JSONObject attributeMapJson = convertMapToJson(attributeMap);
         JSONObject attributes = attributeMapJson.getJSONObject("attributes");

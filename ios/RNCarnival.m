@@ -165,6 +165,10 @@ RCT_EXPORT_METHOD(logEvent:(NSString *)name) {
     [Carnival logEvent:name];
 }
 
+RCT_EXPORT_METHOD(logEvent:(NSString *)name withVars:(NSDictionary*)varsDict) {
+    [Carnival logEvent:name withVars:varsDict];
+}
+
 
 #pragma mark - Message Stream
 

@@ -141,6 +141,24 @@ public class RNCarnivalModuleTest {
     }
 
     @Test
+    public void testLogEventWithVars() throws Exception {
+        String event = "event string";
+        JSONObject varsJson = new JSONObject().put("varKey", "varValue");
+
+        // setup mocks
+        ReadableMap readableMap = mock(ReadableMap.class);
+
+        // setup mocking
+        PowerMockito.when(RNCarnivalModule.class, "convertMapToJson", readableMap).thenReturn(varsJson);
+        PowerMockito.doNothing().when(Carnival.class, "logEvent", event, varsJson);
+
+        rnCarnivalModule.logEvent(event, readableMap);
+
+        PowerMockito.verifyStatic();
+        Carnival.logEvent(event, varsJson);
+    }
+
+    @Test
     public void testSetAttributes() throws Exception {
         // setup mocks
         ReadableMap readableMap = mock(ReadableMap.class);
