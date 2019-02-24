@@ -755,10 +755,25 @@ describe(@"RNCarnival", ^{
     context(@"the registerForPushNotifications method", ^{
         __block RNCarnival *rnCarnival = nil;
         __block NSProcessInfo *mockInfo = nil;
+        __block UIApplication *mockApplication;
         __block UNAuthorizationOptions options = UNAuthorizationOptionAlert | UNAuthorizationOptionBadge | UNAuthorizationOptionSound;
         beforeEach(^{
             [Carnival stub:@selector(getProfileVarsWithResponse:)];
             rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
+            
+            mockApplication = [UIApplication mock];
+            [mockApplication stub:@selector(isRegisteredForRemoteNotifications) andReturn:theValue(YES)];
+            [UIApplication stub:@selector(sharedApplication) andReturn:mockApplication];
+            
+            NSOperatingSystemVersion version;
+            version.majorVersion = 10;
+            version.minorVersion = 0;
+            version.patchVersion = 0;
+            
+            mockInfo = [NSProcessInfo mock];
+            [mockInfo stub:@selector(operatingSystemVersion) andReturn:theValue(version)];
+            
+            [NSProcessInfo stub:@selector(processInfo) andReturn:mockInfo];
         });
         
         context(@"on iOS 10+", ^{
@@ -766,16 +781,6 @@ describe(@"RNCarnival", ^{
             beforeEach(^{
                 mockCenter = [UNUserNotificationCenter mock];
                 [UNUserNotificationCenter stub:@selector(currentNotificationCenter) andReturn:mockCenter];
-                
-                NSOperatingSystemVersion version;
-                version.majorVersion = 10;
-                version.minorVersion = 0;
-                version.patchVersion = 0;
-                
-                mockInfo = [NSProcessInfo mock];
-                [mockInfo stub:@selector(operatingSystemVersion) andReturn:theValue(version)];
-                
-                [NSProcessInfo stub:@selector(processInfo) andReturn:mockInfo];
             });
             
             it(@"should request authorization from the UNUserNotificationCenter", ^{
@@ -786,11 +791,7 @@ describe(@"RNCarnival", ^{
         });
         
         context(@"on iOS 8-9", ^{
-            __block UIApplication *mockApplication;
             beforeEach(^{
-                mockApplication = [UIApplication mock];
-                [UIApplication stub:@selector(sharedApplication) andReturn:mockApplication];
-                
                 NSOperatingSystemVersion version;
                 version.majorVersion = 8;
                 version.minorVersion = 0;
@@ -805,6 +806,23 @@ describe(@"RNCarnival", ^{
             it(@"should register user notification settings with UIApplication", ^{
                 UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:(UIUserNotificationType)options categories:nil];
                 [[mockApplication should] receive:@selector(registerUserNotificationSettings:) withArguments:settings];
+                
+                [rnCarnival registerForPushNotifications];
+            });
+        });
+        
+        context(@"if application is not registered for remote notifications", ^{
+            __block UNUserNotificationCenter *mockCenter;
+            beforeEach(^{
+                mockCenter = [UNUserNotificationCenter mock];
+                [mockCenter stub:@selector(requestAuthorizationWithOptions:completionHandler:)];
+                [UNUserNotificationCenter stub:@selector(currentNotificationCenter) andReturn:mockCenter];
+                
+                [mockApplication stub:@selector(isRegisteredForRemoteNotifications) andReturn:theValue(NO)];
+            });
+            
+            it(@"should register for remote notifications", ^{
+                [[mockApplication should] receive:@selector(registerForRemoteNotifications)];
                 
                 [rnCarnival registerForPushNotifications];
             });

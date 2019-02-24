@@ -345,6 +345,10 @@ RCT_EXPORT_METHOD(registerForPushNotifications) {
         UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:(UIUserNotificationType)options categories:nil];
         [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
     }
+    
+    if(![[UIApplication sharedApplication] isRegisteredForRemoteNotifications]) {
+        [[UIApplication sharedApplication] registerForRemoteNotifications];
+    }
 }
 
 RCT_EXPORT_METHOD(clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
