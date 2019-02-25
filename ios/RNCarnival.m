@@ -346,9 +346,11 @@ RCT_EXPORT_METHOD(registerForPushNotifications) {
         [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
     }
     
-    if(![[UIApplication sharedApplication] isRegisteredForRemoteNotifications]) {
-        [[UIApplication sharedApplication] registerForRemoteNotifications];
-    }
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        if(![[UIApplication sharedApplication] isRegisteredForRemoteNotifications]) {
+            [[UIApplication sharedApplication] registerForRemoteNotifications];
+        }
+    }];
 }
 
 RCT_EXPORT_METHOD(clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
