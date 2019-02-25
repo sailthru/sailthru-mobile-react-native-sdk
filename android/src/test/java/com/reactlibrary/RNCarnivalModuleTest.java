@@ -3,20 +3,16 @@ package com.reactlibrary;
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
-import android.support.annotation.RequiresPermission;
 
 import com.carnival.sdk.AttributeMap;
 import com.carnival.sdk.Carnival;
 import com.carnival.sdk.CarnivalImpressionType;
 import com.carnival.sdk.ContentItem;
 import com.carnival.sdk.Message;
-import com.carnival.sdk.MessageActivity;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.ReadableNativeMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 
@@ -42,9 +38,7 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.booleanThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.doNothing;
@@ -53,7 +47,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Carnival.class, RNCarnivalModule.class})

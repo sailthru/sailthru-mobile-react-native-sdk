@@ -2,6 +2,7 @@
 #import <XCTest/XCTest.h>
 #import "RNCarnival.h"
 #import "Kiwi.h"
+#import <UserNotifications/UserNotifications.h>
 
 // interface to expose methods for testing
 @interface RNCarnival ()
@@ -28,6 +29,7 @@
 -(void)trackImpression:(NSString *)sectionID url:(NSArray *)urls resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)setGeoIPTrackingEnabled:(BOOL)enabled;
 -(void)setCrashHandlersEnabled:(BOOL)enabled;
+-(void)registerForPushNotifications;
 -(void)clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)setProfileVars:(NSDictionary *)vars resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)getProfileVars:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
@@ -747,6 +749,96 @@ describe(@"RNCarnival", ^{
             
             // Verify result
             [[check should] equal:error];
+        });
+    });
+    
+    context(@"the registerForPushNotifications method", ^{
+        __block RNCarnival *rnCarnival = nil;
+        __block NSProcessInfo *mockInfo = nil;
+        __block UNAuthorizationOptions options = UNAuthorizationOptionAlert | UNAuthorizationOptionBadge | UNAuthorizationOptionSound;
+        __block NSOperationQueue *mockQueue;
+        beforeEach(^{
+            [Carnival stub:@selector(getProfileVarsWithResponse:)];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
+            
+            mockQueue = [NSOperationQueue mock];
+            [mockQueue stub:@selector(addOperationWithBlock:)];
+            [NSOperationQueue stub:@selector(mainQueue) andReturn:mockQueue];
+            
+            NSOperatingSystemVersion version;
+            version.majorVersion = 10;
+            version.minorVersion = 0;
+            version.patchVersion = 0;
+            
+            mockInfo = [NSProcessInfo mock];
+            [mockInfo stub:@selector(operatingSystemVersion) andReturn:theValue(version)];
+            
+            [NSProcessInfo stub:@selector(processInfo) andReturn:mockInfo];
+        });
+        
+        context(@"on iOS 10+", ^{
+            __block UNUserNotificationCenter *mockCenter;
+            beforeEach(^{
+                mockCenter = [UNUserNotificationCenter mock];
+                [UNUserNotificationCenter stub:@selector(currentNotificationCenter) andReturn:mockCenter];
+            });
+            
+            it(@"should request authorization from the UNUserNotificationCenter", ^{
+                [[mockCenter should] receive:@selector(requestAuthorizationWithOptions:completionHandler:)];
+                
+                [rnCarnival registerForPushNotifications];
+            });
+        });
+        
+        context(@"on iOS 8-9", ^{
+            __block UIApplication *mockApplication;
+            beforeEach(^{
+                mockApplication = [UIApplication mock];
+                [UIApplication stub:@selector(sharedApplication) andReturn:mockApplication];
+                
+                NSOperatingSystemVersion version;
+                version.majorVersion = 8;
+                version.minorVersion = 0;
+                version.patchVersion = 0;
+                
+                mockInfo = [NSProcessInfo mock];
+                [mockInfo stub:@selector(operatingSystemVersion) andReturn:theValue(version)];
+                
+                [NSProcessInfo stub:@selector(processInfo) andReturn:mockInfo];
+            });
+            
+            it(@"should register user notification settings with UIApplication", ^{
+                UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:(UIUserNotificationType)options categories:nil];
+                [[mockApplication should] receive:@selector(registerUserNotificationSettings:) withArguments:settings];
+                
+                [rnCarnival registerForPushNotifications];
+            });
+        });
+        
+        context(@"if application is not registered for remote notifications", ^{
+            __block UNUserNotificationCenter *mockCenter;
+            __block UIApplication *mockApplication;
+            beforeEach(^{
+                mockCenter = [UNUserNotificationCenter mock];
+                [mockCenter stub:@selector(requestAuthorizationWithOptions:completionHandler:)];
+                [UNUserNotificationCenter stub:@selector(currentNotificationCenter) andReturn:mockCenter];
+                
+                mockApplication = [UIApplication mock];
+                [mockApplication stub:@selector(isRegisteredForRemoteNotifications) andReturn:theValue(NO)];
+                [UIApplication stub:@selector(sharedApplication) andReturn:mockApplication];
+                
+                
+            });
+            
+            it(@"should register for remote notifications", ^{
+                [[mockApplication should] receive:@selector(registerForRemoteNotifications)];
+                KWCaptureSpy *queueCapture = [mockQueue captureArgument:@selector(addOperationWithBlock:) atIndex:0];
+                
+                [rnCarnival registerForPushNotifications];
+                
+                void (^opBlock)(void) = queueCapture.argument;
+                opBlock();
+            });
         });
     });
 });

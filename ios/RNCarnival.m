@@ -1,5 +1,6 @@
 
 #import "RNCarnival.h"
+#import <UserNotifications/UserNotifications.h>
 
 @interface CarnivalMessage ()
 
@@ -336,16 +337,20 @@ RCT_EXPORT_METHOD(setCrashHandlersEnabled:(BOOL)enabled) {
 
 // Push Registration
 RCT_EXPORT_METHOD(registerForPushNotifications) {
-    UIUserNotificationType types = UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound;
-
-    if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) { // iOS 8+
-        UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
+    UNAuthorizationOptions options = UNAuthorizationOptionAlert | UNAuthorizationOptionBadge | UNAuthorizationOptionSound;
+    if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion >= 10) {
+        [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:options completionHandler:^(BOOL granted, NSError * _Nullable error) {}];
+    }
+    else {
+        UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:(UIUserNotificationType)options categories:nil];
         [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
-        [[UIApplication sharedApplication] registerForRemoteNotifications];
     }
-    else { //iOS 7
-        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:(UIRemoteNotificationType)types];
-    }
+    
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        if(![[UIApplication sharedApplication] isRegisteredForRemoteNotifications]) {
+            [[UIApplication sharedApplication] registerForRemoteNotifications];
+        }
+    }];
 }
 
 RCT_EXPORT_METHOD(clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
