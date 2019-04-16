@@ -35,7 +35,7 @@
     if(self) {
         self.displayInAppNotifications = displayNotifications;
         [CarnivalMessageStream setDelegate:self];
-        [Carnival setWrapperName:@"React Native" andVersion:@"3.0.0"];
+        [Carnival setWrapperName:@"React Native" andVersion:@"3.0.1"];
     }
     return self;
 }
@@ -345,7 +345,7 @@ RCT_EXPORT_METHOD(registerForPushNotifications) {
         UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:(UIUserNotificationType)options categories:nil];
         [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
     }
-    
+
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         if(![[UIApplication sharedApplication] isRegisteredForRemoteNotifications]) {
             [[UIApplication sharedApplication] registerForRemoteNotifications];

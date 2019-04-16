@@ -16,7 +16,7 @@ target 'CarnivalSDKReactNative' do
       'CxxBridge' # Include this for RN >= 0.47
     ]
 
-    pod 'Carnival', '8.2.0'
+    pod 'Carnival', '8.2.2'
     pod 'Kiwi', '2.4.0'
     pod 'OCMock', '3.1.2'
 
