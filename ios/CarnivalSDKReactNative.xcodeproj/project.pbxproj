@@ -239,7 +239,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-CarnivalSDKReactNativeTests/Pods-CarnivalSDKReactNativeTests-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-CarnivalSDKReactNativeTests/Pods-CarnivalSDKReactNativeTests-frameworks.sh",
 				"${PODS_ROOT}/Carnival/Carnival.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -248,7 +248,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CarnivalSDKReactNativeTests/Pods-CarnivalSDKReactNativeTests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-CarnivalSDKReactNativeTests/Pods-CarnivalSDKReactNativeTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		3BC764DC5DE02361F52F7E56 /* [CP] Check Pods Manifest.lock */ = {
@@ -275,7 +275,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-CarnivalSDKReactNativeTests/Pods-CarnivalSDKReactNativeTests-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-CarnivalSDKReactNativeTests/Pods-CarnivalSDKReactNativeTests-resources.sh",
 				"${PODS_ROOT}/Carnival/Carnival.framework/cp_close_button@2x.png",
 				"${PODS_ROOT}/Carnival/Carnival.framework/cp_close_button_white@2x.png",
 				"${PODS_ROOT}/Carnival/Carnival.framework/cp_message_close_button@2x.png",
@@ -316,7 +316,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CarnivalSDKReactNativeTests/Pods-CarnivalSDKReactNativeTests-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-CarnivalSDKReactNativeTests/Pods-CarnivalSDKReactNativeTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
