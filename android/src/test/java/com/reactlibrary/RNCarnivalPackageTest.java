@@ -33,29 +33,59 @@ public class RNCarnivalPackageTest {
 
     private RNCarnivalPackage rnCarnivalPackage;
     private String appKey = "App Key";
-    private boolean displayInAppNotifications = false;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
+
+    }
+
+    private void stubCarnival() throws Exception {
         MockitoAnnotations.initMocks(this);
         PowerMockito.mockStatic(Carnival.class);
         PowerMockito.doNothing().when(Carnival.class, "startEngine", any(), any());
+    }
 
-        rnCarnivalPackage = new RNCarnivalPackage(mockContext, appKey, displayInAppNotifications);
+    private void setupDefaultPackage() throws Exception {
+        stubCarnival();
+        rnCarnivalPackage = new RNCarnivalPackage(mockContext, appKey);
     }
 
     @Test
-    public void testConstructor() {
+    public void testConstructor() throws Exception {
+        setupDefaultPackage();
         PowerMockito.verifyStatic();
         Carnival.startEngine(mockContext, appKey);
-        Assert.assertFalse(rnCarnivalPackage.displayInAppNotifications);
+    }
+
+    @Test
+    public void testDisplayInAppConstructor() throws Exception {
+        stubCarnival();
+        RNCarnivalPackage carnivalPackage = new RNCarnivalPackage(mockContext, appKey, false);
+        PowerMockito.verifyStatic();
+        Carnival.startEngine(mockContext, appKey);
+        Assert.assertFalse(carnivalPackage.displayInAppNotifications);
+    }
+
+    @Test
+    public void testBuilderConstructor() throws Exception {
+        stubCarnival();
+        RNCarnivalPackage.Builder builder = RNCarnivalPackage.Builder.createInstance(mockContext, appKey)
+                .setDisplayInAppNotifications(false)
+                .setGeoIPTrackingDefault(false);
+        RNCarnivalPackage carnivalPackage = new RNCarnivalPackage(builder);
+
+        PowerMockito.verifyStatic();
+        Carnival.setGeoIpTrackingDefault(false);
+        PowerMockito.verifyStatic();
+        Carnival.startEngine(mockContext, appKey);
+        Assert.assertFalse(carnivalPackage.displayInAppNotifications);
     }
 
     @Test
     public void testDefaultConstructor() {
         boolean exceptionThrown = false;
         try {
-            RNCarnivalPackage rnCarnivalPackage = new RNCarnivalPackage();
+            new RNCarnivalPackage();
         } catch (UnsupportedOperationException e) {
             exceptionThrown = true;
         }
@@ -63,7 +93,8 @@ public class RNCarnivalPackageTest {
     }
 
     @Test
-    public void testCreateNativeModules() {
+    public void testCreateNativeModules() throws Exception {
+        setupDefaultPackage();
         List<NativeModule> nativeModules = rnCarnivalPackage.createNativeModules(reactApplicationContext);
         Assert.assertEquals(1, nativeModules.size());
         NativeModule nativeModule = nativeModules.get(0);
@@ -71,15 +102,56 @@ public class RNCarnivalPackageTest {
     }
 
     @Test
-    public void testCreateJSModules() {
+    public void testCreateJSModules() throws Exception {
+        setupDefaultPackage();
         List<Class<? extends JavaScriptModule>> jsModules = rnCarnivalPackage.createJSModules();
         Assert.assertTrue(jsModules.isEmpty());
     }
 
     @Test
-    public void testCreateViewManagers() {
+    public void testCreateViewManagers() throws Exception {
+        setupDefaultPackage();
         List<com.facebook.react.uimanager.ViewManager> viewManagers = rnCarnivalPackage.createViewManagers(reactApplicationContext);
         Assert.assertTrue(viewManagers.isEmpty());
     }
 
+
+    // Builder Tests
+
+    @Test
+    public void testBuilderCreateInstance() {
+        RNCarnivalPackage.Builder builder = RNCarnivalPackage.Builder.createInstance(mockContext, appKey);
+        Assert.assertEquals(mockContext, builder.context);
+        Assert.assertEquals(appKey, builder.appKey);
+    }
+
+    @Test
+    public void testBuilderSetDisplayInAppNotifications() {
+        RNCarnivalPackage.Builder builder = RNCarnivalPackage.Builder.createInstance(mockContext, appKey)
+                .setDisplayInAppNotifications(false);
+        Assert.assertFalse(builder.displayInAppNotifications);
+    }
+
+    @Test
+    public void testBuilderSetGeoIPTrackingDefault() {
+        RNCarnivalPackage.Builder builder = RNCarnivalPackage.Builder.createInstance(mockContext, appKey)
+                .setGeoIPTrackingDefault(false);
+        Assert.assertFalse(builder.geoIPTrackingDefault);
+    }
+
+    @Test
+    public void testBuilderBuild() throws Exception {
+        stubCarnival();
+        RNCarnivalPackage carnivalPackage = RNCarnivalPackage.Builder.createInstance(mockContext, appKey)
+                .setDisplayInAppNotifications(false)
+                .setGeoIPTrackingDefault(false)
+                .build();
+
+        PowerMockito.verifyStatic();
+        Carnival.setGeoIpTrackingDefault(false);
+        PowerMockito.verifyStatic();
+        Carnival.startEngine(mockContext, appKey);
+
+        Assert.assertFalse(carnivalPackage.displayInAppNotifications);
+    }
 }

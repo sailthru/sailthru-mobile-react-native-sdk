@@ -566,6 +566,21 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
     }
 
     @ReactMethod
+    public void setGeoIPTrackingEnabled(boolean enabled, final Promise promise) {
+        Carnival.setGeoIpTrackingEnabled(enabled, new Carnival.CarnivalHandler<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                promise.resolve(true);
+            }
+
+            @Override
+            public void onFailure(Error error) {
+                promise.reject(ERROR_CODE_DEVICE, error.getMessage());
+            }
+        });
+    }
+
+    @ReactMethod
     public void setCrashHandlersEnabled(boolean enabled) {
         // noop. It's here to share signatures with iOS.
     }
