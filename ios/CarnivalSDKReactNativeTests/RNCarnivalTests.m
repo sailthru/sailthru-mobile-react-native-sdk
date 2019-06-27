@@ -28,6 +28,8 @@
 -(void)trackPageview:(NSString *)url tags:(NSArray *)tags resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)trackImpression:(NSString *)sectionID url:(NSArray *)urls resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)setGeoIPTrackingEnabled:(BOOL)enabled;
+-(void)setGeoIPTrackingEnabled:(BOOL)enabled resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)setGeoIPTrackingDefault:(BOOL)enabled;
 -(void)setCrashHandlersEnabled:(BOOL)enabled;
 -(void)registerForPushNotifications;
 -(void)clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
@@ -558,6 +560,73 @@ describe(@"RNCarnival", ^{
             [[Carnival should] receive:@selector(setGeoIPTrackingEnabled:)];
 
             [rnCarnival setGeoIPTrackingEnabled:YES];
+        });
+    });
+    
+    context(@"the setGeoIPTrackingEnabled:resolver:rejecter: method", ^{
+        __block RNCarnival *rnCarnival = nil;
+        beforeEach(^{
+            [Carnival stub:@selector(setGeoIPTrackingEnabled:withResponse:)];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
+        });
+        
+        it(@"should call native method", ^{
+            [[Carnival should] receive:@selector(setGeoIPTrackingEnabled:withResponse:) withArguments:theValue(YES), any(), any()];
+            
+            [rnCarnival setGeoIPTrackingEnabled:YES resolver:nil rejecter:nil];
+        });
+        
+        it(@"should return success", ^{
+            // Setup variables
+            __block BOOL check = NO;
+            RCTPromiseResolveBlock resolve = ^(NSObject *ignored) {
+                check = YES;
+            };
+            KWCaptureSpy *capture = [Carnival captureArgument:@selector(setGeoIPTrackingEnabled:withResponse:) atIndex:1];
+            
+            // Start test
+            [rnCarnival setGeoIPTrackingEnabled:YES resolver:resolve rejecter:nil];
+            
+            // Capture argument
+            void (^completeBlock)(NSError * _Nullable) = capture.argument;
+            completeBlock(nil);
+            
+            // Verify result
+            [[theValue(check) should] equal:theValue(YES)];
+        });
+        
+        it(@"should return error on failure", ^{
+            // Setup variables
+            __block NSError *check = nil;
+            RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
+                check = error;
+            };
+            KWCaptureSpy *capture = [Carnival captureArgument:@selector(setGeoIPTrackingEnabled:withResponse:) atIndex:1];
+            
+            // Start test
+            [rnCarnival setGeoIPTrackingEnabled:YES resolver:nil rejecter:reject];
+            
+            // Capture argument
+            void (^completeBlock)(NSError * _Nullable) = capture.argument;
+            NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
+            completeBlock(error);
+            
+            // Verify result
+            [[check should] equal:error];
+        });
+    });
+    
+    context(@"the setGeoIPTrackingDefault: method", ^{
+        __block RNCarnival *rnCarnival = nil;
+        beforeEach(^{
+            [Carnival stub:@selector(setGeoIPTrackingDefault:)];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
+        });
+        
+        it(@"should call native method", ^{
+            [[Carnival should] receive:@selector(setGeoIPTrackingDefault:)];
+            
+            [rnCarnival setGeoIPTrackingDefault:YES];
         });
     });
 
