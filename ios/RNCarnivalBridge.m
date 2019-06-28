@@ -11,6 +11,25 @@
 }
 
 - (instancetype)initWithJSCodeLocation:(NSURL *)jsCodeLocation
+                                appKey:(NSString *)appKey {
+    return [self initWithJSCodeLocation:jsCodeLocation appKey:appKey registerForPushNotifications:YES geoIpTrackingDefault:YES];
+}
+
+- (instancetype)initWithJSCodeLocation:(NSURL *)jsCodeLocation
+                                appKey:(NSString *)appKey
+          registerForPushNotifications:(BOOL)registerForPushNotifications
+                  geoIpTrackingDefault:(BOOL)geoIpTrackingDefault {
+    self = [super init];
+    if(self) {
+        [Carnival setGeoIPTrackingDefault:geoIpTrackingDefault];
+        [Carnival startEngine:appKey registerForPushNotifications:registerForPushNotifications];
+        _jsCodeLocation = jsCodeLocation;
+        _displayInAppNotifications = YES;
+    }
+    return self;
+}
+
+- (instancetype)initWithJSCodeLocation:(NSURL *)jsCodeLocation
                                 appKey:(NSString *)appKey
           registerForPushNotifications:(BOOL)registerForPushNotifications
              displayInAppNotifications:(BOOL)displayNotifications {

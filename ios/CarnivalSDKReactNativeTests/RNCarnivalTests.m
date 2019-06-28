@@ -615,20 +615,6 @@ describe(@"RNCarnival", ^{
             [[check should] equal:error];
         });
     });
-    
-    context(@"the setGeoIPTrackingDefault: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(setGeoIPTrackingDefault:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-        
-        it(@"should call native method", ^{
-            [[Carnival should] receive:@selector(setGeoIPTrackingDefault:)];
-            
-            [rnCarnival setGeoIPTrackingDefault:YES];
-        });
-    });
 
     context(@"the setCrashHandlersEnabled: method", ^{
         __block RNCarnival *rnCarnival = nil;

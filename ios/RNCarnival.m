@@ -341,10 +341,6 @@ RCT_EXPORT_METHOD(setGeoIPTrackingEnabled:(BOOL)enabled resolver:(RCTPromiseReso
     }];
 }
 
-RCT_EXPORT_METHOD(setGeoIPTrackingDefault:(BOOL)enabled) {
-    [Carnival setGeoIPTrackingDefault:enabled];
-}
-
 RCT_EXPORT_METHOD(setCrashHandlersEnabled:(BOOL)enabled) {
     [Carnival setCrashHandlersEnabled:enabled];
 }

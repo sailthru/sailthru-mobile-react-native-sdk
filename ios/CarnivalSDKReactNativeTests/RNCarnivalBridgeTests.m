@@ -20,6 +20,96 @@ describe(@"RNCarnival", ^{
         });
     });
     
+    context(@"the initWithJSCodeLocation:appKey: method", ^{
+        __block NSURL *jsCodeLocation = nil;
+        __block NSString *appKey = nil;
+        
+        beforeEach(^{
+            [Carnival stub:@selector(setGeoIPTrackingDefault:)];
+            [Carnival stub:@selector(startEngine:registerForPushNotifications:)];
+            
+            jsCodeLocation = [NSURL mock];
+            appKey = [NSString mock];
+        });
+        
+        it(@"should set geo IP tracking default", ^{
+            [[Carnival should] receive:@selector(setGeoIPTrackingDefault:) withArguments:theValue(YES)];
+            
+            RNCarnivalBridge *rnCarnivalBridge = [[RNCarnivalBridge alloc] initWithJSCodeLocation:jsCodeLocation
+                                                                                           appKey:appKey];
+            (void)rnCarnivalBridge;
+        });
+        
+        it(@"should call startEngine", ^{
+            [[Carnival should] receive:@selector(startEngine:registerForPushNotifications:) withArguments:appKey, theValue(YES)];
+            
+            RNCarnivalBridge *rnCarnivalBridge = [[RNCarnivalBridge alloc] initWithJSCodeLocation:jsCodeLocation
+                                                                                           appKey:appKey];
+            (void)rnCarnivalBridge;
+        });
+        
+        it(@"should set the JS code location", ^{
+            RNCarnivalBridge *rnCarnivalBridge = [[RNCarnivalBridge alloc] initWithJSCodeLocation:jsCodeLocation
+                                                                                           appKey:appKey];
+            [[rnCarnivalBridge.jsCodeLocation should] equal:jsCodeLocation];
+        });
+        
+        it(@"should set whether to display in app notifications", ^{
+            RNCarnivalBridge *rnCarnivalBridge = [[RNCarnivalBridge alloc] initWithJSCodeLocation:jsCodeLocation
+                                                                                           appKey:appKey];
+            [[theValue(rnCarnivalBridge.displayInAppNotifications) should] equal:theValue(YES)];
+        });
+    });
+    
+    context(@"the initWithJSCodeLocation:appKey:registerForPushNotifications:geoIpTrackingDefault: method", ^{
+        __block NSURL *jsCodeLocation = nil;
+        __block NSString *appKey = nil;
+        
+        beforeEach(^{
+            [Carnival stub:@selector(setGeoIPTrackingDefault:)];
+            [Carnival stub:@selector(startEngine:registerForPushNotifications:)];
+            
+            jsCodeLocation = [NSURL mock];
+            appKey = [NSString mock];
+        });
+        
+        it(@"should set geo IP tracking default", ^{
+            [[Carnival should] receive:@selector(setGeoIPTrackingDefault:) withArguments:theValue(NO)];
+            
+            RNCarnivalBridge *rnCarnivalBridge = [[RNCarnivalBridge alloc] initWithJSCodeLocation:jsCodeLocation
+                                                                                           appKey:appKey
+                                                                     registerForPushNotifications:NO
+                                                                             geoIpTrackingDefault:NO];
+            (void)rnCarnivalBridge;
+        });
+        
+        it(@"should call startEngine", ^{
+            [[Carnival should] receive:@selector(startEngine:registerForPushNotifications:) withArguments:appKey, theValue(NO)];
+            
+            RNCarnivalBridge *rnCarnivalBridge = [[RNCarnivalBridge alloc] initWithJSCodeLocation:jsCodeLocation
+                                                                                           appKey:appKey
+                                                                     registerForPushNotifications:NO
+                                                                             geoIpTrackingDefault:NO];
+            (void)rnCarnivalBridge;
+        });
+        
+        it(@"should set the JS code location", ^{
+            RNCarnivalBridge *rnCarnivalBridge = [[RNCarnivalBridge alloc] initWithJSCodeLocation:jsCodeLocation
+                                                                                           appKey:appKey
+                                                                     registerForPushNotifications:NO
+                                                                             geoIpTrackingDefault:NO];
+            [[rnCarnivalBridge.jsCodeLocation should] equal:jsCodeLocation];
+        });
+        
+        it(@"should set whether to display in app notifications", ^{
+            RNCarnivalBridge *rnCarnivalBridge = [[RNCarnivalBridge alloc] initWithJSCodeLocation:jsCodeLocation
+                                                                                           appKey:appKey
+                                                                     registerForPushNotifications:NO
+                                                                             geoIpTrackingDefault:NO];
+            [[theValue(rnCarnivalBridge.displayInAppNotifications) should] equal:theValue(YES)];
+        });
+    });
+    
     context(@"the initWithDisplayInAppNotifications method", ^{
         __block NSURL *jsCodeLocation = nil;
         __block NSString *appKey = nil;
@@ -63,8 +153,6 @@ describe(@"RNCarnival", ^{
         __block NSURL *jsCodeLocation = nil;
         __block NSString *appKey = nil;
         __block RNCarnivalBridge *rnCarnivalBridge = nil;
-        BOOL registerForPushNotifications = YES;
-        BOOL displayInAppNotifications = NO;
         
         beforeEach(^{
             [Carnival stub:@selector(startEngine:registerForPushNotifications:)];
@@ -73,9 +161,7 @@ describe(@"RNCarnival", ^{
             appKey = [NSString mock];
             
             rnCarnivalBridge = [[RNCarnivalBridge alloc] initWithJSCodeLocation:jsCodeLocation
-                                                                         appKey:appKey
-                                                   registerForPushNotifications:registerForPushNotifications
-                                                      displayInAppNotifications:displayInAppNotifications];
+                                                                         appKey:appKey];
         });
         
         it(@"should return jsCodeLocation", ^{
@@ -88,8 +174,6 @@ describe(@"RNCarnival", ^{
         __block NSURL *jsCodeLocation = nil;
         __block NSString *appKey = nil;
         __block RNCarnivalBridge *rnCarnivalBridge = nil;
-        BOOL registerForPushNotifications = YES;
-        BOOL displayInAppNotifications = NO;
         
         beforeEach(^{
             [Carnival stub:@selector(startEngine:registerForPushNotifications:)];
@@ -98,9 +182,7 @@ describe(@"RNCarnival", ^{
             appKey = [NSString mock];
             
             rnCarnivalBridge = [[RNCarnivalBridge alloc] initWithJSCodeLocation:jsCodeLocation
-                                                                         appKey:appKey
-                                                   registerForPushNotifications:registerForPushNotifications
-                                                      displayInAppNotifications:displayInAppNotifications];
+                                                                         appKey:appKey];
         });
         
         it(@"should return RNCarnivalModule in array", ^{
