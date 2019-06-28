@@ -74,7 +74,8 @@ public class RNCarnivalPackage implements ReactPackage {
     }
 
     /**
-     * Builder for the RNCarnivalPackage class.
+     * Builder for the RNCarnivalPackage class. Use this specify additional options
+     * in the RNCarnivalPackage class such as whether to display in app messages.
      */
     public static class Builder {
         protected Context context;
