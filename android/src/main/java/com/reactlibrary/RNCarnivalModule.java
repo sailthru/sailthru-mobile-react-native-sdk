@@ -45,6 +45,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
     protected final static String ERROR_CODE_RECOMMENDATIONS = "carnival.recommendations";
     protected final static String ERROR_CODE_TRACKING = "carnival.tracking";
     protected final static String ERROR_CODE_VARS = "carnival.vars";
+    protected final static String ERROR_CODE_PURCHASE = "carnival.purchase";
     protected final static String MESSAGE_ID = "id";
 
     private boolean displayInAppNotifications;
@@ -634,6 +635,61 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
                 promise.reject(ERROR_CODE_VARS, error.getMessage());
             }
         });
+    }
+
+    @ReactMethod
+    public void logPurchase(ReadableMap purchaseMap, final Promise promise) throws JSONException {
+        Purchase purchase = getPurchaseInstance(purchaseMap, promise);
+        if (purchase != null) {
+            Carnival.logPurchase(purchase, new Carnival.CarnivalHandler<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    promise.resolve(true);
+                }
+
+                @Override
+                public void onFailure(Error error) {
+                    promise.reject(ERROR_CODE_PURCHASE, error.getMessage());
+                }
+            });
+        }
+    }
+
+    @ReactMethod
+    public void logAbandonedCart(ReadableMap purchaseMap, final Promise promise) throws JSONException {
+        Purchase purchase = getPurchaseInstance(purchaseMap, promise);
+        if (purchase != null) {
+            Carnival.logAbandonedCart(purchase, new Carnival.CarnivalHandler<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    promise.resolve(true);
+                }
+
+                @Override
+                public void onFailure(Error error) {
+                    promise.reject(ERROR_CODE_PURCHASE, error.getMessage());
+                }
+            });
+        }
+    }
+
+    private static Purchase getPurchaseInstance(ReadableMap purchaseMap, final Promise promise) throws JSONException {
+        JSONObject purchaseJson = convertMapToJson(purchaseMap);
+        try {
+            Constructor purchaseConstructor = Purchase.class.getDeclaredConstructor(JSONObject.class);
+            purchaseConstructor.setAccessible(true);
+            Purchase purchase = purchaseConstructor.newInstance(purchaseJson);
+            return purchase;
+        } catch (NoSuchMethodException e) {
+            promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
+        } catch (IllegalAccessException e) {
+            promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
+        } catch (InvocationTargetException e) {
+            promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
+        } catch (InstantiationException e) {
+            promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
+        }
+        return null;
     }
 
     /*

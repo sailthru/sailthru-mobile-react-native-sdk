@@ -638,8 +638,6 @@ public class RNCarnivalModuleTest {
         verify(promise).reject(RNCarnivalModule.ERROR_CODE_VARS, errorMessage);
     }
 
-
-
     @Test
     public void testGetProfileVars() throws Exception {
         // Create input
@@ -669,6 +667,74 @@ public class RNCarnivalModuleTest {
 
         // Test error handler
         getVarsHandler.onFailure(error);
+        verify(promise).reject(RNCarnivalModule.ERROR_CODE_VARS, errorMessage);
+    }
+
+    @Test
+    public void testLogPurchase() throws Exception {
+        // Create input
+        ReadableMap purchaseMap = mock(ReadableMap.class);
+        Purchase purchase = mock(Purchase.class);
+        Promise promise = mock(Promise.class);
+        Error error = mock(Error.class);
+
+        // Mock methods
+        PowerMockito.doNothing().when(Carnival.class, "logPurchase", any(Purchase.class), any(Carnival.CarnivalHandler.class));
+        PowerMockito.when(RNCarnivalModule.class, "getPurchaseInstance", purchaseMap, promise).thenReturn(purchase);
+
+        // Initiate test
+        rnCarnivalModule.logPurchase(purchaseMap, promise);
+
+        // Verify result
+        ArgumentCaptor<Carnival.CarnivalHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.CarnivalHandler.class);
+        PowerMockito.verifyStatic();
+        Carnival.logPurchase(eq(purchase), argumentCaptor.capture());
+        Carnival.CarnivalHandler purchaseHandler = argumentCaptor.getValue();
+
+        // Test success handler
+        purchaseHandler.onSuccess(null);
+        verify(promise).resolve(true);
+
+        // Setup error
+        String errorMessage = "error message";
+        when(error.getMessage()).thenReturn(errorMessage);
+
+        // Test error handler
+        purchaseHandler.onFailure(error);
+        verify(promise).reject(RNCarnivalModule.ERROR_CODE_VARS, errorMessage);
+    }
+
+    @Test
+    public void testLogAbandonedCart() throws Exception {
+        // Create input
+        ReadableMap purchaseMap = mock(ReadableMap.class);
+        Purchase purchase = mock(Purchase.class);
+        Promise promise = mock(Promise.class);
+        Error error = mock(Error.class);
+
+        // Mock methods
+        PowerMockito.doNothing().when(Carnival.class, "logAbandonedCart", any(Purchase.class), any(Carnival.CarnivalHandler.class));
+        PowerMockito.when(RNCarnivalModule.class, "getPurchaseInstance", purchaseMap, promise).thenReturn(purchase);
+
+        // Initiate test
+        rnCarnivalModule.logAbandonedCart(purchaseMap, promise);
+
+        // Verify result
+        ArgumentCaptor<Carnival.CarnivalHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.CarnivalHandler.class);
+        PowerMockito.verifyStatic();
+        Carnival.logPurchase(eq(purchase), argumentCaptor.capture());
+        Carnival.CarnivalHandler purchaseHandler = argumentCaptor.getValue();
+
+        // Test success handler
+        purchaseHandler.onSuccess(null);
+        verify(promise).resolve(true);
+
+        // Setup error
+        String errorMessage = "error message";
+        when(error.getMessage()).thenReturn(errorMessage);
+
+        // Test error handler
+        purchaseHandler.onFailure(error);
         verify(promise).reject(RNCarnivalModule.ERROR_CODE_VARS, errorMessage);
     }
 }

@@ -39,6 +39,12 @@ export default class App extends Component<{}> {
         console.log(e);
     });
 
+    Carnival.getRecommendations("sectionID").then(function(contentItemsArray) {
+      // Content items contain data for recommended items
+    }).catch(function(error) {
+      // Handle errors here
+    });
+
     var attrMap = new Carnival.AttributeMap();
     attrMap.setString("string_key", "This is the string value");
     attrMap.setStringArray("strings_key", ["This is first value", "This is the second value"]);
@@ -90,6 +96,22 @@ export default class App extends Component<{}> {
 
     Carnival.getProfileVars().then(profileVars => {
       console.log(profileVars);
+    }).catch(e => {
+      console.log(e);
+    });
+
+    var purchaseItem1 = new Carnival.PurchaseItem(1, "title", 1234, 2345, "www.example.com/item1");
+    var purchaseItem2 = new Carnival.PurchaseItem(3, "other item", 1534, 2346, "www.example.com/item2");
+    var purchaseItems = [ purchaseItem, purchaseItem2 ];
+    var purchase = new Carnival.Purchase(purchaseItems);
+    Carnival.logPurchase(purchase).then(result => {
+      console.log("Purchase Log Success");
+    }).catch(e => {
+      console.log(e);
+    });
+
+    Carnival.logAbandonedCart(purchase).then(result => {
+      console.log("Abandoned Cart Log Success");
     }).catch(e => {
       console.log(e);
     });

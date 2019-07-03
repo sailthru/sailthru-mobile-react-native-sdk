@@ -35,6 +35,8 @@
 -(void)clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)setProfileVars:(NSDictionary *)vars resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)getProfileVars:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)logPurchase:(NSDictionary *)purchaseDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)logAbandonedCart:(NSDictionary *)purchaseDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 @end
 
 
@@ -894,6 +896,116 @@ describe(@"RNCarnival", ^{
                 void (^opBlock)(void) = queueCapture.argument;
                 opBlock();
             });
+        });
+    });
+    
+    context(@"the logPurchase:resolver:rejecter: method", ^{
+        __block RNCarnival *rnCarnival = nil;
+        __block NSDictionary *purchase = nil;
+        beforeEach(^{
+            purchase = @{@"items":@[]};
+            [Carnival stub:@selector(logPurchase:withResponse:)];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
+        });
+        
+        it(@"should call native method", ^{
+            [[Carnival should] receive:@selector(logPurchase:withResponse:)];
+            
+            [rnCarnival logPurchase:purchase resolver:nil rejecter:nil];
+        });
+        
+        it(@"should return success", ^{
+            // Setup variables
+            __block BOOL check = NO;
+            RCTPromiseResolveBlock resolve = ^(NSObject *ignored) {
+                check = YES;
+            };
+            KWCaptureSpy *capture = [Carnival captureArgument:@selector(logPurchase:withResponse:) atIndex:1];
+            
+            // Start test
+            [rnCarnival logPurchase:purchase resolver:resolve rejecter:nil];
+            
+            // Capture argument
+            void (^completeBlock)(NSError * _Nullable) = capture.argument;
+            completeBlock(nil);
+            
+            // Verify result
+            [[theValue(check) should] equal:theValue(YES)];
+        });
+        
+        it(@"should return error on failure", ^{
+            // Setup variables
+            __block NSError *check = nil;
+            RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
+                check = error;
+            };
+            KWCaptureSpy *capture = [Carnival captureArgument:@selector(logPurchase:withResponse:) atIndex:1];
+            
+            // Start test
+            [rnCarnival logPurchase:purchase resolver:nil rejecter:reject];
+            
+            // Capture argument
+            void (^completeBlock)(NSError * _Nullable) = capture.argument;
+            NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
+            completeBlock(error);
+            
+            // Verify result
+            [[check should] equal:error];
+        });
+    });
+    
+    context(@"the logAbandonedCart:resolver:rejecter: method", ^{
+        __block RNCarnival *rnCarnival = nil;
+        __block NSDictionary *purchase = nil;
+        beforeEach(^{
+            purchase = @{@"items":@[]};
+            [Carnival stub:@selector(logAbandonedCart:withResponse:)];
+            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
+        });
+        
+        it(@"should call native method", ^{
+            [[Carnival should] receive:@selector(logAbandonedCart:withResponse:)];
+            
+            [rnCarnival logAbandonedCart:purchase resolver:nil rejecter:nil];
+        });
+        
+        it(@"should return success", ^{
+            // Setup variables
+            __block BOOL check = NO;
+            RCTPromiseResolveBlock resolve = ^(NSObject *ignored) {
+                check = YES;
+            };
+            KWCaptureSpy *capture = [Carnival captureArgument:@selector(logAbandonedCart:withResponse:) atIndex:1];
+            
+            // Start test
+            [rnCarnival logAbandonedCart:purchase resolver:resolve rejecter:nil];
+            
+            // Capture argument
+            void (^completeBlock)(NSError * _Nullable) = capture.argument;
+            completeBlock(nil);
+            
+            // Verify result
+            [[theValue(check) should] equal:theValue(YES)];
+        });
+        
+        it(@"should return error on failure", ^{
+            // Setup variables
+            __block NSError *check = nil;
+            RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
+                check = error;
+            };
+            KWCaptureSpy *capture = [Carnival captureArgument:@selector(logAbandonedCart:withResponse:) atIndex:1];
+            
+            // Start test
+            [rnCarnival logAbandonedCart:purchase resolver:nil rejecter:reject];
+            
+            // Capture argument
+            void (^completeBlock)(NSError * _Nullable) = capture.argument;
+            NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
+            completeBlock(error);
+            
+            // Verify result
+            [[check should] equal:error];
         });
     });
 });

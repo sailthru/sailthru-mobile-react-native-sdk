@@ -22,6 +22,12 @@
 
 @end
 
+@interface CarnivalPurchase ()
+
+- (nullable instancetype)initWithDictionary:(NSDictionary *)dictionary;
+
+@end
+
 
 @implementation RNCarnival
 
@@ -395,6 +401,30 @@ RCT_EXPORT_METHOD(getProfileVars:(RCTPromiseResolveBlock)resolve rejecter:(RCTPr
     }];
 }
 
+
+#pragma mark - Purchases
+
+RCT_EXPORT_METHOD(logPurchase:(NSDictionary *)purchaseDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    CarnivalPurchase *purchase = [[CarnivalPurchase alloc] initWithDictionary:purchaseDict];
+    [Carnival logPurchase:purchase withResponse:^(NSError * _Nullable error) {
+        if (error) {
+            [RNCarnival rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(logAbandonedCart:(NSDictionary *)purchaseDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    CarnivalPurchase *purchase = [[CarnivalPurchase alloc] initWithDictionary:purchaseDict];
+    [Carnival logAbandonedCart:purchase withResponse:^(NSError * _Nullable error) {
+        if (error) {
+            [RNCarnival rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
+}
 
 #pragma mark - Helper Fuctions
 
