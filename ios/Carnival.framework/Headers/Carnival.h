@@ -5,7 +5,7 @@
 //  Created by Carnival Mobile
 //  Copyright (c) 2017 Carnival.io. All rights reserved.
 //
-//  For documentation see http://docs.carnival.io
+//  For documentation see http://docs.mobile.sailthru.com
 //
 
 #import <Foundation/Foundation.h>
@@ -16,7 +16,7 @@
 #import "CarnivalLogger.h"
 #import "CarnivalContentItem.h"
 
-#define CARNIVAL_VERSION @"8.2.3"
+#define CARNIVAL_VERSION @"8.3.0"
 FOUNDATION_EXPORT double CarnivalSDKVersionNumber;
 FOUNDATION_EXPORT const unsigned char CarnivalSDKVersionString[];
 
@@ -44,9 +44,9 @@ NS_ASSUME_NONNULL_END
 /**
  *  Sets the Carnival appKey credentials for this app.
  *
- *  @param appKey The appKey you recieved when setting up your app at http://app.carnivalmobile.com .
+ *  @param appKey The appKey you recieved when setting up your app at http://mobile.sailthru.com .
  *  @discussion An exception will be raised if you do not set your appKey before you call any other methods.
- *  Make sure your app bundle identifier is the same as whatever it is set to on http://app.carnivalmobile.com .
+ *  Make sure your app bundle identifier is the same as whatever it is set to on http://mobile.sailthru.com .
  *
  *  @warning It is important that this method is called at the earliest possible opportunity (e.g. application:didFinishLaunchingWithOptions:),
  *  calling it later in the app lifecycle can have unintended consequences. No startEngine: calls (overrides included) must not be called more than once.
@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_END
  *  On devices running iOS 12+ provisional authorization will be requested if registerForPushNotifications is set to NO, allowing Quiet push notifications to
  *  be sent to the device.
  *
- *  @param appKey The appKey you recieved when setting up your app at http://app.carnivalmobile.com .
+ *  @param appKey The appKey you recieved when setting up your app at http://mobile.sailthru.com .
  *  @param registerForPushNotifications when this parameter is YES the Carnival iOS SDK will automatically register for push notifications
  *
  *  @warning It is important that this method is called at the earliest possible opportunity (e.g. application:didFinishLaunchingWithOptions:),
@@ -294,6 +294,23 @@ NS_ASSUME_NONNULL_END
 + (void)setGeoIPTrackingEnabled:(BOOL)enabled;
 
 /**
+ *  Enabled location tracking based on IP Address. Tracking location tracking is enabled by default.
+ *  Use this method for users who may not want to have their location tracked at all.
+ *
+ *  @param enabled A boolean value indicating whether or not to disable location based on IP Address.
+ *  @param block The block to handle the result of the call. May contain an error if the call failed.
+ */
++ (void)setGeoIPTrackingEnabled:(BOOL)enabled withResponse:(nullable void(^)(NSError *__nullable))block;
+
+/**
+ *  Set whether location tracking based on IP Address will be enabled or disabled by default when a device is created.
+ *  This method must be called before startEngine.
+ *
+ *  @param enabled A boolean value indicating whether or not location based on IP Address should be enabled by default.
+ */
++ (void)setGeoIPTrackingDefault:(BOOL)enabled;
+
+/**
  *  Enable crash tracking for recording sessions which end in a crash.
  *  Warning: This is for advanced uses where in some cases, crash handlers from Test Flight or Fabric (Crashlytics) interrupt Carnival crash detection.
  *  If you are not experiencing these issues, do not use this method.
@@ -309,5 +326,13 @@ NS_ASSUME_NONNULL_END
  *  @param enabled A boolean value indicating whether or not to swizzle notification related methods. Defaults to YES.
  */
 + (void)setAutoIntegrationEnabled:(BOOL)enabled;
+
+/**
+ * Registers group names that will be used with any Extensions. This allows the CarnivalExtensionFramework to share data with the main CarnivalFramework in order to allow
+ * events to be recorded in Extensions.
+ *
+ * @param groupNames Array of strings representing the app group names.
+ */
++ (void)registerExtensionGroups:(NSArray<NSString *> * _Nonnull)groupNames;
 
 @end

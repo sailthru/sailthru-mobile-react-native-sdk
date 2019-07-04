@@ -1,6 +1,8 @@
 PODS:
   - boost-for-react-native (1.63.0)
-  - Carnival (8.2.3)
+  - Carnival (8.3.0):
+    - Carnival/Extension (= 8.3.0)
+  - Carnival/Extension (8.3.0)
   - DoubleConversion (1.1.5)
   - Folly (2016.10.31.00):
     - boost-for-react-native
@@ -28,7 +30,7 @@ PODS:
   - yoga (0.56.0.React)
 
 DEPENDENCIES:
-  - Carnival (= 8.2.3)
+  - Carnival (= 8.3.0)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - Kiwi (= 2.4.0)
   - OCMock (= 3.1.2)
@@ -55,7 +57,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  Carnival: bac578dbc960d3fb13aeaf54d34050009b66e0ac
+  Carnival: 6cd5edfb5e8a0458073b5f58471fa230f88dc0d5
   DoubleConversion: e22e0762848812a87afd67ffda3998d9ef29170c
   Folly: c89ac2d5c6ab169cd7397ef27485c44f35f742c7
   glog: 1de0bb937dccdc981596d3b5825ebfb765017ded
@@ -64,6 +66,6 @@ SPEC CHECKSUMS:
   React: bdb39c05e2eed10a43056cff89a68bc9ebe7f232
   yoga: 2418c171de153cbe3c94dc28c3bf691b1695ae17
 
-PODFILE CHECKSUM: 976f4fb03ba439b89409fa649e52e062b26edad3
+PODFILE CHECKSUM: 924bb8e6e8abb1322ac101075c5282e05b56c87a
 
 COCOAPODS: 1.6.2

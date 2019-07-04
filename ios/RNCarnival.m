@@ -331,6 +331,16 @@ RCT_EXPORT_METHOD(setGeoIPTrackingEnabled:(BOOL)enabled) {
     [Carnival setGeoIPTrackingEnabled:enabled];
 }
 
+RCT_EXPORT_METHOD(setGeoIPTrackingEnabled:(BOOL)enabled resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    [Carnival setGeoIPTrackingEnabled:enabled withResponse:^(NSError * _Nullable error) {
+        if (error) {
+            [RNCarnival rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
+}
+
 RCT_EXPORT_METHOD(setCrashHandlersEnabled:(BOOL)enabled) {
     [Carnival setCrashHandlersEnabled:enabled];
 }

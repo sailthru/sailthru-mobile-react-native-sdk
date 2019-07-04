@@ -29,9 +29,7 @@ You will then need replace the code that creates your RCTRootView with the code 
       ...
       id<RCTBridgeDelegate> moduleInitialiser = [[RNCarnivalBridge alloc]
                                                  initWithJSCodeLocation:jsCodeLocation   // JS Code location used here should be same location used before
-                                                 appKey:SDK_KEY                          // Obtain SDK key from your Carnival app settings
-                                                 registerForPushNotifications:YES        // Whether the SDK should handle push notification registration
-                                                 displayInAppNotifications:YES];         // Whether the SDK should display in app notifications automatically
+                                                 appKey:SDK_KEY];                        // Obtain SDK key from your Carnival app settings
 
       RCTBridge * bridge = [[RCTBridge alloc] initWithDelegate:moduleInitialiser launchOptions:launchOptions];
 
@@ -88,8 +86,7 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
           new RNCarnivalPackage(getApplicationContext(), // Should pass in application context
-                                SDK_KEY,                 // Obtain SDK key from your Carnival app settings
-                                true)                    // Whether SDK should display in app notifications automatically
+                                SDK_KEY)                 // Obtain SDK key from your Carnival app settings
       );
     }
   ...

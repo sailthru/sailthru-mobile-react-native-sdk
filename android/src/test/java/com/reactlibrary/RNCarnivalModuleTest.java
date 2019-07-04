@@ -542,6 +542,37 @@ public class RNCarnivalModuleTest {
     }
 
     @Test
+    public void testSeGeoIPTrackingEnabledWithPromise() throws Exception {
+        // Create input
+        Promise promise = mock(Promise.class);
+        Error error = mock(Error.class);
+
+        // Mock methods
+        PowerMockito.doNothing().when(Carnival.class, "setGeoIpTrackingEnabled", anyBoolean(), any(Carnival.CarnivalHandler.class));
+
+        // Initiate test
+        rnCarnivalModule.setGeoIPTrackingEnabled(false, promise);
+
+        // Verify result
+        ArgumentCaptor<Carnival.CarnivalHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.CarnivalHandler.class);
+        PowerMockito.verifyStatic();
+        Carnival.setGeoIpTrackingEnabled(eq(false), argumentCaptor.capture());
+        Carnival.CarnivalHandler clearHandler = argumentCaptor.getValue();
+
+        // Test success handler
+        clearHandler.onSuccess(null);
+        verify(promise).resolve(true);
+
+        // Setup error
+        String errorMessage = "error message";
+        when(error.getMessage()).thenReturn(errorMessage);
+
+        // Test error handler
+        clearHandler.onFailure(error);
+        verify(promise).reject(RNCarnivalModule.ERROR_CODE_DEVICE, errorMessage);
+    }
+
+    @Test
     public void testClearDevice() throws Exception {
         // Create input
         int clearValue = Carnival.ATTRIBUTES;
