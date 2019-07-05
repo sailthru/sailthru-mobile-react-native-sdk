@@ -144,28 +144,28 @@ Carnival.DeviceValues = {Attributes: 1, MessageStream: 2, Events: 4, ClearAll: 7
  * Creates a purchase item with the required fields.
  * @param {Number} quantity The quantity of the item.
  * @param {String} title The name/title of the item.
- * @param {Number} price The price of one unit of the item.
+ * @param {Number} price The price of one unit of the item in cents (e.g. $10.99 is 1099).
  * @param {Number} ID The ID you have set for the item.
  * @param {String} url The url for the item.
  */
 Carnival.PurchaseItem = function(quantity, title, price, id, url) {
-  if (!quantity instanceof Number) {
+  if (!(quantity instanceof Number)) {
     throw new TypeError(quantity + ' is not a number');
     return;
   }
-  if (!title instanceof String) {
+  if (!(title instanceof String)) {
     throw new TypeError(title + ' is not a string');
     return;
   }
-  if (!price instanceof Number) {
+  if (!(price instanceof Number)) {
     throw new TypeError(price + ' is not a number');
     return;
   }
-  if (!id instanceof Number) {
+  if (!(id instanceof Number)) {
     throw new TypeError(id + ' is not a number');
     return;
   }
-  if (!url instanceof String) {
+  if (!(url instanceof String)) {
     throw new TypeError(url + ' is not a string');
     return;
   }
@@ -196,7 +196,7 @@ Carnival.PurchaseItem = function(quantity, title, price, id, url) {
    * @param {Object} vars the vars to set.
    */
   this.setVars = function(vars) {
-    if (!vars instanceof Object) {
+    if (!(vars instanceof Object)) {
       throw new TypeError(vars + ' is not an object');
       return;
     }
@@ -220,7 +220,7 @@ Carnival.PurchaseItem = function(quantity, title, price, id, url) {
    * @param {Object} images images to set.
    */
   this.setImages = function(images) {
-    if (!images instanceof Object) {
+    if (!(images instanceof Object)) {
       throw new TypeError(images + ' is not an object');
       return;
     }
@@ -253,11 +253,26 @@ Carnival.Purchase = function(purchaseItems) {
    * @param {Object} vars map containing the custom fields for the purchase.
    */
   this.setVars = function(vars) {
-    if (!vars instanceof Object) {
+    if (!(vars instanceof Object)) {
       throw new TypeError(vars + ' is not an object');
       return;
     }
     this.vars = vars;
+  }
+
+  /**
+   * Set the message ID associated with the purchase. This is required to have revenue data matched
+   * to email sends in Sailthru. Pass the identifying message_id of the email the user is coming from;
+   * this will be the value stored in the sailthru_bid cookie for your domain. The message attribution
+   * will be displayed in your Campaign Summary, Transactional Report, Purchase Log, and in Lifecycle
+   * Optimizer Metrics.
+   */
+  this.setMessageId = function(messageId) {
+    if (!(messageId instanceof String)) {
+      throw new TypeError(vars + ' is not a string');
+      return;
+    }
+    this.message_id = messageId;
   }
 }
 
