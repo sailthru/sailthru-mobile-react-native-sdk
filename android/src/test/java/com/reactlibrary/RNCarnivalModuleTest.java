@@ -9,6 +9,7 @@ import com.carnival.sdk.Carnival;
 import com.carnival.sdk.CarnivalImpressionType;
 import com.carnival.sdk.ContentItem;
 import com.carnival.sdk.Message;
+import com.carnival.sdk.Purchase;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReadableArray;
@@ -701,7 +702,7 @@ public class RNCarnivalModuleTest {
 
         // Test error handler
         purchaseHandler.onFailure(error);
-        verify(promise).reject(RNCarnivalModule.ERROR_CODE_VARS, errorMessage);
+        verify(promise).reject(RNCarnivalModule.ERROR_CODE_PURCHASE, errorMessage);
     }
 
     @Test
@@ -722,7 +723,7 @@ public class RNCarnivalModuleTest {
         // Verify result
         ArgumentCaptor<Carnival.CarnivalHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.CarnivalHandler.class);
         PowerMockito.verifyStatic();
-        Carnival.logPurchase(eq(purchase), argumentCaptor.capture());
+        Carnival.logAbandonedCart(eq(purchase), argumentCaptor.capture());
         Carnival.CarnivalHandler purchaseHandler = argumentCaptor.getValue();
 
         // Test success handler
@@ -735,6 +736,6 @@ public class RNCarnivalModuleTest {
 
         // Test error handler
         purchaseHandler.onFailure(error);
-        verify(promise).reject(RNCarnivalModule.ERROR_CODE_VARS, errorMessage);
+        verify(promise).reject(RNCarnivalModule.ERROR_CODE_PURCHASE, errorMessage);
     }
 }

@@ -11,6 +11,7 @@ import com.carnival.sdk.CarnivalImpressionType;
 import com.carnival.sdk.ContentItem;
 import com.carnival.sdk.Message;
 import com.carnival.sdk.MessageActivity;
+import com.carnival.sdk.Purchase;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -678,7 +679,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
         try {
             Constructor purchaseConstructor = Purchase.class.getDeclaredConstructor(JSONObject.class);
             purchaseConstructor.setAccessible(true);
-            Purchase purchase = purchaseConstructor.newInstance(purchaseJson);
+            Purchase purchase = (Purchase) purchaseConstructor.newInstance(purchaseJson);
             return purchase;
         } catch (NoSuchMethodException e) {
             promise.reject(ERROR_CODE_PURCHASE, e.getMessage());

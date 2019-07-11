@@ -6,7 +6,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.1'
+        classpath 'com.android.tools.build:gradle:3.4.2'
     }
 }
 
@@ -41,14 +41,14 @@ android {
 repositories {
     mavenCentral()
     maven {
-        url "https://github.com/carnivalmobile/maven-repository/raw/master/"
+        url "https://github.com/carnivalmobile/maven-repository/raw/snapshots/"
     }
     google()
 }
 
 dependencies {
     api 'com.facebook.react:react-native:+'
-    api 'com.carnival.sdk:carnival:8.1.0'
+    api 'com.carnival.sdk:carnival:8.2.0-SNAPSHOT'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:1.10.19'
