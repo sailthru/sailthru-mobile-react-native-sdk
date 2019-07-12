@@ -142,34 +142,13 @@ Carnival.DeviceValues = {Attributes: 1, MessageStream: 2, Events: 4, ClearAll: 7
 
 /**
  * Creates a purchase item with the required fields.
- * @param {Number} quantity The quantity of the item.
- * @param {String} title The name/title of the item.
- * @param {Number} price The price of one unit of the item in cents (e.g. $10.99 is 1099).
- * @param {Number} ID The ID you have set for the item.
- * @param {String} url The url for the item.
+ * @param {int} quantity The quantity of the item.
+ * @param {string} title The name/title of the item.
+ * @param {int} price The price of one unit of the item in cents (e.g. $10.99 is 1099).
+ * @param {string} ID The ID you have set for the item.
+ * @param {string} url The url for the item.
  */
 Carnival.PurchaseItem = function(quantity, title, price, id, url) {
-  if (!(quantity instanceof Number)) {
-    throw new TypeError(quantity + ' is not a number');
-    return;
-  }
-  if (!(title instanceof String)) {
-    throw new TypeError(title + ' is not a string');
-    return;
-  }
-  if (!(price instanceof Number)) {
-    throw new TypeError(price + ' is not a number');
-    return;
-  }
-  if (!(id instanceof Number)) {
-    throw new TypeError(id + ' is not a number');
-    return;
-  }
-  if (!(url instanceof String)) {
-    throw new TypeError(url + ' is not a string');
-    return;
-  }
-
   this.qty = quantity;
   this.title = title;
   this.price = price;
@@ -181,10 +160,6 @@ Carnival.PurchaseItem = function(quantity, title, price, id, url) {
    * @param {Array} tags Array of strings containing tags for the product.
    */
   this.setTags = function(tags) {
-    if (!Array.isArray(tags)) {
-      throw new TypeError(tags + ' is not an array');
-      return;
-    }
     this.tags = tags;
   }
 
@@ -196,10 +171,6 @@ Carnival.PurchaseItem = function(quantity, title, price, id, url) {
    * @param {Object} vars the vars to set.
    */
   this.setVars = function(vars) {
-    if (!(vars instanceof Object)) {
-      throw new TypeError(vars + ' is not an object');
-      return;
-    }
     this.vars = vars;
   }
 
@@ -220,12 +191,20 @@ Carnival.PurchaseItem = function(quantity, title, price, id, url) {
    * @param {Object} images images to set.
    */
   this.setImages = function(images) {
-    if (!(images instanceof Object)) {
-      throw new TypeError(images + ' is not an object');
-      return;
-    }
     this.images = images;
   }
+}
+
+/**
+ * Creates a purchase item from a content item.
+ * @param {Object} contentItem The content item.
+ */
+Carnival.PurchaseItem.fromContentItem = function(contentItem) {
+  var purchaseItem = new this(contentItem.purchase_qty, contentItem.title, contentItem.price, contentItem.sku, contentItem.url);
+  purchaseItem.tags = contentItem.tags;
+  purchaseItem.vars = contentItem.vars;
+  purchaseItem.images = contentItem.images;
+  return purchaseItem;
 }
 
 /**
@@ -233,11 +212,6 @@ Carnival.PurchaseItem = function(quantity, title, price, id, url) {
  * @param {Array} purchaseItems an array of {Carnival.PurchaseItem} objects.
  */
 Carnival.Purchase = function(purchaseItems) {
-  if (!Array.isArray(purchaseItems)) {
-    throw new TypeError(purchaseItems + ' is not an array');
-    return;
-  }
-
   this.items = purchaseItems;
 
   /**
@@ -253,10 +227,6 @@ Carnival.Purchase = function(purchaseItems) {
    * @param {Object} vars map containing the custom fields for the purchase.
    */
   this.setVars = function(vars) {
-    if (!(vars instanceof Object)) {
-      throw new TypeError(vars + ' is not an object');
-      return;
-    }
     this.vars = vars;
   }
 
@@ -266,14 +236,23 @@ Carnival.Purchase = function(purchaseItems) {
    * this will be the value stored in the sailthru_bid cookie for your domain. The message attribution
    * will be displayed in your Campaign Summary, Transactional Report, Purchase Log, and in Lifecycle
    * Optimizer Metrics.
+   * @param {string} messageId the message ID
    */
   this.setMessageId = function(messageId) {
-    if (!(messageId instanceof String)) {
-      throw new TypeError(vars + ' is not a string');
-      return;
-    }
     this.message_id = messageId;
   }
+}
+
+/**
+ * Creates a Purchase object from an array of ContentItem objects.
+ * @param {Array} contentItems an array of ContentItem objects.
+ */
+Carnival.Purchase.fromContentItems = function(contentItems) {
+  var purchaseItems = [];
+  contentItems.forEach(function (item, index) {
+    purchaseItems.push(new Carnival.PurchaseItem(item));
+  });
+  return new this(purchaseItems);
 }
 
 module.exports = Carnival;
