@@ -89,8 +89,8 @@ export default class ReactNativeSampleApp extends Component {
       console.log(e);
     });
 
-    var purchaseItem1 = new Carnival.PurchaseItem(1, "title", 1234, 2345, "www.example.com/item1");
-    var purchaseItem2 = new Carnival.PurchaseItem(3, "other item", 1534, 2346, "www.example.com/item2");
+    var purchaseItem1 = new Carnival.PurchaseItem(1, "title", 1234, "2345", "https://www.example.com/item1");
+    var purchaseItem2 = new Carnival.PurchaseItem(3, "other item", 1534, "2346", "https://www.example.com/item2");
     var purchaseItems = [ purchaseItem, purchaseItem2 ];
     var purchase = new Carnival.Purchase(purchaseItems);
     Carnival.logPurchase(purchase).then(result => {
