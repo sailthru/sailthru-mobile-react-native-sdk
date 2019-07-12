@@ -4,6 +4,7 @@ package com.reactlibrary;
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
+import android.util.Log;
 
 import com.carnival.sdk.AttributeMap;
 import com.carnival.sdk.Carnival;
@@ -380,6 +381,61 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
         return array;
     }
 
+    private static JSONObject convertPurchaseMapToJson(ReadableMap readableMap) throws JSONException {
+        JSONObject object = new JSONObject();
+        ReadableMapKeySetIterator iterator = readableMap.keySetIterator();
+        while (iterator.hasNextKey()) {
+            String key = iterator.nextKey();
+            switch (readableMap.getType(key)) {
+                case Null:
+                    object.put(key, JSONObject.NULL);
+                    break;
+                case Boolean:
+                    object.put(key, readableMap.getBoolean(key));
+                    break;
+                case Number:
+                    object.put(key, readableMap.getInt(key));
+                    break;
+                case String:
+                    object.put(key, readableMap.getString(key));
+                    break;
+                case Map:
+                    object.put(key, convertPurchaseMapToJson(readableMap.getMap(key)));
+                    break;
+                case Array:
+                    object.put(key, convertPurchaseArrayToJson(readableMap.getArray(key)));
+                    break;
+            }
+        }
+        return object;
+    }
+
+    private static JSONArray convertPurchaseArrayToJson(ReadableArray readableArray) throws JSONException {
+        JSONArray array = new JSONArray();
+        for (int i = 0; i < readableArray.size(); i++) {
+            switch (readableArray.getType(i)) {
+                case Null:
+                    break;
+                case Boolean:
+                    array.put(readableArray.getBoolean(i));
+                    break;
+                case Number:
+                    array.put(readableArray.getDouble(i));
+                    break;
+                case String:
+                    array.put(readableArray.getString(i));
+                    break;
+                case Map:
+                    array.put(convertPurchaseMapToJson(readableArray.getMap(i)));
+                    break;
+                case Array:
+                    array.put(convertPurchaseArrayToJson(readableArray.getArray(i)));
+                    break;
+            }
+        }
+        return array;
+    }
+
     @ReactMethod
     public void setUserId(String userId) {
         Carnival.setUserId(userId, null);
@@ -641,15 +697,18 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
     @ReactMethod
     public void logPurchase(ReadableMap purchaseMap, final Promise promise) throws JSONException {
         Purchase purchase = getPurchaseInstance(purchaseMap, promise);
+        Log.d("PURCHASE", purchase.toString());
         if (purchase != null) {
             Carnival.logPurchase(purchase, new Carnival.CarnivalHandler<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
+                    Log.d("PURCHASE", "SUCCESS");
                     promise.resolve(true);
                 }
 
                 @Override
                 public void onFailure(Error error) {
+                    Log.d("PURCHASE", "ERROR");
                     promise.reject(ERROR_CODE_PURCHASE, error.getMessage());
                 }
             });
@@ -659,15 +718,18 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
     @ReactMethod
     public void logAbandonedCart(ReadableMap purchaseMap, final Promise promise) throws JSONException {
         Purchase purchase = getPurchaseInstance(purchaseMap, promise);
+        Log.d("ABANDONED CART", purchase.toString());
         if (purchase != null) {
             Carnival.logAbandonedCart(purchase, new Carnival.CarnivalHandler<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
+                    Log.d("ABANDONED CART", "SUCCESS");
                     promise.resolve(true);
                 }
 
                 @Override
                 public void onFailure(Error error) {
+                    Log.d("ABANDONED CART", "ERROR");
                     promise.reject(ERROR_CODE_PURCHASE, error.getMessage());
                 }
             });
@@ -675,7 +737,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
     }
 
     private static Purchase getPurchaseInstance(ReadableMap purchaseMap, final Promise promise) throws JSONException {
-        JSONObject purchaseJson = convertMapToJson(purchaseMap);
+        JSONObject purchaseJson = convertPurchaseMapToJson(purchaseMap);
         try {
             Constructor purchaseConstructor = Purchase.class.getDeclaredConstructor(JSONObject.class);
             purchaseConstructor.setAccessible(true);
