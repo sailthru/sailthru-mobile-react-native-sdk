@@ -4,6 +4,7 @@ package com.reactlibrary;
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
+import android.util.Log;
 
 import com.carnival.sdk.AttributeMap;
 import com.carnival.sdk.Carnival;
@@ -11,6 +12,7 @@ import com.carnival.sdk.CarnivalImpressionType;
 import com.carnival.sdk.ContentItem;
 import com.carnival.sdk.Message;
 import com.carnival.sdk.MessageActivity;
+import com.carnival.sdk.Purchase;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -45,6 +47,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
     protected final static String ERROR_CODE_RECOMMENDATIONS = "carnival.recommendations";
     protected final static String ERROR_CODE_TRACKING = "carnival.tracking";
     protected final static String ERROR_CODE_VARS = "carnival.vars";
+    protected final static String ERROR_CODE_PURCHASE = "carnival.purchase";
     protected final static String MESSAGE_ID = "id";
 
     private boolean displayInAppNotifications;
@@ -378,6 +381,61 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
         return array;
     }
 
+    private static JSONObject convertPurchaseMapToJson(ReadableMap readableMap) throws JSONException {
+        JSONObject object = new JSONObject();
+        ReadableMapKeySetIterator iterator = readableMap.keySetIterator();
+        while (iterator.hasNextKey()) {
+            String key = iterator.nextKey();
+            switch (readableMap.getType(key)) {
+                case Null:
+                    object.put(key, JSONObject.NULL);
+                    break;
+                case Boolean:
+                    object.put(key, readableMap.getBoolean(key));
+                    break;
+                case Number:
+                    object.put(key, readableMap.getInt(key));
+                    break;
+                case String:
+                    object.put(key, readableMap.getString(key));
+                    break;
+                case Map:
+                    object.put(key, convertPurchaseMapToJson(readableMap.getMap(key)));
+                    break;
+                case Array:
+                    object.put(key, convertPurchaseArrayToJson(readableMap.getArray(key)));
+                    break;
+            }
+        }
+        return object;
+    }
+
+    private static JSONArray convertPurchaseArrayToJson(ReadableArray readableArray) throws JSONException {
+        JSONArray array = new JSONArray();
+        for (int i = 0; i < readableArray.size(); i++) {
+            switch (readableArray.getType(i)) {
+                case Null:
+                    break;
+                case Boolean:
+                    array.put(readableArray.getBoolean(i));
+                    break;
+                case Number:
+                    array.put(readableArray.getDouble(i));
+                    break;
+                case String:
+                    array.put(readableArray.getString(i));
+                    break;
+                case Map:
+                    array.put(convertPurchaseMapToJson(readableArray.getMap(i)));
+                    break;
+                case Array:
+                    array.put(convertPurchaseArrayToJson(readableArray.getArray(i)));
+                    break;
+            }
+        }
+        return array;
+    }
+
     @ReactMethod
     public void setUserId(String userId) {
         Carnival.setUserId(userId, null);
@@ -634,6 +692,67 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
                 promise.reject(ERROR_CODE_VARS, error.getMessage());
             }
         });
+    }
+
+    @ReactMethod
+    public void logPurchase(ReadableMap purchaseMap, final Promise promise) throws JSONException {
+        Purchase purchase = getPurchaseInstance(purchaseMap, promise);
+        Log.d("PURCHASE", purchase.toString());
+        if (purchase != null) {
+            Carnival.logPurchase(purchase, new Carnival.CarnivalHandler<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.d("PURCHASE", "SUCCESS");
+                    promise.resolve(true);
+                }
+
+                @Override
+                public void onFailure(Error error) {
+                    Log.d("PURCHASE", "ERROR");
+                    promise.reject(ERROR_CODE_PURCHASE, error.getMessage());
+                }
+            });
+        }
+    }
+
+    @ReactMethod
+    public void logAbandonedCart(ReadableMap purchaseMap, final Promise promise) throws JSONException {
+        Purchase purchase = getPurchaseInstance(purchaseMap, promise);
+        Log.d("ABANDONED CART", purchase.toString());
+        if (purchase != null) {
+            Carnival.logAbandonedCart(purchase, new Carnival.CarnivalHandler<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.d("ABANDONED CART", "SUCCESS");
+                    promise.resolve(true);
+                }
+
+                @Override
+                public void onFailure(Error error) {
+                    Log.d("ABANDONED CART", "ERROR");
+                    promise.reject(ERROR_CODE_PURCHASE, error.getMessage());
+                }
+            });
+        }
+    }
+
+    private static Purchase getPurchaseInstance(ReadableMap purchaseMap, final Promise promise) throws JSONException {
+        JSONObject purchaseJson = convertPurchaseMapToJson(purchaseMap);
+        try {
+            Constructor purchaseConstructor = Purchase.class.getDeclaredConstructor(JSONObject.class);
+            purchaseConstructor.setAccessible(true);
+            Purchase purchase = (Purchase) purchaseConstructor.newInstance(purchaseJson);
+            return purchase;
+        } catch (NoSuchMethodException e) {
+            promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
+        } catch (IllegalAccessException e) {
+            promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
+        } catch (InvocationTargetException e) {
+            promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
+        } catch (InstantiationException e) {
+            promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
+        }
+        return null;
     }
 
     /*
