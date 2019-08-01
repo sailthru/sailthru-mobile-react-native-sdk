@@ -41,14 +41,14 @@ android {
 repositories {
     mavenCentral()
     maven {
-        url "https://github.com/carnivalmobile/maven-repository/raw/snapshots/"
+        url "https://github.com/carnivalmobile/maven-repository/raw/master/"
     }
     google()
 }
 
 dependencies {
     api 'com.facebook.react:react-native:+'
-    api 'com.carnival.sdk:carnival:8.2.0-SNAPSHOT'
+    api 'com.carnival.sdk:carnival:8.2.0'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:1.10.19'
