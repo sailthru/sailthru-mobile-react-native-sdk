@@ -26,7 +26,7 @@ describe(@"RNCarnival", ^{
         
         beforeEach(^{
             [Carnival stub:@selector(setGeoIPTrackingDefault:)];
-            [Carnival stub:@selector(startEngine:registerForPushNotifications:)];
+            [Carnival stub:@selector(startEngine:withAuthorizationOption:)];
             
             jsCodeLocation = [NSURL mock];
             appKey = [NSString mock];
@@ -41,7 +41,7 @@ describe(@"RNCarnival", ^{
         });
         
         it(@"should call startEngine", ^{
-            [[Carnival should] receive:@selector(startEngine:registerForPushNotifications:) withArguments:appKey, theValue(YES)];
+            [[Carnival should] receive:@selector(startEngine:withAuthorizationOption:) withArguments:appKey, theValue(CarnivalPushAuthorizationOptionFull)];
             
             RNCarnivalBridge *rnCarnivalBridge = [[RNCarnivalBridge alloc] initWithJSCodeLocation:jsCodeLocation
                                                                                            appKey:appKey];
@@ -57,6 +57,55 @@ describe(@"RNCarnival", ^{
         it(@"should set whether to display in app notifications", ^{
             RNCarnivalBridge *rnCarnivalBridge = [[RNCarnivalBridge alloc] initWithJSCodeLocation:jsCodeLocation
                                                                                            appKey:appKey];
+            [[theValue(rnCarnivalBridge.displayInAppNotifications) should] equal:theValue(YES)];
+        });
+    });
+    
+    context(@"the initWithJSCodeLocation:appKey:pushAuthorizationOption:geoIpTrackingDefault: method", ^{
+        __block NSURL *jsCodeLocation = nil;
+        __block NSString *appKey = nil;
+        
+        beforeEach(^{
+            [Carnival stub:@selector(setGeoIPTrackingDefault:)];
+            [Carnival stub:@selector(startEngine:withAuthorizationOption:)];
+            
+            jsCodeLocation = [NSURL mock];
+            appKey = [NSString mock];
+        });
+        
+        it(@"should set geo IP tracking default", ^{
+            [[Carnival should] receive:@selector(setGeoIPTrackingDefault:) withArguments:theValue(NO)];
+            
+            RNCarnivalBridge *rnCarnivalBridge = [[RNCarnivalBridge alloc] initWithJSCodeLocation:jsCodeLocation
+                                                                                           appKey:appKey
+                                                                          pushAuthorizationOption:CarnivalPushAuthorizationOptionFull
+                                                                             geoIpTrackingDefault:NO];
+            (void)rnCarnivalBridge;
+        });
+        
+        it(@"should call startEngine", ^{
+            [[Carnival should] receive:@selector(startEngine:withAuthorizationOption:) withArguments:appKey, theValue(CarnivalPushAuthorizationOptionProvisional)];
+            
+            RNCarnivalBridge *rnCarnivalBridge = [[RNCarnivalBridge alloc] initWithJSCodeLocation:jsCodeLocation
+                                                                                           appKey:appKey
+                                                                          pushAuthorizationOption:CarnivalPushAuthorizationOptionProvisional
+                                                                             geoIpTrackingDefault:NO];
+            (void)rnCarnivalBridge;
+        });
+        
+        it(@"should set the JS code location", ^{
+            RNCarnivalBridge *rnCarnivalBridge = [[RNCarnivalBridge alloc] initWithJSCodeLocation:jsCodeLocation
+                                                                                           appKey:appKey
+                                                                          pushAuthorizationOption:CarnivalPushAuthorizationOptionFull
+                                                                             geoIpTrackingDefault:NO];
+            [[rnCarnivalBridge.jsCodeLocation should] equal:jsCodeLocation];
+        });
+        
+        it(@"should set whether to display in app notifications", ^{
+            RNCarnivalBridge *rnCarnivalBridge = [[RNCarnivalBridge alloc] initWithJSCodeLocation:jsCodeLocation
+                                                                                           appKey:appKey
+                                                                          pushAuthorizationOption:CarnivalPushAuthorizationOptionFull
+                                                                             geoIpTrackingDefault:NO];
             [[theValue(rnCarnivalBridge.displayInAppNotifications) should] equal:theValue(YES)];
         });
     });
@@ -155,7 +204,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnivalBridge *rnCarnivalBridge = nil;
         
         beforeEach(^{
-            [Carnival stub:@selector(startEngine:registerForPushNotifications:)];
+            [Carnival stub:@selector(startEngine:withAuthorizationOption:)];
             
             jsCodeLocation = [NSURL mock];
             appKey = [NSString mock];
@@ -176,7 +225,7 @@ describe(@"RNCarnival", ^{
         __block RNCarnivalBridge *rnCarnivalBridge = nil;
         
         beforeEach(^{
-            [Carnival stub:@selector(startEngine:registerForPushNotifications:)];
+            [Carnival stub:@selector(startEngine:withAuthorizationOption:)];
             
             jsCodeLocation = [NSURL mock];
             appKey = [NSString mock];
