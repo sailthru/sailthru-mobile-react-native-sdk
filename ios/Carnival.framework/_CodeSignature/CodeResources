@@ -6,7 +6,7 @@
 	<dict>
 		<key>Headers/Carnival.h</key>
 		<data>
-		gHQ73s18nOmzEt2Bi1MElN2W/yU=
+		v7RQwkeMLb9REI/tPMTp6WwWkfA=
 		</data>
 		<key>Headers/CarnivalAttributes.h</key>
 		<data>
@@ -30,15 +30,15 @@
 		</data>
 		<key>Headers/CarnivalPurchase.h</key>
 		<data>
-		ovEmxOZokWA58oFZQIEVMH92XjY=
+		oqQF5aoWX3cnLtd5V6BbH8AJSGw=
 		</data>
 		<key>Headers/CarnivalPurchaseItem.h</key>
 		<data>
-		zLQnCfuWnFaeThd2BZ69nItRW9U=
+		W9vHO3UL9aJY2hKldH3pComg6dI=
 		</data>
 		<key>Info.plist</key>
 		<data>
-		2x8CvMvI5SZhmJeScN3/XAP+8co=
+		0occwt03FG9kU7Ty90q3gsLAgu4=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -128,11 +128,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			gHQ73s18nOmzEt2Bi1MElN2W/yU=
+			v7RQwkeMLb9REI/tPMTp6WwWkfA=
 			</data>
 			<key>hash2</key>
 			<data>
-			c2RDVZuOelU8ISbjP8l0tg56Y21LuDNDOiMTT6s0GLo=
+			95dq7EXW3nY6DILCUxa5c3NkeJdFE1azkTCGLSXstkA=
 			</data>
 		</dict>
 		<key>Headers/CarnivalAttributes.h</key>
@@ -194,22 +194,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			ovEmxOZokWA58oFZQIEVMH92XjY=
+			oqQF5aoWX3cnLtd5V6BbH8AJSGw=
 			</data>
 			<key>hash2</key>
 			<data>
-			CqrzonGZ1pnanDj50+QCEoQ03abYD5xY5k8WN60mIp0=
+			hRyFTR5rosejC/3P8G34OM1bvyDmxvppBWZ6O353Jwg=
 			</data>
 		</dict>
 		<key>Headers/CarnivalPurchaseItem.h</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			zLQnCfuWnFaeThd2BZ69nItRW9U=
+			W9vHO3UL9aJY2hKldH3pComg6dI=
 			</data>
 			<key>hash2</key>
 			<data>
-			jRO3DPJELHMImmq7VTYETLnEg0JAuVFk06x/ISSN/PY=
+			isLhO6VT8a7LhrhMoyIgdwY8OXz/bdbgsna2lhKbyj4=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
@@ -426,7 +426,7 @@
 	</dict>
 	<key>rules</key>
 	<dict>
-		<key>^</key>
+		<key>^.*</key>
 		<true/>
 		<key>^.*\.lproj/</key>
 		<dict>
@@ -457,24 +457,12 @@
 			<key>weight</key>
 			<real>11</real>
 		</dict>
-		<key>^</key>
-		<dict>
-			<key>weight</key>
-			<real>20</real>
-		</dict>
 		<key>^(.*/)?\.DS_Store$</key>
 		<dict>
 			<key>omit</key>
 			<true/>
 			<key>weight</key>
 			<real>2000</real>
-		</dict>
-		<key>^(Frameworks|SharedFrameworks|PlugIns|Plug-ins|XPCServices|Helpers|MacOS|Library/(Automator|Spotlight|LoginItems))/</key>
-		<dict>
-			<key>nested</key>
-			<true/>
-			<key>weight</key>
-			<real>10</real>
 		</dict>
 		<key>^.*</key>
 		<true/>
@@ -510,13 +498,6 @@
 			<true/>
 			<key>weight</key>
 			<real>20</real>
-		</dict>
-		<key>^[^/]+$</key>
-		<dict>
-			<key>nested</key>
-			<true/>
-			<key>weight</key>
-			<real>10</real>
 		</dict>
 		<key>^embedded\.provisionprofile$</key>
 		<dict>
