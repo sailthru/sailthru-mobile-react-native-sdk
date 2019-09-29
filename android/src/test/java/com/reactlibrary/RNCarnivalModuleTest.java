@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.anyListOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyDouble;
@@ -70,7 +71,7 @@ public class RNCarnivalModuleTest {
 
     @Test
     public void testConstructor() {
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(RNCarnivalModule.class);
         RNCarnivalModule.setWrapperInfo();
     }
 
@@ -88,7 +89,7 @@ public class RNCarnivalModuleTest {
 
         verify(location).setLatitude(latitude);
         verify(location).setLongitude(longitude);
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.updateLocation(location);
     }
 
@@ -109,7 +110,7 @@ public class RNCarnivalModuleTest {
 
         // Capture handler for verification
         ArgumentCaptor<Carnival.CarnivalHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.CarnivalHandler.class);
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.getDeviceId(argumentCaptor.capture());
         Carnival.CarnivalHandler carnivalHandler = argumentCaptor.getValue();
 
@@ -130,7 +131,7 @@ public class RNCarnivalModuleTest {
 
         rnCarnivalModule.logEvent(event);
 
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.logEvent(event);
     }
 
@@ -148,7 +149,7 @@ public class RNCarnivalModuleTest {
 
         rnCarnivalModule.logEvent(event, readableMap);
 
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.logEvent(event, varsJson);
     }
 
@@ -181,7 +182,7 @@ public class RNCarnivalModuleTest {
         rnCarnivalModule.setAttributes(readableMap, null);
 
         // Verify results
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.setAttributes(eq(attributeMap), any(Carnival.AttributesHandler.class));
     }
 
@@ -200,7 +201,7 @@ public class RNCarnivalModuleTest {
 
         // Capture MessagesHandler to verify behaviour
         ArgumentCaptor<Carnival.MessagesHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.MessagesHandler.class);
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.getMessages(argumentCaptor.capture());
         Carnival.MessagesHandler messagesHandler = argumentCaptor.getValue();
 
@@ -231,7 +232,7 @@ public class RNCarnivalModuleTest {
 
         rnCarnivalModule.setUserId(userID);
 
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.setUserId(userID, null);
     }
 
@@ -243,7 +244,7 @@ public class RNCarnivalModuleTest {
 
         rnCarnivalModule.setUserEmail(userEmail);
 
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.setUserEmail(userEmail, null);
     }
 
@@ -263,7 +264,7 @@ public class RNCarnivalModuleTest {
 
         // Capture MessagesHandler to verify behaviour
         ArgumentCaptor<Carnival.CarnivalHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.CarnivalHandler.class);
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.getUnreadMessageCount(argumentCaptor.capture());
         Carnival.CarnivalHandler countHandler = argumentCaptor.getValue();
 
@@ -302,7 +303,7 @@ public class RNCarnivalModuleTest {
         moduleSpy.removeMessage(readableMap);
 
         // Verify result
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.deleteMessage(message, null);
     }
 
@@ -326,7 +327,7 @@ public class RNCarnivalModuleTest {
         moduleSpy.registerMessageImpression(typeCode, readableMap);
 
         // Verify result
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.registerMessageImpression(CarnivalImpressionType.IMPRESSION_TYPE_IN_APP_VIEW, message);
     }
 
@@ -350,7 +351,7 @@ public class RNCarnivalModuleTest {
         moduleSpy.markMessageAsRead(readableMap, promise);
 
         // Verify result
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.setMessageRead(eq(message), any(Carnival.MessagesReadHandler.class));
     }
 
@@ -394,7 +395,7 @@ public class RNCarnivalModuleTest {
 
         // Capture MessagesHandler to verify behaviour
         ArgumentCaptor<Carnival.RecommendationsHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.RecommendationsHandler.class);
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.getRecommendations(eq(sectionID), argumentCaptor.capture());
         Carnival.RecommendationsHandler recommendationsHandler = argumentCaptor.getValue();
 
@@ -431,7 +432,7 @@ public class RNCarnivalModuleTest {
         rnCarnivalModule.trackClick(sectionID, urlString, promise);
 
         // Verify result
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.trackClick(eq(sectionID), any(URI.class), any(Carnival.TrackHandler.class));
     }
 
@@ -465,7 +466,7 @@ public class RNCarnivalModuleTest {
         rnCarnivalModule.trackPageview(urlString, null, promise);
 
         // Verify result
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.trackPageview(any(URI.class), isNull(List.class), any(Carnival.TrackHandler.class));
     }
 
@@ -502,8 +503,8 @@ public class RNCarnivalModuleTest {
         rnCarnivalModule.trackImpression(sectionID, readableArray, promise);
 
         // Verify result
-        PowerMockito.verifyStatic();
-        Carnival.trackImpression(eq(sectionID), anyList(), any(Carnival.TrackHandler.class));
+        PowerMockito.verifyStatic(Carnival.class);
+        Carnival.trackImpression(eq(sectionID), anyListOf(URI.class), any(Carnival.TrackHandler.class));
     }
 
     @Test
@@ -538,7 +539,7 @@ public class RNCarnivalModuleTest {
         rnCarnivalModule.setGeoIPTrackingEnabled(enabled);
 
         // Verify result
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.setGeoIpTrackingEnabled(enabled);
     }
 
@@ -556,7 +557,7 @@ public class RNCarnivalModuleTest {
 
         // Verify result
         ArgumentCaptor<Carnival.CarnivalHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.CarnivalHandler.class);
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.setGeoIpTrackingEnabled(eq(false), argumentCaptor.capture());
         Carnival.CarnivalHandler clearHandler = argumentCaptor.getValue();
 
@@ -588,7 +589,7 @@ public class RNCarnivalModuleTest {
 
         // Verify result
         ArgumentCaptor<Carnival.CarnivalHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.CarnivalHandler.class);
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.clearDevice(eq(clearValue), argumentCaptor.capture());
         Carnival.CarnivalHandler clearHandler = argumentCaptor.getValue();
 
@@ -622,7 +623,7 @@ public class RNCarnivalModuleTest {
 
         // Verify result
         ArgumentCaptor<Carnival.CarnivalHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.CarnivalHandler.class);
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.setProfileVars(eq(varsJson), argumentCaptor.capture());
         Carnival.CarnivalHandler setVarsHandler = argumentCaptor.getValue();
 
@@ -645,22 +646,24 @@ public class RNCarnivalModuleTest {
         JSONObject varsJson = new JSONObject();
         Promise promise = mock(Promise.class);
         Error error = mock(Error.class);
+        WritableMap mockMap = mock(WritableMap.class);
 
         // Mock methods
         PowerMockito.doNothing().when(Carnival.class, "getProfileVars", any(Carnival.CarnivalHandler.class));
+        PowerMockito.doReturn(mockMap).when(RNCarnivalModule.class, "convertJsonToMap", any(JSONObject.class));
 
         // Initiate test
         rnCarnivalModule.getProfileVars(promise);
 
         // Verify result
         ArgumentCaptor<Carnival.CarnivalHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.CarnivalHandler.class);
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.getProfileVars(argumentCaptor.capture());
         Carnival.CarnivalHandler getVarsHandler = spy(argumentCaptor.getValue());
 
         // Test success handler
         getVarsHandler.onSuccess(varsJson);
-        verify(promise).resolve(any(WritableMap.class));
+        verify(promise).resolve(mockMap);
 
         // Setup error
         String errorMessage = "error message";
@@ -688,7 +691,7 @@ public class RNCarnivalModuleTest {
 
         // Verify result
         ArgumentCaptor<Carnival.CarnivalHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.CarnivalHandler.class);
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.logPurchase(eq(purchase), argumentCaptor.capture());
         Carnival.CarnivalHandler purchaseHandler = argumentCaptor.getValue();
 
@@ -722,7 +725,7 @@ public class RNCarnivalModuleTest {
 
         // Verify result
         ArgumentCaptor<Carnival.CarnivalHandler> argumentCaptor = ArgumentCaptor.forClass(Carnival.CarnivalHandler.class);
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.logAbandonedCart(eq(purchase), argumentCaptor.capture());
         Carnival.CarnivalHandler purchaseHandler = argumentCaptor.getValue();
 

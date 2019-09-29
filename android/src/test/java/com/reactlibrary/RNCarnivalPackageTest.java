@@ -53,7 +53,7 @@ public class RNCarnivalPackageTest {
     @Test
     public void testConstructor() throws Exception {
         setupDefaultPackage();
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.startEngine(mockContext, appKey);
     }
 
@@ -61,7 +61,7 @@ public class RNCarnivalPackageTest {
     public void testDisplayInAppConstructor() throws Exception {
         stubCarnival();
         RNCarnivalPackage carnivalPackage = new RNCarnivalPackage(mockContext, appKey, false);
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.startEngine(mockContext, appKey);
         Assert.assertFalse(carnivalPackage.displayInAppNotifications);
     }
@@ -74,9 +74,9 @@ public class RNCarnivalPackageTest {
                 .setGeoIPTrackingDefault(false);
         RNCarnivalPackage carnivalPackage = new RNCarnivalPackage(builder);
 
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.setGeoIpTrackingDefault(false);
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.startEngine(mockContext, appKey);
         Assert.assertFalse(carnivalPackage.displayInAppNotifications);
     }
@@ -147,9 +147,9 @@ public class RNCarnivalPackageTest {
                 .setGeoIPTrackingDefault(false)
                 .build();
 
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.setGeoIpTrackingDefault(false);
-        PowerMockito.verifyStatic();
+        PowerMockito.verifyStatic(Carnival.class);
         Carnival.startEngine(mockContext, appKey);
 
         Assert.assertFalse(carnivalPackage.displayInAppNotifications);
