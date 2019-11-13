@@ -32,5 +32,13 @@
   "version": "3.3.0",
   "devDependencies": {
     "react-native": "^0.56.0"
-  }
+  },
+  "files": [
+    "/ios/Carnival.framework",
+    "/ios/CarnivalExtension.framework",
+    "/ios/RNCarnival*",
+    "/android/src/main",
+    "/android/build.gradle",
+    "/example"
+  ]
 }
