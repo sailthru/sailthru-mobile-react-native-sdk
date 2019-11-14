@@ -29,7 +29,7 @@
     "type": "git",
     "url": "git+https://github.com/carnivalmobile/carnival-sdk-react-native.git"
   },
-  "version": "3.3.0",
+  "version": "3.3.1",
   "devDependencies": {
     "react-native": "^0.56.0"
   },
