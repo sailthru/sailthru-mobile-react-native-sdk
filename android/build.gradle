@@ -6,7 +6,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:3.5.3'
     }
 }
 
@@ -48,7 +48,7 @@ repositories {
 
 dependencies {
     api 'com.facebook.react:react-native:+'
-    api 'com.carnival.sdk:carnival:8.2.0'
+    api 'com.carnival.sdk:carnival:10.0.0'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:3.0.0'
