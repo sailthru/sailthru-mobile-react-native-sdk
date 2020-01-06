@@ -102,7 +102,7 @@ public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carn
 
             setWrapperMethod = Carnival.class.getDeclaredMethod("setWrapper", cArg);
             setWrapperMethod.setAccessible(true);
-            setWrapperMethod.invoke(null, "React Native", "3.3.1");
+            setWrapperMethod.invoke(null, "React Native", "4.0.0");
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
