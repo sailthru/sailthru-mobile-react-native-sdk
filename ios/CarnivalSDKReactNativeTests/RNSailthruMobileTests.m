@@ -1,11 +1,11 @@
 
 #import <XCTest/XCTest.h>
-#import "RNCarnival.h"
+#import "RNSailthruMobile.h"
 #import "Kiwi.h"
 #import <UserNotifications/UserNotifications.h>
 
 // interface to expose methods for testing
-@interface RNCarnival ()
+@interface RNSailthruMobile ()
 
 -(instancetype)init;
 // getMessages method
@@ -40,31 +40,47 @@
 @end
 
 
-// interfaces to match RNCarnival
+// interfaces to match RNSailthruMobile
 
-@interface CarnivalMessage ()
+@interface SMSMessage ()
 
 - (nullable instancetype)initWithDictionary:(nonnull NSDictionary *)dictionary;
 - (nonnull NSDictionary *)dictionary;
 
 @end
-@interface Carnival ()
+@interface SailthruMobile ()
 
-+ (void)setWrapperName:(NSString *)wrapperName andVersion:(NSString *)wrapperVersion;
+- (void)setWrapperName:(NSString *)wrapperName andVersion:(NSString *)wrapperVersion;
 
 @end
 
 
 
-SPEC_BEGIN(RNCarnivalSpec)
+SPEC_BEGIN(RNSailthruMobileSpec)
 
-describe(@"RNCarnival", ^{
+describe(@"RNSailthruMobile", ^{
+    __block SailthruMobile *sailthruMobile = nil;
+    __block SMSMessageStream *messageStream = nil;
+    __block RNSailthruMobile *rnSailthruMobile = nil;
+         
+    beforeEach(^{
+        sailthruMobile = [SailthruMobile mock];
+        [sailthruMobile stub:@selector(setWrapperName:andVersion:)];
+        [SailthruMobile stub:@selector(new) andReturn:sailthruMobile];
+    
+        messageStream = [SMSMessageStream mock];
+        [messageStream stub:@selector(setDelegate:)];
+        [SMSMessageStream stub:@selector(new) andReturn:messageStream];
+    
+        rnSailthruMobile = [[RNSailthruMobile alloc] initWithDisplayInAppNotifications:YES];
+    });
+         
     context(@"the init method", ^{
         it(@"should throw an exception", ^{
             BOOL exceptionThrown = NO;
             @try {
-                RNCarnival *rnCarnival = [[RNCarnival alloc] init];
-                (void)rnCarnival;
+                RNSailthruMobile *rnSailthruMobile = [[RNSailthruMobile alloc] init];
+                (void)rnSailthruMobile;
             }
             @catch(NSException *e) {
                 exceptionThrown = YES;
@@ -74,38 +90,28 @@ describe(@"RNCarnival", ^{
     });
 
     context(@"the initWithDisplayInAppNotifications method", ^{
-        beforeEach(^{
-            [Carnival stub:@selector(setWrapperName:andVersion:)];
-        });
-
         it(@"should set message stream delegate as self", ^{
-            [[CarnivalMessageStream should] receive:@selector(setDelegate:)];
-            RNCarnival *rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-            (void)rnCarnival;
+            [[messageStream should] receive:@selector(setDelegate:)];
+            RNSailthruMobile *rnSailthruMobile = [[RNSailthruMobile alloc] initWithDisplayInAppNotifications:YES];
+            (void)rnSailthruMobile;
         });
 
         it(@"should set the wrapper name and version", ^{
-            [[Carnival should] receive:@selector(setWrapperName:andVersion:)];
-            RNCarnival *rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-            (void)rnCarnival;
+            [[sailthruMobile should] receive:@selector(setWrapperName:andVersion:)];
+            RNSailthruMobile *rnSailthruMobile = [[RNSailthruMobile alloc] initWithDisplayInAppNotifications:YES];
+            (void)rnSailthruMobile;
         });
 
         it(@"should set the displayInAppNotifications", ^{
-            RNCarnival *rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:NO];
-            [[theValue(rnCarnival.displayInAppNotifications) should] beNo];
+            RNSailthruMobile *rnSailthruMobile = [[RNSailthruMobile alloc] initWithDisplayInAppNotifications:NO];
+            [[theValue(rnSailthruMobile.displayInAppNotifications) should] beNo];
         });
     });
 
     context(@"the getMessages method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [CarnivalMessageStream stub:@selector(messages:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
-            [[CarnivalMessageStream should] receive:@selector(messages:)];
-            [rnCarnival resolver:nil rejecter:nil];
+            [[messageStream should] receive:@selector(messages:)];
+            [rnSailthruMobile resolver:nil rejecter:nil];
         });
 
         it(@"should return message array on success", ^{
@@ -115,10 +121,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseResolveBlock resolve = ^(NSArray* count) {
                 check = count;
             };
-            KWCaptureSpy *capture = [CarnivalMessageStream captureArgument:@selector(messages:) atIndex:0];
+            KWCaptureSpy *capture = [messageStream captureArgument:@selector(messages:) atIndex:0];
 
             // Start test
-            [rnCarnival resolver:resolve rejecter:nil];
+            [rnSailthruMobile resolver:resolve rejecter:nil];
 
             // Capture argument
             void (^completeBlock)(NSArray * _Nullable, NSError * _Nullable) = capture.argument;
@@ -135,10 +141,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
                 check = error;
             };
-            KWCaptureSpy *capture = [CarnivalMessageStream captureArgument:@selector(messages:) atIndex:0];
+            KWCaptureSpy *capture = [messageStream captureArgument:@selector(messages:) atIndex:0];
 
             // Start test
-            [rnCarnival resolver:nil rejecter:reject];
+            [rnSailthruMobile resolver:nil rejecter:reject];
 
             // Capture argument
             void (^completeBlock)(NSUInteger, NSError * _Nullable) = capture.argument;
@@ -151,31 +157,19 @@ describe(@"RNCarnival", ^{
     });
 
     context(@"the setAttributes method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(setAttributes:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
-            [[Carnival should] receive:@selector(setAttributes:withResponse:)];
-            [rnCarnival setAttributes:nil resolver:nil rejecter:nil];
+            [[sailthruMobile should] receive:@selector(setAttributes:withResponse:)];
+            [rnSailthruMobile setAttributes:nil resolver:nil rejecter:nil];
         });
     });
 
     context(@"the updateLocation method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(updateLocation:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
             CGFloat latitude = 10, longitude = 15;
-            [[Carnival should] receive:@selector(updateLocation:)];
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(updateLocation:) atIndex:0];
+            [[sailthruMobile should] receive:@selector(updateLocation:)];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(updateLocation:) atIndex:0];
 
-            [rnCarnival updateLocation:latitude lon:longitude];
+            [rnSailthruMobile updateLocation:latitude lon:longitude];
 
             CLLocation *location = capture.argument;
             [[theValue(location.coordinate.latitude) should] equal:theValue(latitude)];
@@ -184,47 +178,29 @@ describe(@"RNCarnival", ^{
     });
 
     context(@"the logEvent: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(logEvent:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
             NSString *event = @"Test Event";
-            [[Carnival should] receive:@selector(logEvent:) withArguments:event];
+            [[sailthruMobile should] receive:@selector(logEvent:) withArguments:event];
 
-            [rnCarnival logEvent:event];
+            [rnSailthruMobile logEvent:event];
         });
     });
     
     context(@"the logEvent:withVars method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(logEvent:withVars:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-        
         it(@"should call native method", ^{
             NSString *event = @"Test Event";
             NSDictionary* eventVars = @{ @"varKey" : @"varValue" };
-            [[Carnival should] receive:@selector(logEvent:withVars:) withArguments:event, eventVars];
+            [[sailthruMobile should] receive:@selector(logEvent:withVars:) withArguments:event, eventVars];
             
-            [rnCarnival logEvent:event withVars:eventVars];
+            [rnSailthruMobile logEvent:event withVars:eventVars];
         });
     });
 
     context(@"the getUnreadCount method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [CarnivalMessageStream stub:@selector(unreadCount:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
-            [[CarnivalMessageStream should] receive:@selector(unreadCount:)];
+            [[messageStream should] receive:@selector(unreadCount:)];
 
-            [rnCarnival getUnreadCount:nil rejecter:nil];
+            [rnSailthruMobile getUnreadCount:nil rejecter:nil];
         });
 
         it(@"should return count on success", ^{
@@ -234,10 +210,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseResolveBlock resolve = ^(NSNumber* count) {
                 check = count;
             };
-            KWCaptureSpy *capture = [CarnivalMessageStream captureArgument:@selector(unreadCount:) atIndex:0];
+            KWCaptureSpy *capture = [messageStream captureArgument:@selector(unreadCount:) atIndex:0];
 
             // Start test
-            [rnCarnival getUnreadCount:resolve rejecter:nil];
+            [rnSailthruMobile getUnreadCount:resolve rejecter:nil];
 
             // Capture argument
             void (^completeBlock)(NSUInteger, NSError * _Nullable) = capture.argument;
@@ -254,10 +230,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
                 check = error;
             };
-            KWCaptureSpy *capture = [CarnivalMessageStream captureArgument:@selector(unreadCount:) atIndex:0];
+            KWCaptureSpy *capture = [messageStream captureArgument:@selector(unreadCount:) atIndex:0];
 
             // Start test
-            [rnCarnival getUnreadCount:nil rejecter:reject];
+            [rnSailthruMobile getUnreadCount:nil rejecter:reject];
 
             // Capture argument
             void (^completeBlock)(NSUInteger, NSError * _Nullable) = capture.argument;
@@ -270,86 +246,50 @@ describe(@"RNCarnival", ^{
     });
 
     context(@"the markMessageAsRead:resolver:rejecter: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [CarnivalMessageStream stub:@selector(markMessageAsRead:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
-            [[CarnivalMessageStream should] receive:@selector(markMessageAsRead:withResponse:)];
+            [[messageStream should] receive:@selector(markMessageAsRead:withResponse:)];
 
-            [rnCarnival markMessageAsRead:nil resolver:nil rejecter:nil];
+            [rnSailthruMobile markMessageAsRead:nil resolver:nil rejecter:nil];
         });
     });
 
     context(@"the removeMessage:resolver:rejecter: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [CarnivalMessageStream stub:@selector(removeMessage:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
-            [[CarnivalMessageStream should] receive:@selector(removeMessage:withResponse:)];
+            [[messageStream should] receive:@selector(removeMessage:withResponse:)];
 
-            [rnCarnival removeMessage:nil resolver:nil rejecter:nil];
+            [rnSailthruMobile removeMessage:nil resolver:nil rejecter:nil];
         });
     });
 
     context(@"the presentMessageDetail: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [CarnivalMessageStream stub:@selector(presentMessageDetailForMessage:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
-            [[CarnivalMessageStream should] receive:@selector(presentMessageDetailForMessage:)];
+            [[messageStream should] receive:@selector(presentMessageDetailForMessage:)];
             
-            [rnCarnival presentMessageDetail:nil];
+            [rnSailthruMobile presentMessageDetail:nil];
         });
     });
 
     context(@"the dismissMessageDetail method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [CarnivalMessageStream stub:@selector(dismissMessageDetail)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
-            [[CarnivalMessageStream should] receive:@selector(dismissMessageDetail)];
+            [[messageStream should] receive:@selector(dismissMessageDetail)];
 
-            [rnCarnival dismissMessageDetail];
+            [rnSailthruMobile dismissMessageDetail];
         });
     });
 
     context(@"the registerMessageImpression:forMessage: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [CarnivalMessageStream stub:@selector(registerImpressionWithType:forMessage:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
-            [[CarnivalMessageStream should] receive:@selector(registerImpressionWithType:forMessage:)];
+            [[messageStream should] receive:@selector(registerImpressionWithType:forMessage:)];
 
-            [rnCarnival registerMessageImpression:1 forMessage:nil];
+            [rnSailthruMobile registerMessageImpression:1 forMessage:nil];
         });
     });
 
     context(@"the getDeviceID:rejecter: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(deviceID:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
-            [[Carnival should] receive:@selector(deviceID:)];
+            [[sailthruMobile should] receive:@selector(deviceID:)];
 
-            [rnCarnival getDeviceID:nil rejecter:nil];
+            [rnSailthruMobile getDeviceID:nil rejecter:nil];
         });
 
         it(@"should return count on success", ^{
@@ -359,10 +299,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseResolveBlock resolve = ^(NSString* deviceID) {
                 check = deviceID;
             };
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(deviceID:) atIndex:0];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(deviceID:) atIndex:0];
 
             // Start test
-            [rnCarnival getDeviceID:resolve rejecter:nil];
+            [rnSailthruMobile getDeviceID:resolve rejecter:nil];
 
             // Capture argument
             void (^completeBlock)(NSString * _Nullable, NSError * _Nullable) = capture.argument;
@@ -379,10 +319,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
                 check = error;
             };
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(deviceID:) atIndex:0];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(deviceID:) atIndex:0];
 
             // Start test
-            [rnCarnival getDeviceID:nil rejecter:reject];
+            [rnSailthruMobile getDeviceID:nil rejecter:reject];
 
             // Capture argument
             void (^completeBlock)(NSString * _Nullable, NSError * _Nullable) = capture.argument;
@@ -395,44 +335,26 @@ describe(@"RNCarnival", ^{
     });
 
     context(@"the setUserID: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(setUserId:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
-            [[Carnival should] receive:@selector(setUserId:withResponse:)];
+            [[sailthruMobile should] receive:@selector(setUserId:withResponse:)];
 
-            [rnCarnival setUserId:nil resolver:nil rejecter:nil];
+            [rnSailthruMobile setUserId:nil resolver:nil rejecter:nil];
         });
     });
 
     context(@"the setUserEmail: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(setUserEmail:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
-            [[Carnival should] receive:@selector(setUserEmail:withResponse:)];
+            [[sailthruMobile should] receive:@selector(setUserEmail:withResponse:)];
 
-            [rnCarnival setUserEmail:nil resolver:nil rejecter:nil];
+            [rnSailthruMobile setUserEmail:nil resolver:nil rejecter:nil];
         });
     });
 
     context(@"the getRecommendations:resolver:rejecter: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(recommendationsWithSection:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
-            [[Carnival should] receive:@selector(recommendationsWithSection:withResponse:)];
+            [[sailthruMobile should] receive:@selector(recommendationsWithSection:withResponse:)];
 
-            [rnCarnival getRecommendations:nil resolver:nil rejecter:nil];
+            [rnSailthruMobile getRecommendations:nil resolver:nil rejecter:nil];
         });
 
         it(@"should return recommendations on success", ^{
@@ -443,10 +365,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseResolveBlock resolve = ^(NSArray* contentItems) {
                 check = contentItems;
             };
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(recommendationsWithSection:withResponse:) atIndex:1];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(recommendationsWithSection:withResponse:) atIndex:1];
 
             // Start test
-            [rnCarnival getRecommendations:sectionID resolver:resolve rejecter:nil];
+            [rnSailthruMobile getRecommendations:sectionID resolver:resolve rejecter:nil];
 
             // Capture argument
             void (^completeBlock)(NSArray * _Nullable, NSError * _Nullable) = capture.argument;
@@ -463,10 +385,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
                 check = error;
             };
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(recommendationsWithSection:withResponse:) atIndex:1];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(recommendationsWithSection:withResponse:) atIndex:1];
 
             // Start test
-            [rnCarnival getRecommendations:nil resolver:nil rejecter:reject];
+            [rnSailthruMobile getRecommendations:nil resolver:nil rejecter:reject];
 
             // Capture argument
             void (^completeBlock)(NSString * _Nullable, NSError * _Nullable) = capture.argument;
@@ -479,35 +401,23 @@ describe(@"RNCarnival", ^{
     });
 
     context(@"the trackClick:url:resolver:rejecter: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(trackClickWithSection:andUrl:andResponse:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
             NSString *url = @"www.notarealurl.com";
 
-            [[Carnival should] receive:@selector(trackClickWithSection:andUrl:andResponse:)];
+            [[sailthruMobile should] receive:@selector(trackClickWithSection:andUrl:andResponse:)];
 
-            [rnCarnival trackClick:nil url:url resolver:nil rejecter:nil];
+            [rnSailthruMobile trackClick:nil url:url resolver:nil rejecter:nil];
         });
     });
 
     context(@"the trackPageview:tags:resolver:rejecter: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         context(@"when tags are nil", ^{
             it(@"should call native method without tags", ^{
                 NSString *url = @"www.notarealurl.com";
 
-                [Carnival stub:@selector(trackPageviewWithUrl:andResponse:)];
-                [[Carnival should] receive:@selector(trackPageviewWithUrl:andResponse:)];
+                [[sailthruMobile should] receive:@selector(trackPageviewWithUrl:andResponse:)];
 
-                [rnCarnival trackPageview:url tags:nil resolver:nil rejecter:nil];
+                [rnSailthruMobile trackPageview:url tags:nil resolver:nil rejecter:nil];
             });
         });
 
@@ -516,26 +426,19 @@ describe(@"RNCarnival", ^{
                 NSString *url = @"www.notarealurl.com";
                 NSArray *tags = @[];
 
-                [Carnival stub:@selector(trackPageviewWithUrl:andTags:andResponse:)];
-                [[Carnival should] receive:@selector(trackPageviewWithUrl:andTags:andResponse:)];
+                [[sailthruMobile should] receive:@selector(trackPageviewWithUrl:andTags:andResponse:)];
 
-                [rnCarnival trackPageview:url tags:tags resolver:nil rejecter:nil];
+                [rnSailthruMobile trackPageview:url tags:tags resolver:nil rejecter:nil];
             });
         });
     });
 
     context(@"the trackImpression:url:resolver:rejecter: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         context(@"when urls are nil", ^{
             it(@"should call native method without urls", ^{
-                [Carnival stub:@selector(trackImpressionWithSection:andResponse:)];
-                [[Carnival should] receive:@selector(trackImpressionWithSection:andResponse:)];
+                [[sailthruMobile should] receive:@selector(trackImpressionWithSection:andResponse:)];
 
-                [rnCarnival trackImpression:nil url:nil resolver:nil rejecter:nil];
+                [rnSailthruMobile trackImpression:nil url:nil resolver:nil rejecter:nil];
             });
         });
 
@@ -543,39 +446,26 @@ describe(@"RNCarnival", ^{
             it(@"should call native method with urls", ^{
                 NSArray *urls = @[];
 
-                [Carnival stub:@selector(trackImpressionWithSection:andUrls:andResponse:)];
-                [[Carnival should] receive:@selector(trackImpressionWithSection:andUrls:andResponse:)];
+                [[sailthruMobile should] receive:@selector(trackImpressionWithSection:andUrls:andResponse:)];
 
-                [rnCarnival trackImpression:nil url:urls resolver:nil rejecter:nil];
+                [rnSailthruMobile trackImpression:nil url:urls resolver:nil rejecter:nil];
             });
         });
     });
 
     context(@"the setGeoIPTrackingEnabled: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(setGeoIPTrackingEnabled:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
-            [[Carnival should] receive:@selector(setGeoIPTrackingEnabled:)];
+            [[sailthruMobile should] receive:@selector(setGeoIPTrackingEnabled:)];
 
-            [rnCarnival setGeoIPTrackingEnabled:YES];
+            [rnSailthruMobile setGeoIPTrackingEnabled:YES];
         });
     });
     
     context(@"the setGeoIPTrackingEnabled:resolver:rejecter: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(setGeoIPTrackingEnabled:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-        
         it(@"should call native method", ^{
-            [[Carnival should] receive:@selector(setGeoIPTrackingEnabled:withResponse:) withArguments:theValue(YES), any(), any()];
+            [[sailthruMobile should] receive:@selector(setGeoIPTrackingEnabled:withResponse:) withArguments:theValue(YES), any(), any()];
             
-            [rnCarnival setGeoIPTrackingEnabled:YES resolver:nil rejecter:nil];
+            [rnSailthruMobile setGeoIPTrackingEnabled:YES resolver:nil rejecter:nil];
         });
         
         it(@"should return success", ^{
@@ -584,10 +474,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseResolveBlock resolve = ^(NSObject *ignored) {
                 check = YES;
             };
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(setGeoIPTrackingEnabled:withResponse:) atIndex:1];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(setGeoIPTrackingEnabled:withResponse:) atIndex:1];
             
             // Start test
-            [rnCarnival setGeoIPTrackingEnabled:YES resolver:resolve rejecter:nil];
+            [rnSailthruMobile setGeoIPTrackingEnabled:YES resolver:resolve rejecter:nil];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
@@ -603,10 +493,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
                 check = error;
             };
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(setGeoIPTrackingEnabled:withResponse:) atIndex:1];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(setGeoIPTrackingEnabled:withResponse:) atIndex:1];
             
             // Start test
-            [rnCarnival setGeoIPTrackingEnabled:YES resolver:nil rejecter:reject];
+            [rnSailthruMobile setGeoIPTrackingEnabled:YES resolver:nil rejecter:reject];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
@@ -619,30 +509,18 @@ describe(@"RNCarnival", ^{
     });
 
     context(@"the setCrashHandlersEnabled: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(setCrashHandlersEnabled:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
         it(@"should call native method", ^{
-            [[Carnival should] receive:@selector(setCrashHandlersEnabled:)];
+            [[sailthruMobile should] receive:@selector(setCrashHandlersEnabled:)];
 
-            [rnCarnival setCrashHandlersEnabled:YES];
+            [rnSailthruMobile setCrashHandlersEnabled:YES];
         });
     });
     
     context(@"the clearDevice:resolver:rejecter: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(clearDeviceData:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-        
         it(@"should call native method", ^{
-            [[Carnival should] receive:@selector(clearDeviceData:withResponse:) withArguments:theValue(CarnivalDeviceDataTypeAttributes), any()];
+            [[sailthruMobile should] receive:@selector(clearDeviceData:withResponse:) withArguments:theValue(SMSDeviceDataTypeAttributes), any()];
             
-            [rnCarnival clearDevice:CarnivalDeviceDataTypeAttributes resolver:nil rejecter:nil];
+            [rnSailthruMobile clearDevice:SMSDeviceDataTypeAttributes resolver:nil rejecter:nil];
         });
         
         it(@"should return success", ^{
@@ -651,10 +529,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseResolveBlock resolve = ^(NSObject *ignored) {
                 check = YES;
             };
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(clearDeviceData:withResponse:) atIndex:1];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(clearDeviceData:withResponse:) atIndex:1];
             
             // Start test
-            [rnCarnival clearDevice:CarnivalDeviceDataTypeAttributes resolver:resolve rejecter:nil];
+            [rnSailthruMobile clearDevice:SMSDeviceDataTypeAttributes resolver:resolve rejecter:nil];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
@@ -670,10 +548,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
                 check = error;
             };
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(clearDeviceData:withResponse:) atIndex:1];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(clearDeviceData:withResponse:) atIndex:1];
             
             // Start test
-            [rnCarnival clearDevice:CarnivalDeviceDataTypeAttributes resolver:nil rejecter:reject];
+            [rnSailthruMobile clearDevice:SMSDeviceDataTypeAttributes resolver:nil rejecter:reject];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
@@ -686,17 +564,11 @@ describe(@"RNCarnival", ^{
     });
     
     context(@"the setProfileVars:resolver:rejecter: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(setProfileVars:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-        
         it(@"should call native method", ^{
             NSDictionary *vars = @{};
-            [[Carnival should] receive:@selector(setProfileVars:withResponse:) withArguments:vars, any()];
+            [[sailthruMobile should] receive:@selector(setProfileVars:withResponse:) withArguments:vars, any()];
             
-            [rnCarnival setProfileVars:vars resolver:nil rejecter:nil];
+            [rnSailthruMobile setProfileVars:vars resolver:nil rejecter:nil];
         });
         
         it(@"should return success", ^{
@@ -706,10 +578,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseResolveBlock resolve = ^(NSObject *ignored) {
                 check = YES;
             };
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(setProfileVars:withResponse:) atIndex:1];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(setProfileVars:withResponse:) atIndex:1];
             
             // Start test
-            [rnCarnival setProfileVars:vars resolver:resolve rejecter:nil];
+            [rnSailthruMobile setProfileVars:vars resolver:resolve rejecter:nil];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
@@ -726,10 +598,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
                 check = error;
             };
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(setProfileVars:withResponse:) atIndex:1];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(setProfileVars:withResponse:) atIndex:1];
             
             // Start test
-            [rnCarnival setProfileVars:vars resolver:nil rejecter:reject];
+            [rnSailthruMobile setProfileVars:vars resolver:nil rejecter:reject];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
@@ -742,16 +614,10 @@ describe(@"RNCarnival", ^{
     });
     
     context(@"the getProfileVars:rejecter: method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(getProfileVarsWithResponse:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-        
         it(@"should call native method", ^{
-            [[Carnival should] receive:@selector(getProfileVarsWithResponse:) withArguments:any()];
+            [[sailthruMobile should] receive:@selector(getProfileVarsWithResponse:) withArguments:any()];
             
-            [rnCarnival getProfileVars:nil rejecter:nil];
+            [rnSailthruMobile getProfileVars:nil rejecter:nil];
         });
         
         it(@"should return vars on success", ^{
@@ -761,10 +627,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseResolveBlock resolve = ^(NSDictionary *retVars) {
                 check = retVars;
             };
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(getProfileVarsWithResponse:) atIndex:0];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(getProfileVarsWithResponse:) atIndex:0];
             
             // Start test
-            [rnCarnival getProfileVars:resolve rejecter:nil];
+            [rnSailthruMobile getProfileVars:resolve rejecter:nil];
             
             // Capture argument
             void (^completeBlock)(NSDictionary *, NSError * _Nullable) = capture.argument;
@@ -780,10 +646,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
                 check = error;
             };
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(getProfileVarsWithResponse:) atIndex:0];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(getProfileVarsWithResponse:) atIndex:0];
             
             // Start test
-            [rnCarnival getProfileVars:nil rejecter:reject];
+            [rnSailthruMobile getProfileVars:nil rejecter:reject];
             
             // Capture argument
             void (^completeBlock)(NSDictionary *, NSError * _Nullable) = capture.argument;
@@ -796,14 +662,10 @@ describe(@"RNCarnival", ^{
     });
     
     context(@"the registerForPushNotifications method", ^{
-        __block RNCarnival *rnCarnival = nil;
         __block NSProcessInfo *mockInfo = nil;
         __block UNAuthorizationOptions options = UNAuthorizationOptionAlert | UNAuthorizationOptionBadge | UNAuthorizationOptionSound;
         __block NSOperationQueue *mockQueue;
         beforeEach(^{
-            [Carnival stub:@selector(getProfileVarsWithResponse:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-            
             mockQueue = [NSOperationQueue mock];
             [mockQueue stub:@selector(addOperationWithBlock:)];
             [NSOperationQueue stub:@selector(mainQueue) andReturn:mockQueue];
@@ -829,7 +691,7 @@ describe(@"RNCarnival", ^{
             it(@"should request authorization from the UNUserNotificationCenter", ^{
                 [[mockCenter should] receive:@selector(requestAuthorizationWithOptions:completionHandler:)];
                 
-                [rnCarnival registerForPushNotifications];
+                [rnSailthruMobile registerForPushNotifications];
             });
         });
         
@@ -854,7 +716,7 @@ describe(@"RNCarnival", ^{
                 UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:(UIUserNotificationType)options categories:nil];
                 [[mockApplication should] receive:@selector(registerUserNotificationSettings:) withArguments:settings];
                 
-                [rnCarnival registerForPushNotifications];
+                [rnSailthruMobile registerForPushNotifications];
             });
         });
         
@@ -877,7 +739,7 @@ describe(@"RNCarnival", ^{
                 [[mockApplication should] receive:@selector(registerForRemoteNotifications)];
                 KWCaptureSpy *queueCapture = [mockQueue captureArgument:@selector(addOperationWithBlock:) atIndex:0];
                 
-                [rnCarnival registerForPushNotifications];
+                [rnSailthruMobile registerForPushNotifications];
                 
                 void (^opBlock)(void) = queueCapture.argument;
                 opBlock();
@@ -886,18 +748,15 @@ describe(@"RNCarnival", ^{
     });
     
     context(@"the logPurchase:resolver:rejecter: method", ^{
-        __block RNCarnival *rnCarnival = nil;
         __block NSDictionary *purchase = nil;
         beforeEach(^{
             purchase = @{@"items":@[]};
-            [Carnival stub:@selector(logPurchase:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
-            [[Carnival should] receive:@selector(logPurchase:withResponse:)];
+            [[sailthruMobile should] receive:@selector(logPurchase:withResponse:)];
             
-            [rnCarnival logPurchase:purchase resolver:nil rejecter:nil];
+            [rnSailthruMobile logPurchase:purchase resolver:nil rejecter:nil];
         });
         
         it(@"should return success", ^{
@@ -906,10 +765,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseResolveBlock resolve = ^(NSObject *ignored) {
                 check = YES;
             };
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(logPurchase:withResponse:) atIndex:1];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(logPurchase:withResponse:) atIndex:1];
             
             // Start test
-            [rnCarnival logPurchase:purchase resolver:resolve rejecter:nil];
+            [rnSailthruMobile logPurchase:purchase resolver:resolve rejecter:nil];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
@@ -925,10 +784,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
                 check = error;
             };
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(logPurchase:withResponse:) atIndex:1];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(logPurchase:withResponse:) atIndex:1];
             
             // Start test
-            [rnCarnival logPurchase:purchase resolver:nil rejecter:reject];
+            [rnSailthruMobile logPurchase:purchase resolver:nil rejecter:reject];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
@@ -941,18 +800,15 @@ describe(@"RNCarnival", ^{
     });
     
     context(@"the logAbandonedCart:resolver:rejecter: method", ^{
-        __block RNCarnival *rnCarnival = nil;
         __block NSDictionary *purchase = nil;
         beforeEach(^{
             purchase = @{@"items":@[]};
-            [Carnival stub:@selector(logAbandonedCart:withResponse:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
         });
         
         it(@"should call native method", ^{
-            [[Carnival should] receive:@selector(logAbandonedCart:withResponse:)];
+            [[sailthruMobile should] receive:@selector(logAbandonedCart:withResponse:)];
             
-            [rnCarnival logAbandonedCart:purchase resolver:nil rejecter:nil];
+            [rnSailthruMobile logAbandonedCart:purchase resolver:nil rejecter:nil];
         });
         
         it(@"should return success", ^{
@@ -961,10 +817,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseResolveBlock resolve = ^(NSObject *ignored) {
                 check = YES;
             };
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(logAbandonedCart:withResponse:) atIndex:1];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(logAbandonedCart:withResponse:) atIndex:1];
             
             // Start test
-            [rnCarnival logAbandonedCart:purchase resolver:resolve rejecter:nil];
+            [rnSailthruMobile logAbandonedCart:purchase resolver:resolve rejecter:nil];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
@@ -980,10 +836,10 @@ describe(@"RNCarnival", ^{
             RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
                 check = error;
             };
-            KWCaptureSpy *capture = [Carnival captureArgument:@selector(logAbandonedCart:withResponse:) atIndex:1];
+            KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(logAbandonedCart:withResponse:) atIndex:1];
             
             // Start test
-            [rnCarnival logAbandonedCart:purchase resolver:nil rejecter:reject];
+            [rnSailthruMobile logAbandonedCart:purchase resolver:nil rejecter:reject];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;

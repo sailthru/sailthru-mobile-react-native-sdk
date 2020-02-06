@@ -1,11 +1,11 @@
 {
   "author": {
-    "name": "Carnival <support@sailthru.com>"
+    "name": "Sailthru Mobile <support@sailthru.com>"
   },
   "bugs": {
     "url": "https://github.com/carnivalmobile/carnival-sdk-react-native/issues"
   },
-  "description": "React Native wrapper for the Carnival.io Android and iOS SDKs",
+  "description": "React Native wrapper for the Sailthru Mobile Android and iOS SDKs",
   "homepage": "https://github.com/carnivalmobile/carnival-sdk-react-native",
   "keywords": [
     "android",
@@ -16,6 +16,7 @@
     "react-native",
     "sdk",
     "carnival",
+    "sailthru",
     "push notifications",
     "messaging"
   ],
@@ -36,7 +37,9 @@
   "files": [
     "/ios/Carnival.framework",
     "/ios/CarnivalExtension.framework",
-    "/ios/RNCarnival*",
+    "/ios/SailthruMobile.framework",
+    "/ios/SailthruMobileExtension.framework",
+    "/ios/RN*",
     "/android/src/main",
     "/android/build.gradle",
     "/example"

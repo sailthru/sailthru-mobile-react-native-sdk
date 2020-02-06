@@ -3,11 +3,17 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		867F24541602668E5F01E85F /* libPods-CarnivalSDKReactNativeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 37BFC163AA4381A21892516B /* libPods-CarnivalSDKReactNativeTests.a */; };
+		B934F55423EA1E68009DE68E /* RNSailthruMobileBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55223EA1E68009DE68E /* RNSailthruMobileBridge.m */; };
+		B934F55523EA1E68009DE68E /* RNSailthruMobileBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55223EA1E68009DE68E /* RNSailthruMobileBridge.m */; };
+		B934F55623EA1E68009DE68E /* RNSailthruMobile.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55323EA1E68009DE68E /* RNSailthruMobile.m */; };
+		B934F55723EA1E68009DE68E /* RNSailthruMobile.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55323EA1E68009DE68E /* RNSailthruMobile.m */; };
+		B934F55A23EA1EE3009DE68E /* RNSailthruMobileTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55823EA1EE3009DE68E /* RNSailthruMobileTests.m */; };
+		B934F55B23EA1EE3009DE68E /* RNSailtrhuMobileBridgeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55923EA1EE3009DE68E /* RNSailtrhuMobileBridgeTests.m */; };
 		D7FCAC7F9F0651A51E0860F9 /* libPods-CarnivalSDKReactNative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9C408A0D6A66A8C7C87FABF /* libPods-CarnivalSDKReactNative.a */; };
 		FA56D0BF2154906F006CC33E /* RNCarnivalBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = FA56D0BD2154906F006CC33E /* RNCarnivalBridge.m */; };
 		FA56D0C12154914B006CC33E /* RNCarnivalBridgeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FA56D0C02154914B006CC33E /* RNCarnivalBridgeTests.m */; };
@@ -33,6 +39,12 @@
 		37BFC163AA4381A21892516B /* libPods-CarnivalSDKReactNativeTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CarnivalSDKReactNativeTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		530EE07669ABA8AC020F634F /* Pods-CarnivalSDKReactNative.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CarnivalSDKReactNative.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CarnivalSDKReactNative/Pods-CarnivalSDKReactNative.debug.xcconfig"; sourceTree = "<group>"; };
 		A9C408A0D6A66A8C7C87FABF /* libPods-CarnivalSDKReactNative.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CarnivalSDKReactNative.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B934F55023EA1E67009DE68E /* RNSailthruMobileBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNSailthruMobileBridge.h; sourceTree = "<group>"; };
+		B934F55123EA1E67009DE68E /* RNSailthruMobile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNSailthruMobile.h; sourceTree = "<group>"; };
+		B934F55223EA1E68009DE68E /* RNSailthruMobileBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNSailthruMobileBridge.m; sourceTree = "<group>"; };
+		B934F55323EA1E68009DE68E /* RNSailthruMobile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNSailthruMobile.m; sourceTree = "<group>"; };
+		B934F55823EA1EE3009DE68E /* RNSailthruMobileTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNSailthruMobileTests.m; sourceTree = "<group>"; };
+		B934F55923EA1EE3009DE68E /* RNSailtrhuMobileBridgeTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNSailtrhuMobileBridgeTests.m; sourceTree = "<group>"; };
 		D93E281A183B895257A2EF63 /* Pods-CarnivalSDKReactNativeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CarnivalSDKReactNativeTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-CarnivalSDKReactNativeTests/Pods-CarnivalSDKReactNativeTests.release.xcconfig"; sourceTree = "<group>"; };
 		F493186627791EBF10C74AC3 /* Pods-CarnivalSDKReactNative.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CarnivalSDKReactNative.release.xcconfig"; path = "Pods/Target Support Files/Pods-CarnivalSDKReactNative/Pods-CarnivalSDKReactNative.release.xcconfig"; sourceTree = "<group>"; };
 		F6911E2E0920C3875B29FBEC /* Pods-CarnivalSDKReactNativeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CarnivalSDKReactNativeTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CarnivalSDKReactNativeTests/Pods-CarnivalSDKReactNativeTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -101,6 +113,8 @@
 		FA5EF5BC213F433200D9E6A9 /* CarnivalSDKReactNativeTests */ = {
 			isa = PBXGroup;
 			children = (
+				B934F55823EA1EE3009DE68E /* RNSailthruMobileTests.m */,
+				B934F55923EA1EE3009DE68E /* RNSailtrhuMobileBridgeTests.m */,
 				FA5EF5BD213F433200D9E6A9 /* RNCarnivalTests.m */,
 				FA56D0C02154914B006CC33E /* RNCarnivalBridgeTests.m */,
 				FA5EF5BF213F433200D9E6A9 /* Info.plist */,
@@ -111,6 +125,10 @@
 		FA917315213F4FA9004C6974 /* CarnivalSDKReactNative */ = {
 			isa = PBXGroup;
 			children = (
+				B934F55123EA1E67009DE68E /* RNSailthruMobile.h */,
+				B934F55323EA1E68009DE68E /* RNSailthruMobile.m */,
+				B934F55023EA1E67009DE68E /* RNSailthruMobileBridge.h */,
+				B934F55223EA1E68009DE68E /* RNSailthruMobileBridge.m */,
 				FA5EF5B4213F42E900D9E6A9 /* RNCarnival.h */,
 				FA5EF5B5213F42E900D9E6A9 /* RNCarnival.m */,
 				FA56D0BE2154906F006CC33E /* RNCarnivalBridge.h */,
@@ -292,6 +310,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B934F55423EA1E68009DE68E /* RNSailthruMobileBridge.m in Sources */,
+				B934F55623EA1E68009DE68E /* RNSailthruMobile.m in Sources */,
 				FA56D0BF2154906F006CC33E /* RNCarnivalBridge.m in Sources */,
 				FA5EF5B6213F42EA00D9E6A9 /* RNCarnival.m in Sources */,
 			);
@@ -302,6 +322,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA5EF5C6213F4CB600D9E6A9 /* RNCarnival.m in Sources */,
+				B934F55723EA1E68009DE68E /* RNSailthruMobile.m in Sources */,
+				B934F55A23EA1EE3009DE68E /* RNSailthruMobileTests.m in Sources */,
+				B934F55523EA1E68009DE68E /* RNSailthruMobileBridge.m in Sources */,
+				B934F55B23EA1EE3009DE68E /* RNSailtrhuMobileBridgeTests.m in Sources */,
 				FA56D0C12154914B006CC33E /* RNCarnivalBridgeTests.m in Sources */,
 				FA56D0C221549534006CC33E /* RNCarnivalBridge.m in Sources */,
 				FA5EF5BE213F433200D9E6A9 /* RNCarnivalTests.m in Sources */,
