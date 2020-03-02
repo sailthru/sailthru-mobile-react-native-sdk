@@ -32,7 +32,7 @@
  */
 - (instancetype)initWithJSCodeLocation:(NSURL *)jsCodeLocation
                                 appKey:(NSString *)appKey
-               pushAuthorizationOption:(SMSPushAuthorizationOption)pushAuthorizationOption
+               pushAuthorizationOption:(STMPushAuthorizationOption)pushAuthorizationOption
                   geoIpTrackingDefault:(BOOL)geoIpTrackingDefault;
 
 @end

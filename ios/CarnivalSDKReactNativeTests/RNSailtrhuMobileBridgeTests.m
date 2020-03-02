@@ -3,6 +3,12 @@
 #import "RNSailthruMobile.h"
 #import "Kiwi.h"
 
+@interface SailthruMobile ()
+
+- (void)setWrapperName:(NSString *)wrapperName andVersion:(NSString *)wrapperVersion;
+
+@end
+
 SPEC_BEGIN(RNSailthruMobileBridgeSpec)
 
 describe(@"RNSailthruMobileBridge", ^{
@@ -47,7 +53,7 @@ describe(@"RNSailthruMobileBridge", ^{
         });
         
         it(@"should call startEngine", ^{
-            [[sailthruMobile should] receive:@selector(startEngine:withAuthorizationOption:) withArguments:appKey, theValue(SMSPushAuthorizationOptionFull)];
+            [[sailthruMobile should] receive:@selector(startEngine:withAuthorizationOption:) withArguments:appKey, theValue(STMPushAuthorizationOptionFull)];
             
             RNSailthruMobileBridge *rnSailthruMobileBridge = [[RNSailthruMobileBridge alloc] initWithJSCodeLocation:jsCodeLocation
                                                                                                              appKey:appKey];
@@ -81,17 +87,17 @@ describe(@"RNSailthruMobileBridge", ^{
             
             RNSailthruMobileBridge *rnSailthruMobileBridge = [[RNSailthruMobileBridge alloc] initWithJSCodeLocation:jsCodeLocation
                                                                                                              appKey:appKey
-                                                                                            pushAuthorizationOption:SMSPushAuthorizationOptionFull
+                                                                                            pushAuthorizationOption:STMPushAuthorizationOptionFull
                                                                                                geoIpTrackingDefault:NO];
             (void)rnSailthruMobileBridge;
         });
         
         it(@"should call startEngine", ^{
-            [[sailthruMobile should] receive:@selector(startEngine:withAuthorizationOption:) withArguments:appKey, theValue(SMSPushAuthorizationOptionProvisional)];
+            [[sailthruMobile should] receive:@selector(startEngine:withAuthorizationOption:) withArguments:appKey, theValue(STMPushAuthorizationOptionProvisional)];
             
             RNSailthruMobileBridge *rnSailthruMobileBridge = [[RNSailthruMobileBridge alloc] initWithJSCodeLocation:jsCodeLocation
                                                                                                              appKey:appKey
-                                                                                            pushAuthorizationOption:SMSPushAuthorizationOptionProvisional
+                                                                                            pushAuthorizationOption:STMPushAuthorizationOptionProvisional
                                                                                                geoIpTrackingDefault:NO];
             (void)rnSailthruMobileBridge;
         });
@@ -99,7 +105,7 @@ describe(@"RNSailthruMobileBridge", ^{
         it(@"should set the JS code location", ^{
             RNSailthruMobileBridge *rnSailthruMobileBridge = [[RNSailthruMobileBridge alloc] initWithJSCodeLocation:jsCodeLocation
                                                                                                              appKey:appKey
-                                                                                            pushAuthorizationOption:SMSPushAuthorizationOptionFull
+                                                                                            pushAuthorizationOption:STMPushAuthorizationOptionFull
                                                                                                geoIpTrackingDefault:NO];
             [[rnSailthruMobileBridge.jsCodeLocation should] equal:jsCodeLocation];
         });
@@ -107,7 +113,7 @@ describe(@"RNSailthruMobileBridge", ^{
         it(@"should set whether to display in app notifications", ^{
             RNSailthruMobileBridge *rnSailthruMobileBridge = [[RNSailthruMobileBridge alloc] initWithJSCodeLocation:jsCodeLocation
                                                                                                              appKey:appKey
-                                                                                            pushAuthorizationOption:SMSPushAuthorizationOptionFull
+                                                                                            pushAuthorizationOption:STMPushAuthorizationOptionFull
                                                                                                geoIpTrackingDefault:NO];
             [[theValue(rnSailthruMobileBridge.displayInAppNotifications) should] equal:theValue(YES)];
         });
@@ -141,6 +147,7 @@ describe(@"RNSailthruMobileBridge", ^{
         
         beforeEach(^{
             [sailthruMobile stub:@selector(startEngine:withAuthorizationOption:)];
+            [sailthruMobile stub:@selector(setWrapperName:andVersion:)];
             
             jsCodeLocation = [NSURL mock];
             appKey = [NSString mock];

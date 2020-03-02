@@ -12,12 +12,12 @@
 
 - (instancetype)initWithJSCodeLocation:(NSURL *)jsCodeLocation
                                 appKey:(NSString *)appKey {
-    return [self initWithJSCodeLocation:jsCodeLocation appKey:appKey pushAuthorizationOption:SMSPushAuthorizationOptionFull geoIpTrackingDefault:YES];
+    return [self initWithJSCodeLocation:jsCodeLocation appKey:appKey pushAuthorizationOption:STMPushAuthorizationOptionFull geoIpTrackingDefault:YES];
 }
 
 - (instancetype)initWithJSCodeLocation:(NSURL *)jsCodeLocation
                                 appKey:(NSString *)appKey
-               pushAuthorizationOption:(SMSPushAuthorizationOption)pushAuthorizationOption
+               pushAuthorizationOption:(STMPushAuthorizationOption)pushAuthorizationOption
                   geoIpTrackingDefault:(BOOL)geoIpTrackingDefault {
     self = [super init];
     if(self) {

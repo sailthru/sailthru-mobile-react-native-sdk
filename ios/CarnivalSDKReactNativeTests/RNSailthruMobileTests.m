@@ -42,7 +42,7 @@
 
 // interfaces to match RNSailthruMobile
 
-@interface SMSMessage ()
+@interface STMMessage ()
 
 - (nullable instancetype)initWithDictionary:(nonnull NSDictionary *)dictionary;
 - (nonnull NSDictionary *)dictionary;
@@ -60,7 +60,7 @@ SPEC_BEGIN(RNSailthruMobileSpec)
 
 describe(@"RNSailthruMobile", ^{
     __block SailthruMobile *sailthruMobile = nil;
-    __block SMSMessageStream *messageStream = nil;
+    __block STMMessageStream *messageStream = nil;
     __block RNSailthruMobile *rnSailthruMobile = nil;
          
     beforeEach(^{
@@ -68,9 +68,9 @@ describe(@"RNSailthruMobile", ^{
         [sailthruMobile stub:@selector(setWrapperName:andVersion:)];
         [SailthruMobile stub:@selector(new) andReturn:sailthruMobile];
     
-        messageStream = [SMSMessageStream mock];
+        messageStream = [STMMessageStream mock];
         [messageStream stub:@selector(setDelegate:)];
-        [SMSMessageStream stub:@selector(new) andReturn:messageStream];
+        [STMMessageStream stub:@selector(new) andReturn:messageStream];
     
         rnSailthruMobile = [[RNSailthruMobile alloc] initWithDisplayInAppNotifications:YES];
     });
@@ -518,9 +518,9 @@ describe(@"RNSailthruMobile", ^{
     
     context(@"the clearDevice:resolver:rejecter: method", ^{
         it(@"should call native method", ^{
-            [[sailthruMobile should] receive:@selector(clearDeviceData:withResponse:) withArguments:theValue(SMSDeviceDataTypeAttributes), any()];
+            [[sailthruMobile should] receive:@selector(clearDeviceData:withResponse:) withArguments:theValue(STMDeviceDataTypeAttributes), any()];
             
-            [rnSailthruMobile clearDevice:SMSDeviceDataTypeAttributes resolver:nil rejecter:nil];
+            [rnSailthruMobile clearDevice:STMDeviceDataTypeAttributes resolver:nil rejecter:nil];
         });
         
         it(@"should return success", ^{
@@ -532,7 +532,7 @@ describe(@"RNSailthruMobile", ^{
             KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(clearDeviceData:withResponse:) atIndex:1];
             
             // Start test
-            [rnSailthruMobile clearDevice:SMSDeviceDataTypeAttributes resolver:resolve rejecter:nil];
+            [rnSailthruMobile clearDevice:STMDeviceDataTypeAttributes resolver:resolve rejecter:nil];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
@@ -551,7 +551,7 @@ describe(@"RNSailthruMobile", ^{
             KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(clearDeviceData:withResponse:) atIndex:1];
             
             // Start test
-            [rnSailthruMobile clearDevice:SMSDeviceDataTypeAttributes resolver:nil rejecter:reject];
+            [rnSailthruMobile clearDevice:STMDeviceDataTypeAttributes resolver:nil rejecter:reject];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;

@@ -2,14 +2,14 @@
 #import "RNSailthruMobile.h"
 #import <UserNotifications/UserNotifications.h>
 
-@interface SMSMessage ()
+@interface STMMessage ()
 
 - (nullable instancetype)initWithDictionary:(nonnull NSDictionary *)dictionary;
 - (nonnull NSDictionary *)dictionary;
 
 @end
 
-@interface SMSContentItem ()
+@interface STMContentItem ()
 
 - (nullable instancetype)initWithDictionary:(nonnull NSDictionary *)dictionary;
 - (nonnull NSDictionary *)dictionary;
@@ -22,16 +22,16 @@
 
 @end
 
-@interface SMSPurchase ()
+@interface STMPurchase ()
 
 - (nullable instancetype)initWithDictionary:(NSDictionary *)dictionary;
 
 @end
 
-@interface RNSailthruMobile
+@interface RNSailthruMobile()
 
 @property (nonatomic, strong) SailthruMobile *sailthruMobile;
-@property (nonatomic, strong) SMSMessageStream *messageStream;
+@property (nonatomic, strong) STMMessageStream *messageStream;
 
 @end
 
@@ -48,7 +48,7 @@
     if(self) {
         _displayInAppNotifications = displayNotifications;
         _sailthruMobile = [SailthruMobile new];
-        _messageStream = [SMSMessageStream new];
+        _messageStream = [STMMessageStream new];
 
         [_messageStream setDelegate:self];
         [_sailthruMobile setWrapperName:@"React Native" andVersion:@"4.0.0"];
@@ -61,7 +61,7 @@
     return @[@"inappnotification"];
 }
 
-- (BOOL)shouldPresentInAppNotificationForMessage:(SMSMessage *)message {
+- (BOOL)shouldPresentInAppNotificationForMessage:(STMMessage *)message {
     NSMutableDictionary *payload = [NSMutableDictionary dictionaryWithDictionary:[message dictionary]];
 
     if ([message attributes]) {
@@ -89,8 +89,8 @@ RCT_REMAP_METHOD(getMessages, resolver:(RCTPromiseResolveBlock)resolve
 #pragma mark - Attributes
 RCT_EXPORT_METHOD(setAttributes:(NSDictionary *)attributeMap resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)  {
 
-    SMSAttributes *attributeMap = [[SMSAttributes alloc] init];
-    [attributeMap setAttributesMergeRule:(SMSAttributesMergeRule)[attributeMap valueForKey:@"mergeRule"]];
+    STMAttributes *stmAttributes = [[STMAttributes alloc] init];
+    [stmAttributes setAttributesMergeRule:(STMAttributesMergeRule)[attributeMap valueForKey:@"mergeRule"]];
 
     NSDictionary *attributes = [attributeMap valueForKey:@"attributes"];
 
@@ -99,31 +99,31 @@ RCT_EXPORT_METHOD(setAttributes:(NSDictionary *)attributeMap resolver:(RCTPromis
 
         if ([type isEqualToString:@"string"]) {
             NSString *value = [[attributes valueForKey:key] valueForKey:@"value"];
-            [attributeMap setString:value forKey:key];
+            [stmAttributes setString:value forKey:key];
 
         } else if ([type isEqualToString:@"stringArray"]) {
             NSArray<NSString *> *value = [[attributes valueForKey:key] valueForKey:@"value"];
-            [attributeMap setStrings:value forKey:key];
+            [stmAttributes setStrings:value forKey:key];
 
         } else if ([type isEqualToString:@"integer"]) {
             NSNumber *value = [[attributes valueForKey:key] objectForKey:@"value"];
-            [attributeMap setInteger:[value integerValue] forKey:key];
+            [stmAttributes setInteger:[value integerValue] forKey:key];
 
         } else if ([type isEqualToString:@"integerArray"]) {
             NSArray<NSNumber *> *value = [[attributes valueForKey:key] valueForKey:@"value"];
-            [attributeMap setIntegers:value forKey:key];
+            [stmAttributes setIntegers:value forKey:key];
 
         } else if ([type isEqualToString:@"boolean"]) {
             BOOL value = [[[attributes valueForKey:key] valueForKey:@"value"] boolValue];
-            [attributeMap setBool:value forKey:key];
+            [stmAttributes setBool:value forKey:key];
 
         } else if ([type isEqualToString:@"float"]) {
             NSNumber *numberValue = [[attributes valueForKey:key] objectForKey:@"value"];
-            [attributeMap setFloat:[numberValue floatValue] forKey:key];
+            [stmAttributes setFloat:[numberValue floatValue] forKey:key];
 
         } else if ([type isEqualToString:@"floatArray"]) {
             NSArray<NSNumber *> *value = [[attributes valueForKey:key] objectForKey:@"value"];
-            [attributeMap setFloats:value forKey:key];
+            [stmAttributes setFloats:value forKey:key];
 
         } else if ([type isEqualToString:@"date"]) {
             NSNumber *millisecondsValue = [[attributes valueForKey:key] objectForKey:@"value"];
@@ -135,7 +135,7 @@ RCT_EXPORT_METHOD(setAttributes:(NSDictionary *)attributeMap resolver:(RCTPromis
 
             NSDate *date = [NSDate dateWithTimeIntervalSince1970:[value doubleValue]];
             if (date) {
-                [attributeMap setDate:date forKey:key];
+                [stmAttributes setDate:date forKey:key];
             } else {
                 return;
             }
@@ -156,11 +156,11 @@ RCT_EXPORT_METHOD(setAttributes:(NSDictionary *)attributeMap resolver:(RCTPromis
                 }
             }
 
-            [attributeMap setDates:dates forKey:key];
+            [stmAttributes setDates:dates forKey:key];
         }
     }
 
-    [self.sailthruMobile setAttributes:attributeMap withResponse:^(NSError * _Nullable error) {
+    [self.sailthruMobile setAttributes:stmAttributes withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNSailthruMobile rejectPromise:reject withError:error];
         } else {
@@ -380,7 +380,7 @@ RCT_EXPORT_METHOD(registerForPushNotifications) {
 }
 
 RCT_EXPORT_METHOD(clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-    [self.sailthruMobile clearDeviceData:(SMSDeviceDataType)options withResponse:^(NSError * _Nullable error) {
+    [self.sailthruMobile clearDeviceData:(STMDeviceDataType)options withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNSailthruMobile rejectPromise:reject withError:error];
         } else {
@@ -415,7 +415,7 @@ RCT_EXPORT_METHOD(getProfileVars:(RCTPromiseResolveBlock)resolve rejecter:(RCTPr
 #pragma mark - Purchases
 
 RCT_EXPORT_METHOD(logPurchase:(NSDictionary *)purchaseDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-    SMSPurchase *purchase = [[SMSPurchase alloc] initWithDictionary:purchaseDict];
+    STMPurchase *purchase = [[STMPurchase alloc] initWithDictionary:purchaseDict];
     [self.sailthruMobile logPurchase:purchase withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNSailthruMobile rejectPromise:reject withError:error];
@@ -426,7 +426,7 @@ RCT_EXPORT_METHOD(logPurchase:(NSDictionary *)purchaseDict resolver:(RCTPromiseR
 }
 
 RCT_EXPORT_METHOD(logAbandonedCart:(NSDictionary *)purchaseDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-    SMSPurchase *purchase = [[SMSPurchase alloc] initWithDictionary:purchaseDict];
+    STMPurchase *purchase = [[STMPurchase alloc] initWithDictionary:purchaseDict];
     [self.sailthruMobile logAbandonedCart:purchase withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNSailthruMobile rejectPromise:reject withError:error];
@@ -445,19 +445,19 @@ RCT_EXPORT_METHOD(logAbandonedCart:(NSDictionary *)purchaseDict resolver:(RCTPro
 
 + (NSArray *)arrayOfMessageDictionariesFromMessageArray:(NSArray *)messageArray {
     NSMutableArray *messageDictionaries = [NSMutableArray array];
-    for (SMSMessage *message in messageArray) {
+    for (STMMessage *message in messageArray) {
         [messageDictionaries addObject:[message dictionary]];
     }
     return messageDictionaries;
 }
 
-+ (SMSMessage *) messageFromDict:(NSDictionary *)jsDict {
-    return [[SMSMessage alloc] initWithDictionary:jsDict];
++ (STMMessage *) messageFromDict:(NSDictionary *)jsDict {
+    return [[STMMessage alloc] initWithDictionary:jsDict];
 }
 
 + (NSArray *)arrayOfContentItemsDictionaryFromContentItemsArray:(NSArray *)contentItemsArray {
   NSMutableArray *items = [NSMutableArray array];
-  for (SMSContentItem *contentItem in contentItemsArray) {
+  for (STMContentItem *contentItem in contentItemsArray) {
     [items addObject:[contentItem dictionary]];
   }
   return items;

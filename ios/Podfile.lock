@@ -1,8 +1,5 @@
 PODS:
   - boost-for-react-native (1.63.0)
-  - Carnival (9.0.0):
-    - Carnival/Extension (= 9.0.0)
-  - Carnival/Extension (9.0.0)
   - DoubleConversion (1.1.5)
   - Folly (2016.10.31.00):
     - boost-for-react-native
@@ -27,15 +24,18 @@ PODS:
     - React/PrivateDatabase
   - React/jsinspector (0.56.0)
   - React/PrivateDatabase (0.56.0)
+  - SailthruMobile (10.1.0-beta):
+    - SailthruMobile/Extension (= 10.1.0-beta)
+  - SailthruMobile/Extension (10.1.0-beta)
   - yoga (0.56.0.React)
 
 DEPENDENCIES:
-  - Carnival (= 9.0.0)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - Kiwi (= 2.4.0)
   - OCMock (= 3.1.2)
   - React/Core (from `../node_modules/react-native`)
   - React/CxxBridge (from `../node_modules/react-native`)
+  - SailthruMobile (= 10.1.0-beta)
   - yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -46,7 +46,7 @@ SPEC REPOS:
     - Kiwi
     - OCMock
   trunk:
-    - Carnival
+    - SailthruMobile
 
 EXTERNAL SOURCES:
   Folly:
@@ -58,15 +58,15 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  Carnival: a79a4d7d4372fb1552d398e62a30ee73d0bb1230
   DoubleConversion: e22e0762848812a87afd67ffda3998d9ef29170c
   Folly: c89ac2d5c6ab169cd7397ef27485c44f35f742c7
   glog: 1de0bb937dccdc981596d3b5825ebfb765017ded
   Kiwi: f49c9d54b28917df5928fe44968a39ed198cb8a8
   OCMock: a10ea9f0a6e921651f96f78b6faee95ebc813b92
   React: bdb39c05e2eed10a43056cff89a68bc9ebe7f232
+  SailthruMobile: d5d621469007c0d1fa7fbddfcd85825eab2c35ed
   yoga: 2418c171de153cbe3c94dc28c3bf691b1695ae17
 
-PODFILE CHECKSUM: c41a3371884c15427a5bc1d76b8285a084885c80
+PODFILE CHECKSUM: 22d191ea5e3109631c7bbdf3f0c7b72db5df1cdf
 
 COCOAPODS: 1.8.4

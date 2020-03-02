@@ -4,7 +4,7 @@
 
 #include <SailthruMobile/SailthruMobile.h>
 
-@interface RNSailthruMobile : RCTEventEmitter <RCTBridgeModule, SMSMessageStreamDelegate>
+@interface RNSailthruMobile : RCTEventEmitter <RCTBridgeModule, STMMessageStreamDelegate>
 
 @property BOOL displayInAppNotifications;
 
