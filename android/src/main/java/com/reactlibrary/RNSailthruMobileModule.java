@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
 
+import androidx.annotation.VisibleForTesting;
+
 import com.sailthru.mobile.sdk.model.AttributeMap;
 import com.sailthru.mobile.sdk.SailthruMobile;
 import com.sailthru.mobile.sdk.MessageStream;
@@ -40,8 +42,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.inject.Inject;
-
 /**
  * React native module for the Sailthru Mobile SDK.
  */
@@ -59,10 +59,10 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     private ReactApplicationContext reactApplicationContext;
 
-    @Inject
-    private SailthruMobile sailthruMobile;
-    @Inject
-    private MessageStream messageStream;
+    @VisibleForTesting
+    SailthruMobile sailthruMobile = new SailthruMobile();
+    @VisibleForTesting
+    MessageStream messageStream = new MessageStream();
 
     public RNSailthruMobileModule(ReactApplicationContext reactContext, boolean displayInAppNotifications) {
         super(reactContext);
@@ -70,7 +70,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
         this.displayInAppNotifications = displayInAppNotifications;
 
         sailthruMobile.setOnInAppNotificationDisplayListener(this);
-        setWrapperInfo();
+        setWrapperInfo(sailthruMobile);
     }
 
     @Override
@@ -103,13 +103,13 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
         return "RNSailthruMobile";
     }
 
-    protected void setWrapperInfo() {
+    protected static void setWrapperInfo(SailthruMobile sailthruMobile) {
         try {
             Class[] cArg = new Class[2];
             cArg[0] = String.class;
             cArg[1] = String.class;
 
-            Method setWrapperMethod = sailthruMobile.class.getDeclaredMethod("setWrapper", cArg);
+            Method setWrapperMethod = SailthruMobile.class.getDeclaredMethod("setWrapper", cArg);
             setWrapperMethod.setAccessible(true);
             setWrapperMethod.invoke(sailthruMobile, "React Native", "4.0.0");
         } catch (NoSuchMethodException e) {
@@ -253,11 +253,15 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
                 WritableArray array = getWritableArray();
                 try {
-                    Method toJsonMethod = Message.class.getDeclaredMethod("toJSON");
+                    Method toJsonMethod = com.carnival.sdk.Message.class.getDeclaredMethod("toJSON");
                     toJsonMethod.setAccessible(true);
 
+                    Method getMessageMethod = Message.class.getDeclaredMethod("getMessage$carnival_carnivalRelease");
+                    getMessageMethod.setAccessible(true);
+
                     for (Message message : messages) {
-                        JSONObject messageJson = (JSONObject) toJsonMethod.invoke(message);
+                        com.carnival.sdk.Message innerMessage = (com.carnival.sdk.Message) getMessageMethod.invoke(message);
+                        JSONObject messageJson = (JSONObject) toJsonMethod.invoke(innerMessage);
                         System.out.println(message.toString());
                         array.pushMap(convertJsonToMap(messageJson));
                     }
@@ -738,7 +742,8 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
         }
     }
 
-    private Purchase getPurchaseInstance(ReadableMap purchaseMap, final Promise promise) throws JSONException {
+    @VisibleForTesting
+    Purchase getPurchaseInstance(ReadableMap purchaseMap, final Promise promise) throws JSONException {
         JSONObject purchaseJson = convertPurchaseMapToJson(purchaseMap);
         try {
             Constructor purchaseConstructor = Purchase.class.getDeclaredConstructor(JSONObject.class);

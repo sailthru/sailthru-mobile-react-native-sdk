@@ -4,10 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
 
+import com.sailthru.mobile.sdk.MessageActivity;
+import com.sailthru.mobile.sdk.MessageStream;
 import com.sailthru.mobile.sdk.model.AttributeMap;
 import com.sailthru.mobile.sdk.SailthruMobile;
-import com.sailthru.mobile.sdk.MessageStream;
-import com.sailthru.mobile.sdk.enums.CarnivalImpressionType;
+import com.sailthru.mobile.sdk.enums.ImpressionType;
 import com.sailthru.mobile.sdk.model.ContentItem;
 import com.sailthru.mobile.sdk.model.Message;
 import com.sailthru.mobile.sdk.model.Purchase;
@@ -19,16 +20,17 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 
 import org.json.JSONObject;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -46,39 +48,55 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({SailthruMobile.class, MessageStream.class, AttributeMap.class, MessageActivity.class, Purchase.class, RNSailthruMobileModule.class})
 public class RNSailthruMobileModuleTest {
 
     @Mock
     private ReactApplicationContext mockContext;
-    @Mock
+
     private SailthruMobile sailthruMobile;
-    @Mock
     private MessageStream messageStream;
-    @InjectMocks
-    private RNSailthruMobileModule rnSTModule = spy(new RNSailthruMobileModule(mockContext, true));
+
+    private RNSailthruMobileModule rnSailthruMobileModule;
+    private RNSailthruMobileModule rnSailthruMobileModuleSpy;
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
+        sailthruMobile = PowerMockito.mock(SailthruMobile.class);
+        messageStream = PowerMockito.mock(MessageStream.class);
+        PowerMockito.mockStatic(RNSailthruMobileModule.class);
+        PowerMockito.mockStatic(MessageActivity.class);
+
+        PowerMockito.whenNew(SailthruMobile.class).withAnyArguments().thenReturn(sailthruMobile);
+        PowerMockito.whenNew(MessageStream.class).withAnyArguments().thenReturn(messageStream);
+        PowerMockito.doNothing().when(RNSailthruMobileModule.class, "setWrapperInfo", any(SailthruMobile.class));
+
+        rnSailthruMobileModule = new RNSailthruMobileModule(mockContext, true);
+        rnSailthruMobileModuleSpy = spy(rnSailthruMobileModule);
     }
 
     @Test
-    public void testConstructor() {
-        verify(rnSTModule).setWrapperInfo();
+    public void testConstructor() throws Exception {
+        verify(sailthruMobile).setOnInAppNotificationDisplayListener(rnSailthruMobileModule);
+
+        PowerMockito.verifyStatic(RNSailthruMobileModule.class);
+        RNSailthruMobileModule.setWrapperInfo(any(SailthruMobile.class));
     }
 
     @Test
     public void testUpdateLocation() throws Exception {
-        double latitude = 10, longitude = 11;
-        ArgumentCaptor<Location> captor = ArgumentCaptor.forClass(Location.class);
+        double latitude = 10, longitude = 10;
 
-        rnSTModule.updateLocation(latitude, longitude);
+        Location location = mock(Location.class);
+        PowerMockito.whenNew(Location.class).withAnyArguments().thenReturn(location);
 
-        verify(sailthruMobile).updateLocation(captor.capture());
-        Location location = captor.getValue();
-        Assert.assertEquals(latitude, location.getLatitude(), 0);
-        Assert.assertEquals(longitude, location.getLongitude(), 0);
+        rnSailthruMobileModule.updateLocation(latitude, longitude);
+
+        verify(location).setLatitude(latitude);
+        verify(location).setLongitude(longitude);
+        verify(sailthruMobile).updateLocation(location);
     }
 
     @Test
@@ -89,24 +107,23 @@ public class RNSailthruMobileModuleTest {
         Promise promise = mock(Promise.class);
         Error error = mock(Error.class);
 
-        // Capture handler for verification
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
-
         // Mock methods
         doReturn(errorMessage).when(error).getMessage();
 
         // Start test
-        rnSTModule.getDeviceID(promise);
+        rnSailthruMobileModule.getDeviceID(promise);
 
+        // Capture handler for verification
+        ArgumentCaptor<SailthruMobile.SailthruMobileHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
         verify(sailthruMobile).getDeviceId(argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler stHandler = argumentCaptor.getValue();
+        SailthruMobile.SailthruMobileHandler sailthruMobileHandler = argumentCaptor.getValue();
 
         // Test success
-        stHandler.onSuccess(deviceID);
+        sailthruMobileHandler.onSuccess(deviceID);
         verify(promise).resolve(deviceID);
 
         // Test failure
-        stHandler.onFailure(error);
+        sailthruMobileHandler.onFailure(error);
         verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_DEVICE, errorMessage);
     }
 
@@ -114,7 +131,7 @@ public class RNSailthruMobileModuleTest {
     public void testLogEvent() throws Exception {
         String event = "event string";
 
-        rnSTModule.logEvent(event);
+        rnSailthruMobileModule.logEvent(event);
 
         verify(sailthruMobile).logEvent(event);
     }
@@ -128,9 +145,9 @@ public class RNSailthruMobileModuleTest {
         ReadableMap readableMap = mock(ReadableMap.class);
 
         // setup mocking
-        doReturn(varsJson).when(rnSTModule).convertMapToJson(readableMap);
+        PowerMockito.doReturn(varsJson).when(rnSailthruMobileModuleSpy).convertMapToJson(readableMap);
 
-        rnSTModule.logEvent(event, readableMap);
+        rnSailthruMobileModuleSpy.logEvent(event, readableMap);
 
         verify(sailthruMobile).logEvent(event, varsJson);
     }
@@ -141,12 +158,15 @@ public class RNSailthruMobileModuleTest {
         ReadableMap readableMap = mock(ReadableMap.class);
         JSONObject attributeMapJson = mock(JSONObject.class);
         JSONObject attributeJson = mock(JSONObject.class);
+        AttributeMap attributeMap = PowerMockito.mock(AttributeMap.class);
         Iterator<String> keys = mock(Iterator.class);
-        ArgumentCaptor<AttributeMap> captor = ArgumentCaptor.forClass(AttributeMap.class);
 
         // setup mocking for conversion from ReadableMap to JSON
-        doReturn(attributeMapJson).when(rnSTModule).convertMapToJson(readableMap);
+        PowerMockito.doReturn(attributeMapJson).when(rnSailthruMobileModuleSpy).convertMapToJson(readableMap);
         when(attributeMapJson.getJSONObject("attributes")).thenReturn(attributeJson);
+
+        // Mock attribute map
+        PowerMockito.whenNew(AttributeMap.class).withNoArguments().thenReturn(attributeMap);
 
         // Setup JSON objects
         when(attributeJson.getInt("mergeRule")).thenReturn(0);
@@ -154,12 +174,10 @@ public class RNSailthruMobileModuleTest {
         when(keys.hasNext()).thenReturn(false);
 
         // Initiate test
-        rnSTModule.setAttributes(readableMap, null);
+        rnSailthruMobileModuleSpy.setAttributes(readableMap, null);
 
         // Verify results
-        verify(sailthruMobile).setAttributes(captor.capture(), any());
-        AttributeMap attributeMap = captor.getValue();
-        Assert.assertEquals(0, attributeMap.getMergeRules());
+        verify(sailthruMobile).setAttributes(eq(attributeMap), any(SailthruMobile.AttributesHandler.class));
     }
 
     @Test
@@ -168,17 +186,17 @@ public class RNSailthruMobileModuleTest {
         Promise promise = mock(Promise.class);
         WritableArray writableArray = mock(WritableArray.class);
         Error error = mock(Error.class);
-        ArgumentCaptor<MessageStream.MessagesHandler> argumentCaptor = ArgumentCaptor.forClass(MessageStream.MessagesHandler.class);
 
         // Initiate test
-        rnSTModule.getMessages(promise);
+        rnSailthruMobileModuleSpy.getMessages(promise);
 
         // Capture MessagesHandler to verify behaviour
+        ArgumentCaptor<MessageStream.MessagesHandler> argumentCaptor = ArgumentCaptor.forClass(MessageStream.MessagesHandler.class);
         verify(messageStream).getMessages(argumentCaptor.capture());
         MessageStream.MessagesHandler messagesHandler = argumentCaptor.getValue();
 
         // Replace native array with mock
-        doReturn(writableArray).when(rnSTModule).getWritableArray();
+        PowerMockito.doReturn(writableArray).when(rnSailthruMobileModuleSpy).getWritableArray();
 
         // Setup message array
         ArrayList<Message> messages = new ArrayList<>();
@@ -197,10 +215,10 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
-    public void testSetUserId() throws Exception {
+    public void testSetUserId() {
         String userID = "user ID";
 
-        rnSTModule.setUserId(userID);
+        rnSailthruMobileModule.setUserId(userID);
 
         verify(sailthruMobile).setUserId(userID, null);
     }
@@ -209,28 +227,26 @@ public class RNSailthruMobileModuleTest {
     public void testSetUserEmail() throws Exception {
         String userEmail = "user email";
 
-        rnSTModule.setUserEmail(userEmail);
+        rnSailthruMobileModule.setUserEmail(userEmail);
 
         verify(sailthruMobile).setUserEmail(userEmail, null);
     }
 
     @Test
     public void testGetUnreadCount() throws Exception {
-        // Setup
         Integer unreadCount = 4;
+
+        // Setup mocks
         Promise promise = mock(Promise.class);
         Error error = mock(Error.class);
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
 
         // Initiate test
-        rnSTModule.getUnreadCount(promise);
+        rnSailthruMobileModule.getUnreadCount(promise);
 
         // Capture MessagesHandler to verify behaviour
+        ArgumentCaptor<MessageStream.MessageStreamHandler> argumentCaptor = ArgumentCaptor.forClass(MessageStream.MessageStreamHandler.class);
         verify(messageStream).getUnreadMessageCount(argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler countHandler = argumentCaptor.getValue();
-
-        // Setup message array
-        ArrayList<Message> messages = new ArrayList<>();
+        MessageStream.MessageStreamHandler countHandler = argumentCaptor.getValue();
 
         // Test success handler
         countHandler.onSuccess(unreadCount);
@@ -251,13 +267,18 @@ public class RNSailthruMobileModuleTest {
         ReadableMap readableMap = mock(ReadableMap.class);
 
         // Create message to remove
-        Constructor<Message> constructor = Message.class.getDeclaredConstructor();
+        Constructor<com.carnival.sdk.Message> innerConstructor = com.carnival.sdk.Message.class.getDeclaredConstructor();
+        innerConstructor.setAccessible(true);
+        com.carnival.sdk.Message innerMessage = innerConstructor.newInstance();
+
+        Constructor<Message> constructor = Message.class.getDeclaredConstructor(com.carnival.sdk.Message.class);
         constructor.setAccessible(true);
-        Message message = constructor.newInstance();
-        doReturn(message).when(rnSTModule).getMessage(readableMap);
+        Message message = constructor.newInstance(innerMessage);
+        RNSailthruMobileModule moduleSpy = spy(rnSailthruMobileModule);
+        doReturn(message).when(moduleSpy).getMessage(readableMap);
 
         // Initiate test
-        rnSTModule.removeMessage(readableMap);
+        moduleSpy.removeMessage(readableMap);
 
         // Verify result
         verify(messageStream).deleteMessage(message, null);
@@ -270,16 +291,20 @@ public class RNSailthruMobileModuleTest {
         int typeCode = 0;
 
         // Create message to remove
-        Constructor<Message> constructor = Message.class.getDeclaredConstructor();
+        Constructor<com.carnival.sdk.Message> innerConstructor = com.carnival.sdk.Message.class.getDeclaredConstructor();
+        innerConstructor.setAccessible(true);
+        com.carnival.sdk.Message innerMessage = innerConstructor.newInstance();
+
+        Constructor<Message> constructor = Message.class.getDeclaredConstructor(com.carnival.sdk.Message.class);
         constructor.setAccessible(true);
-        Message message = constructor.newInstance();
-        doReturn(message).when(rnSTModule).getMessage(readableMap);
+        Message message = constructor.newInstance(innerMessage);
+        doReturn(message).when(rnSailthruMobileModuleSpy).getMessage(readableMap);
 
         // Initiate test
-        rnSTModule.registerMessageImpression(typeCode, readableMap);
+        rnSailthruMobileModuleSpy.registerMessageImpression(typeCode, readableMap);
 
         // Verify result
-        verify(messageStream).registerMessageImpression(CarnivalImpressionType.IMPRESSION_TYPE_IN_APP_VIEW, message);
+        verify(messageStream).registerMessageImpression(ImpressionType.IMPRESSION_TYPE_IN_APP_VIEW, message);
     }
 
     @Test
@@ -289,57 +314,65 @@ public class RNSailthruMobileModuleTest {
         Promise promise = mock(Promise.class);
 
         // Create message to remove
-        Constructor<Message> constructor = Message.class.getDeclaredConstructor();
+        Constructor<com.carnival.sdk.Message> innerConstructor = com.carnival.sdk.Message.class.getDeclaredConstructor();
+        innerConstructor.setAccessible(true);
+        com.carnival.sdk.Message innerMessage = innerConstructor.newInstance();
+
+        Constructor<Message> constructor = Message.class.getDeclaredConstructor(com.carnival.sdk.Message.class);
         constructor.setAccessible(true);
-        Message message = constructor.newInstance();
-        doReturn(message).when(rnSTModule).getMessage(readableMap);
+        Message message = constructor.newInstance(innerMessage);
+        RNSailthruMobileModule moduleSpy = spy(rnSailthruMobileModule);
+        doReturn(message).when(moduleSpy).getMessage(readableMap);
 
         // Initiate test
-        rnSTModule.markMessageAsRead(readableMap, promise);
+        moduleSpy.markMessageAsRead(readableMap, promise);
 
         // Verify result
-        verify(messageStream).setMessageRead(eq(message), any(Carnival.MessagesReadHandler.class));
+        verify(messageStream).setMessageRead(eq(message), any(MessageStream.MessagesReadHandler.class));
     }
 
     @Test
-    public void testPresentMessageDetail() {
+    public void testPresentMessageDetail() throws Exception {
         // Setup input
         String messageID = "message ID";
 
         // Setup mocks
         ReadableMap message = mock(ReadableMap.class);
         Activity activity = mock(Activity.class);
+        Intent intent = mock(Intent.class);
 
         // Mock behaviour
         when(message.getString(RNSailthruMobileModule.MESSAGE_ID)).thenReturn(messageID);
-        doReturn(activity).when(rnSTModule).currentActivity();
-        doReturn(intent).when(intent).putExtra(MessageStream.EXTRA_MESSAGE_ID, messageID);
+        when(rnSailthruMobileModule.currentActivity()).thenReturn(activity);
+        PowerMockito.when(MessageActivity.class, "intentForMessage", activity, null, messageID).thenReturn(intent);
 
         // Initiate test
-        rnSTModule.presentMessageDetail(message);
+        rnSailthruMobileModule.presentMessageDetail(message);
 
         // Verify result
-        verify(activity).startActivity(any(Intent.class));
+        PowerMockito.verifyStatic(MessageActivity.class);
+        MessageActivity.intentForMessage(activity, null, messageID);
+        verify(activity).startActivity(intent);
     }
 
     @Test
-    public void testGetRecommendations() throws Exception {
+    public void testGetRecommendations() {
         // Setup mocks
         Promise promise = mock(Promise.class);
         WritableArray writableArray = mock(WritableArray.class);
         Error error = mock(Error.class);
         String sectionID = "Section ID";
-        ArgumentCaptor<SailthruMobile.RecommendationsHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.RecommendationsHandler.class);
 
         // Initiate test
-        rnSTModule.getRecommendations(sectionID, promise);
+        rnSailthruMobileModuleSpy.getRecommendations(sectionID, promise);
 
         // Capture MessagesHandler to verify behaviour
+        ArgumentCaptor<SailthruMobile.RecommendationsHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.RecommendationsHandler.class);
         verify(sailthruMobile).getRecommendations(eq(sectionID), argumentCaptor.capture());
         SailthruMobile.RecommendationsHandler recommendationsHandler = argumentCaptor.getValue();
 
         // Replace native array with mock
-        doReturn(writableArray).when(rnSTModule.getWritableArray());
+        PowerMockito.doReturn(writableArray).when(rnSailthruMobileModuleSpy).getWritableArray();
 
         // Setup message array
         ArrayList<ContentItem> contentItems = new ArrayList<>();
@@ -358,61 +391,61 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
-    public void testTrackClick() throws Exception {
+    public void testTrackClick() {
         // Create input
         Promise promise = mock(Promise.class);
         String sectionID = "Section ID";
         String urlString = "www.notarealurl.com";
 
         // Initiate test
-        rnSTModule.trackClick(sectionID, urlString, promise);
+        rnSailthruMobileModule.trackClick(sectionID, urlString, promise);
 
         // Verify result
         verify(sailthruMobile).trackClick(eq(sectionID), any(URI.class), any(SailthruMobile.TrackHandler.class));
     }
 
     @Test
-    public void testTrackClickException() throws Exception {
+    public void testTrackClickException() {
         // Create input
         Promise promise = mock(Promise.class);
         String sectionID = "Section ID";
         String urlString = "Wrong URL Format";
 
         // Initiate test
-        rnSTModule.trackClick(sectionID, urlString, promise);
+        rnSailthruMobileModule.trackClick(sectionID, urlString, promise);
 
         // Verify result
         verify(promise).reject(eq(RNSailthruMobileModule.ERROR_CODE_TRACKING), anyString());
     }
 
     @Test
-    public void testTrackPageview() throws Exception {
+    public void testTrackPageview() {
         // Create input
         Promise promise = mock(Promise.class);
         String urlString = "www.notarealurl.com";
 
         // Initiate test
-        rnSTModule.trackPageview(urlString, null, promise);
+        rnSailthruMobileModule.trackPageview(urlString, null, promise);
 
         // Verify result
         verify(sailthruMobile).trackPageview(any(URI.class), isNull(List.class), any(SailthruMobile.TrackHandler.class));
     }
 
     @Test
-    public void testTrackPageviewException() throws Exception {
+    public void testTrackPageviewException() {
         // Create input
         Promise promise = mock(Promise.class);
         String urlString = "Wrong URL Format";
 
         // Initiate test
-        rnSTModule.trackPageview(urlString, null, promise);
+        rnSailthruMobileModule.trackPageview(urlString, null, promise);
 
         // Verify result
         verify(promise).reject(eq(RNSailthruMobileModule.ERROR_CODE_TRACKING), anyString());
     }
 
     @Test
-    public void testTrackImpression() throws Exception {
+    public void testTrackImpression() {
         // Create input
         Promise promise = mock(Promise.class);
         String sectionID = "Section ID";
@@ -424,14 +457,14 @@ public class RNSailthruMobileModuleTest {
         doReturn(urlString).when(readableArray).getString(anyInt());
 
         // Initiate test
-        rnSTModule.trackImpression(sectionID, readableArray, promise);
+        rnSailthruMobileModule.trackImpression(sectionID, readableArray, promise);
 
         // Verify result
         verify(sailthruMobile).trackImpression(eq(sectionID), anyListOf(URI.class), any(SailthruMobile.TrackHandler.class));
     }
 
     @Test
-    public void testTrackImpressionException() throws Exception {
+    public void testTrackImpressionException() {
         // Create input
         Promise promise = mock(Promise.class);
         String sectionID = "Section ID";
@@ -443,40 +476,37 @@ public class RNSailthruMobileModuleTest {
         doReturn(urlString).when(readableArray).getString(anyInt());
 
         // Initiate test
-        rnSTModule.trackImpression(sectionID, readableArray, promise);
+        rnSailthruMobileModule.trackImpression(sectionID, readableArray, promise);
 
         // Verify result
         verify(promise).reject(eq(RNSailthruMobileModule.ERROR_CODE_TRACKING), anyString());
     }
 
     @Test
-    public void testSetGeoIPTrackingEnabled() throws Exception {
-        // Create input
-        boolean enabled = true;
-
+    public void testSetGeoIPTrackingEnabled() {
         // Initiate test
-        rnSTModule.setGeoIPTrackingEnabled(enabled);
+        rnSailthruMobileModule.setGeoIPTrackingEnabled(true);
 
         // Verify result
-        verify(sailthruMobile).setGeoIpTrackingEnabled(enabled);
+        verify(sailthruMobile).setGeoIpTrackingEnabled(true);
     }
 
     @Test
-    public void testSeGeoIPTrackingEnabledWithPromise() throws Exception {
+    public void testSeGeoIPTrackingEnabledWithPromise() {
         // Create input
         Promise promise = mock(Promise.class);
         Error error = mock(Error.class);
 
         // Initiate test
-        rnSTModule.setGeoIPTrackingEnabled(false, promise);
+        rnSailthruMobileModule.setGeoIPTrackingEnabled(false, promise);
 
         // Verify result
         ArgumentCaptor<SailthruMobile.SailthruMobileHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
         verify(sailthruMobile).setGeoIpTrackingEnabled(eq(false), argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler geoTrackingHandler = argumentCaptor.getValue();
+        SailthruMobile.SailthruMobileHandler clearHandler = argumentCaptor.getValue();
 
         // Test success handler
-        geoTrackingHandler.onSuccess(null);
+        clearHandler.onSuccess(null);
         verify(promise).resolve(true);
 
         // Setup error
@@ -484,7 +514,7 @@ public class RNSailthruMobileModuleTest {
         when(error.getMessage()).thenReturn(errorMessage);
 
         // Test error handler
-        geoTrackingHandler.onFailure(error);
+        clearHandler.onFailure(error);
         verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_DEVICE, errorMessage);
     }
 
@@ -496,7 +526,7 @@ public class RNSailthruMobileModuleTest {
         Error error = mock(Error.class);
 
         // Initiate test
-        rnSTModule.clearDevice(clearValue, promise);
+        rnSailthruMobileModule.clearDevice(clearValue, promise);
 
         // Verify result
         ArgumentCaptor<SailthruMobile.SailthruMobileHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
@@ -525,10 +555,10 @@ public class RNSailthruMobileModuleTest {
         Error error = mock(Error.class);
 
         // Mock methods
-        doReturn(varsJson).when(rnSTModule).convertMapToJson(vars);
+        PowerMockito.doReturn(varsJson).when(rnSailthruMobileModuleSpy).convertMapToJson(vars);
 
         // Initiate test
-        rnSTModule.setProfileVars(vars, promise);
+        rnSailthruMobileModuleSpy.setProfileVars(vars, promise);
 
         // Verify result
         ArgumentCaptor<SailthruMobile.SailthruMobileHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
@@ -557,10 +587,10 @@ public class RNSailthruMobileModuleTest {
         WritableMap mockMap = mock(WritableMap.class);
 
         // Mock methods
-        doReturn(mockMap).when(rnSTModule).convertJsonToMap(any(JSONObject.class));
+        PowerMockito.doReturn(mockMap).when(rnSailthruMobileModuleSpy).convertJsonToMap(any(JSONObject.class));
 
         // Initiate test
-        rnSTModule.getProfileVars(promise);
+        rnSailthruMobileModuleSpy.getProfileVars(promise);
 
         // Verify result
         ArgumentCaptor<SailthruMobile.SailthruMobileHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
@@ -584,15 +614,15 @@ public class RNSailthruMobileModuleTest {
     public void testLogPurchase() throws Exception {
         // Create input
         ReadableMap purchaseMap = mock(ReadableMap.class);
-        Purchase purchase = mock(Purchase.class);
+        Purchase purchase = PowerMockito.mock(Purchase.class);
         Promise promise = mock(Promise.class);
         Error error = mock(Error.class);
 
         // Mock methods
-        doReturn(purchase).when(rnSTModule).getPurchaseInstance(purchaseMap, promise);
+        PowerMockito.doReturn(purchase).when(rnSailthruMobileModuleSpy).getPurchaseInstance(purchaseMap, promise);
 
         // Initiate test
-        rnSTModule.logPurchase(purchaseMap, promise);
+        rnSailthruMobileModuleSpy.logPurchase(purchaseMap, promise);
 
         // Verify result
         ArgumentCaptor<SailthruMobile.SailthruMobileHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
@@ -621,10 +651,10 @@ public class RNSailthruMobileModuleTest {
         Error error = mock(Error.class);
 
         // Mock methods
-        doReturn(purchase).when(rnSTModule).getPurchaseInstance(purchaseMap, promise);
+        PowerMockito.doReturn(purchase).when(rnSailthruMobileModuleSpy).getPurchaseInstance(purchaseMap, promise);
 
         // Initiate test
-        rnSTModule.logAbandonedCart(purchaseMap, promise);
+        rnSailthruMobileModuleSpy.logAbandonedCart(purchaseMap, promise);
 
         // Verify result
         ArgumentCaptor<SailthruMobile.SailthruMobileHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);

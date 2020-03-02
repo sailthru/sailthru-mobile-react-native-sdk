@@ -14,16 +14,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.inject.Inject;
-
 /**
  * React native package for the Sailthru Mobile SDK.
  */
 public class RNSailthruMobilePackage implements ReactPackage {
     protected ReactApplicationContext reactApplicationContext;
     protected boolean displayInAppNotifications = true;
-    @Inject
-    private SailthruMobile sailthruMobile;
+    private SailthruMobile sailthruMobile = new SailthruMobile();
 
     /**
      * Default constructor - should not be used
