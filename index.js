@@ -2,6 +2,10 @@ import { NativeModules } from 'react-native';
 let Carnival = NativeModules.RNCarnival;
 let SailthruMobile = NativeModules.RNSailthruMobile;
 
+/**
+ * A map for submitting collections of attributes to the SDK.
+ * @deprecated Use SailthruMobile.AttributeMap
+ */
 Carnival.AttributeMap = function() {
   this.MergeRules = {Update: 1, Replace: 2}
 
@@ -148,6 +152,7 @@ Carnival.DeviceValues = {Attributes: 1, MessageStream: 2, Events: 4, ClearAll: 7
  * @param {int} price The price of one unit of the item in cents (e.g. $10.99 is 1099).
  * @param {string} ID The ID you have set for the item.
  * @param {string} url The url for the item.
+ * @deprecated Use SailthruMobile.PurchaseItem
  */
 Carnival.PurchaseItem = function(quantity, title, price, id, url) {
   this.qty = quantity;
@@ -199,6 +204,7 @@ Carnival.PurchaseItem = function(quantity, title, price, id, url) {
 /**
  * Creates a purchase item from a content item.
  * @param {Object} contentItem The content item.
+ * @deprecated Use SailthruMobile.PurchaseItem.fromContentItem
  */
 Carnival.PurchaseItem.fromContentItem = function(contentItem) {
   var purchaseItem = new this(contentItem.purchase_qty, contentItem.title, contentItem.price, contentItem.sku, contentItem.url);
@@ -211,6 +217,7 @@ Carnival.PurchaseItem.fromContentItem = function(contentItem) {
 /**
  * Creates a Purchase object with the required field.
  * @param {Array} purchaseItems an array of {Carnival.PurchaseItem} objects.
+ * @deprecated Use SailthruMobile.Purchase
  */
 Carnival.Purchase = function(purchaseItems) {
   this.items = purchaseItems;
@@ -247,6 +254,7 @@ Carnival.Purchase = function(purchaseItems) {
 /**
  * Creates a Purchase object from an array of ContentItem objects.
  * @param {Array} contentItems an array of ContentItem objects.
+ * @deprecated Use SailthruMobile.Purchase.fromContentItems
  */
 Carnival.Purchase.fromContentItems = function(contentItems) {
   var purchaseItems = [];
@@ -258,6 +266,10 @@ Carnival.Purchase.fromContentItems = function(contentItems) {
 
 /**
  * Sailthru Mobile
+ */
+
+/**
+ * A map for submitting collections of attributes to the SDK.
  */
 SailthruMobile.AttributeMap = function() {
   this.MergeRules = {Update: 1, Replace: 2}
