@@ -40,6 +40,11 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * React native module for the Carnival SDK.
+ * @deprecated use {@link com.reactlibrary.RNSailthruMobileModule}
+ */
+@Deprecated
 public class RNCarnivalModule extends ReactContextBaseJavaModule implements Carnival.OnInAppNotificationDisplayListener {
 
     protected final static String ERROR_CODE_DEVICE = "carnival.device";

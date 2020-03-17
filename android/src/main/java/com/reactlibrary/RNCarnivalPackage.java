@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * React native package for the Carnival SDK.
+ * @deprecated use {@link com.reactlibrary.RNSailthruMobilePackage}
+ */
 public class RNCarnivalPackage implements ReactPackage {
     protected ReactApplicationContext reactApplicationContext;
     protected boolean displayInAppNotifications = true;

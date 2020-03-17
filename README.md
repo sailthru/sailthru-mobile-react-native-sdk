@@ -1,35 +1,35 @@
-# React Native : Carnival SDK
+# React Native : Sailthru Mobile SDK
 
-Wraps the native Carnival SDK for React Native apps.
+Wraps the native Sailthru Mobile SDK for React Native apps.
 
 ## Installation
 
-`npm install react-native-carnival --save`
+`npm install react-native-sailthru-mobile --save`
 
 
 ### iOS
 
 Open your Project's Xcode Project.
 
-Drag into "Libraries" the following files from node_modules/react-native-carnival:
+Drag into "Libraries" the following files from node_modules/react-native-sailthru-mobile:
 
- * RNCarnival.h
- * RNCarnival.m (Make sure this file's Target Membership is your main app's target)
- * RNCarnivalBridge.h
- * RNCarnivalBridge.m (Make sure this file's Target Membership is your main app's target)
+ * RNSailthruMobile.h
+ * RNSailthruMobile.m (Make sure this file's Target Membership is your main app's target)
+ * RNSailthruMobileBridge.h
+ * RNSailthruMobileBridge.m (Make sure this file's Target Membership is your main app's target)
 
-Next, Install Carnival iOS SDK from Cocoapods (add `pod 'Carnival'` to your Podfile) or install the framework [manually](http://docs.carnival.io/docs/ios-integration#section-manual-integration) (Carnival.framework can be obtained from node_modules/react-native-carnival).
+Next, Install Sailthru Mobile iOS SDK from Cocoapods (add `pod 'SailthruMobile'` to your Podfile) or install the framework [manually](https://docs.mobile.sailthru.com/docs/ios-integration#section-manual-integration) (SailthruMobile.framework can be obtained from node_modules/react-native-sailthru-mobile).
 
-You will then need replace the code that creates your RCTRootView with the code below. This adds the Carnival React Native modules to the root view.
+You will then need replace the code that creates your RCTRootView with the code below. This adds the SailthruMobile React Native modules to the root view.
 
 ```Objective-C
-#import "RNCarnivalBridge.h"
+#import "RNSailthruMobileBridge.h"
 
 - (BOOL)application:(UIApplication * )application didFinishLaunchingWithOptions:(NSDictionary * )launchOptions {
       ...
-      id<RCTBridgeDelegate> moduleInitialiser = [[RNCarnivalBridge alloc]
+      id<RCTBridgeDelegate> moduleInitialiser = [[RNSailthruMobileBridge alloc]
                                                  initWithJSCodeLocation:jsCodeLocation   // JS Code location used here should be same location used before
-                                                 appKey:SDK_KEY];                        // Obtain SDK key from your Carnival app settings
+                                                 appKey:SDK_KEY];                        // Obtain SDK key from your Sailthru Mobile app settings
 
       RCTBridge * bridge = [[RCTBridge alloc] initWithDelegate:moduleInitialiser launchOptions:launchOptions];
 
@@ -49,8 +49,8 @@ Build and Run from Xcode.
 
 ```gradle
 ...
-include ':react-native-carnival'
-project(':react-native-carnival').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-carnival/android')
+include ':react-native-sailthru-mobile'
+project(':react-native-sailthru-mobile').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-sailthru-mobile/android')
 ```
 
 * In `android/app/build.gradle`
@@ -67,8 +67,8 @@ repositories {
 
 dependencies {
     ...
-    compile project(':react-native-carnival')
-    compile 'com.carnival.sdk:carnival:6.+'
+    compile project(':react-native-sailthru-mobile')
+    compile 'com.sailthru.mobile.sdk:sailthru-mobile:11.+'
 }
 ```
 
@@ -76,7 +76,7 @@ dependencies {
 * Register module (in MainApplication.java)
 
 ```java
-import com.reactlibrary.RNCarnivalPackage; // <--- import
+import com.reactlibrary.RNSailthruMobilePackage; // <--- import
 
 public class MainApplication extends Application implements ReactApplication {
   ...
@@ -85,8 +85,8 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-          new RNCarnivalPackage(getApplicationContext(), // Should pass in application context
-                                SDK_KEY)                 // Obtain SDK key from your Carnival app settings
+          new RNSailthruMobilePackage(getApplicationContext(), // Should pass in application context
+                                      SDK_KEY)                 // Obtain SDK key from your Sailthru Mobile app settings
       );
     }
   ...
@@ -105,9 +105,9 @@ public class MainApplication extends Application implements ReactApplication {
 Finally, make sure your `compileSdkVersion` is set to 26 or higher and buildToolsVersion is "26.0.2" or higher
 
 
-Note: You may see an error about missing bundle on Android if you dont have the server running first. You an start the server by running `react-native start` and relaunch from Android Studio.
+Note: You may see an error about missing bundle on Android if you don't have the server running first. You an start the server by running `react-native start` and relaunch from Android Studio.
 
-For push set up, follow the usual [Android Integration](https://docs.carnival.io/docs/android-integration) documentation.
+For push set up, follow the usual [Android Integration](https://docs.mobile.sailthru.com/docs/android-integration) documentation.
 
 ## Example
 

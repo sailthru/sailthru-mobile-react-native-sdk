@@ -1,7 +1,6 @@
 
 #import "RNCarnivalBridge.h"
 #import "RNCarnival.h"
-#import <Carnival/Carnival.h>
 
 @implementation RNCarnivalBridge
 

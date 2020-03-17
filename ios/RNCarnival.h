@@ -2,7 +2,7 @@
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
 
-#include <Carnival/Carnival.h>
+#include <SailthruMobile/SailthruMobile.h>
 
 @interface RNCarnival : RCTEventEmitter <RCTBridgeModule, CarnivalMessageStreamDelegate>
 

@@ -631,20 +631,6 @@ describe(@"RNCarnival", ^{
             [rnCarnival setCrashHandlersEnabled:YES];
         });
     });
-
-    context(@"the registerForPushNotifications method", ^{
-        __block RNCarnival *rnCarnival = nil;
-        beforeEach(^{
-            [Carnival stub:@selector(setCrashHandlersEnabled:)];
-            rnCarnival = [[RNCarnival alloc] initWithDisplayInAppNotifications:YES];
-        });
-
-        it(@"should call native method", ^{
-            [[Carnival should] receive:@selector(setCrashHandlersEnabled:)];
-
-            [rnCarnival setCrashHandlersEnabled:YES];
-        });
-    });
     
     context(@"the clearDevice:resolver:rejecter: method", ^{
         __block RNCarnival *rnCarnival = nil;
