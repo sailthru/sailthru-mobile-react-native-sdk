@@ -30,7 +30,7 @@
     "type": "git",
     "url": "git+https://github.com/carnivalmobile/carnival-sdk-react-native.git"
   },
-  "version": "4.0.0",
+  "version": "4.1.0-beta",
   "devDependencies": {
     "react-native": "^0.56.0"
   },
