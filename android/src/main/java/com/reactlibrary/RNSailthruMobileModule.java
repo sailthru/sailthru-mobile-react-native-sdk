@@ -27,6 +27,7 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.sailthru.mobile.sdk.model.PurchaseItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -746,10 +747,28 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     Purchase getPurchaseInstance(ReadableMap purchaseMap, final Promise promise) throws JSONException {
         JSONObject purchaseJson = convertPurchaseMapToJson(purchaseMap);
         try {
-            Constructor purchaseConstructor = Purchase.class.getDeclaredConstructor(JSONObject.class);
-            purchaseConstructor.setAccessible(true);
-            Purchase purchase = (Purchase) purchaseConstructor.newInstance(purchaseJson);
-            return purchase;
+          Constructor purchaseConstructor = com.carnival.sdk.Purchase.class.getDeclaredConstructor(JSONObject.class);
+          purchaseConstructor.setAccessible(true);
+          com.carnival.sdk.Purchase legacyPurchase = (com.carnival.sdk.Purchase) purchaseConstructor.newInstance(purchaseJson);
+
+          ArrayList<PurchaseItem> purchaseItems = new ArrayList<>();
+          for (com.carnival.sdk.PurchaseItem legacyPurchaseItem: legacyPurchase.getPurchaseItems()) {
+              PurchaseItem purchaseItem = new PurchaseItem(legacyPurchaseItem.getQuantity(),
+                                                           legacyPurchaseItem.getTitle(),
+                                                           legacyPurchaseItem.getPrice(),
+                                                           legacyPurchaseItem.getID(),
+                                                           legacyPurchaseItem.getURL());
+              purchaseItem.setImages(legacyPurchaseItem.getImages());
+              purchaseItem.setTags(legacyPurchaseItem.getTags());
+              purchaseItem.setVars(legacyPurchaseItem.getVars());
+              purchaseItems.add(purchaseItem);
+          }
+
+          Purchase purchase =  new Purchase(purchaseItems);
+          purchase.setVars(legacyPurchase.getVars());
+          purchase.setMessageId(legacyPurchase.getMessageId());
+
+          return purchase;
         } catch (NoSuchMethodException e) {
             promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
         } catch (IllegalAccessException e) {
@@ -771,10 +790,15 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
         Message message = null;
         try {
             JSONObject messageJson = convertMapToJson(messageMap);
+            Constructor<com.carnival.sdk.Message> legacyConstructor;
+            legacyConstructor = com.carnival.sdk.Message.class.getDeclaredConstructor(String.class);
+            legacyConstructor.setAccessible(true);
+            com.carnival.sdk.Message legacyMessage = legacyConstructor.newInstance(messageJson.toString());
+
             Constructor<Message> constructor;
-            constructor = Message.class.getDeclaredConstructor(String.class);
+            constructor = Message.class.getDeclaredConstructor(com.carnival.sdk.Message.class);
             constructor.setAccessible(true);
-            message = constructor.newInstance(messageJson.toString());
+            message = constructor.newInstance(legacyMessage);
         } catch (Exception e) {
             e.printStackTrace();
         }

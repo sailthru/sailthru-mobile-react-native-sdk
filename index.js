@@ -2,11 +2,11 @@ import { NativeModules } from 'react-native';
 let Carnival = NativeModules.RNCarnival;
 let SailthruMobile = NativeModules.RNSailthruMobile;
 
-/**
- * A map for submitting collections of attributes to the SDK.
- * @deprecated Use SailthruMobile.AttributeMap
- */
 if (Carnival) {
+  /**
+   * A map for submitting collections of attributes to the SDK.
+   * @deprecated Use SailthruMobile.AttributeMap
+   */
   Carnival.AttributeMap = function() {
     this.MergeRules = {Update: 1, Replace: 2}
 
@@ -272,10 +272,10 @@ if (Carnival) {
  * Sailthru Mobile
  */
 
-/**
- * A map for submitting collections of attributes to the SDK.
- */
 if (SailthruMobile) {
+  /**
+   * A map for submitting collections of attributes to the SDK.
+   */
   SailthruMobile.AttributeMap = function() {
     this.MergeRules = {Update: 1, Replace: 2}
 
