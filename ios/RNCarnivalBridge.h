@@ -2,7 +2,7 @@
 #import <Foundation/Foundation.h>
 #import <React/RCTBridgeDelegate.h>
 
-#include <SailthruMobile/SailthruMobile.h>
+#include <Carnival/Carnival.h>
 
 @interface RNCarnivalBridge : NSObject <RCTBridgeDelegate>
 
