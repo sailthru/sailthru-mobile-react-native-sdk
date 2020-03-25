@@ -264,8 +264,6 @@ if (Carnival) {
     });
     return new this(purchaseItems);
   }
-
-  module.exports = Carnival;
 }
 
 /**
@@ -529,6 +527,6 @@ if (SailthruMobile) {
     });
     return new this(purchaseItems);
   }
-
-  module.exports = SailthruMobile;
 }
+
+module.exports = Carnival ? Carnival : SailthruMobile;
