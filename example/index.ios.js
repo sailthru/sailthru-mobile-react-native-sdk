@@ -11,30 +11,30 @@ import {
   View
 } from 'react-native';
 
-var Carnival = require('react-native-carnival');
+var SailthruMobile = require('react-native-sailthru-mobile');
 var SDK_KEY = ''; // Put your SDK key in here.
 import { NativeEventEmitter } from 'react-native'
 
-const myModuleEvt = new NativeEventEmitter(Carnival)
+const myModuleEvt = new NativeEventEmitter(SailthruMobile)
 myModuleEvt.addListener('inappnotification', (data) => console.log(data))
 
 
 export default class ReactNativeSampleApp extends Component {
   render() {
-    Carnival.getMessages()
+    SailthruMobile.getMessages()
       .then(messages => {
         if (messages.length > 2) {
-          Carnival.markMessageAsRead(messages[0]);
-          Carnival.presentMessageDetail(messages[0]);
-          setTimeout(function(){ Carnival.dismissMessageDetail(); }, 5000);
-          Carnival.registerMessageImpression(Carnival.MessageImpressionType.InAppView, messages[1]);
+          SailthruMobile.markMessageAsRead(messages[0]);
+          SailthruMobile.presentMessageDetail(messages[0]);
+          setTimeout(function(){ SailthruMobile.dismissMessageDetail(); }, 5000);
+          SailthruMobile.registerMessageImpression(SailthruMobile.MessageImpressionType.InAppView, messages[1]);
         }
       })
       .catch(e => {
         console.log(e);
     });
 
-    var attrMap = new Carnival.AttributeMap();
+    var attrMap = new SailthruMobile.AttributeMap();
     attrMap.setString("string_key", "This is the string value");
     attrMap.setStringArray("strings_key", ["This is first value", "This is the second value"]);
     attrMap.setDate("date_key", new Date());
@@ -45,31 +45,31 @@ export default class ReactNativeSampleApp extends Component {
     attrMap.setIntegerArray("integers_key", [1, 2, 3, 4]);
     attrMap.setBoolean("boolean_key", true);
 
-    Carnival.setAttributes(attrMap).catch(e => {
+    SailthruMobile.setAttributes(attrMap).catch(e => {
       console.log(e);
     });
 
-    Carnival.updateLocation(-41.292178, 174.777535); //Carnival Wellington.
-    Carnival.logEvent("This is my event");
+    SailthruMobile.updateLocation(-41.292178, 174.777535); //SailthruMobile Wellington.
+    SailthruMobile.logEvent("This is my event");
 
     var eventVars = {
       "varKey" : "varValue"
     };
-    Carnival.logEvent("this is my event with vars", eventVars);
+    SailthruMobile.logEvent("this is my event with vars", eventVars);
 
-    Carnival.getUnreadCount().then(function(count) {
+    SailthruMobile.getUnreadCount().then(function(count) {
       console.log(count);
     }, function(e){
       console.log(e);
     });
 
-    Carnival.getDeviceID().then(function(id) {
+    SailthruMobile.getDeviceID().then(function(id) {
       console.log(id);
     }, function(e){
       console.log(e);
     });
 
-    Carnival.setUserId("person@domain.com").catch( e => {
+    SailthruMobile.setUserId("person@domain.com").catch( e => {
       console.log(e);
     });
 
@@ -77,29 +77,29 @@ export default class ReactNativeSampleApp extends Component {
       "string_key" : "string_value",
       "boolean_key" : true
     };
-    Carnival.setProfileVars(profileVars).then(result => {
+    SailthruMobile.setProfileVars(profileVars).then(result => {
       console.log("Set Profile Vars Success");
     }).catch(e => {
       console.log(e);
     });
 
-    Carnival.getProfileVars().then(profileVars => {
+    SailthruMobile.getProfileVars().then(profileVars => {
       console.log(profileVars);
     }).catch(e => {
       console.log(e);
     });
 
-    var purchaseItem1 = new Carnival.PurchaseItem(1, "title", 1234, "2345", "https://www.example.com/item1");
-    var purchaseItem2 = new Carnival.PurchaseItem(3, "other item", 1534, "2346", "https://www.example.com/item2");
+    var purchaseItem1 = new SailthruMobile.PurchaseItem(1, "title", 1234, "2345", "https://www.example.com/item1");
+    var purchaseItem2 = new SailthruMobile.PurchaseItem(3, "other item", 1534, "2346", "https://www.example.com/item2");
     var purchaseItems = [ purchaseItem, purchaseItem2 ];
-    var purchase = new Carnival.Purchase(purchaseItems);
-    Carnival.logPurchase(purchase).then(result => {
+    var purchase = new SailthruMobile.Purchase(purchaseItems);
+    SailthruMobile.logPurchase(purchase).then(result => {
       console.log("Purchase Log Success");
     }).catch(e => {
       console.log(e);
     });
 
-    Carnival.logAbandonedCart(purchase).then(result => {
+    SailthruMobile.logAbandonedCart(purchase).then(result => {
       console.log("Abandoned Cart Log Success");
     }).catch(e => {
       console.log(e);

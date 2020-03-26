@@ -68,7 +68,7 @@ repositories {
 dependencies {
     ...
     compile project(':react-native-sailthru-mobile')
-    compile 'com.sailthru.mobile.sdk:sailthru-mobile:11.+'
+    compile 'com.sailthru.mobile.sdk:sailthru-mobile:10.1.+'
 }
 ```
 
