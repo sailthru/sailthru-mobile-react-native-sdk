@@ -79,7 +79,7 @@ public class RNSailthruMobileModuleTest {
 
     @Test
     public void testConstructor() throws Exception {
-        verify(sailthruMobile).setOnInAppNotificationDisplayListener(rnSailthruMobileModule);
+        verify(messageStream).setOnInAppNotificationDisplayListener(rnSailthruMobileModule);
 
         PowerMockito.verifyStatic(RNSailthruMobileModule.class);
         RNSailthruMobileModule.setWrapperInfo(any(SailthruMobile.class));

@@ -46,7 +46,7 @@ import java.util.List;
 /**
  * React native module for the Sailthru Mobile SDK.
  */
-public class RNSailthruMobileModule extends ReactContextBaseJavaModule implements SailthruMobile.OnInAppNotificationDisplayListener {
+public class RNSailthruMobileModule extends ReactContextBaseJavaModule implements MessageStream.OnInAppNotificationDisplayListener {
 
     protected final static String ERROR_CODE_DEVICE = "sailthru.mobile.device";
     protected final static String ERROR_CODE_MESSAGES = "sailthru.mobile.messages";
@@ -70,7 +70,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
         reactApplicationContext = reactContext;
         this.displayInAppNotifications = displayInAppNotifications;
 
-        sailthruMobile.setOnInAppNotificationDisplayListener(this);
+        messageStream.setOnInAppNotificationDisplayListener(this);
         setWrapperInfo(sailthruMobile);
     }
 
@@ -112,7 +112,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
             Method setWrapperMethod = SailthruMobile.class.getDeclaredMethod("setWrapper", cArg);
             setWrapperMethod.setAccessible(true);
-            setWrapperMethod.invoke(sailthruMobile, "React Native", "4.1.0-beta");
+            setWrapperMethod.invoke(sailthruMobile, "React Native", "4.1.0");
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
