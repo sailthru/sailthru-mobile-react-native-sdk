@@ -77,10 +77,14 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     @Override
     public boolean shouldPresentInAppNotification(Message message) {
         try {
-            Method toJsonMethod = null;
-            toJsonMethod = Message.class.getDeclaredMethod("toJSON");
+            Method toJsonMethod = com.carnival.sdk.Message.class.getDeclaredMethod("toJSON");
             toJsonMethod.setAccessible(true);
-            JSONObject messageJson = (JSONObject) toJsonMethod.invoke(message);
+
+            Method getMessageMethod = Message.class.getDeclaredMethod("getMessage$carnival_carnivalRelease");
+            getMessageMethod.setAccessible(true);
+
+            com.carnival.sdk.Message innerMessage = (com.carnival.sdk.Message) getMessageMethod.invoke(message);
+            JSONObject messageJson = (JSONObject) toJsonMethod.invoke(innerMessage);
             WritableMap writableMap = convertJsonToMap(messageJson);
 
             reactApplicationContext
