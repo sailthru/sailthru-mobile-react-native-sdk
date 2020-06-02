@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:CarnivalSDKReactNative.xcodeproj">
+      location = "group:/Users/istewart/Documents/ReactNativeProjects/carnival-sdk-react-native/ios/SailthruMobileSDKReactNative.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">

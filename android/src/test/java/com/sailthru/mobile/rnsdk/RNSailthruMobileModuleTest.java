@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
 
-import com.sailthru.mobile.rnsdk.RNSailthruMobileModule;
 import com.sailthru.mobile.sdk.MessageActivity;
 import com.sailthru.mobile.sdk.MessageStream;
 import com.sailthru.mobile.sdk.model.AttributeMap;
@@ -25,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyListOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -79,7 +78,7 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
-    public void testConstructor() throws Exception {
+    public void testConstructor() {
         verify(messageStream).setOnInAppNotificationDisplayListener(rnSailthruMobileModule);
 
         PowerMockito.verifyStatic(RNSailthruMobileModule.class);
@@ -101,7 +100,7 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
-    public void testGetDeviceID() throws Exception {
+    public void testGetDeviceID() {
         // Setup variables
         String deviceID = "device ID";
         String errorMessage = "error message";
@@ -115,9 +114,10 @@ public class RNSailthruMobileModuleTest {
         rnSailthruMobileModule.getDeviceID(promise);
 
         // Capture handler for verification
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<String>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
         verify(sailthruMobile).getDeviceId(argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler sailthruMobileHandler = argumentCaptor.getValue();
+        SailthruMobile.SailthruMobileHandler<String> sailthruMobileHandler = argumentCaptor.getValue();
 
         // Test success
         sailthruMobileHandler.onSuccess(deviceID);
@@ -129,7 +129,7 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
-    public void testLogEvent() throws Exception {
+    public void testLogEvent() {
         String event = "event string";
 
         rnSailthruMobileModule.logEvent(event);
@@ -160,6 +160,7 @@ public class RNSailthruMobileModuleTest {
         JSONObject attributeMapJson = mock(JSONObject.class);
         JSONObject attributeJson = mock(JSONObject.class);
         AttributeMap attributeMap = PowerMockito.mock(AttributeMap.class);
+        @SuppressWarnings("unchecked")
         Iterator<String> keys = mock(Iterator.class);
 
         // setup mocking for conversion from ReadableMap to JSON
@@ -182,7 +183,7 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
-    public void testGetMessages() throws Exception {
+    public void testGetMessages() {
         // Setup mocks
         Promise promise = mock(Promise.class);
         WritableArray writableArray = mock(WritableArray.class);
@@ -225,7 +226,7 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
-    public void testSetUserEmail() throws Exception {
+    public void testSetUserEmail() {
         String userEmail = "user email";
 
         rnSailthruMobileModule.setUserEmail(userEmail);
@@ -234,7 +235,7 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
-    public void testGetUnreadCount() throws Exception {
+    public void testGetUnreadCount() {
         Integer unreadCount = 4;
 
         // Setup mocks
@@ -245,13 +246,14 @@ public class RNSailthruMobileModuleTest {
         rnSailthruMobileModule.getUnreadCount(promise);
 
         // Capture MessagesHandler to verify behaviour
-        ArgumentCaptor<MessageStream.MessageStreamHandler> argumentCaptor = ArgumentCaptor.forClass(MessageStream.MessageStreamHandler.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<MessageStream.MessageStreamHandler<Integer>> argumentCaptor = ArgumentCaptor.forClass(MessageStream.MessageStreamHandler.class);
         verify(messageStream).getUnreadMessageCount(argumentCaptor.capture());
-        MessageStream.MessageStreamHandler countHandler = argumentCaptor.getValue();
+        MessageStream.MessageStreamHandler<Integer> countHandler = argumentCaptor.getValue();
 
         // Test success handler
         countHandler.onSuccess(unreadCount);
-        verify(promise).resolve(unreadCount.intValue());
+        verify(promise).resolve(unreadCount);
 
         // Setup error
         String errorMessage = "error message";
@@ -268,13 +270,10 @@ public class RNSailthruMobileModuleTest {
         ReadableMap readableMap = mock(ReadableMap.class);
 
         // Create message to remove
-        Constructor<com.carnival.sdk.Message> innerConstructor = com.carnival.sdk.Message.class.getDeclaredConstructor();
-        innerConstructor.setAccessible(true);
-        com.carnival.sdk.Message innerMessage = innerConstructor.newInstance();
-
-        Constructor<Message> constructor = Message.class.getDeclaredConstructor(com.carnival.sdk.Message.class);
+        Constructor<Message> constructor = Message.class.getDeclaredConstructor();
         constructor.setAccessible(true);
-        Message message = constructor.newInstance(innerMessage);
+        Message message = constructor.newInstance();
+
         RNSailthruMobileModule moduleSpy = spy(rnSailthruMobileModule);
         doReturn(message).when(moduleSpy).getMessage(readableMap);
 
@@ -292,13 +291,10 @@ public class RNSailthruMobileModuleTest {
         int typeCode = 0;
 
         // Create message to remove
-        Constructor<com.carnival.sdk.Message> innerConstructor = com.carnival.sdk.Message.class.getDeclaredConstructor();
-        innerConstructor.setAccessible(true);
-        com.carnival.sdk.Message innerMessage = innerConstructor.newInstance();
-
-        Constructor<Message> constructor = Message.class.getDeclaredConstructor(com.carnival.sdk.Message.class);
+        Constructor<Message> constructor = Message.class.getDeclaredConstructor();
         constructor.setAccessible(true);
-        Message message = constructor.newInstance(innerMessage);
+        Message message = constructor.newInstance();
+
         doReturn(message).when(rnSailthruMobileModuleSpy).getMessage(readableMap);
 
         // Initiate test
@@ -315,13 +311,10 @@ public class RNSailthruMobileModuleTest {
         Promise promise = mock(Promise.class);
 
         // Create message to remove
-        Constructor<com.carnival.sdk.Message> innerConstructor = com.carnival.sdk.Message.class.getDeclaredConstructor();
-        innerConstructor.setAccessible(true);
-        com.carnival.sdk.Message innerMessage = innerConstructor.newInstance();
-
-        Constructor<Message> constructor = Message.class.getDeclaredConstructor(com.carnival.sdk.Message.class);
+        Constructor<Message> constructor = Message.class.getDeclaredConstructor();
         constructor.setAccessible(true);
-        Message message = constructor.newInstance(innerMessage);
+        Message message = constructor.newInstance();
+
         RNSailthruMobileModule moduleSpy = spy(rnSailthruMobileModule);
         doReturn(message).when(moduleSpy).getMessage(readableMap);
 
@@ -420,6 +413,7 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testTrackPageview() {
         // Create input
         Promise promise = mock(Promise.class);
@@ -429,7 +423,7 @@ public class RNSailthruMobileModuleTest {
         rnSailthruMobileModule.trackPageview(urlString, null, promise);
 
         // Verify result
-        verify(sailthruMobile).trackPageview(any(URI.class), isNull(List.class), any(SailthruMobile.TrackHandler.class));
+        verify(sailthruMobile).trackPageview(any(URI.class), (List<String>) isNull(), any(SailthruMobile.TrackHandler.class));
     }
 
     @Test
@@ -461,7 +455,7 @@ public class RNSailthruMobileModuleTest {
         rnSailthruMobileModule.trackImpression(sectionID, readableArray, promise);
 
         // Verify result
-        verify(sailthruMobile).trackImpression(eq(sectionID), anyListOf(URI.class), any(SailthruMobile.TrackHandler.class));
+        verify(sailthruMobile).trackImpression(eq(sectionID), ArgumentMatchers.<URI>anyList(), any(SailthruMobile.TrackHandler.class));
     }
 
     @Test
@@ -502,9 +496,10 @@ public class RNSailthruMobileModuleTest {
         rnSailthruMobileModule.setGeoIPTrackingEnabled(false, promise);
 
         // Verify result
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
         verify(sailthruMobile).setGeoIpTrackingEnabled(eq(false), argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler clearHandler = argumentCaptor.getValue();
+        SailthruMobile.SailthruMobileHandler<Void> clearHandler = argumentCaptor.getValue();
 
         // Test success handler
         clearHandler.onSuccess(null);
@@ -520,7 +515,7 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
-    public void testClearDevice() throws Exception {
+    public void testClearDevice() {
         // Create input
         int clearValue = SailthruMobile.ATTRIBUTES;
         Promise promise = mock(Promise.class);
@@ -530,9 +525,10 @@ public class RNSailthruMobileModuleTest {
         rnSailthruMobileModule.clearDevice(clearValue, promise);
 
         // Verify result
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
         verify(sailthruMobile).clearDevice(eq(clearValue), argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler clearHandler = argumentCaptor.getValue();
+        SailthruMobile.SailthruMobileHandler<Void> clearHandler = argumentCaptor.getValue();
 
         // Test success handler
         clearHandler.onSuccess(null);
@@ -562,9 +558,10 @@ public class RNSailthruMobileModuleTest {
         rnSailthruMobileModuleSpy.setProfileVars(vars, promise);
 
         // Verify result
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
         verify(sailthruMobile).setProfileVars(eq(varsJson), argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler setVarsHandler = argumentCaptor.getValue();
+        SailthruMobile.SailthruMobileHandler<Void> setVarsHandler = argumentCaptor.getValue();
 
         // Test success handler
         setVarsHandler.onSuccess(null);
@@ -594,9 +591,10 @@ public class RNSailthruMobileModuleTest {
         rnSailthruMobileModuleSpy.getProfileVars(promise);
 
         // Verify result
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<JSONObject>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
         verify(sailthruMobile).getProfileVars(argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler getVarsHandler = spy(argumentCaptor.getValue());
+        SailthruMobile.SailthruMobileHandler<JSONObject> getVarsHandler = spy(argumentCaptor.getValue());
 
         // Test success handler
         getVarsHandler.onSuccess(varsJson);
@@ -626,9 +624,10 @@ public class RNSailthruMobileModuleTest {
         rnSailthruMobileModuleSpy.logPurchase(purchaseMap, promise);
 
         // Verify result
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
         verify(sailthruMobile).logPurchase(eq(purchase), argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler purchaseHandler = argumentCaptor.getValue();
+        SailthruMobile.SailthruMobileHandler<Void> purchaseHandler = argumentCaptor.getValue();
 
         // Test success handler
         purchaseHandler.onSuccess(null);
@@ -658,9 +657,10 @@ public class RNSailthruMobileModuleTest {
         rnSailthruMobileModuleSpy.logAbandonedCart(purchaseMap, promise);
 
         // Verify result
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
         verify(sailthruMobile).logAbandonedCart(eq(purchase), argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler purchaseHandler = argumentCaptor.getValue();
+        SailthruMobile.SailthruMobileHandler<Void> purchaseHandler = argumentCaptor.getValue();
 
         // Test success handler
         purchaseHandler.onSuccess(null);

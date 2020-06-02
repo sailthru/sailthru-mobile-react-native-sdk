@@ -4,7 +4,9 @@ package com.sailthru.mobile.rnsdk;
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
 import com.sailthru.mobile.sdk.model.AttributeMap;
@@ -27,7 +29,6 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.sailthru.mobile.sdk.model.PurchaseItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -75,18 +76,14 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     }
 
     @Override
-    public boolean shouldPresentInAppNotification(Message message) {
+    public boolean shouldPresentInAppNotification(@NonNull Message message) {
         try {
-            Method toJsonMethod = com.carnival.sdk.Message.class.getDeclaredMethod("toJSON");
+            Method toJsonMethod = Message.class.getDeclaredMethod("toJSON");
             toJsonMethod.setAccessible(true);
+            JSONObject messageJson = (JSONObject) toJsonMethod.invoke(message);
+            if (messageJson == null) return displayInAppNotifications;
 
-            Method getMessageMethod = Message.class.getDeclaredMethod("getMessage$carnival_carnivalRelease");
-            getMessageMethod.setAccessible(true);
-
-            com.carnival.sdk.Message innerMessage = (com.carnival.sdk.Message) getMessageMethod.invoke(message);
-            JSONObject messageJson = (JSONObject) toJsonMethod.invoke(innerMessage);
             WritableMap writableMap = convertJsonToMap(messageJson);
-
             reactApplicationContext
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                     .emit("inappnotification", writableMap);
@@ -110,13 +107,15 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     protected static void setWrapperInfo(SailthruMobile sailthruMobile) {
         try {
-            Class[] cArg = new Class[2];
+            Log.d("RNSailthruMobileModule", "setWrapperInfo");
+            Class<?>[] cArg = new Class[2];
             cArg[0] = String.class;
             cArg[1] = String.class;
 
             Method setWrapperMethod = SailthruMobile.class.getDeclaredMethod("setWrapper", cArg);
             setWrapperMethod.setAccessible(true);
             setWrapperMethod.invoke(sailthruMobile, "React Native", "4.1.1");
+            Log.d("RNSailthruMobileModule", "setWrapperInfo CALLED");
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -127,6 +126,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
+    @SuppressWarnings("unused")
     public void registerForPushNotifications(boolean optInForPush) {
         // noop. It's here to share signatures with iOS.
     }
@@ -149,7 +149,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             }
 
             @Override
-            public void onFailure(Error error) {
+            public void onFailure(@NonNull Error error) {
                 promise.reject(ERROR_CODE_DEVICE, error.getMessage());
             }
         });
@@ -179,61 +179,75 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             String key = keys.next();
             JSONObject attribute = attributes.getJSONObject(key);
             String attributeType = attribute.getString("type");
-            if (attributeType.equals("string")) {
-                stAttributeMap.putString(key, attribute.getString("value"));
+            switch (attributeType) {
+                case "string":
+                    stAttributeMap.putString(key, attribute.getString("value"));
 
-            } else if (attributeType.equals("stringArray")) {
-                ArrayList<String> array = new ArrayList<String>();
-                JSONArray values = attribute.getJSONArray("value");
-                for (int i = 0; i < values.length(); i++) {
-                    array.add((String) values.get(i));
+                    break;
+                case "stringArray": {
+                    ArrayList<String> array = new ArrayList<>();
+                    JSONArray values = attribute.getJSONArray("value");
+                    for (int i = 0; i < values.length(); i++) {
+                        array.add((String) values.get(i));
+                    }
+
+                    stAttributeMap.putStringArray(key, array);
+
+                    break;
                 }
+                case "integer":
+                    stAttributeMap.putInt(key, attribute.getInt("value"));
 
-                stAttributeMap.putStringArray(key, array);
+                    break;
+                case "integerArray": {
+                    ArrayList<Integer> array = new ArrayList<>();
+                    JSONArray values = attribute.getJSONArray("value");
+                    for (int i = 0; i < values.length(); i++) {
+                        Integer j = values.getInt(i);
+                        array.add(j);
+                    }
 
-            } else if (attributeType.equals("integer")) {
-                stAttributeMap.putInt(key, attribute.getInt("value"));
+                    stAttributeMap.putIntArray(key, array);
 
-            } else if (attributeType.equals("integerArray")) {
-                ArrayList<Integer> array = new ArrayList<Integer>();
-                JSONArray values = attribute.getJSONArray("value");
-                for (int i = 0; i < values.length(); i++) {
-                    Object j = values.getInt(i);
-                    array.add((Integer) j);
+                    break;
                 }
+                case "boolean":
+                    stAttributeMap.putBoolean(key, attribute.getBoolean("value"));
 
-                stAttributeMap.putIntArray(key, array);
+                    break;
+                case "float":
+                    stAttributeMap.putFloat(key, (float) attribute.getDouble("value"));
 
-            } else if (attributeType.equals("boolean")) {
-                stAttributeMap.putBoolean(key, attribute.getBoolean("value"));
+                    break;
+                case "floatArray": {
+                    ArrayList<Float> array = new ArrayList<>();
+                    JSONArray values = attribute.getJSONArray("value");
+                    for (int i = 0; i < values.length(); i++) {
+                        Float value = Float.parseFloat(values.get(i).toString());
+                        array.add(value);
+                    }
 
-            } else if (attributeType.equals("float")) {
-                stAttributeMap.putFloat(key, (float) attribute.getDouble("value"));
+                    stAttributeMap.putFloatArray(key, array);
 
-            } else if (attributeType.equals("floatArray")) {
-                ArrayList<Float> array = new ArrayList<Float>();
-                JSONArray values = attribute.getJSONArray("value");
-                for (int i = 0; i < values.length(); i++) {
-                    Float value = Float.parseFloat(values.get(i).toString());
-                    array.add(value);
+                    break;
                 }
+                case "date":
+                    Date value = new Date(attribute.getLong("value"));
+                    stAttributeMap.putDate(key, value);
 
-                stAttributeMap.putFloatArray(key, array);
+                    break;
+                case "dateArray": {
+                    ArrayList<Date> array = new ArrayList<>();
+                    JSONArray values = attribute.getJSONArray("value");
+                    for (int i = 0; i < values.length(); i++) {
+                        long dateValue = values.getLong(i);
+                        Date date = new Date(dateValue);
+                        array.add(date);
+                    }
 
-            } else if (attributeType.equals("date")) {
-                Date value = new Date(attribute.getLong("value"));
-                stAttributeMap.putDate(key, value);
-
-            } else if (attributeType.equals("dateArray")) {
-                ArrayList<Date> array = new ArrayList<Date>();
-                JSONArray values = attribute.getJSONArray("value");
-                for (int i = 0; i < values.length(); i++) {
-                    Long dateValue = values.getLong(i);
-                    Date value = new Date(dateValue);
-                    array.add(value);
+                    stAttributeMap.putDateArray(key, array);
+                    break;
                 }
-
-                stAttributeMap.putDateArray(key, array);
             }
         }
 
@@ -244,7 +258,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             }
 
             @Override
-            public void onFailure(Error error) {
+            public void onFailure(@NonNull Error error) {
                 promise.reject(error.getLocalizedMessage(), error);
             }
         });
@@ -254,20 +268,17 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     public void getMessages(final Promise promise) {
         messageStream.getMessages(new MessageStream.MessagesHandler() {
             @Override
-            public void onSuccess(ArrayList<Message> messages) {
+            public void onSuccess(@NonNull ArrayList<Message> messages) {
 
                 WritableArray array = getWritableArray();
                 try {
-                    Method toJsonMethod = com.carnival.sdk.Message.class.getDeclaredMethod("toJSON");
+                    Method toJsonMethod = Message.class.getDeclaredMethod("toJSON");
                     toJsonMethod.setAccessible(true);
 
-                    Method getMessageMethod = Message.class.getDeclaredMethod("getMessage$carnival_carnivalRelease");
-                    getMessageMethod.setAccessible(true);
-
                     for (Message message : messages) {
-                        com.carnival.sdk.Message innerMessage = (com.carnival.sdk.Message) getMessageMethod.invoke(message);
-                        JSONObject messageJson = (JSONObject) toJsonMethod.invoke(innerMessage);
-                        System.out.println(message.toString());
+                        JSONObject messageJson = (JSONObject) toJsonMethod.invoke(message);
+                        if (messageJson == null)
+                            continue;
                         array.pushMap(convertJsonToMap(messageJson));
                     }
                     promise.resolve(array);
@@ -283,7 +294,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             }
 
             @Override
-            public void onFailure(Error error) {
+            public void onFailure(@NonNull Error error) {
                 promise.reject(ERROR_CODE_MESSAGES, error.getMessage());
             }
         });
@@ -469,11 +480,11 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
         messageStream.getUnreadMessageCount(new MessageStream.MessageStreamHandler<Integer>() {
             @Override
             public void onSuccess(Integer integer) {
-                promise.resolve(integer.intValue());
+                promise.resolve(integer);
             }
 
             @Override
-            public void onFailure(Error error) {
+            public void onFailure(@NonNull Error error) {
                 promise.reject(ERROR_CODE_MESSAGES, error.getMessage());
             }
         });
@@ -509,7 +520,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             }
 
             @Override
-            public void onFailure(Error error) {
+            public void onFailure(@NonNull Error error) {
                 promise.reject(ERROR_CODE_MESSAGES, error.getMessage());
             }
         });
@@ -531,6 +542,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
+    @SuppressWarnings("unused")
     public void dismissMessageDetail() {
         // noop. It's here to share signatures with iOS.
     }
@@ -543,7 +555,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
         sailthruMobile.getRecommendations(sectionId, new SailthruMobile.RecommendationsHandler() {
 
             @Override
-            public void onSuccess(ArrayList<ContentItem> contentItems) {
+            public void onSuccess(@NonNull ArrayList<ContentItem> contentItems) {
                 WritableArray array = getWritableArray();
                 try {
                     for (ContentItem contentItem : contentItems) {
@@ -556,7 +568,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             }
 
             @Override
-            public void onFailure(Error error) {
+            public void onFailure(@NonNull Error error) {
                 promise.reject(ERROR_CODE_RECOMMENDATIONS, error.getMessage());
             }
         });
@@ -572,7 +584,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
                 }
 
                 @Override
-                public void onFailure(Error error) {
+                public void onFailure(@NonNull Error error) {
                     promise.reject(ERROR_CODE_TRACKING, error.getMessage());
                 }
             });
@@ -599,7 +611,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
                 }
 
                 @Override
-                public void onFailure(Error error) {
+                public void onFailure(@NonNull Error error) {
                     promise.reject(ERROR_CODE_TRACKING, error.getMessage());
                 }
             });
@@ -626,7 +638,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
                 }
 
                 @Override
-                public void onFailure(Error error) {
+                public void onFailure(@NonNull Error error) {
                     promise.reject(ERROR_CODE_TRACKING, error.getMessage());
                 }
             });
@@ -649,13 +661,14 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             }
 
             @Override
-            public void onFailure(Error error) {
+            public void onFailure(@NonNull Error error) {
                 promise.reject(ERROR_CODE_DEVICE, error.getMessage());
             }
         });
     }
 
     @ReactMethod
+    @SuppressWarnings("unused")
     public void setCrashHandlersEnabled(boolean enabled) {
         // noop. It's here to share signatures with iOS.
     }
@@ -669,7 +682,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             }
 
             @Override
-            public void onFailure(Error error) {
+            public void onFailure(@NonNull Error error) {
                 promise.reject(ERROR_CODE_DEVICE, error.getMessage());
             }
         });
@@ -685,7 +698,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             }
 
             @Override
-            public void onFailure(Error error) {
+            public void onFailure(@NonNull Error error) {
                 promise.reject(ERROR_CODE_VARS, error.getMessage());
             }
         });
@@ -705,7 +718,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             }
 
             @Override
-            public void onFailure(Error error) {
+            public void onFailure(@NonNull Error error) {
                 promise.reject(ERROR_CODE_VARS, error.getMessage());
             }
         });
@@ -722,7 +735,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
                 }
 
                 @Override
-                public void onFailure(Error error) {
+                public void onFailure(@NonNull Error error) {
                     promise.reject(ERROR_CODE_PURCHASE, error.getMessage());
                 }
             });
@@ -740,7 +753,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
                 }
 
                 @Override
-                public void onFailure(Error error) {
+                public void onFailure(@NonNull Error error) {
                     promise.reject(ERROR_CODE_PURCHASE, error.getMessage());
                 }
             });
@@ -751,28 +764,10 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     Purchase getPurchaseInstance(ReadableMap purchaseMap, final Promise promise) throws JSONException {
         JSONObject purchaseJson = convertPurchaseMapToJson(purchaseMap);
         try {
-          Constructor purchaseConstructor = com.carnival.sdk.Purchase.class.getDeclaredConstructor(JSONObject.class);
+          Constructor<Purchase> purchaseConstructor = Purchase.class.getDeclaredConstructor(JSONObject.class);
           purchaseConstructor.setAccessible(true);
-          com.carnival.sdk.Purchase legacyPurchase = (com.carnival.sdk.Purchase) purchaseConstructor.newInstance(purchaseJson);
+          return purchaseConstructor.newInstance(purchaseJson);
 
-          ArrayList<PurchaseItem> purchaseItems = new ArrayList<>();
-          for (com.carnival.sdk.PurchaseItem legacyPurchaseItem: legacyPurchase.getPurchaseItems()) {
-              PurchaseItem purchaseItem = new PurchaseItem(legacyPurchaseItem.getQuantity(),
-                                                           legacyPurchaseItem.getTitle(),
-                                                           legacyPurchaseItem.getPrice(),
-                                                           legacyPurchaseItem.getID(),
-                                                           legacyPurchaseItem.getURL());
-              purchaseItem.setImages(legacyPurchaseItem.getImages());
-              purchaseItem.setTags(legacyPurchaseItem.getTags());
-              purchaseItem.setVars(legacyPurchaseItem.getVars());
-              purchaseItems.add(purchaseItem);
-          }
-
-          Purchase purchase =  new Purchase(purchaseItems);
-          purchase.setVars(legacyPurchase.getVars());
-          purchase.setMessageId(legacyPurchase.getMessageId());
-
-          return purchase;
         } catch (NoSuchMethodException e) {
             promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
         } catch (IllegalAccessException e) {
@@ -794,15 +789,10 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
         Message message = null;
         try {
             JSONObject messageJson = convertMapToJson(messageMap);
-            Constructor<com.carnival.sdk.Message> legacyConstructor;
-            legacyConstructor = com.carnival.sdk.Message.class.getDeclaredConstructor(String.class);
-            legacyConstructor.setAccessible(true);
-            com.carnival.sdk.Message legacyMessage = legacyConstructor.newInstance(messageJson.toString());
-
             Constructor<Message> constructor;
-            constructor = Message.class.getDeclaredConstructor(com.carnival.sdk.Message.class);
+            constructor = Message.class.getDeclaredConstructor(String.class);
             constructor.setAccessible(true);
-            message = constructor.newInstance(legacyMessage);
+            message = constructor.newInstance(messageJson.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }

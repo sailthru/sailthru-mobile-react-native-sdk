@@ -5,8 +5,6 @@ import android.content.Context;
 import com.facebook.react.bridge.JavaScriptModule;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.sailthru.mobile.rnsdk.RNSailthruMobileModule;
-import com.sailthru.mobile.rnsdk.RNSailthruMobilePackage;
 import com.sailthru.mobile.sdk.SailthruMobile;
 
 import org.junit.Assert;
@@ -92,6 +90,7 @@ public class RNSailthruMobilePackageTest {
 
     @Test
     public void testCreateViewManagers() {
+        @SuppressWarnings("rawtypes")
         List<com.facebook.react.uimanager.ViewManager> viewManagers = rnSTPackage.createViewManagers(reactApplicationContext);
         Assert.assertTrue(viewManagers.isEmpty());
     }
