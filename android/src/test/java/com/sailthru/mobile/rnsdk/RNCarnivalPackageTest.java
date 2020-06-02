@@ -1,4 +1,4 @@
-package com.reactlibrary;
+package com.sailthru.mobile.rnsdk;
 
 import android.content.Context;
 
@@ -6,6 +6,8 @@ import com.carnival.sdk.Carnival;
 import com.facebook.react.bridge.JavaScriptModule;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.sailthru.mobile.rnsdk.RNCarnivalModule;
+import com.sailthru.mobile.rnsdk.RNCarnivalPackage;
 
 import org.junit.Assert;
 import org.junit.Before;

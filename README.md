@@ -76,7 +76,7 @@ dependencies {
 * Register module (in MainApplication.java)
 
 ```java
-import com.reactlibrary.RNSailthruMobilePackage; // <--- import
+import com.sailthru.mobile.rnsdk.RNSailthruMobilePackage; // <--- import
 
 public class MainApplication extends Application implements ReactApplication {
   ...
