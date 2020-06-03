@@ -1,5 +1,5 @@
 
-package com.reactlibrary;
+package com.sailthru.mobile.rnsdk;
 
 import android.content.Context;
 
@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * React native package for the Carnival SDK.
- * @deprecated use {@link com.reactlibrary.RNSailthruMobilePackage}
+ * @deprecated use {@link RNSailthruMobilePackage}
  */
 public class RNCarnivalPackage implements ReactPackage {
     protected ReactApplicationContext reactApplicationContext;

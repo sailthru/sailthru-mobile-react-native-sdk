@@ -1,4 +1,4 @@
-package com.reactlibrary;
+package com.sailthru.mobile.rnsdk;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -16,6 +16,7 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.sailthru.mobile.rnsdk.RNCarnivalModule;
 
 import org.json.JSONObject;
 import org.junit.Before;

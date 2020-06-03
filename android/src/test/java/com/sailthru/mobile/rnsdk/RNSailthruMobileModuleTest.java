@@ -1,9 +1,10 @@
-package com.reactlibrary;
+package com.sailthru.mobile.rnsdk;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
 
+import com.sailthru.mobile.rnsdk.RNSailthruMobileModule;
 import com.sailthru.mobile.sdk.MessageActivity;
 import com.sailthru.mobile.sdk.MessageStream;
 import com.sailthru.mobile.sdk.model.AttributeMap;

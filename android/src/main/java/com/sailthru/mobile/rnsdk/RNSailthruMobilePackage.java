@@ -1,5 +1,5 @@
 
-package com.reactlibrary;
+package com.sailthru.mobile.rnsdk;
 
 import android.content.Context;
 

@@ -1,10 +1,12 @@
-package com.reactlibrary;
+package com.sailthru.mobile.rnsdk;
 
 import android.content.Context;
 
 import com.facebook.react.bridge.JavaScriptModule;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.sailthru.mobile.rnsdk.RNSailthruMobileModule;
+import com.sailthru.mobile.rnsdk.RNSailthruMobilePackage;
 import com.sailthru.mobile.sdk.SailthruMobile;
 
 import org.junit.Assert;
