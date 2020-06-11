@@ -263,7 +263,7 @@ describe(@"RNSailthruMobile", ^{
 
     context(@"the presentMessageDetail: method", ^{
         it(@"should call native method", ^{
-            [[messageStream should] receive:@selector(presentMessageDetailForMessage:)];
+            [[expectFutureValue(messageStream) shouldEventuallyBeforeTimingOutAfter(5)] receive:@selector(presentMessageDetailForMessage:)];
             
             [rnSailthruMobile presentMessageDetail:nil];
         });
@@ -271,7 +271,7 @@ describe(@"RNSailthruMobile", ^{
 
     context(@"the dismissMessageDetail method", ^{
         it(@"should call native method", ^{
-            [[messageStream should] receive:@selector(dismissMessageDetail)];
+            [[expectFutureValue(messageStream) shouldEventuallyBeforeTimingOutAfter(5)] receive:@selector(dismissMessageDetail)];
 
             [rnSailthruMobile dismissMessageDetail];
         });
