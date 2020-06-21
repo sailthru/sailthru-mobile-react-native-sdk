@@ -4,7 +4,6 @@ package com.sailthru.mobile.rnsdk;
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
@@ -107,7 +106,6 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     protected static void setWrapperInfo(SailthruMobile sailthruMobile) {
         try {
-            Log.d("RNSailthruMobileModule", "setWrapperInfo");
             Class<?>[] cArg = new Class[2];
             cArg[0] = String.class;
             cArg[1] = String.class;
@@ -115,7 +113,6 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             Method setWrapperMethod = SailthruMobile.class.getDeclaredMethod("setWrapper", cArg);
             setWrapperMethod.setAccessible(true);
             setWrapperMethod.invoke(sailthruMobile, "React Native", "4.1.1");
-            Log.d("RNSailthruMobileModule", "setWrapperInfo CALLED");
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
