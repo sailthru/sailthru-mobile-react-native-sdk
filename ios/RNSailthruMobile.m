@@ -51,7 +51,7 @@
         _messageStream = [STMMessageStream new];
 
         [_messageStream setDelegate:self];
-        [_sailthruMobile setWrapperName:@"React Native" andVersion:@"4.1.1"];
+        [_sailthruMobile setWrapperName:@"React Native" andVersion:@"5.0.0"];
     }
     return self;
 }
