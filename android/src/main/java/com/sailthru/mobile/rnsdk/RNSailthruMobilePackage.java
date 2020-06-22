@@ -58,6 +58,7 @@ public class RNSailthruMobilePackage implements ReactPackage {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
         return Collections.emptyList();
     }
@@ -75,6 +76,7 @@ public class RNSailthruMobilePackage implements ReactPackage {
         /**
          * Default constructor - should not be used
          */
+        @SuppressWarnings("unused")
         private Builder() {
         }
 

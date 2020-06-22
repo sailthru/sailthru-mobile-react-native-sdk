@@ -224,11 +224,15 @@ RCT_EXPORT_METHOD(removeMessage:(NSDictionary *)jsDict resolver:(RCTPromiseResol
 }
 
 RCT_EXPORT_METHOD(presentMessageDetail:(NSDictionary *)jsDict) {
-    [self.messageStream presentMessageDetailForMessage:[RNSailthruMobile messageFromDict:jsDict]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.messageStream presentMessageDetailForMessage:[RNSailthruMobile messageFromDict:jsDict]];
+    });
 }
 
 RCT_EXPORT_METHOD(dismissMessageDetail) {
-    [self.messageStream dismissMessageDetail];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.messageStream dismissMessageDetail];
+    });
 }
 
 RCT_EXPORT_METHOD(registerMessageImpression:(NSInteger)impressionType forMessage:(NSDictionary *)jsDict) {

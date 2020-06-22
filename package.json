@@ -21,7 +21,7 @@
     "messaging"
   ],
   "main": "index.js",
-  "name": "react-native-carnival",
+  "name": "react-native-sailthru-mobile",
   "optionalDependencies": {},
   "peerDependencies": {
     "react-native": ">=0.25.1"
@@ -35,8 +35,6 @@
     "react-native": "^0.56.0"
   },
   "files": [
-    "/ios/Carnival.framework",
-    "/ios/CarnivalExtension.framework",
     "/ios/SailthruMobile.framework",
     "/ios/SailthruMobileExtension.framework",
     "/ios/RN*",
