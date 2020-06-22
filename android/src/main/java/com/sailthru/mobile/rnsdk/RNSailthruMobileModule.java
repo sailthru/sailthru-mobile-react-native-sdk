@@ -112,7 +112,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
             Method setWrapperMethod = SailthruMobile.class.getDeclaredMethod("setWrapper", cArg);
             setWrapperMethod.setAccessible(true);
-            setWrapperMethod.invoke(sailthruMobile, "React Native", "4.1.1");
+            setWrapperMethod.invoke(sailthruMobile, "React Native", "5.0.0");
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
