@@ -99,7 +99,7 @@ export default class ReactNativeSampleApp extends Component {
 
     var purchaseItem1 = new SailthruMobile.PurchaseItem(1, "title", 1234, "2345", "https://www.example.com/item1");
     var purchaseItem2 = new SailthruMobile.PurchaseItem(3, "other item", 1534, "2346", "https://www.example.com/item2");
-    var purchaseItems = [ purchaseItem, purchaseItem2 ];
+    var purchaseItems = [ purchaseItem1, purchaseItem2 ];
     var purchase = new SailthruMobile.Purchase(purchaseItems);
     SailthruMobile.logPurchase(purchase).then(result => {
       console.log("Purchase Log Success");

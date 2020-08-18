@@ -1,29 +1,21 @@
 # Uncomment the next line to define a global platform for your project
 # platform :ios, '9.0'
+require_relative '../node_modules/react-native/scripts/react_native_pods'
+require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
 target "SailthruMobileSDKReactNative" do
   # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
   # use_frameworks!
 
-  # Pods for CarnivalSDKReactNative
-
   target "SailthruMobileSDKReactNativeTests" do
     inherit! :search_paths
     # Pods for testing
 
-    pod "React", path: "../node_modules/react-native", subspecs: [
-      "Core",
-      "CxxBridge" # Include this for RN >= 0.47
-    ]
+    config = use_native_modules!
+    use_react_native!(:path => config["reactNativePath"])
 
     pod "SailthruMobile", "11.0.0"
     pod "Kiwi", "2.4.0"
     pod "OCMock", "3.1.2"
-
-    # Explicitly include Yoga if you are using RN >= 0.42.0
-    pod "yoga", path: "../node_modules/react-native/ReactCommon/yoga"
-
-    # Third party deps podspec link
-    pod "Folly", podspec: "../node_modules/react-native/third-party-podspecs/Folly.podspec"
   end
 end

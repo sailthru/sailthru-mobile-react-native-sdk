@@ -32,7 +32,7 @@
   },
   "version": "5.0.0",
   "devDependencies": {
-    "react-native": "^0.56.0"
+    "react-native": "^0.63.2"
   },
   "files": [
     "/ios/SailthruMobile.framework",
