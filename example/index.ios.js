@@ -69,7 +69,15 @@ export default class ReactNativeSampleApp extends Component {
       console.log(e);
     });
 
-    SailthruMobile.setUserId("person@domain.com").catch( e => {
+    SailthruMobile.setUserId("person").then(result => {
+      console.log("Set User ID Success");
+    }, e => {
+      console.log(e);
+    });
+
+    SailthruMobile.setUserEmail("person@domain.com").then(result => {
+      console.log("Set User Email Success");
+    }, e => {
       console.log(e);
     });
 

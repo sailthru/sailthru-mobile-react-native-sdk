@@ -218,20 +218,58 @@ public class RNSailthruMobileModuleTest {
 
     @Test
     public void testSetUserId() {
+        // Setup mocks
+        Promise promise = mock(Promise.class);
+        Error error = mock(Error.class);
         String userID = "user ID";
 
-        rnSailthruMobileModule.setUserId(userID);
+        rnSailthruMobileModule.setUserId(userID, promise);
 
-        verify(sailthruMobile).setUserId(userID, null);
+        // Capture SailthruMobileHandler to verify behaviour
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
+        verify(sailthruMobile).setUserId(eq(userID), argumentCaptor.capture());
+        SailthruMobile.SailthruMobileHandler<Void> handler = argumentCaptor.getValue();
+
+        // Test success handler
+        handler.onSuccess(null);
+        verify(promise).resolve(null);
+
+        // Setup error
+        String errorMessage = "error message";
+        when(error.getMessage()).thenReturn(errorMessage);
+
+        // Test error handler
+        handler.onFailure(error);
+        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_DEVICE, errorMessage);
     }
 
     @Test
     public void testSetUserEmail() {
+        // Setup mocks
+        Promise promise = mock(Promise.class);
+        Error error = mock(Error.class);
         String userEmail = "user email";
 
-        rnSailthruMobileModule.setUserEmail(userEmail);
+        rnSailthruMobileModule.setUserEmail(userEmail, promise);
 
-        verify(sailthruMobile).setUserEmail(userEmail, null);
+        // Capture SailthruMobileHandler to verify behaviour
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
+        verify(sailthruMobile).setUserEmail(eq(userEmail), argumentCaptor.capture());
+        SailthruMobile.SailthruMobileHandler<Void> handler = argumentCaptor.getValue();
+
+        // Test success handler
+        handler.onSuccess(null);
+        verify(promise).resolve(null);
+
+        // Setup error
+        String errorMessage = "error message";
+        when(error.getMessage()).thenReturn(errorMessage);
+
+        // Test error handler
+        handler.onFailure(error);
+        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_DEVICE, errorMessage);
     }
 
     @Test
@@ -267,6 +305,8 @@ public class RNSailthruMobileModuleTest {
     @Test
     public void testRemoveMessage() throws Exception {
         // Create mocks
+        Promise promise = mock(Promise.class);
+        Error error = mock(Error.class);
         ReadableMap readableMap = mock(ReadableMap.class);
 
         // Create message to remove
@@ -278,10 +318,25 @@ public class RNSailthruMobileModuleTest {
         doReturn(message).when(moduleSpy).getMessage(readableMap);
 
         // Initiate test
-        moduleSpy.removeMessage(readableMap);
+        moduleSpy.removeMessage(readableMap, promise);
 
-        // Verify result
-        verify(messageStream).deleteMessage(message, null);
+        // Capture SailthruMobileHandler to verify behaviour
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<MessageStream.MessageDeletedHandler> argumentCaptor = ArgumentCaptor.forClass(MessageStream.MessageDeletedHandler.class);
+        verify(messageStream).deleteMessage(eq(message), argumentCaptor.capture());
+        MessageStream.MessageDeletedHandler handler = argumentCaptor.getValue();
+
+        // Test success handler
+        handler.onSuccess();
+        verify(promise).resolve(null);
+
+        // Setup error
+        String errorMessage = "error message";
+        when(error.getMessage()).thenReturn(errorMessage);
+
+        // Test error handler
+        handler.onFailure(error);
+        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_MESSAGES, errorMessage);
     }
 
     @Test

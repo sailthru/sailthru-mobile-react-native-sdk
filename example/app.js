@@ -25,7 +25,7 @@ const instructions = Platform.select({
 });
 
 
-export default class App extends Component<{}> {
+export default class App extends Component {
   render() {
     SailthruMobile.getMessages()
       .then(messages => {
@@ -81,8 +81,17 @@ export default class App extends Component<{}> {
       console.log(e);
     });
 
-    SailthruMobile.setUserId("person");
-    SailthruMobile.setUserEmail("person@domain.com");
+    SailthruMobile.setUserId("person").then(result => {
+      console.log("Set User ID Success");
+    }, e => {
+      console.log(e);
+    });
+
+    SailthruMobile.setUserEmail("person@domain.com").then(result => {
+      console.log("Set User Email Success");
+    }, e => {
+      console.log(e);
+    });
 
     var profileVars = {
       "string_key" : "string_value",
