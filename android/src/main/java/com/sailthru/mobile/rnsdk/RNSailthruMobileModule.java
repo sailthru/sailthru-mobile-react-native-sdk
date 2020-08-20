@@ -29,6 +29,7 @@ import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -463,13 +464,33 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    public void setUserId(String userId) {
-        sailthruMobile.setUserId(userId, null);
+    public void setUserId(String userId, final Promise promise) {
+        sailthruMobile.setUserId(userId, new SailthruMobile.SailthruMobileHandler<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                promise.resolve(null);
+            }
+
+            @Override
+            public void onFailure(@NotNull Error error) {
+                promise.reject(ERROR_CODE_DEVICE, error.getMessage());
+            }
+        });
     }
 
     @ReactMethod
-    public void setUserEmail(String userEmail) {
-        sailthruMobile.setUserEmail(userEmail, null);
+    public void setUserEmail(String userEmail, final Promise promise) {
+        sailthruMobile.setUserEmail(userEmail, new SailthruMobile.SailthruMobileHandler<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                promise.resolve(null);
+            }
+
+            @Override
+            public void onFailure(@NotNull Error error) {
+                promise.reject(ERROR_CODE_DEVICE, error.getMessage());
+            }
+        });
     }
 
     @ReactMethod
@@ -488,9 +509,19 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    public void removeMessage(ReadableMap messageMap) {
+    public void removeMessage(ReadableMap messageMap, final Promise promise) {
         Message message = getMessage(messageMap);
-        messageStream.deleteMessage(message, null);
+        messageStream.deleteMessage(message, new MessageStream.MessageDeletedHandler() {
+            @Override
+            public void onSuccess() {
+                promise.resolve(null);
+            }
+
+            @Override
+            public void onFailure(@NotNull Error error) {
+                promise.reject(ERROR_CODE_MESSAGES, error.getMessage());
+            }
+        });
     }
 
     @ReactMethod

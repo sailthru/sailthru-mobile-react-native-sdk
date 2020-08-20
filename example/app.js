@@ -25,7 +25,7 @@ const instructions = Platform.select({
 });
 
 
-export default class App extends Component<{}> {
+export default class App extends Component {
   render() {
     SailthruMobile.getMessages()
       .then(messages => {
@@ -81,8 +81,17 @@ export default class App extends Component<{}> {
       console.log(e);
     });
 
-    SailthruMobile.setUserId("person");
-    SailthruMobile.setUserEmail("person@domain.com");
+    SailthruMobile.setUserId("person").then(result => {
+      console.log("Set User ID Success");
+    }, e => {
+      console.log(e);
+    });
+
+    SailthruMobile.setUserEmail("person@domain.com").then(result => {
+      console.log("Set User Email Success");
+    }, e => {
+      console.log(e);
+    });
 
     var profileVars = {
       "string_key" : "string_value",
@@ -102,7 +111,7 @@ export default class App extends Component<{}> {
 
     var purchaseItem1 = new SailthruMobile.PurchaseItem(1, "title", 1234, 2345, "www.example.com/item1");
     var purchaseItem2 = new SailthruMobile.PurchaseItem(3, "other item", 1534, 2346, "www.example.com/item2");
-    var purchaseItems = [ purchaseItem, purchaseItem2 ];
+    var purchaseItems = [ purchaseItem1, purchaseItem2 ];
     var purchase = new SailthruMobile.Purchase(purchaseItems);
     SailthruMobile.logPurchase(purchase).then(result => {
       console.log("Purchase Log Success");
