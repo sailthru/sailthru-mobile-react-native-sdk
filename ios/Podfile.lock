@@ -247,9 +247,8 @@ PODS:
     - React-Core (= 0.63.2)
     - React-cxxreact (= 0.63.2)
     - React-jsi (= 0.63.2)
-  - SailthruMobile (11.0.1):
-    - SailthruMobile/Extension (= 11.0.1)
-  - SailthruMobile/Extension (11.0.1)
+  - SailthruMobile (12.0.0)
+  - SailthruMobile-Extension (12.0.0)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -282,7 +281,8 @@ DEPENDENCIES:
   - React-RCTText (from `../node_modules/react-native/Libraries/Text`)
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - SailthruMobile (= 11.0.1)
+  - SailthruMobile (= 12.0.0)
+  - SailthruMobile-Extension (= 12.0.0)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -291,6 +291,7 @@ SPEC REPOS:
     - Kiwi
     - OCMock
     - SailthruMobile
+    - SailthruMobile-Extension
 
 EXTERNAL SOURCES:
   DoubleConversion:
@@ -375,9 +376,10 @@ SPEC CHECKSUMS:
   React-RCTText: 1b6773e776e4b33f90468c20fe3b16ca3e224bb8
   React-RCTVibration: 4d2e726957f4087449739b595f107c0d4b6c2d2d
   ReactCommon: a0a1edbebcac5e91338371b72ffc66aa822792ce
-  SailthruMobile: df0a457a0be8cc9feaba16cc52deb527d89cab04
+  SailthruMobile: ac68b57b166cb2b99e3287b4f04edb7779bff018
+  SailthruMobile-Extension: e9d3766ceee6d0dcfaafb0acc0e949acfc3d2994
   Yoga: 7740b94929bbacbddda59bf115b5317e9a161598
 
-PODFILE CHECKSUM: 0f93c6b8a310133dd947a9b6376b96f8749f374e
+PODFILE CHECKSUM: a24efab842f0c69eb122c6016000718143bad975
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.10.1
