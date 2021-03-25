@@ -19,30 +19,31 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.List;
 
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SailthruMobile.class, RNSailthruMobilePackage.class, RNSailthruMobileModule.class})
+@PrepareForTest({RNSailthruMobilePackage.class, RNSailthruMobileModule.class})
 public class RNSailthruMobilePackageTest {
 
     @Mock
     private Context mockContext;
     @Mock
     private ReactApplicationContext reactApplicationContext;
-
+    @Mock
     private SailthruMobile sailthruMobile;
 
-    private String appKey = "App Key";
-    private RNSailthruMobilePackage.Builder builder = RNSailthruMobilePackage.Builder.createInstance(mockContext, appKey).setDisplayInAppNotifications(false).setGeoIPTrackingDefault(false);
+    private final String appKey = "App Key";
+    private RNSailthruMobilePackage.Builder builder;
 
     private RNSailthruMobilePackage rnSTPackage;
 
     @Before
     public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
-        sailthruMobile = PowerMockito.mock(SailthruMobile.class);
-        PowerMockito.mockStatic(SailthruMobile.class);
         PowerMockito.whenNew(SailthruMobile.class).withAnyArguments().thenReturn(sailthruMobile);
+
+        builder = RNSailthruMobilePackage.Builder.createInstance(mockContext, appKey).setDisplayInAppNotifications(false).setGeoIPTrackingDefault(false);
 
         rnSTPackage = new RNSailthruMobilePackage(mockContext, appKey);
     }
@@ -54,6 +55,7 @@ public class RNSailthruMobilePackageTest {
 
     @Test
     public void testBuilderConstructor() {
+        reset(sailthruMobile);
         RNSailthruMobilePackage rnSTPackageFromBuilderConstructor = new RNSailthruMobilePackage(builder);
         verify(sailthruMobile).startEngine(mockContext, appKey);
         verify(sailthruMobile).setGeoIpTrackingDefault(false);
@@ -121,6 +123,7 @@ public class RNSailthruMobilePackageTest {
 
     @Test
     public void testBuilderBuild() {
+        reset(sailthruMobile);
         RNSailthruMobilePackage rnSTPackageFromBuilderBuild = builder.build();
         verify(sailthruMobile).startEngine(mockContext, appKey);
         verify(sailthruMobile).setGeoIpTrackingDefault(false);

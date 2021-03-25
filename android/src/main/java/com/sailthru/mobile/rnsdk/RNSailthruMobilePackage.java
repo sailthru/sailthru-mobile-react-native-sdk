@@ -3,6 +3,8 @@ package com.sailthru.mobile.rnsdk;
 
 import android.content.Context;
 
+import androidx.annotation.VisibleForTesting;
+
 import com.sailthru.mobile.sdk.SailthruMobile;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JavaScriptModule;
@@ -20,7 +22,8 @@ import java.util.List;
 public class RNSailthruMobilePackage implements ReactPackage {
     protected ReactApplicationContext reactApplicationContext;
     protected boolean displayInAppNotifications = true;
-    private SailthruMobile sailthruMobile = new SailthruMobile();
+    @VisibleForTesting
+    SailthruMobile sailthruMobile = new SailthruMobile();
 
     /**
      * Default constructor - should not be used
