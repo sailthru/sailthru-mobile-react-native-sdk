@@ -18,7 +18,7 @@ Drag into "Libraries" the following files from node_modules/react-native-sailthr
  * RNSailthruMobileBridge.h
  * RNSailthruMobileBridge.m (Make sure this file's Target Membership is your main app's target)
 
-Next, Install Sailthru Mobile iOS SDK from Cocoapods (add `pod 'SailthruMobile'` to your Podfile) or install the framework [manually](https://docs.mobile.sailthru.com/docs/ios-integration#section-manual-integration) (SailthruMobile.framework can be obtained from node_modules/react-native-sailthru-mobile).
+Next, Install Sailthru Mobile iOS SDK from Cocoapods (add `pod 'SailthruMobile'` to your Podfile), Swift Package Manager, Carthage or install the XCFramework [manually](https://docs.mobile.sailthru.com/docs/ios-integration#section-manual-integration) (SailthruMobile.xcframework can be obtained from node_modules/react-native-sailthru-mobile).
 
 You will then need replace the code that creates your RCTRootView with the code below. This adds the SailthruMobile React Native modules to the root view.
 
