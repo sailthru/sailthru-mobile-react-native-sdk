@@ -211,8 +211,18 @@ SailthruMobile.PurchaseItem.fromContentItem = function(contentItem) {
 }
 
 /**
+ * Creates a purchase adjustment with the required fields.
+ * @param {string} title The name/title of the adjustment.
+ * @param {int} price The price of the adjustment in cents (e.g. $10.99 is 1099, -$23.45 is -2345).
+ */
+SailthruMobile.PurchaseAdjustment = function(title, price) {
+  this.title = title;
+  this.price = price;
+}
+
+/**
  * Creates a Purchase object with the required field.
- * @param {Array} purchaseItems an array of {Carnival.PurchaseItem} objects.
+ * @param {Array} purchaseItems an array of {SailthruMobile.PurchaseItem} objects.
  */
 SailthruMobile.Purchase = function(purchaseItems) {
   this.items = purchaseItems;
@@ -243,6 +253,26 @@ SailthruMobile.Purchase = function(purchaseItems) {
    */
   this.setMessageId = function(messageId) {
     this.message_id = messageId;
+  }
+
+  /**
+   * An array of the adjustments (positive or negative) that should be applied to the total order value.
+   * Title and price (in cents) are required. The amount should be negative to factor in a deduction to
+   * the final price, such as a discount; the amount should be positive to factor in an additional cost,
+   * such as shipping. For example, -1000 on an item originally priced at $25 would reduce the price and
+   * pass $15 to the user’s profile under the price field for that item. Recommended keys:
+   * tax – Taxes applied to order
+   * shipping – Any shipping and/or handling fees applied to order
+   * discount – Discount off order from promotion code, coupon, etc.
+   * gift_card – Amount of order covered by gift card payment
+   * gift_wrap – Additional fee for gift wrapping.
+   * credits – Amount of order covered by account credit
+   * tip – Any gratuity added to purchase
+   * If you are using Retention Analytics, these keys or similar custom keys are highly recommended.
+   * @param {Array} purchaseAdjustments an array of {SailthruMobile.PurchaseAdjustment} objects.
+   */
+  this.setAdjustments = function(purchaseAdjustments) {
+    this.adjustments = purchaseAdjustments
   }
 }
 
