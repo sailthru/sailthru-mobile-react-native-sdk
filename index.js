@@ -152,18 +152,53 @@ SailthruMobile.DeviceValues = {Attributes: 1, MessageStream: 2, Events: 4, Clear
  * @param {string} url The url for the item.
  */
 SailthruMobile.PurchaseItem = function(quantity, title, price, id, url) {
-  this.qty = quantity;
-  this.title = title;
-  this.price = price;
-  this.id = id;
-  this.url = url;
+  if (typeof quantity === 'number' && isFinite(quantity) && Math.floor(quantity) === quantity) {
+    this.qty = quantity;
+  } else {
+    throw new TypeError(quantity + ' is not an integer');
+  }
+  if (typeof title === 'string') {
+    this.title = title;
+  } else {
+    throw new TypeError(title + ' is not a string');
+  }
+  if (typeof price === 'number' && isFinite(price) && Math.floor(price) === price) {
+    this.price = price;
+  } else {
+    throw new TypeError(price + ' is not an integer');
+  }
+  if (typeof id === 'string') {
+    this.id = id;
+  } else {
+    throw new TypeError(id + ' is not a string');
+  }
+  if (typeof url === 'string') {
+    this.url = url;
+  } else {
+    throw new TypeError(url + ' is not a string');
+  }
 
   /**
    * Sets the tags for the product.
    * @param {Array} tags Array of strings containing tags for the product.
    */
   this.setTags = function(tags) {
-    this.tags = tags;
+    if (!Array.isArray(tags)) {
+      throw new TypeError(tags + ' is not an array');
+      return;
+    }
+
+    var array = [];
+    for (var i in tags) {
+      if (typeof tags[i] === 'string') {
+        array.push(tags[i]);
+      } else {
+        throw new TypeError('value at index ' + i + ' is not a string');
+        return;
+      }
+    }
+
+    this.tags = array;
   }
 
   /**
@@ -174,7 +209,11 @@ SailthruMobile.PurchaseItem = function(quantity, title, price, id, url) {
    * @param {Object} vars the vars to set.
    */
   this.setVars = function(vars) {
-    this.vars = vars;
+    if (typeof vars === 'object') {
+      this.vars = vars;
+    } else {
+      throw new TypeError(vars + ' is not a valid object');
+    }
   }
 
   /**
@@ -194,7 +233,17 @@ SailthruMobile.PurchaseItem = function(quantity, title, price, id, url) {
    * @param {Object} images images to set.
    */
   this.setImages = function(images) {
-    this.images = images;
+    if (typeof images !== 'object') {
+      throw new TypeError(images + ' is not a valid object');
+    }
+    var imageMap = {};
+    if (typeof images.full === 'object' && typeof images.full.url === 'string') {
+      imageMap.full = { "url": images.full.url };
+    }
+    if (typeof images.thumb === 'object' && typeof images.thumb.url === 'string') {
+      imageMap.thumb = { "url": images.thumb.url };
+    }
+    this.images = imageMap;
   }
 }
 
@@ -216,8 +265,17 @@ SailthruMobile.PurchaseItem.fromContentItem = function(contentItem) {
  * @param {int} price The price of the adjustment in cents (e.g. $10.99 is 1099, -$23.45 is -2345).
  */
 SailthruMobile.PurchaseAdjustment = function(title, price) {
-  this.title = title;
-  this.price = price;
+  if (typeof title === 'string') {
+    this.title = title;
+  } else {
+    throw new TypeError(title + ' is not a string');
+  }
+
+  if (typeof price === 'number' && isFinite(price) && Math.floor(price) === price) {
+    this.price = price;
+  } else {
+    throw new TypeError(price + ' is not an integer');
+  }
 }
 
 /**
@@ -225,7 +283,21 @@ SailthruMobile.PurchaseAdjustment = function(title, price) {
  * @param {Array} purchaseItems an array of {SailthruMobile.PurchaseItem} objects.
  */
 SailthruMobile.Purchase = function(purchaseItems) {
-  this.items = purchaseItems;
+  if (!Array.isArray(purchaseItems)) {
+    throw new TypeError(purchaseItems + ' is not an array');
+    return;
+  }
+
+  var array = [];
+  for (var i in purchaseItems) {
+    if (typeof purchaseItems[i] === 'object') {
+      array.push(purchaseItems[i]);
+    } else {
+      throw new TypeError('value at index ' + i + ' is not a purchase item');
+      return;
+    }
+  }
+  this.items = array;
 
   /**
    * Sets any number of custom variables to attach to the order. These are commonly used with the
@@ -240,7 +312,11 @@ SailthruMobile.Purchase = function(purchaseItems) {
    * @param {Object} vars map containing the custom fields for the purchase.
    */
   this.setVars = function(vars) {
-    this.vars = vars;
+    if (typeof vars === 'object') {
+      this.vars = vars;
+    } else {
+      throw new TypeError(vars + ' is not a valid object');
+    }
   }
 
   /**
@@ -252,7 +328,11 @@ SailthruMobile.Purchase = function(purchaseItems) {
    * @param {string} messageId the message ID
    */
   this.setMessageId = function(messageId) {
-    this.message_id = messageId;
+    if (typeof messageId === 'string') {
+      this.message_id = messageId;
+    } else {
+      throw new TypeError(messageId + ' is not a string');
+    }
   }
 
   /**
@@ -271,8 +351,23 @@ SailthruMobile.Purchase = function(purchaseItems) {
    * If you are using Retention Analytics, these keys or similar custom keys are highly recommended.
    * @param {Array} purchaseAdjustments an array of {SailthruMobile.PurchaseAdjustment} objects.
    */
-  this.setAdjustments = function(purchaseAdjustments) {
-    this.adjustments = purchaseAdjustments
+  this.setPurchaseAdjustments = function(purchaseAdjustments) {
+    if (!Array.isArray(purchaseAdjustments)) {
+      throw new TypeError(purchaseAdjustments + ' is not an array');
+      return;
+    }
+
+    var array = [];
+    for (var i in purchaseAdjustments) {
+      if (typeof purchaseAdjustments[i] === 'object') {
+        array.push(purchaseAdjustments[i]);
+      } else {
+        throw new TypeError('value at index ' + i + ' is not a purchase adjustment');
+        return;
+      }
+    }
+
+    this.adjustments = array;
   }
 }
 
