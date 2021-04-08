@@ -90,7 +90,8 @@ RCT_REMAP_METHOD(getMessages, resolver:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(setAttributes:(NSDictionary *)attributeMap resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)  {
 
     STMAttributes *stmAttributes = [[STMAttributes alloc] init];
-    [stmAttributes setAttributesMergeRule:(STMAttributesMergeRule)[attributeMap valueForKey:@"mergeRule"]];
+    NSInteger mergeRule = [[attributeMap valueForKey:@"mergeRule"] integerValue];
+    [stmAttributes setAttributesMergeRule:(STMAttributesMergeRule)(mergeRule - 1)];
 
     NSDictionary *attributes = [attributeMap valueForKey:@"attributes"];
 

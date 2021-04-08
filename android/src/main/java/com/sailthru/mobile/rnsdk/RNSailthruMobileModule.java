@@ -59,7 +59,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     private boolean displayInAppNotifications;
 
-    private ReactApplicationContext reactApplicationContext;
+    private final ReactApplicationContext reactApplicationContext;
 
     @VisibleForTesting
     SailthruMobile sailthruMobile = new SailthruMobile();
@@ -88,13 +88,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                     .emit("inappnotification", writableMap);
 
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
+        } catch (NoSuchMethodException | IllegalAccessException | JSONException | InvocationTargetException e) {
             e.printStackTrace();
         }
         return displayInAppNotifications;
@@ -114,11 +108,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             Method setWrapperMethod = SailthruMobile.class.getDeclaredMethod("setWrapper", cArg);
             setWrapperMethod.setAccessible(true);
             setWrapperMethod.invoke(sailthruMobile, "React Native", "5.1.0");
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
     }
@@ -280,13 +270,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
                         array.pushMap(convertJsonToMap(messageJson));
                     }
                     promise.resolve(array);
-                } catch (NoSuchMethodException e) {
-                    promise.reject(ERROR_CODE_MESSAGES, e.getMessage());
-                } catch (IllegalAccessException e) {
-                    promise.reject(ERROR_CODE_MESSAGES, e.getMessage());
-                } catch (JSONException e) {
-                    promise.reject(ERROR_CODE_MESSAGES, e.getMessage());
-                } catch (InvocationTargetException e) {
+                } catch (NoSuchMethodException | IllegalAccessException | JSONException | InvocationTargetException e) {
                     promise.reject(ERROR_CODE_MESSAGES, e.getMessage());
                 }
             }
@@ -558,15 +542,20 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     public void presentMessageDetail(ReadableMap message) {
         String messageId = message.getString(MESSAGE_ID);
         Activity activity = currentActivity();
-        if (activity != null) {
-            Intent i = MessageActivity.intentForMessage(activity, null, messageId);
-            activity.startActivity(i);
-        }
+        if (messageId == null || activity == null) return;
+
+        Intent i = getMessageActivityIntent(activity, messageId);
+        activity.startActivity(i);
     }
 
     // wrapped to expose for testing
     protected Activity currentActivity() {
         return getCurrentActivity();
+    }
+
+    // wrapped for testing
+    protected Intent getMessageActivityIntent(@NotNull Activity activity, @NotNull String messageId) {
+        return MessageActivity.intentForMessage(activity, null, messageId);
     }
 
     @ReactMethod
@@ -796,13 +785,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
           purchaseConstructor.setAccessible(true);
           return purchaseConstructor.newInstance(purchaseJson);
 
-        } catch (NoSuchMethodException e) {
-            promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
-        } catch (IllegalAccessException e) {
-            promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
-        } catch (InvocationTargetException e) {
-            promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
-        } catch (InstantiationException e) {
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
             promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
         }
         return null;

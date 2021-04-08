@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
 
-import com.sailthru.mobile.sdk.MessageActivity;
 import com.sailthru.mobile.sdk.MessageStream;
 import com.sailthru.mobile.sdk.model.AttributeMap;
 import com.sailthru.mobile.sdk.SailthruMobile;
@@ -49,13 +48,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SailthruMobile.class, MessageStream.class, AttributeMap.class, MessageActivity.class, Purchase.class, RNSailthruMobileModule.class})
+@PrepareForTest({RNSailthruMobileModule.class})
 public class RNSailthruMobileModuleTest {
-
     @Mock
     private ReactApplicationContext mockContext;
-
+    @Mock
     private SailthruMobile sailthruMobile;
+    @Mock
     private MessageStream messageStream;
 
     private RNSailthruMobileModule rnSailthruMobileModule;
@@ -64,14 +63,10 @@ public class RNSailthruMobileModuleTest {
     @Before
     public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
-        sailthruMobile = PowerMockito.mock(SailthruMobile.class);
-        messageStream = PowerMockito.mock(MessageStream.class);
         PowerMockito.mockStatic(RNSailthruMobileModule.class);
-        PowerMockito.mockStatic(MessageActivity.class);
 
         PowerMockito.whenNew(SailthruMobile.class).withAnyArguments().thenReturn(sailthruMobile);
         PowerMockito.whenNew(MessageStream.class).withAnyArguments().thenReturn(messageStream);
-        PowerMockito.doNothing().when(RNSailthruMobileModule.class, "setWrapperInfo", any(SailthruMobile.class));
 
         rnSailthruMobileModule = new RNSailthruMobileModule(mockContext, true);
         rnSailthruMobileModuleSpy = spy(rnSailthruMobileModule);
@@ -82,7 +77,7 @@ public class RNSailthruMobileModuleTest {
         verify(messageStream).setOnInAppNotificationDisplayListener(rnSailthruMobileModule);
 
         PowerMockito.verifyStatic(RNSailthruMobileModule.class);
-        RNSailthruMobileModule.setWrapperInfo(any(SailthruMobile.class));
+        RNSailthruMobileModule.setWrapperInfo((SailthruMobile) any());
     }
 
     @Test
@@ -321,7 +316,6 @@ public class RNSailthruMobileModuleTest {
         moduleSpy.removeMessage(readableMap, promise);
 
         // Capture SailthruMobileHandler to verify behaviour
-        @SuppressWarnings("unchecked")
         ArgumentCaptor<MessageStream.MessageDeletedHandler> argumentCaptor = ArgumentCaptor.forClass(MessageStream.MessageDeletedHandler.class);
         verify(messageStream).deleteMessage(eq(message), argumentCaptor.capture());
         MessageStream.MessageDeletedHandler handler = argumentCaptor.getValue();
@@ -381,7 +375,7 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
-    public void testPresentMessageDetail() throws Exception {
+    public void testPresentMessageDetail() {
         // Setup input
         String messageID = "message ID";
 
@@ -392,15 +386,13 @@ public class RNSailthruMobileModuleTest {
 
         // Mock behaviour
         when(message.getString(RNSailthruMobileModule.MESSAGE_ID)).thenReturn(messageID);
-        when(rnSailthruMobileModule.currentActivity()).thenReturn(activity);
-        PowerMockito.when(MessageActivity.class, "intentForMessage", activity, null, messageID).thenReturn(intent);
+        doReturn(activity).when(rnSailthruMobileModuleSpy).currentActivity();
+        doReturn(intent).when(rnSailthruMobileModuleSpy).getMessageActivityIntent(any(Activity.class), anyString());
 
         // Initiate test
-        rnSailthruMobileModule.presentMessageDetail(message);
+        rnSailthruMobileModuleSpy.presentMessageDetail(message);
 
         // Verify result
-        PowerMockito.verifyStatic(MessageActivity.class);
-        MessageActivity.intentForMessage(activity, null, messageID);
         verify(activity).startActivity(intent);
     }
 
