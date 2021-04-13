@@ -797,6 +797,66 @@ describe(@"RNSailthruMobile", ^{
             // Verify result
             [[check should] equal:error];
         });
+        
+        describe(@"with purchase adjustments", ^{
+            describe(@"with positive price", ^{
+                beforeEach(^{
+                    purchase = @{
+                        @"items": @[],
+                        @"adjustments": @[
+                            @{
+                                @"title":@"tax",
+                                @"price":@123
+                            }
+                        ]
+                    };
+                });
+                
+                it(@"should include adjustments in purchase", ^{
+                    KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(logPurchase:withResponse:) atIndex:0];
+                    
+                    // Start test
+                    [rnSailthruMobile logPurchase:purchase resolver:nil rejecter:nil];
+                    
+                    // Capture argument
+                    STMPurchase *purchase = capture.argument;
+                    
+                    // Verify result
+                    STMPurchaseAdjustment *adjustment = purchase.purchaseAdjustments[0];
+                    [[adjustment.title should] equal:@"tax"];
+                    [[adjustment.price should] equal:@123];
+                });
+            });
+            
+            describe(@"with negative price", ^{
+                beforeEach(^{
+                    purchase = @{
+                        @"items": @[],
+                        @"adjustments": @[
+                            @{
+                                @"title":@"tax",
+                                @"price":@-123
+                            }
+                        ]
+                    };
+                });
+                
+                it(@"should include adjustments in purchase", ^{
+                    KWCaptureSpy *capture = [sailthruMobile captureArgument:@selector(logPurchase:withResponse:) atIndex:0];
+                    
+                    // Start test
+                    [rnSailthruMobile logPurchase:purchase resolver:nil rejecter:nil];
+                    
+                    // Capture argument
+                    STMPurchase *purchase = capture.argument;
+                    
+                    // Verify result
+                    STMPurchaseAdjustment *adjustment = purchase.purchaseAdjustments[0];
+                    [[adjustment.title should] equal:@"tax"];
+                    [[adjustment.price should] equal:@-123];
+                });
+            });
+        });
     });
     
     context(@"the logAbandonedCart:resolver:rejecter: method", ^{
