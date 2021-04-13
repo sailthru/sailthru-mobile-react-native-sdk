@@ -33,14 +33,6 @@ android {
             }
         }
     }
-    buildTypes {
-        debug {
-            debuggable true
-        }
-        release {
-            debuggable false
-        }
-    }
     lintOptions {
         abortOnError false
     }
