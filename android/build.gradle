@@ -33,6 +33,14 @@ android {
             }
         }
     }
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            debuggable false
+        }
+    }
     lintOptions {
         abortOnError false
     }
@@ -49,7 +57,7 @@ repositories {
 dependencies {
     //noinspection GradleDynamicVersion
     api "com.facebook.react:react-native:+"  // From node_modules
-    api 'com.sailthru.mobile.sdk:sailthru-mobile:14.0.0'
+    api 'com.sailthru.mobile.sdk:sailthru-mobile:14.1.0'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:3.0.0'
