@@ -37,7 +37,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
@@ -142,13 +141,14 @@ public class RNSailthruMobileModuleTest {
     @Test
     public void testLogEventWithVars() throws Exception {
         String event = "event string";
-        JSONObject varsJson = new JSONObject().put("varKey", "varValue");
+        JSONObject varsJson = new JSONObject();
+        varsJson.put("varKey", "varValue");
 
         // setup mocks
         ReadableMap readableMap = mock(ReadableMap.class);
 
         // setup mocking
-        PowerMockito.doReturn(varsJson).when(rnSailthruMobileModuleSpy).convertMapToJson(readableMap);
+        when(jsonConverter.convertMapToJson(readableMap)).thenReturn(varsJson);
 
         rnSailthruMobileModuleSpy.logEvent(event, readableMap);
 
@@ -157,30 +157,39 @@ public class RNSailthruMobileModuleTest {
 
     @Test
     public void testSetAttributes() throws Exception {
+        JSONObject stringAttributeJson = new JSONObject()
+                .put("type", "string")
+                .put("value", "test string");
+        JSONObject intAttributeJson = new JSONObject()
+                .put("type", "integer")
+                .put("value", 123);
+        JSONObject attributesJson = new JSONObject()
+                .put("string key", stringAttributeJson)
+                .put("int key", intAttributeJson);
+        JSONObject attributeMapJson = new JSONObject()
+                .put("mergeRule", AttributeMap.RULE_UPDATE)
+                .put("attributes", attributesJson);
+
         // setup mocks
         ReadableMap readableMap = mock(ReadableMap.class);
-        JSONObject attributeMapJson = mock(JSONObject.class);
-        JSONObject attributeJson = mock(JSONObject.class);
-        AttributeMap attributeMap = PowerMockito.mock(AttributeMap.class);
-        @SuppressWarnings("unchecked")
-        Iterator<String> keys = mock(Iterator.class);
 
         // setup mocking for conversion from ReadableMap to JSON
         when(jsonConverter.convertMapToJson(readableMap)).thenReturn(attributeMapJson);
 
-        // Mock attribute map
-        PowerMockito.whenNew(AttributeMap.class).withNoArguments().thenReturn(attributeMap);
-
-        // Setup JSON objects
-        when(attributeJson.getInt("mergeRule")).thenReturn(0);
-        when(attributeJson.keys()).thenReturn(keys);
-        when(keys.hasNext()).thenReturn(false);
+        // Capture Attributes to verify
+        ArgumentCaptor<AttributeMap> argumentCaptor = ArgumentCaptor.forClass(AttributeMap.class);
 
         // Initiate test
         rnSailthruMobileModuleSpy.setAttributes(readableMap, null);
 
         // Verify results
-        verify(sailthruMobile).setAttributes(eq(attributeMap), any(SailthruMobile.AttributesHandler.class));
+        verify(sailthruMobile).setAttributes(argumentCaptor.capture(), any(SailthruMobile.AttributesHandler.class));
+
+        AttributeMap attributes = argumentCaptor.getValue();
+
+        Assert.assertEquals(AttributeMap.RULE_UPDATE, attributes.getMergeRules());
+        Assert.assertEquals("test string", attributes.getString("string key"));
+        Assert.assertEquals(123, attributes.getInt("int key", 0));
     }
 
     @Test
@@ -199,7 +208,7 @@ public class RNSailthruMobileModuleTest {
         MessageStream.MessagesHandler messagesHandler = argumentCaptor.getValue();
 
         // Replace native array with mock
-        PowerMockito.doReturn(writableArray).when(rnSailthruMobileModuleSpy).getWritableArray();
+        doReturn(writableArray).when(rnSailthruMobileModuleSpy).getWritableArray();
 
         // Setup message array
         ArrayList<Message> messages = new ArrayList<>();
@@ -419,7 +428,7 @@ public class RNSailthruMobileModuleTest {
         SailthruMobile.RecommendationsHandler recommendationsHandler = argumentCaptor.getValue();
 
         // Replace native array with mock
-        PowerMockito.doReturn(writableArray).when(rnSailthruMobileModuleSpy).getWritableArray();
+        doReturn(writableArray).when(rnSailthruMobileModuleSpy).getWritableArray();
 
         // Setup message array
         ArrayList<ContentItem> contentItems = new ArrayList<>();
@@ -598,9 +607,10 @@ public class RNSailthruMobileModuleTest {
 
     @Test
     public void testSetProfileVars() throws Exception {
+        JSONObject varsJson = new JSONObject().put("test var", 123);
+
         // Create input
         ReadableMap vars = mock(ReadableMap.class);
-        JSONObject varsJson = mock(JSONObject.class);
         Promise promise = mock(Promise.class);
         Error error = mock(Error.class);
 
@@ -632,7 +642,7 @@ public class RNSailthruMobileModuleTest {
     @Test
     public void testGetProfileVars() throws Exception {
         // Create input
-        JSONObject varsJson = new JSONObject();
+        JSONObject varsJson = new JSONObject().put("test var", 123);
         Promise promise = mock(Promise.class);
         Error error = mock(Error.class);
         WritableMap mockMap = mock(WritableMap.class);
@@ -667,12 +677,12 @@ public class RNSailthruMobileModuleTest {
     public void testLogPurchase() throws Exception {
         // Create input
         ReadableMap purchaseMap = mock(ReadableMap.class);
-        Purchase purchase = PowerMockito.mock(Purchase.class);
+        Purchase purchase = mock(Purchase.class);
         Promise promise = mock(Promise.class);
         Error error = mock(Error.class);
 
         // Mock methods
-        PowerMockito.doReturn(purchase).when(rnSailthruMobileModuleSpy).getPurchaseInstance(purchaseMap, promise);
+        doReturn(purchase).when(rnSailthruMobileModuleSpy).getPurchaseInstance(purchaseMap, promise);
 
         // Initiate test
         rnSailthruMobileModuleSpy.logPurchase(purchaseMap, promise);
@@ -705,7 +715,7 @@ public class RNSailthruMobileModuleTest {
         Error error = mock(Error.class);
 
         // Mock methods
-        PowerMockito.doReturn(purchase).when(rnSailthruMobileModuleSpy).getPurchaseInstance(purchaseMap, promise);
+        doReturn(purchase).when(rnSailthruMobileModuleSpy).getPurchaseInstance(purchaseMap, promise);
 
         // Initiate test
         rnSailthruMobileModuleSpy.logAbandonedCart(purchaseMap, promise);
@@ -735,7 +745,7 @@ public class RNSailthruMobileModuleTest {
         ReadableMap readableMap = mock(ReadableMap.class);
         Promise promise = mock(Promise.class);
 
-        JSONObject purchaseJson = mockPurchaseJson(234);
+        JSONObject purchaseJson = createPurchaseJson(234);
 
         when(jsonConverter.convertMapToJson(readableMap, false)).thenReturn(purchaseJson);
 
@@ -762,7 +772,7 @@ public class RNSailthruMobileModuleTest {
         ReadableMap readableMap = mock(ReadableMap.class);
         Promise promise = mock(Promise.class);
 
-        JSONObject purchaseJson = mockPurchaseJson(-234);
+        JSONObject purchaseJson = createPurchaseJson(-234);
 
         when(jsonConverter.convertMapToJson(readableMap, false)).thenReturn(purchaseJson);
 
@@ -783,31 +793,26 @@ public class RNSailthruMobileModuleTest {
         Assert.assertEquals(-234, adjustment.getPrice());
     }
 
-    private JSONObject mockPurchaseJson(int adjustmentPrice) throws Exception {
-        JSONObject adjustmentJson = mock(JSONObject.class);
-        when(adjustmentJson.get("title")).thenReturn("tax");
-        when(adjustmentJson.get("price")).thenReturn(adjustmentPrice);
+    private JSONObject createPurchaseJson(int adjustmentPrice) throws Exception {
+        JSONObject adjustmentJson = new JSONObject()
+                .put("title", "tax")
+                .put("price", adjustmentPrice);
 
-        JSONArray adjustmentsArray = mock(JSONArray.class);
-        when(adjustmentsArray.length()).thenReturn(1);
-        when(adjustmentsArray.getJSONObject(0)).thenReturn(adjustmentJson);
+        JSONArray adjustmentsArray = new JSONArray()
+                .put(adjustmentJson);
 
-        JSONObject itemJson = mock(JSONObject.class);
-        when(itemJson.get("qty")).thenReturn(1);
-        when(itemJson.get("title")).thenReturn("test title");
-        when(itemJson.get("price")).thenReturn(123);
-        when(itemJson.get("id")).thenReturn("456");
-        when(itemJson.get("url")).thenReturn("http://mobile.sailthru.com");
+        JSONObject itemJson = new JSONObject()
+                .put("qty", 1)
+                .put("title", "test title")
+                .put("price", 123)
+                .put("id", "456")
+                .put("url", "http://mobile.sailthru.com");
 
-        JSONArray itemsArray = mock(JSONArray.class);
-        when(itemsArray.length()).thenReturn(1);
-        when(itemsArray.getJSONObject(0)).thenReturn(itemJson);
+        JSONArray itemsArray = new JSONArray()
+                .put(itemJson);
 
-        JSONObject purchaseJson = mock(JSONObject.class);
-        doReturn(true).when(purchaseJson).has("adjustments");
-        doReturn(adjustmentsArray).when(purchaseJson).getJSONArray("adjustments");
-        doReturn(itemsArray).when(purchaseJson).getJSONArray("items");
-
-        return purchaseJson;
+        return new JSONObject()
+                .put("items", itemsArray)
+                .put("adjustments", adjustmentsArray);
     }
 }
