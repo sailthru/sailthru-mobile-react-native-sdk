@@ -60,6 +60,8 @@ public class RNSailthruMobileModuleTest {
     private SailthruMobile sailthruMobile;
     @Mock
     private MessageStream messageStream;
+    @Mock
+    private JsonConverter jsonConverter;
 
     private RNSailthruMobileModule rnSailthruMobileModule;
     private RNSailthruMobileModule rnSailthruMobileModuleSpy;
@@ -73,6 +75,7 @@ public class RNSailthruMobileModuleTest {
         PowerMockito.whenNew(MessageStream.class).withAnyArguments().thenReturn(messageStream);
 
         rnSailthruMobileModule = new RNSailthruMobileModule(mockContext, true);
+        rnSailthruMobileModule.jsonConverter = jsonConverter;
         rnSailthruMobileModuleSpy = spy(rnSailthruMobileModule);
     }
 
@@ -163,8 +166,7 @@ public class RNSailthruMobileModuleTest {
         Iterator<String> keys = mock(Iterator.class);
 
         // setup mocking for conversion from ReadableMap to JSON
-        PowerMockito.doReturn(attributeMapJson).when(rnSailthruMobileModuleSpy).convertMapToJson(readableMap);
-        when(attributeMapJson.getJSONObject("attributes")).thenReturn(attributeJson);
+        when(jsonConverter.convertMapToJson(readableMap)).thenReturn(attributeMapJson);
 
         // Mock attribute map
         PowerMockito.whenNew(AttributeMap.class).withNoArguments().thenReturn(attributeMap);
@@ -603,7 +605,7 @@ public class RNSailthruMobileModuleTest {
         Error error = mock(Error.class);
 
         // Mock methods
-        PowerMockito.doReturn(varsJson).when(rnSailthruMobileModuleSpy).convertMapToJson(vars);
+        when(jsonConverter.convertMapToJson(vars)).thenReturn(varsJson);
 
         // Initiate test
         rnSailthruMobileModuleSpy.setProfileVars(vars, promise);
@@ -636,7 +638,7 @@ public class RNSailthruMobileModuleTest {
         WritableMap mockMap = mock(WritableMap.class);
 
         // Mock methods
-        PowerMockito.doReturn(mockMap).when(rnSailthruMobileModuleSpy).convertJsonToMap(any(JSONObject.class));
+        when(jsonConverter.convertJsonToMap(varsJson)).thenReturn(mockMap);
 
         // Initiate test
         rnSailthruMobileModuleSpy.getProfileVars(promise);
@@ -649,6 +651,7 @@ public class RNSailthruMobileModuleTest {
 
         // Test success handler
         getVarsHandler.onSuccess(varsJson);
+        verify(jsonConverter).convertJsonToMap(varsJson);
         verify(promise).resolve(mockMap);
 
         // Setup error
@@ -734,11 +737,11 @@ public class RNSailthruMobileModuleTest {
 
         JSONObject purchaseJson = mockPurchaseJson(234);
 
-        PowerMockito.doReturn(purchaseJson).when(rnSailthruMobileModuleSpy).convertPurchaseMapToJson(readableMap);
+        when(jsonConverter.convertMapToJson(readableMap, false)).thenReturn(purchaseJson);
 
         // Initiate test
         Purchase purchase = rnSailthruMobileModuleSpy.getPurchaseInstance(readableMap, promise);
-        verify(rnSailthruMobileModuleSpy).convertPurchaseMapToJson(readableMap);
+        verify(jsonConverter).convertMapToJson(readableMap, false);
 
         // Verify result
         PurchaseItem item = purchase.getPurchaseItems().get(0);
@@ -761,11 +764,11 @@ public class RNSailthruMobileModuleTest {
 
         JSONObject purchaseJson = mockPurchaseJson(-234);
 
-        PowerMockito.doReturn(purchaseJson).when(rnSailthruMobileModuleSpy).convertPurchaseMapToJson(readableMap);
+        when(jsonConverter.convertMapToJson(readableMap, false)).thenReturn(purchaseJson);
 
         // Initiate test
         Purchase purchase = rnSailthruMobileModuleSpy.getPurchaseInstance(readableMap, promise);
-        verify(rnSailthruMobileModuleSpy).convertPurchaseMapToJson(readableMap);
+        verify(jsonConverter).convertMapToJson(readableMap, false);
 
         // Verify result
         PurchaseItem item = purchase.getPurchaseItems().get(0);
