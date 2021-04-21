@@ -1,5 +1,6 @@
 package com.sailthru.mobile.rnsdk
 
+import androidx.annotation.VisibleForTesting
 import com.facebook.react.bridge.*
 import org.json.JSONArray
 import org.json.JSONException
@@ -9,9 +10,13 @@ import org.json.JSONObject
  * Class for handling conversion between Native Maps and Arrays and JSON Objects and Arrays.
  */
 internal class JsonConverter {
+
+    /**
+     * Convert JSONObject to WritableMap
+     */
     @Throws(JSONException::class)
     fun convertJsonToMap(jsonObject: JSONObject): WritableMap {
-        val writableMap: WritableMap = WritableNativeMap()
+        val writableMap: WritableMap = createNativeMap()
         val iterator = jsonObject.keys()
         while (iterator.hasNext()) {
             val key = iterator.next()
@@ -22,15 +27,18 @@ internal class JsonConverter {
                 is Int -> writableMap.putInt(key, value)
                 is Double -> writableMap.putDouble(key, value)
                 is String ->  writableMap.putString(key, value)
-               else -> writableMap.putString(key, value.toString())
+                else -> writableMap.putString(key, value.toString())
             }
         }
         return writableMap
     }
 
+    /**
+     * Convert JSONArray to WritableArray
+     */
     @Throws(JSONException::class)
     fun convertJsonToArray(jsonArray: JSONArray): WritableArray {
-        val writableArray: WritableArray = WritableNativeArray()
+        val writableArray: WritableArray = createNativeArray()
         for (i in 0 until jsonArray.length()) {
             when (val value = jsonArray[i]) {
                 is JSONObject -> writableArray.pushMap(convertJsonToMap(value))
@@ -45,6 +53,9 @@ internal class JsonConverter {
         return writableArray
     }
 
+    /**
+     * Convert ReadableMap to JSONObject
+     */
     @JvmOverloads
     @Throws(JSONException::class)
     fun convertMapToJson(readableMap: ReadableMap, doubleNumber: Boolean = true): JSONObject {
@@ -73,6 +84,9 @@ internal class JsonConverter {
         return jsonObject
     }
 
+    /**
+     * Convert ReadableArray to JSONArray
+     */
     @JvmOverloads
     @Throws(JSONException::class)
     fun convertArrayToJson(readableArray: ReadableArray, doubleNumber: Boolean = true): JSONArray {
@@ -98,5 +112,15 @@ internal class JsonConverter {
             }
         }
         return jsonArray
+    }
+
+    @VisibleForTesting
+    fun createNativeMap(): WritableMap {
+        return WritableNativeMap()
+    }
+
+    @VisibleForTesting
+    fun createNativeArray(): WritableArray {
+        return WritableNativeArray()
     }
 }
