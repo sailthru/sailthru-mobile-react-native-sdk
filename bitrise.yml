@@ -10,6 +10,10 @@ workflows:
     - git-clone: {}
     - certificate-and-profile-installer: {}
     - yarn: {}
+    - yarn@0:
+        inputs:
+        - command: test
+        title: Run yarn tests
     - cocoapods-install: {}
     - xcode-test:
         title: Run iOS Unit Tests

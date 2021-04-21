@@ -17,8 +17,12 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.sailthru.mobile.sdk.model.PurchaseAdjustment;
+import com.sailthru.mobile.sdk.model.PurchaseItem;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -720,5 +724,87 @@ public class RNSailthruMobileModuleTest {
         // Test error handler
         purchaseHandler.onFailure(error);
         verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_PURCHASE, errorMessage);
+    }
+
+    @Test
+    public void testGetPurchaseInstancePositiveAdjustment() throws Exception {
+        // Mock methods
+        ReadableMap readableMap = mock(ReadableMap.class);
+        Promise promise = mock(Promise.class);
+
+        JSONObject purchaseJson = mockPurchaseJson(234);
+
+        PowerMockito.doReturn(purchaseJson).when(rnSailthruMobileModuleSpy).convertPurchaseMapToJson(readableMap);
+
+        // Initiate test
+        Purchase purchase = rnSailthruMobileModuleSpy.getPurchaseInstance(readableMap, promise);
+        verify(rnSailthruMobileModuleSpy).convertPurchaseMapToJson(readableMap);
+
+        // Verify result
+        PurchaseItem item = purchase.getPurchaseItems().get(0);
+        Assert.assertEquals(1, item.getQuantity());
+        Assert.assertEquals("test title", item.getTitle());
+        Assert.assertEquals(123, item.getPrice());
+        Assert.assertEquals("456", item.getID());
+        Assert.assertEquals(new URI("http://mobile.sailthru.com"), item.getUrl());
+
+        PurchaseAdjustment adjustment = purchase.getPurchaseAdjustments().get(0);
+        Assert.assertEquals("tax", adjustment.getTitle());
+        Assert.assertEquals(234, adjustment.getPrice());
+    }
+
+    @Test
+    public void testGetPurchaseInstanceNegativeAdjustment() throws Exception {
+        // Mock methods
+        ReadableMap readableMap = mock(ReadableMap.class);
+        Promise promise = mock(Promise.class);
+
+        JSONObject purchaseJson = mockPurchaseJson(-234);
+
+        PowerMockito.doReturn(purchaseJson).when(rnSailthruMobileModuleSpy).convertPurchaseMapToJson(readableMap);
+
+        // Initiate test
+        Purchase purchase = rnSailthruMobileModuleSpy.getPurchaseInstance(readableMap, promise);
+        verify(rnSailthruMobileModuleSpy).convertPurchaseMapToJson(readableMap);
+
+        // Verify result
+        PurchaseItem item = purchase.getPurchaseItems().get(0);
+        Assert.assertEquals(1, item.getQuantity());
+        Assert.assertEquals("test title", item.getTitle());
+        Assert.assertEquals(123, item.getPrice());
+        Assert.assertEquals("456", item.getID());
+        Assert.assertEquals(new URI("http://mobile.sailthru.com"), item.getUrl());
+
+        PurchaseAdjustment adjustment = purchase.getPurchaseAdjustments().get(0);
+        Assert.assertEquals("tax", adjustment.getTitle());
+        Assert.assertEquals(-234, adjustment.getPrice());
+    }
+
+    private JSONObject mockPurchaseJson(int adjustmentPrice) throws Exception {
+        JSONObject adjustmentJson = mock(JSONObject.class);
+        when(adjustmentJson.get("title")).thenReturn("tax");
+        when(adjustmentJson.get("price")).thenReturn(adjustmentPrice);
+
+        JSONArray adjustmentsArray = mock(JSONArray.class);
+        when(adjustmentsArray.length()).thenReturn(1);
+        when(adjustmentsArray.getJSONObject(0)).thenReturn(adjustmentJson);
+
+        JSONObject itemJson = mock(JSONObject.class);
+        when(itemJson.get("qty")).thenReturn(1);
+        when(itemJson.get("title")).thenReturn("test title");
+        when(itemJson.get("price")).thenReturn(123);
+        when(itemJson.get("id")).thenReturn("456");
+        when(itemJson.get("url")).thenReturn("http://mobile.sailthru.com");
+
+        JSONArray itemsArray = mock(JSONArray.class);
+        when(itemsArray.length()).thenReturn(1);
+        when(itemsArray.getJSONObject(0)).thenReturn(itemJson);
+
+        JSONObject purchaseJson = mock(JSONObject.class);
+        doReturn(true).when(purchaseJson).has("adjustments");
+        doReturn(adjustmentsArray).when(purchaseJson).getJSONArray("adjustments");
+        doReturn(itemsArray).when(purchaseJson).getJSONArray("items");
+
+        return purchaseJson;
     }
 }
