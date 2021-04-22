@@ -47,11 +47,17 @@ repositories {
         url "https://github.com/carnivalmobile/maven-repository/raw/master/"
     }
     google()
+    maven {
+        url "$rootDir/../node_modules/react-native/android"
+    }
 }
 
 dependencies {
     //noinspection GradleDynamicVersion
-    api "com.facebook.react:react-native:+"  // From node_modules
+    api ("com.facebook.react:react-native:+") { // From node_modules
+        exclude group:'com.facebook.fbjni'
+        exclude group:'com.facebook.yoga'
+    }
     api 'com.sailthru.mobile.sdk:sailthru-mobile:14.1.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
 

@@ -17,8 +17,8 @@ class JsonConverterTest {
 
     @Before
     fun setup() {
-        doAnswer { TestMap() }.`when`(jsonConverter).createNativeMap()
-        doAnswer { TestArray() }.`when`(jsonConverter).createNativeArray()
+        doAnswer { JavaOnlyMap() }.`when`(jsonConverter).createNativeMap()
+        doAnswer { JavaOnlyArray() }.`when`(jsonConverter).createNativeArray()
     }
 
 
@@ -79,7 +79,7 @@ class JsonConverterTest {
 
         val writableMap = jsonConverter.convertJsonToMap(jsonObject)
 
-        assertEquals("thing", writableMap.getMap(TEST_KEY).getString("some"))
+        assertEquals("thing", writableMap.getMap(TEST_KEY)?.getString("some"))
     }
 
     @Test
@@ -93,7 +93,7 @@ class JsonConverterTest {
 
         val writableMap = jsonConverter.convertJsonToMap(jsonObject)
 
-        assertEquals("test string", writableMap.getArray(TEST_KEY).getString(0))
+        assertEquals("test string", writableMap.getArray(TEST_KEY)?.getString(0))
     }
 
 
@@ -154,7 +154,7 @@ class JsonConverterTest {
 
         val writableArray = jsonConverter.convertJsonToArray(jsonArray)
 
-        assertEquals("thing", writableArray.getMap(0).getString("some"))
+        assertEquals("thing", writableArray.getMap(0)?.getString("some"))
     }
 
     @Test
@@ -168,7 +168,7 @@ class JsonConverterTest {
 
         val writableArray = jsonConverter.convertJsonToArray(jsonArray)
 
-        assertEquals("inner string", writableArray.getArray(0).getString(0))
+        assertEquals("inner string", writableArray.getArray(0)?.getString(0))
     }
 
 
@@ -176,8 +176,8 @@ class JsonConverterTest {
 
     @Test
     fun testConvertMapToJsonNull() {
-        val readableMap = TestMap().apply {
-            map[TEST_KEY] = null
+        val readableMap = JavaOnlyMap().apply {
+            putNull(TEST_KEY)
         }
 
         val converted = jsonConverter.convertMapToJson(readableMap)
@@ -187,8 +187,8 @@ class JsonConverterTest {
 
     @Test
     fun testConvertMapToJsonBoolean() {
-        val readableMap = TestMap().apply {
-            map[TEST_KEY] = true
+        val readableMap = JavaOnlyMap().apply {
+            putBoolean(TEST_KEY, true)
         }
 
         val converted = jsonConverter.convertMapToJson(readableMap)
@@ -198,8 +198,8 @@ class JsonConverterTest {
 
     @Test
     fun testConvertMapToJsonInt() {
-        val readableMap = TestMap().apply {
-            map[TEST_KEY] = 123
+        val readableMap = JavaOnlyMap().apply {
+            putInt(TEST_KEY, 123)
         }
 
         val converted = jsonConverter.convertMapToJson(readableMap, false)
@@ -209,8 +209,8 @@ class JsonConverterTest {
 
     @Test
     fun testConvertMapToJsonDouble() {
-        val readableMap = TestMap().apply {
-            map[TEST_KEY] = 1.23
+        val readableMap = JavaOnlyMap().apply {
+            putDouble(TEST_KEY, 1.23)
         }
 
         val converted = jsonConverter.convertMapToJson(readableMap, true)
@@ -220,8 +220,8 @@ class JsonConverterTest {
 
     @Test
     fun testConvertMapToJsonString() {
-        val readableMap = TestMap().apply {
-            map[TEST_KEY] = "test string"
+        val readableMap = JavaOnlyMap().apply {
+            putString(TEST_KEY, "test string")
         }
 
         val converted = jsonConverter.convertMapToJson(readableMap)
@@ -231,10 +231,10 @@ class JsonConverterTest {
 
     @Test
     fun testConvertMapToJsonMap() {
-        val readableMap = TestMap().apply {
-            val innerMap = TestMap()
-            innerMap.putString("inner key", "inner string")
-            map[TEST_KEY] = innerMap
+        val readableMap = JavaOnlyMap().also { map ->
+            map.putMap(TEST_KEY, JavaOnlyMap().apply {
+                putString("inner key", "inner string")
+            })
         }
 
         val converted = jsonConverter.convertMapToJson(readableMap)
@@ -244,10 +244,10 @@ class JsonConverterTest {
 
     @Test
     fun testConvertMapToJsonArray() {
-        val readableMap = TestMap().apply {
-            map[TEST_KEY] = TestArray().apply {
+        val readableMap = JavaOnlyMap().also { map ->
+            map.putArray(TEST_KEY, JavaOnlyArray().apply {
                 pushString("inner string")
-            }
+            })
         }
 
         val converted = jsonConverter.convertMapToJson(readableMap)
@@ -260,8 +260,8 @@ class JsonConverterTest {
 
     @Test
     fun testConvertArrayToJsonNull() {
-        val readableArray = TestArray().apply {
-            array.add(null)
+        val readableArray = JavaOnlyArray().apply {
+            pushNull()
         }
 
         val converted = jsonConverter.convertArrayToJson(readableArray)
@@ -271,8 +271,8 @@ class JsonConverterTest {
 
     @Test
     fun testConvertArrayToJsonBoolean() {
-        val readableArray = TestArray().apply {
-            array.add(true)
+        val readableArray = JavaOnlyArray().apply {
+            pushBoolean(true)
         }
 
         val converted = jsonConverter.convertArrayToJson(readableArray)
@@ -282,8 +282,8 @@ class JsonConverterTest {
 
     @Test
     fun testConvertArrayToJsonInt() {
-        val readableArray = TestArray().apply {
-            array.add(123)
+        val readableArray = JavaOnlyArray().apply {
+            pushInt(123)
         }
 
         val converted = jsonConverter.convertArrayToJson(readableArray, false)
@@ -293,8 +293,8 @@ class JsonConverterTest {
 
     @Test
     fun testConvertArrayToJsonDouble() {
-        val readableArray = TestArray().apply {
-            array.add(1.23)
+        val readableArray = JavaOnlyArray().apply {
+            pushDouble(1.23)
         }
 
         val converted = jsonConverter.convertArrayToJson(readableArray, true)
@@ -304,8 +304,8 @@ class JsonConverterTest {
 
     @Test
     fun testConvertArrayToJsonString() {
-        val readableArray = TestArray().apply {
-            array.add("test string")
+        val readableArray = JavaOnlyArray().apply {
+            pushString("test string")
         }
 
         val converted = jsonConverter.convertArrayToJson(readableArray)
@@ -315,8 +315,8 @@ class JsonConverterTest {
 
     @Test
     fun testConvertArrayToJsonMap() {
-        val readableArray = TestArray().apply {
-            array.add(TestMap().apply {
+        val readableArray = JavaOnlyArray().also { array ->
+            array.pushMap(JavaOnlyMap().apply {
                 putString("inner key", "inner string")
             })
         }
@@ -328,8 +328,8 @@ class JsonConverterTest {
 
     @Test
     fun testConvertMapArrayJsonArray() {
-        val readableArray = TestArray().apply {
-            array.add(TestArray().apply {
+        val readableArray = JavaOnlyArray().also { array ->
+            array.pushArray(JavaOnlyArray().apply {
                 pushString("inner string")
             })
         }
@@ -344,197 +344,3 @@ class JsonConverterTest {
     }
 }
 
-/**
- * Test implementation only (implementations are not provided for unit tests)
- */
-class TestMap: ReadableMap, WritableMap {
-    val map = mutableMapOf<String, Any?>()
-
-    override fun hasKey(name: String?): Boolean = map.containsKey(name)
-
-    override fun isNull(name: String?): Boolean = map[name] == null
-
-    override fun getBoolean(name: String?): Boolean {
-        val value = map[name]
-        return if (value is Boolean) value else false
-    }
-
-    override fun getDouble(name: String?): Double {
-        val value = map[name]
-        return if (value is Double) value else 0.0
-    }
-
-    override fun getInt(name: String?): Int {
-        val value = map[name]
-        return if (value is Int) value else 0
-    }
-
-    override fun getString(name: String?): String {
-        val value = map[name]
-        return if (value is String) value else ""
-    }
-
-    override fun getArray(name: String?): ReadableArray {
-        val value = map[name]
-        return if (value is ReadableArray) value else TestArray()
-    }
-
-    override fun getMap(name: String?): ReadableMap {
-        val value = map[name]
-        return if (value is ReadableMap) value else TestMap()
-    }
-
-    override fun getType(name: String?): ReadableType {
-        return when (map[name]) {
-            is Boolean -> ReadableType.Boolean
-            is Double -> ReadableType.Number
-            is Int -> ReadableType.Number
-            is String -> ReadableType.String
-            is ReadableArray -> ReadableType.Array
-            is ReadableMap -> ReadableType.Map
-            else -> ReadableType.Null
-        }
-    }
-
-    override fun keySetIterator(): ReadableMapKeySetIterator = TestIterator(map.keys.iterator())
-
-    override fun putNull(key: String?) {
-        set(key, null)
-    }
-
-    override fun putBoolean(key: String?, value: Boolean) {
-        set(key, value)
-    }
-
-    override fun putDouble(key: String?, value: Double) {
-        set(key, value)
-    }
-
-    override fun putInt(key: String?, value: Int) {
-        set(key, value)
-    }
-
-    override fun putString(key: String?, value: String?) {
-        set(key, value)
-    }
-
-    override fun putArray(key: String?, value: WritableArray?) {
-        set(key, value)
-    }
-
-    override fun putMap(key: String?, value: WritableMap?) {
-        set(key, value)
-    }
-
-    override fun merge(source: ReadableMap?) {
-        while (source?.keySetIterator()?.hasNextKey() == true) {
-            val key = source.keySetIterator().nextKey()
-            when (source.getType(key)) {
-                ReadableType.Null -> map[key] = null
-                ReadableType.Boolean -> map[key] = source.getBoolean(key)
-                ReadableType.Number -> map[key] = source.getInt(key)
-                ReadableType.String -> map[key] = source.getString(key)
-                ReadableType.Array -> map[key] = source.getArray(key)
-                ReadableType.Map -> map[key] = source.getMap(key)
-                else -> continue
-            }
-        }
-    }
-
-    private fun set(key: String?, value: Any?) {
-        key ?: return
-        map[key] = value
-    }
-
-    inner class TestIterator(val iterator: Iterator<String>): ReadableMapKeySetIterator {
-        override fun hasNextKey(): Boolean = iterator.hasNext()
-
-        override fun nextKey(): String = iterator.next()
-
-    }
-}
-
-/**
- * Test implementation only (implementations are not provided for unit tests)
- */
-class TestArray: ReadableArray, WritableArray {
-    val array = arrayListOf<Any?>()
-
-    override fun size(): Int = array.size
-
-    override fun isNull(index: Int): Boolean = array[index] == null
-
-    override fun getBoolean(index: Int): Boolean {
-        val value = array[index]
-        return if (value is Boolean) value else false
-    }
-
-    override fun getDouble(index: Int): Double {
-        val value = array[index]
-        return if (value is Double) value else 0.0
-    }
-
-    override fun getInt(index: Int): Int {
-        val value = array[index]
-        return if (value is Int) value else 0
-    }
-
-    override fun getString(index: Int): String {
-        val value = array[index]
-        return if (value is String) value else ""
-    }
-
-    override fun getArray(index: Int): ReadableArray {
-        val value = array[index]
-        return if (value is ReadableArray) value else TestArray()
-    }
-
-    override fun getMap(index: Int): ReadableMap {
-        val value = array[index]
-        return if (value is ReadableMap) value else TestMap()
-    }
-
-    override fun getType(index: Int): ReadableType {
-        return when (array[index]) {
-            is Boolean -> ReadableType.Boolean
-            is Double -> ReadableType.Number
-            is Int -> ReadableType.Number
-            is String -> ReadableType.String
-            is ReadableArray -> ReadableType.Array
-            is ReadableMap -> ReadableType.Map
-            else -> ReadableType.Null
-        }
-    }
-
-    override fun pushNull() {
-        array.add(null)
-    }
-
-    override fun pushBoolean(value: Boolean) {
-        array.add(value)
-    }
-
-    override fun pushDouble(value: Double) {
-        array.add(value)
-    }
-
-    override fun pushInt(value: Int) {
-        array.add(value)
-    }
-
-    override fun pushString(value: String?) {
-        array.add(value)
-    }
-
-    override fun pushArray(array: WritableArray?) {
-        this.array.add(array)
-    }
-
-    override fun pushMap(map: WritableMap?) {
-       array.add(map)
-    }
-
-    override fun toString(): String {
-        return array.toString()
-    }
-}
