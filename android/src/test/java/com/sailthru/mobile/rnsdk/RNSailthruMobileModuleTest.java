@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
 
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.sailthru.mobile.sdk.MessageStream;
 import com.sailthru.mobile.sdk.model.AttributeMap;
 import com.sailthru.mobile.sdk.SailthruMobile;
@@ -86,6 +87,42 @@ public class RNSailthruMobileModuleTest {
 
         PowerMockito.verifyStatic(RNSailthruMobileModule.class);
         RNSailthruMobileModule.setWrapperInfo((SailthruMobile) any());
+    }
+
+    @Test
+    public void testShouldPresentInAppNotification() throws Exception {
+        Message message = mock(Message.class);
+        DeviceEventManagerModule.RCTDeviceEventEmitter module = mock(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+        WritableMap writableMap = mock(WritableMap.class);
+        JSONObject jsonObject = mock(JSONObject.class);
+
+        when(message.toJSON()).thenReturn(jsonObject);
+        when(jsonConverter.convertJsonToMap(jsonObject)).thenReturn(writableMap);
+        when(mockContext.getJSModule(any(Class.class))).thenReturn(module);
+
+        boolean shouldPresent = rnSailthruMobileModuleSpy.shouldPresentInAppNotification(message);
+
+        verify(mockContext).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+        verify(module).emit("inappnotification", writableMap);
+
+        Assert.assertTrue(shouldPresent);
+    }
+
+    @Test
+    public void testShouldPresentInAppNotificationException() throws Exception {
+        Message message = mock(Message.class);
+        JSONObject jsonObject = mock(JSONObject.class);
+        JSONException jsonException = mock(JSONException.class);
+
+        when(message.toJSON()).thenReturn(jsonObject);
+        when(jsonConverter.convertJsonToMap(jsonObject)).thenThrow(jsonException);
+
+        boolean shouldPresent = rnSailthruMobileModuleSpy.shouldPresentInAppNotification(message);
+
+        verify(mockContext, times(0)).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+        verify(jsonException).printStackTrace();
+
+        Assert.assertTrue(shouldPresent);
     }
 
     @Test
