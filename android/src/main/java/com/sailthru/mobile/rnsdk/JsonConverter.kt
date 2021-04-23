@@ -16,10 +16,8 @@ internal class JsonConverter {
      */
     @Throws(JSONException::class)
     fun convertJsonToMap(jsonObject: JSONObject): WritableMap {
-        val writableMap: WritableMap = createNativeMap()
-        val iterator = jsonObject.keys()
-        while (iterator.hasNext()) {
-            val key = iterator.next()
+        val writableMap = createNativeMap()
+        for (key in jsonObject.keys()) {
             when (val value = jsonObject[key]) {
                 is JSONObject -> writableMap.putMap(key, convertJsonToMap(value))
                 is JSONArray -> writableMap.putArray(key, convertJsonToArray(value))
@@ -38,7 +36,7 @@ internal class JsonConverter {
      */
     @Throws(JSONException::class)
     fun convertJsonToArray(jsonArray: JSONArray): WritableArray {
-        val writableArray: WritableArray = createNativeArray()
+        val writableArray = createNativeArray()
         for (i in 0 until jsonArray.length()) {
             when (val value = jsonArray[i]) {
                 is JSONObject -> writableArray.pushMap(convertJsonToMap(value))
@@ -60,23 +58,18 @@ internal class JsonConverter {
     @Throws(JSONException::class)
     fun convertMapToJson(readableMap: ReadableMap, doubleNumber: Boolean = true): JSONObject {
         val jsonObject = JSONObject()
-        val iterator = readableMap.keySetIterator()
-        while (iterator.hasNextKey()) {
-            val key = iterator.nextKey()
-            when (readableMap.getType(key)) {
+        for (key in readableMap.toHashMap().keys) {
+            val value = readableMap.getDynamic(key)
+            when (value.type) {
                 ReadableType.Null -> jsonObject.put(key, JSONObject.NULL)
-                ReadableType.Boolean -> jsonObject.put(key, readableMap.getBoolean(key))
+                ReadableType.Boolean -> jsonObject.put(key, value.asBoolean())
                 ReadableType.Number -> {
-                    val numberValue = if (doubleNumber) readableMap.getDouble(key) else readableMap.getInt(key)
+                    val numberValue = if (doubleNumber) value.asDouble() else value.asInt()
                     jsonObject.put(key, numberValue)
                 }
-                ReadableType.String -> jsonObject.put(key, readableMap.getString(key))
-                ReadableType.Map -> readableMap.getMap(key)?.let { subMap ->
-                    jsonObject.put(key, convertMapToJson(subMap, doubleNumber))
-                }
-                ReadableType.Array -> readableMap.getArray(key)?.let { subArray ->
-                    jsonObject.put(key, convertArrayToJson(subArray, doubleNumber))
-                }
+                ReadableType.String -> jsonObject.put(key, value.asString())
+                ReadableType.Map -> jsonObject.put(key, convertMapToJson(value.asMap(), doubleNumber))
+                ReadableType.Array -> jsonObject.put(key, convertArrayToJson(value.asArray(), doubleNumber))
                 else -> {
                 }
             }
@@ -92,21 +85,18 @@ internal class JsonConverter {
     fun convertArrayToJson(readableArray: ReadableArray, doubleNumber: Boolean = true): JSONArray {
         val jsonArray = JSONArray()
         for (i in 0 until readableArray.size()) {
-            when (readableArray.getType(i)) {
+            val value = readableArray.getDynamic(i)
+            when (value.type) {
                 ReadableType.Null -> {
                 }
-                ReadableType.Boolean -> jsonArray.put(readableArray.getBoolean(i))
+                ReadableType.Boolean -> jsonArray.put(value.asBoolean())
                 ReadableType.Number -> {
-                    val numberValue = if (doubleNumber) readableArray.getDouble(i) else readableArray.getInt(i)
+                    val numberValue = if (doubleNumber) value.asDouble() else value.asInt()
                     jsonArray.put(numberValue)
                 }
-                ReadableType.String -> jsonArray.put(readableArray.getString(i))
-                ReadableType.Map -> readableArray.getMap(i)?.let { subMap ->
-                    jsonArray.put(convertMapToJson(subMap, doubleNumber))
-                }
-                ReadableType.Array -> readableArray.getArray(i)?.let { subArray ->
-                    jsonArray.put(convertArrayToJson(subArray, doubleNumber))
-                }
+                ReadableType.String -> jsonArray.put(value.asString())
+                ReadableType.Map -> jsonArray.put(convertMapToJson(value.asMap(), doubleNumber))
+                ReadableType.Array -> jsonArray.put(convertArrayToJson(value.asArray(), doubleNumber))
                 else -> {
                 }
             }

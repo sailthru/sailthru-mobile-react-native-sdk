@@ -78,24 +78,19 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     @Override
     public boolean shouldPresentInAppNotification(@NonNull Message message) {
         try {
-            Method toJsonMethod = Message.class.getDeclaredMethod("toJSON");
-            toJsonMethod.setAccessible(true);
-            JSONObject messageJson = (JSONObject) toJsonMethod.invoke(message);
-            if (messageJson == null) return displayInAppNotifications;
-
-            WritableMap writableMap = jsonConverter.convertJsonToMap(messageJson);
+            WritableMap writableMap = jsonConverter.convertJsonToMap(message.toJSON());
             reactApplicationContext
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                     .emit("inappnotification", writableMap);
 
-        } catch (NoSuchMethodException | IllegalAccessException | JSONException | InvocationTargetException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
         return displayInAppNotifications;
     }
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "RNSailthruMobile";
     }
 
