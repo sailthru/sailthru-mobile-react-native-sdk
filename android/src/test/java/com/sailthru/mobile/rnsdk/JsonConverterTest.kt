@@ -96,6 +96,33 @@ class JsonConverterTest {
         assertEquals("test string", writableMap.getArray(TEST_KEY)?.getString(0))
     }
 
+    @Test
+    fun testConvertJsonToMapFull() {
+        val subObject = JSONObject().apply {
+            put("some", "thing")
+        }
+        val subArray = JSONArray().apply {
+            put("inner string")
+        }
+        val jsonObject = JSONObject().apply {
+            put("booleanKey", true)
+            put("intKey", 123)
+            put("doubleKey", 1.23)
+            put("stringKey", "test string")
+            put("mapKey", subObject)
+            put("arrayKey", subArray)
+        }
+
+        val writableMap = jsonConverter.convertJsonToMap(jsonObject)
+
+        assertEquals(true, writableMap.getBoolean("booleanKey"))
+        assertEquals(123, writableMap.getInt("intKey"))
+        assertEquals(1.23, writableMap.getDouble("doubleKey"), 0.001)
+        assertEquals("test string", writableMap.getString("stringKey"))
+        assertEquals("thing", writableMap.getMap("mapKey")?.getString("some"))
+        assertEquals("inner string", writableMap.getArray("arrayKey")?.getString(0))
+    }
+
 
     /** JSON -> Array **/
 
@@ -169,6 +196,33 @@ class JsonConverterTest {
         val writableArray = jsonConverter.convertJsonToArray(jsonArray)
 
         assertEquals("inner string", writableArray.getArray(0)?.getString(0))
+    }
+
+    @Test
+    fun testConvertJsonToArrayFull() {
+        val subObject = JSONObject().apply {
+            put("some", "thing")
+        }
+        val subArray = JSONArray().apply {
+            put("inner string")
+        }
+        val jsonArray = JSONArray().apply {
+            put(true)
+            put(123)
+            put(1.23)
+            put("test string")
+            put(subObject)
+            put(subArray)
+        }
+
+        val writableArray = jsonConverter.convertJsonToArray(jsonArray)
+
+        assertEquals(true, writableArray.getBoolean(0))
+        assertEquals(123, writableArray.getInt(1))
+        assertEquals(1.23, writableArray.getDouble(2), 0.001)
+        assertEquals("test string", writableArray.getString(3))
+        assertEquals("thing", writableArray.getMap(4)?.getString("some"))
+        assertEquals("inner string", writableArray.getArray(5)?.getString(0))
     }
 
 
@@ -255,6 +309,33 @@ class JsonConverterTest {
         assertEquals("inner string", converted.getJSONArray(TEST_KEY).getString(0))
     }
 
+    @Test
+    fun testConvertMapToJsonFull() {
+        val readableMap = JavaOnlyMap().also { map ->
+            map.putNull("nullKey")
+            map.putBoolean("booleanKey", true)
+            map.putInt("intKey", 123)
+            map.putDouble("doubleKey", 1.23)
+            map.putString("stringKey", "test string")
+            map.putMap("mapKey", JavaOnlyMap().apply {
+                putString("inner key", "inner string")
+            })
+            map.putArray("arrayKey", JavaOnlyArray().apply {
+                pushString("inner string")
+            })
+        }
+
+        val converted = jsonConverter.convertMapToJson(readableMap)
+
+        assertEquals(JSONObject.NULL, converted.get("nullKey"))
+        assertEquals(true, converted.getBoolean("booleanKey"))
+        assertEquals(123, converted.getInt("intKey"))
+        assertEquals(1.23, converted.getDouble("doubleKey"), 0.001)
+        assertEquals("test string", converted.getString("stringKey"))
+        assertEquals("inner string", converted.getJSONObject("mapKey").getString("inner key"))
+        assertEquals("inner string", converted.getJSONArray("arrayKey").getString(0))
+    }
+
 
     /** Array -> JSON **/
 
@@ -286,7 +367,7 @@ class JsonConverterTest {
             pushInt(123)
         }
 
-        val converted = jsonConverter.convertArrayToJson(readableArray, false)
+        val converted = jsonConverter.convertArrayToJson(readableArray)
 
         assertEquals(123, converted.getInt(0))
     }
@@ -297,7 +378,7 @@ class JsonConverterTest {
             pushDouble(1.23)
         }
 
-        val converted = jsonConverter.convertArrayToJson(readableArray, true)
+        val converted = jsonConverter.convertArrayToJson(readableArray)
 
         assertEquals(1.23, converted.getDouble(0), 0.001)
     }
@@ -327,7 +408,7 @@ class JsonConverterTest {
     }
 
     @Test
-    fun testConvertMapArrayJsonArray() {
+    fun testConvertArrayToJsonArray() {
         val readableArray = JavaOnlyArray().also { array ->
             array.pushArray(JavaOnlyArray().apply {
                 pushString("inner string")
@@ -337,6 +418,33 @@ class JsonConverterTest {
         val converted = jsonConverter.convertArrayToJson(readableArray)
 
         assertEquals("inner string", converted.getJSONArray(0).getString(0))
+    }
+
+    @Test
+    fun testConvertArrayToJsonFull() {
+        val readableArray = JavaOnlyArray().also { array ->
+            array.pushNull()
+            array.pushBoolean(true)
+            array.pushInt(123)
+            array.pushDouble(1.23)
+            array.pushString("test string")
+            array.pushMap(JavaOnlyMap().apply {
+                putString("inner key", "inner string")
+            })
+            array.pushArray(JavaOnlyArray().apply {
+                pushString("inner string")
+            })
+        }
+
+        val converted = jsonConverter.convertArrayToJson(readableArray)
+
+        assertEquals(6, converted.length())
+        assertEquals(true, converted.getBoolean(0))
+        assertEquals(123, converted.getInt(1))
+        assertEquals(1.23, converted.getDouble(2), 0.001)
+        assertEquals("test string", converted.getString(3))
+        assertEquals("inner string", converted.getJSONObject(4).getString("inner key"))
+        assertEquals("inner string", converted.getJSONArray(5).getString(0))
     }
     
     companion object {
