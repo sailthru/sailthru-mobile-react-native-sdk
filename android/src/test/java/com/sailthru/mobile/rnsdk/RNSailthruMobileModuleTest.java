@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
 
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.sailthru.mobile.sdk.MessageStream;
 import com.sailthru.mobile.sdk.model.AttributeMap;
 import com.sailthru.mobile.sdk.SailthruMobile;
@@ -21,6 +22,7 @@ import com.sailthru.mobile.sdk.model.PurchaseAdjustment;
 import com.sailthru.mobile.sdk.model.PurchaseItem;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,20 +36,20 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Date;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,6 +62,8 @@ public class RNSailthruMobileModuleTest {
     private SailthruMobile sailthruMobile;
     @Mock
     private MessageStream messageStream;
+    @Mock
+    private JsonConverter jsonConverter;
 
     private RNSailthruMobileModule rnSailthruMobileModule;
     private RNSailthruMobileModule rnSailthruMobileModuleSpy;
@@ -73,6 +77,7 @@ public class RNSailthruMobileModuleTest {
         PowerMockito.whenNew(MessageStream.class).withAnyArguments().thenReturn(messageStream);
 
         rnSailthruMobileModule = new RNSailthruMobileModule(mockContext, true);
+        rnSailthruMobileModule.jsonConverter = jsonConverter;
         rnSailthruMobileModuleSpy = spy(rnSailthruMobileModule);
     }
 
@@ -82,6 +87,42 @@ public class RNSailthruMobileModuleTest {
 
         PowerMockito.verifyStatic(RNSailthruMobileModule.class);
         RNSailthruMobileModule.setWrapperInfo((SailthruMobile) any());
+    }
+
+    @Test
+    public void testShouldPresentInAppNotification() throws Exception {
+        Message message = mock(Message.class);
+        DeviceEventManagerModule.RCTDeviceEventEmitter module = mock(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+        WritableMap writableMap = mock(WritableMap.class);
+        JSONObject jsonObject = mock(JSONObject.class);
+
+        when(message.toJSON()).thenReturn(jsonObject);
+        when(jsonConverter.convertJsonToMap(jsonObject)).thenReturn(writableMap);
+        when(mockContext.getJSModule(any(Class.class))).thenReturn(module);
+
+        boolean shouldPresent = rnSailthruMobileModuleSpy.shouldPresentInAppNotification(message);
+
+        verify(mockContext).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+        verify(module).emit("inappnotification", writableMap);
+
+        Assert.assertTrue(shouldPresent);
+    }
+
+    @Test
+    public void testShouldPresentInAppNotificationException() throws Exception {
+        Message message = mock(Message.class);
+        JSONObject jsonObject = mock(JSONObject.class);
+        JSONException jsonException = mock(JSONException.class);
+
+        when(message.toJSON()).thenReturn(jsonObject);
+        when(jsonConverter.convertJsonToMap(jsonObject)).thenThrow(jsonException);
+
+        boolean shouldPresent = rnSailthruMobileModuleSpy.shouldPresentInAppNotification(message);
+
+        verify(mockContext, times(0)).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+        verify(jsonException).printStackTrace();
+
+        Assert.assertTrue(shouldPresent);
     }
 
     @Test
@@ -139,13 +180,14 @@ public class RNSailthruMobileModuleTest {
     @Test
     public void testLogEventWithVars() throws Exception {
         String event = "event string";
-        JSONObject varsJson = new JSONObject().put("varKey", "varValue");
+        JSONObject varsJson = new JSONObject();
+        varsJson.put("varKey", "varValue");
 
         // setup mocks
         ReadableMap readableMap = mock(ReadableMap.class);
 
         // setup mocking
-        PowerMockito.doReturn(varsJson).when(rnSailthruMobileModuleSpy).convertMapToJson(readableMap);
+        when(jsonConverter.convertMapToJson(readableMap)).thenReturn(varsJson);
 
         rnSailthruMobileModuleSpy.logEvent(event, readableMap);
 
@@ -153,32 +195,69 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
-    public void testSetAttributes() throws Exception {
+    public void testLogEventWithVarsException() throws Exception {
+        String event = "event string";
+        JSONException jsonException = mock(JSONException.class);
+
         // setup mocks
         ReadableMap readableMap = mock(ReadableMap.class);
-        JSONObject attributeMapJson = mock(JSONObject.class);
-        JSONObject attributeJson = mock(JSONObject.class);
-        AttributeMap attributeMap = PowerMockito.mock(AttributeMap.class);
-        @SuppressWarnings("unchecked")
-        Iterator<String> keys = mock(Iterator.class);
+
+        // setup mocking
+        when(jsonConverter.convertMapToJson(readableMap)).thenThrow(jsonException);
+
+        rnSailthruMobileModuleSpy.logEvent(event, readableMap);
+
+        verify(jsonException).printStackTrace();
+        verify(sailthruMobile).logEvent(event, null);
+    }
+
+    @Test
+    public void testSetAttributes() throws Exception {
+        JSONObject stringAttributeJson = new JSONObject()
+                .put("type", "string")
+                .put("value", "test string");
+        JSONObject intAttributeJson = new JSONObject()
+                .put("type", "integer")
+                .put("value", 123);
+        JSONObject attributesJson = new JSONObject()
+                .put("string key", stringAttributeJson)
+                .put("int key", intAttributeJson);
+        JSONObject attributeMapJson = new JSONObject()
+                .put("mergeRule", AttributeMap.RULE_UPDATE)
+                .put("attributes", attributesJson);
+
+        Error error = new Error("test error");
+
+        // setup mocks
+        Promise promise = mock(Promise.class);
+        ReadableMap readableMap = mock(ReadableMap.class);
 
         // setup mocking for conversion from ReadableMap to JSON
-        PowerMockito.doReturn(attributeMapJson).when(rnSailthruMobileModuleSpy).convertMapToJson(readableMap);
-        when(attributeMapJson.getJSONObject("attributes")).thenReturn(attributeJson);
+        when(jsonConverter.convertMapToJson(readableMap)).thenReturn(attributeMapJson);
 
-        // Mock attribute map
-        PowerMockito.whenNew(AttributeMap.class).withNoArguments().thenReturn(attributeMap);
-
-        // Setup JSON objects
-        when(attributeJson.getInt("mergeRule")).thenReturn(0);
-        when(attributeJson.keys()).thenReturn(keys);
-        when(keys.hasNext()).thenReturn(false);
+        // Capture Attributes to verify
+        ArgumentCaptor<AttributeMap> attributeCaptor = ArgumentCaptor.forClass(AttributeMap.class);
+        ArgumentCaptor<SailthruMobile.AttributesHandler> handlerCaptor = ArgumentCaptor.forClass(SailthruMobile.AttributesHandler.class);
 
         // Initiate test
-        rnSailthruMobileModuleSpy.setAttributes(readableMap, null);
+        rnSailthruMobileModuleSpy.setAttributes(readableMap, promise);
 
         // Verify results
-        verify(sailthruMobile).setAttributes(eq(attributeMap), any(SailthruMobile.AttributesHandler.class));
+        verify(sailthruMobile).setAttributes(attributeCaptor.capture(), handlerCaptor.capture());
+
+        AttributeMap attributes = attributeCaptor.getValue();
+
+        Assert.assertEquals(AttributeMap.RULE_UPDATE, attributes.getMergeRules());
+        Assert.assertEquals("test string", attributes.getString("string key"));
+        Assert.assertEquals(123, attributes.getInt("int key", 0));
+
+        SailthruMobile.AttributesHandler handler = handlerCaptor.getValue();
+
+        handler.onSuccess();
+        verify(promise).resolve(null);
+
+        handler.onFailure(error);
+        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_DEVICE, error.getMessage());
     }
 
     @Test
@@ -197,7 +276,7 @@ public class RNSailthruMobileModuleTest {
         MessageStream.MessagesHandler messagesHandler = argumentCaptor.getValue();
 
         // Replace native array with mock
-        PowerMockito.doReturn(writableArray).when(rnSailthruMobileModuleSpy).getWritableArray();
+        doReturn(writableArray).when(rnSailthruMobileModuleSpy).getWritableArray();
 
         // Setup message array
         ArrayList<Message> messages = new ArrayList<>();
@@ -307,11 +386,7 @@ public class RNSailthruMobileModuleTest {
         Promise promise = mock(Promise.class);
         Error error = mock(Error.class);
         ReadableMap readableMap = mock(ReadableMap.class);
-
-        // Create message to remove
-        Constructor<Message> constructor = Message.class.getDeclaredConstructor();
-        constructor.setAccessible(true);
-        Message message = constructor.newInstance();
+        Message message = mock(Message.class);
 
         RNSailthruMobileModule moduleSpy = spy(rnSailthruMobileModule);
         doReturn(message).when(moduleSpy).getMessage(readableMap);
@@ -338,15 +413,29 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
+    public void testRemoveMessageException() throws Exception {
+        // Create mocks
+        Promise promise = mock(Promise.class);
+        ReadableMap readableMap = mock(ReadableMap.class);
+        JSONException jsonException = new JSONException("test exception");
+
+        RNSailthruMobileModule moduleSpy = spy(rnSailthruMobileModule);
+        doThrow(jsonException).when(moduleSpy).getMessage(readableMap);
+
+        // Initiate test
+        moduleSpy.removeMessage(readableMap, promise);
+
+        // Verify result
+        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_MESSAGES, jsonException.getMessage());
+        verify(messageStream, times(0)).deleteMessage(any(Message.class), any(MessageStream.MessageDeletedHandler.class));
+    }
+
+    @Test
     public void testRegisterMessageImpression() throws Exception {
         // Create input
-        ReadableMap readableMap = mock(ReadableMap.class);
         int typeCode = 0;
-
-        // Create message to remove
-        Constructor<Message> constructor = Message.class.getDeclaredConstructor();
-        constructor.setAccessible(true);
-        Message message = constructor.newInstance();
+        ReadableMap readableMap = mock(ReadableMap.class);
+        Message message = mock(Message.class);
 
         doReturn(message).when(rnSailthruMobileModuleSpy).getMessage(readableMap);
 
@@ -358,15 +447,45 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
+    public void testRegisterMessageImpressionInvalidCode() throws Exception {
+        // Create input
+        int typeCode = 10;
+        ReadableMap readableMap = mock(ReadableMap.class);
+        Message message = mock(Message.class);
+
+        doReturn(message).when(rnSailthruMobileModuleSpy).getMessage(readableMap);
+
+        // Initiate test
+        rnSailthruMobileModuleSpy.registerMessageImpression(typeCode, readableMap);
+
+        // Verify result
+        verify(messageStream, times(0)).registerMessageImpression(any(ImpressionType.class), any(Message.class));
+    }
+
+    @Test
+    public void testRegisterMessageImpressionException() throws Exception {
+        // Create input
+        int typeCode = 0;
+        ReadableMap readableMap = mock(ReadableMap.class);
+        JSONException jsonException = mock(JSONException.class);
+
+        doThrow(jsonException).when(rnSailthruMobileModuleSpy).getMessage(readableMap);
+
+        // Initiate test
+        rnSailthruMobileModuleSpy.registerMessageImpression(typeCode, readableMap);
+
+        // Verify result
+        verify(jsonException).printStackTrace();
+        verify(messageStream, times(0)).registerMessageImpression(any(ImpressionType.class), any(Message.class));
+    }
+
+    @Test
     public void testMarkMessageAsRead() throws Exception {
         // Create mocks
         ReadableMap readableMap = mock(ReadableMap.class);
         Promise promise = mock(Promise.class);
-
-        // Create message to remove
-        Constructor<Message> constructor = Message.class.getDeclaredConstructor();
-        constructor.setAccessible(true);
-        Message message = constructor.newInstance();
+        Message message = mock(Message.class);
+        Error error = mock(Error.class);
 
         RNSailthruMobileModule moduleSpy = spy(rnSailthruMobileModule);
         doReturn(message).when(moduleSpy).getMessage(readableMap);
@@ -374,8 +493,40 @@ public class RNSailthruMobileModuleTest {
         // Initiate test
         moduleSpy.markMessageAsRead(readableMap, promise);
 
+        // Capture SailthruMobileHandler to verify behaviour
+        ArgumentCaptor<MessageStream.MessagesReadHandler> argumentCaptor = ArgumentCaptor.forClass(MessageStream.MessagesReadHandler.class);
+        verify(messageStream).setMessageRead(eq(message), argumentCaptor.capture());
+        MessageStream.MessagesReadHandler handler = argumentCaptor.getValue();
+
+        // Test success handler
+        handler.onSuccess();
+        verify(promise).resolve(null);
+
+        // Setup error
+        String errorMessage = "error message";
+        when(error.getMessage()).thenReturn(errorMessage);
+
+        // Test error handler
+        handler.onFailure(error);
+        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_MESSAGES, errorMessage);
+    }
+
+    @Test
+    public void testMarkMessageAsReadException() throws Exception {
+        // Create mocks
+        ReadableMap readableMap = mock(ReadableMap.class);
+        Promise promise = mock(Promise.class);
+        JSONException jsonException = new JSONException("test exception");
+
+        RNSailthruMobileModule moduleSpy = spy(rnSailthruMobileModule);
+        doThrow(jsonException).when(moduleSpy).getMessage(readableMap);
+
+        // Initiate test
+        moduleSpy.markMessageAsRead(readableMap, promise);
+
         // Verify result
-        verify(messageStream).setMessageRead(eq(message), any(MessageStream.MessagesReadHandler.class));
+        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_MESSAGES, jsonException.getMessage());
+        verify(messageStream, times(0)).setMessageRead(any(Message.class), any(MessageStream.MessagesReadHandler.class));
     }
 
     @Test
@@ -417,7 +568,7 @@ public class RNSailthruMobileModuleTest {
         SailthruMobile.RecommendationsHandler recommendationsHandler = argumentCaptor.getValue();
 
         // Replace native array with mock
-        PowerMockito.doReturn(writableArray).when(rnSailthruMobileModuleSpy).getWritableArray();
+        doReturn(writableArray).when(rnSailthruMobileModuleSpy).getWritableArray();
 
         // Setup message array
         ArrayList<ContentItem> contentItems = new ArrayList<>();
@@ -441,12 +592,27 @@ public class RNSailthruMobileModuleTest {
         Promise promise = mock(Promise.class);
         String sectionID = "Section ID";
         String urlString = "www.notarealurl.com";
+        Error error = new Error("test error");
 
         // Initiate test
         rnSailthruMobileModule.trackClick(sectionID, urlString, promise);
 
+        // Capture arguments to verify behaviour
+        ArgumentCaptor<URI> uriCaptor = ArgumentCaptor.forClass(URI.class);
+        ArgumentCaptor<SailthruMobile.TrackHandler> handlerCaptor = ArgumentCaptor.forClass(SailthruMobile.TrackHandler.class);
+
         // Verify result
-        verify(sailthruMobile).trackClick(eq(sectionID), any(URI.class), any(SailthruMobile.TrackHandler.class));
+        verify(sailthruMobile).trackClick(eq(sectionID), uriCaptor.capture(), handlerCaptor.capture());
+        URI uri = uriCaptor.getValue();
+        SailthruMobile.TrackHandler trackHandler = handlerCaptor.getValue();
+
+        Assert.assertEquals(urlString, uri.toString());
+
+        trackHandler.onSuccess();
+        verify(promise).resolve(true);
+
+        trackHandler.onFailure(error);
+        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_TRACKING, error.getMessage());
     }
 
     @Test
@@ -461,11 +627,50 @@ public class RNSailthruMobileModuleTest {
 
         // Verify result
         verify(promise).reject(eq(RNSailthruMobileModule.ERROR_CODE_TRACKING), anyString());
+        verify(sailthruMobile, times(0)).trackClick(anyString(), any(URI.class), any(SailthruMobile.TrackHandler.class));
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void testTrackPageview() {
+        // Create input
+        String urlString = "www.notarealurl.com";
+        String testTag = "some tag";
+        Error error = new Error("test error");
+
+        // Create mocks
+        Promise promise = mock(Promise.class);
+        ReadableArray tagsArray = mock(ReadableArray.class);
+        when(tagsArray.size()).thenReturn(1);
+        when(tagsArray.getString(anyInt())).thenReturn(testTag);
+
+        // Initiate test
+        rnSailthruMobileModule.trackPageview(urlString, tagsArray, promise);
+
+        // Capture arguments to verify behaviour
+        ArgumentCaptor<URI> uriCaptor = ArgumentCaptor.forClass(URI.class);
+        ArgumentCaptor<ArrayList<String>> arrayCaptor = ArgumentCaptor.forClass(ArrayList.class);
+        ArgumentCaptor<SailthruMobile.TrackHandler> handlerCaptor = ArgumentCaptor.forClass(SailthruMobile.TrackHandler.class);
+
+        // Verify result
+        verify(sailthruMobile).trackPageview(uriCaptor.capture(), arrayCaptor.capture(), handlerCaptor.capture());
+        URI uri = uriCaptor.getValue();
+        ArrayList<String> tags = arrayCaptor.getValue();
+        SailthruMobile.TrackHandler trackHandler = handlerCaptor.getValue();
+
+        Assert.assertEquals(urlString, uri.toString());
+
+        Assert.assertEquals(testTag, tags.get(0));
+
+        trackHandler.onSuccess();
+        verify(promise).resolve(true);
+
+        trackHandler.onFailure(error);
+        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_TRACKING, error.getMessage());
+    }
+
+    @Test
+    public void testTrackPageviewNullTags() {
         // Create input
         Promise promise = mock(Promise.class);
         String urlString = "www.notarealurl.com";
@@ -474,7 +679,7 @@ public class RNSailthruMobileModuleTest {
         rnSailthruMobileModule.trackPageview(urlString, null, promise);
 
         // Verify result
-        verify(sailthruMobile).trackPageview(any(URI.class), (List<String>) isNull(), any(SailthruMobile.TrackHandler.class));
+        verify(sailthruMobile).trackPageview(any(URI.class), ArgumentMatchers.<List<String>>isNull(), any(SailthruMobile.TrackHandler.class));
     }
 
     @Test
@@ -488,15 +693,18 @@ public class RNSailthruMobileModuleTest {
 
         // Verify result
         verify(promise).reject(eq(RNSailthruMobileModule.ERROR_CODE_TRACKING), anyString());
+        verify(sailthruMobile, times(0)).trackPageview(any(URI.class), ArgumentMatchers.<String>anyList(), any(SailthruMobile.TrackHandler.class));
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testTrackImpression() {
         // Create input
         Promise promise = mock(Promise.class);
         String sectionID = "Section ID";
         String urlString = "www.notarealurl.com";
         ReadableArray readableArray = mock(ReadableArray.class);
+        Error error = new Error("test error");
 
         // Mock methods
         doReturn(1).when(readableArray).size();
@@ -505,8 +713,35 @@ public class RNSailthruMobileModuleTest {
         // Initiate test
         rnSailthruMobileModule.trackImpression(sectionID, readableArray, promise);
 
+        // Capture arguments to verify behaviour
+        ArgumentCaptor<List<URI>> uriCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<SailthruMobile.TrackHandler> handlerCaptor = ArgumentCaptor.forClass(SailthruMobile.TrackHandler.class);
+
         // Verify result
-        verify(sailthruMobile).trackImpression(eq(sectionID), ArgumentMatchers.<URI>anyList(), any(SailthruMobile.TrackHandler.class));
+        verify(sailthruMobile).trackImpression(eq(sectionID), uriCaptor.capture(), handlerCaptor.capture());
+        List<URI> uriList = uriCaptor.getValue();
+        SailthruMobile.TrackHandler trackHandler = handlerCaptor.getValue();
+
+        Assert.assertEquals(urlString, uriList.get(0).toString());
+
+        trackHandler.onSuccess();
+        verify(promise).resolve(true);
+
+        trackHandler.onFailure(error);
+        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_TRACKING, error.getMessage());
+    }
+
+    @Test
+    public void testTrackImpressionNullUrls() {
+        // Create input
+        Promise promise = mock(Promise.class);
+        String sectionID = "Section ID";
+
+        // Initiate test
+        rnSailthruMobileModule.trackImpression(sectionID, null, promise);
+
+        // Verify result
+        verify(sailthruMobile).trackImpression(eq(sectionID), ArgumentMatchers.<List<URI>>isNull(), any(SailthruMobile.TrackHandler.class));
     }
 
     @Test
@@ -526,6 +761,7 @@ public class RNSailthruMobileModuleTest {
 
         // Verify result
         verify(promise).reject(eq(RNSailthruMobileModule.ERROR_CODE_TRACKING), anyString());
+        verify(sailthruMobile, times(0)).trackImpression(anyString(), ArgumentMatchers.<URI>anyList(), any(SailthruMobile.TrackHandler.class));
     }
 
     @Test
@@ -596,14 +832,15 @@ public class RNSailthruMobileModuleTest {
 
     @Test
     public void testSetProfileVars() throws Exception {
+        JSONObject varsJson = new JSONObject().put("test var", 123);
+
         // Create input
         ReadableMap vars = mock(ReadableMap.class);
-        JSONObject varsJson = mock(JSONObject.class);
         Promise promise = mock(Promise.class);
         Error error = mock(Error.class);
 
         // Mock methods
-        PowerMockito.doReturn(varsJson).when(rnSailthruMobileModuleSpy).convertMapToJson(vars);
+        when(jsonConverter.convertMapToJson(vars)).thenReturn(varsJson);
 
         // Initiate test
         rnSailthruMobileModuleSpy.setProfileVars(vars, promise);
@@ -628,15 +865,35 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    public void testSetProfileVarsException() throws Exception {
+        JSONException jsonException = new JSONException("test exception");
+
+        // Create input
+        ReadableMap vars = mock(ReadableMap.class);
+        Promise promise = mock(Promise.class);
+
+        // Mock methods
+        when(jsonConverter.convertMapToJson(vars)).thenThrow(jsonException);
+
+        // Initiate test
+        rnSailthruMobileModuleSpy.setProfileVars(vars, promise);
+
+        // Verify result
+        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_VARS, jsonException.getMessage());
+        verify(sailthruMobile, times(0)).setProfileVars(any(JSONObject.class), any(SailthruMobile.SailthruMobileHandler.class));
+    }
+
+    @Test
     public void testGetProfileVars() throws Exception {
         // Create input
-        JSONObject varsJson = new JSONObject();
+        JSONObject varsJson = new JSONObject().put("test var", 123);
         Promise promise = mock(Promise.class);
         Error error = mock(Error.class);
         WritableMap mockMap = mock(WritableMap.class);
 
         // Mock methods
-        PowerMockito.doReturn(mockMap).when(rnSailthruMobileModuleSpy).convertJsonToMap(any(JSONObject.class));
+        when(jsonConverter.convertJsonToMap(varsJson)).thenReturn(mockMap);
 
         // Initiate test
         rnSailthruMobileModuleSpy.getProfileVars(promise);
@@ -649,6 +906,7 @@ public class RNSailthruMobileModuleTest {
 
         // Test success handler
         getVarsHandler.onSuccess(varsJson);
+        verify(jsonConverter).convertJsonToMap(varsJson);
         verify(promise).resolve(mockMap);
 
         // Setup error
@@ -664,12 +922,12 @@ public class RNSailthruMobileModuleTest {
     public void testLogPurchase() throws Exception {
         // Create input
         ReadableMap purchaseMap = mock(ReadableMap.class);
-        Purchase purchase = PowerMockito.mock(Purchase.class);
+        Purchase purchase = mock(Purchase.class);
         Promise promise = mock(Promise.class);
         Error error = mock(Error.class);
 
         // Mock methods
-        PowerMockito.doReturn(purchase).when(rnSailthruMobileModuleSpy).getPurchaseInstance(purchaseMap, promise);
+        doReturn(purchase).when(rnSailthruMobileModuleSpy).getPurchaseInstance(purchaseMap);
 
         // Initiate test
         rnSailthruMobileModuleSpy.logPurchase(purchaseMap, promise);
@@ -694,6 +952,25 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    public void testLogPurchaseException() throws Exception {
+        // Create input
+        ReadableMap purchaseMap = mock(ReadableMap.class);
+        Promise promise = mock(Promise.class);
+        JSONException jsonException = new JSONException("test exception");
+
+        // Mock methods
+        doThrow(jsonException).when(rnSailthruMobileModuleSpy).getPurchaseInstance(purchaseMap);
+
+        // Initiate test
+        rnSailthruMobileModuleSpy.logPurchase(purchaseMap, promise);
+
+        // Verify result
+        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_PURCHASE, jsonException.getMessage());
+        verify(sailthruMobile, times(0)).logPurchase(any(Purchase.class), any(SailthruMobile.SailthruMobileHandler.class));
+    }
+
+    @Test
     public void testLogAbandonedCart() throws Exception {
         // Create input
         ReadableMap purchaseMap = mock(ReadableMap.class);
@@ -702,7 +979,7 @@ public class RNSailthruMobileModuleTest {
         Error error = mock(Error.class);
 
         // Mock methods
-        PowerMockito.doReturn(purchase).when(rnSailthruMobileModuleSpy).getPurchaseInstance(purchaseMap, promise);
+        doReturn(purchase).when(rnSailthruMobileModuleSpy).getPurchaseInstance(purchaseMap);
 
         // Initiate test
         rnSailthruMobileModuleSpy.logAbandonedCart(purchaseMap, promise);
@@ -727,20 +1004,37 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    public void testLogAbandonedCartException() throws Exception {
+        // Create input
+        ReadableMap purchaseMap = mock(ReadableMap.class);
+        Promise promise = mock(Promise.class);
+        JSONException jsonException = new JSONException("test exception");
+
+        // Mock methods
+        doThrow(jsonException).when(rnSailthruMobileModuleSpy).getPurchaseInstance(purchaseMap);
+
+        // Initiate test
+        rnSailthruMobileModuleSpy.logAbandonedCart(purchaseMap, promise);
+
+        // Verify result
+        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_PURCHASE, jsonException.getMessage());
+        verify(sailthruMobile, times(0)).logAbandonedCart(any(Purchase.class), any(SailthruMobile.SailthruMobileHandler.class));
+    }
+
+    @Test
     public void testGetPurchaseInstancePositiveAdjustment() throws Exception {
         // Mock methods
         ReadableMap readableMap = mock(ReadableMap.class);
-        Promise promise = mock(Promise.class);
-
-        JSONObject purchaseJson = mockPurchaseJson(234);
-
-        PowerMockito.doReturn(purchaseJson).when(rnSailthruMobileModuleSpy).convertPurchaseMapToJson(readableMap);
+        JSONObject purchaseJson = createPurchaseJson(234);
+        when(jsonConverter.convertMapToJson(readableMap, false)).thenReturn(purchaseJson);
 
         // Initiate test
-        Purchase purchase = rnSailthruMobileModuleSpy.getPurchaseInstance(readableMap, promise);
-        verify(rnSailthruMobileModuleSpy).convertPurchaseMapToJson(readableMap);
+        Purchase purchase = rnSailthruMobileModuleSpy.getPurchaseInstance(readableMap);
 
         // Verify result
+        verify(jsonConverter).convertMapToJson(readableMap, false);
+
         PurchaseItem item = purchase.getPurchaseItems().get(0);
         Assert.assertEquals(1, item.getQuantity());
         Assert.assertEquals("test title", item.getTitle());
@@ -757,17 +1051,15 @@ public class RNSailthruMobileModuleTest {
     public void testGetPurchaseInstanceNegativeAdjustment() throws Exception {
         // Mock methods
         ReadableMap readableMap = mock(ReadableMap.class);
-        Promise promise = mock(Promise.class);
-
-        JSONObject purchaseJson = mockPurchaseJson(-234);
-
-        PowerMockito.doReturn(purchaseJson).when(rnSailthruMobileModuleSpy).convertPurchaseMapToJson(readableMap);
+        JSONObject purchaseJson = createPurchaseJson(-234);
+        when(jsonConverter.convertMapToJson(readableMap, false)).thenReturn(purchaseJson);
 
         // Initiate test
-        Purchase purchase = rnSailthruMobileModuleSpy.getPurchaseInstance(readableMap, promise);
-        verify(rnSailthruMobileModuleSpy).convertPurchaseMapToJson(readableMap);
+        Purchase purchase = rnSailthruMobileModuleSpy.getPurchaseInstance(readableMap);
 
         // Verify result
+        verify(jsonConverter).convertMapToJson(readableMap, false);
+
         PurchaseItem item = purchase.getPurchaseItems().get(0);
         Assert.assertEquals(1, item.getQuantity());
         Assert.assertEquals("test title", item.getTitle());
@@ -780,31 +1072,97 @@ public class RNSailthruMobileModuleTest {
         Assert.assertEquals(-234, adjustment.getPrice());
     }
 
-    private JSONObject mockPurchaseJson(int adjustmentPrice) throws Exception {
-        JSONObject adjustmentJson = mock(JSONObject.class);
-        when(adjustmentJson.get("title")).thenReturn("tax");
-        when(adjustmentJson.get("price")).thenReturn(adjustmentPrice);
+    @Test
+    public void testGetMessage() throws Exception {
+        // Mock methods
+        ReadableMap readableMap = mock(ReadableMap.class);
+        JSONObject messageJson = new JSONObject().put("title", "test title");
+        when(jsonConverter.convertMapToJson(readableMap)).thenReturn(messageJson);
 
-        JSONArray adjustmentsArray = mock(JSONArray.class);
-        when(adjustmentsArray.length()).thenReturn(1);
-        when(adjustmentsArray.getJSONObject(0)).thenReturn(adjustmentJson);
+        // Initiate test
+        Message message = rnSailthruMobileModuleSpy.getMessage(readableMap);
 
-        JSONObject itemJson = mock(JSONObject.class);
-        when(itemJson.get("qty")).thenReturn(1);
-        when(itemJson.get("title")).thenReturn("test title");
-        when(itemJson.get("price")).thenReturn(123);
-        when(itemJson.get("id")).thenReturn("456");
-        when(itemJson.get("url")).thenReturn("http://mobile.sailthru.com");
+        // Verify result
+        verify(jsonConverter).convertMapToJson(readableMap);
 
-        JSONArray itemsArray = mock(JSONArray.class);
-        when(itemsArray.length()).thenReturn(1);
-        when(itemsArray.getJSONObject(0)).thenReturn(itemJson);
+        Assert.assertEquals("test title", message.getTitle());
+    }
 
-        JSONObject purchaseJson = mock(JSONObject.class);
-        doReturn(true).when(purchaseJson).has("adjustments");
-        doReturn(adjustmentsArray).when(purchaseJson).getJSONArray("adjustments");
-        doReturn(itemsArray).when(purchaseJson).getJSONArray("items");
+    @Test
+    public void testGetAttributeMap() throws Exception {
+        Date date = new Date();
 
-        return purchaseJson;
+        // Mock methods
+        ReadableMap readableMap = mock(ReadableMap.class);
+        JSONObject attributeJson = createAttributeMapJson(date);
+        when(jsonConverter.convertMapToJson(readableMap)).thenReturn(attributeJson);
+
+        // Initiate test
+        AttributeMap attributeMap = rnSailthruMobileModuleSpy.getAttributeMap(readableMap);
+
+        // Verify result
+        verify(jsonConverter).convertMapToJson(readableMap);
+
+        Assert.assertEquals(AttributeMap.RULE_UPDATE, attributeMap.getMergeRules());
+        Assert.assertEquals("test string", attributeMap.getString("stringKey"));
+        Assert.assertEquals(123, attributeMap.getInt("integerKey", 0));
+        Assert.assertTrue(attributeMap.getBoolean("booleanKey", false));
+        Assert.assertEquals(1.23, attributeMap.getFloat("floatKey", 0), 0.001);
+        Assert.assertEquals(date, attributeMap.getDate("dateKey"));
+    }
+
+
+    /** Helpers **/
+
+    private JSONObject createPurchaseJson(int adjustmentPrice) throws Exception {
+        JSONObject adjustmentJson = new JSONObject()
+                .put("title", "tax")
+                .put("price", adjustmentPrice);
+
+        JSONArray adjustmentsArray = new JSONArray()
+                .put(adjustmentJson);
+
+        JSONObject itemJson = new JSONObject()
+                .put("qty", 1)
+                .put("title", "test title")
+                .put("price", 123)
+                .put("id", "456")
+                .put("url", "http://mobile.sailthru.com");
+
+        JSONArray itemsArray = new JSONArray()
+                .put(itemJson);
+
+        return new JSONObject()
+                .put("items", itemsArray)
+                .put("adjustments", adjustmentsArray);
+    }
+
+    private JSONObject createAttributeMapJson(Date date) throws Exception {
+        JSONObject stringObject = new JSONObject()
+                .put("type", "string")
+                .put("value", "test string");
+        JSONObject integerObject = new JSONObject()
+                .put("type", "integer")
+                .put("value", 123);
+        JSONObject booleanObject = new JSONObject()
+                .put("type", "boolean")
+                .put("value", true);
+        JSONObject floatObject = new JSONObject()
+                .put("type", "float")
+                .put("value", 1.23);
+        JSONObject dateObject = new JSONObject()
+                .put("type", "date")
+                .put("value", date.getTime());
+
+        JSONObject attributesJson = new JSONObject()
+                .put("stringKey", stringObject)
+                .put("integerKey", integerObject)
+                .put("booleanKey", booleanObject)
+                .put("floatKey", floatObject)
+                .put("dateKey", dateObject);
+
+        return new JSONObject()
+                .put("attributes", attributesJson)
+                .put("mergeRule", AttributeMap.RULE_UPDATE);
     }
 }

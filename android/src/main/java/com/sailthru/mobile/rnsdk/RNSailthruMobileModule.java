@@ -8,6 +8,7 @@ import android.location.Location;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
+import com.facebook.react.bridge.WritableNativeArray;
 import com.sailthru.mobile.sdk.model.AttributeMap;
 import com.sailthru.mobile.sdk.SailthruMobile;
 import com.sailthru.mobile.sdk.MessageStream;
@@ -22,11 +23,8 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.bridge.WritableNativeArray;
-import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import org.jetbrains.annotations.NotNull;
@@ -57,7 +55,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     protected final static String ERROR_CODE_PURCHASE = "sailthru.mobile.purchase";
     protected final static String MESSAGE_ID = "id";
 
-    private boolean displayInAppNotifications;
+    private final boolean displayInAppNotifications;
 
     private final ReactApplicationContext reactApplicationContext;
 
@@ -65,6 +63,8 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     SailthruMobile sailthruMobile = new SailthruMobile();
     @VisibleForTesting
     MessageStream messageStream = new MessageStream();
+    @VisibleForTesting
+    JsonConverter jsonConverter = new JsonConverter();
 
     public RNSailthruMobileModule(ReactApplicationContext reactContext, boolean displayInAppNotifications) {
         super(reactContext);
@@ -78,24 +78,19 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     @Override
     public boolean shouldPresentInAppNotification(@NonNull Message message) {
         try {
-            Method toJsonMethod = Message.class.getDeclaredMethod("toJSON");
-            toJsonMethod.setAccessible(true);
-            JSONObject messageJson = (JSONObject) toJsonMethod.invoke(message);
-            if (messageJson == null) return displayInAppNotifications;
-
-            WritableMap writableMap = convertJsonToMap(messageJson);
+            WritableMap writableMap = jsonConverter.convertJsonToMap(message.toJSON());
             reactApplicationContext
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                     .emit("inappnotification", writableMap);
 
-        } catch (NoSuchMethodException | IllegalAccessException | JSONException | InvocationTargetException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
         return displayInAppNotifications;
     }
 
     @Override
-    public String getName() {
+    public @NonNull String getName() {
         return "RNSailthruMobile";
     }
 
@@ -149,97 +144,28 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    public void logEvent(String eventName, ReadableMap varsMap) throws JSONException {
-        JSONObject varsJson = convertMapToJson(varsMap);
+    public void logEvent(String eventName, ReadableMap varsMap) {
+        JSONObject varsJson = null;
+        try {
+            varsJson = jsonConverter.convertMapToJson(varsMap);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         sailthruMobile.logEvent(eventName, varsJson);
     }
 
     @ReactMethod
-    public void setAttributes(ReadableMap attributeMap, final Promise promise) throws JSONException {
-        JSONObject attributeMapJson = convertMapToJson(attributeMap);
-        JSONObject attributes = attributeMapJson.getJSONObject("attributes");
-        AttributeMap stAttributeMap = new AttributeMap();
-        stAttributeMap.setMergeRules(attributeMap.getInt("mergeRule"));
-
-        Iterator<String> keys = attributes.keys();
-
-        while (keys.hasNext()) {
-            String key = keys.next();
-            JSONObject attribute = attributes.getJSONObject(key);
-            String attributeType = attribute.getString("type");
-            switch (attributeType) {
-                case "string":
-                    stAttributeMap.putString(key, attribute.getString("value"));
-
-                    break;
-                case "stringArray": {
-                    ArrayList<String> array = new ArrayList<>();
-                    JSONArray values = attribute.getJSONArray("value");
-                    for (int i = 0; i < values.length(); i++) {
-                        array.add((String) values.get(i));
-                    }
-
-                    stAttributeMap.putStringArray(key, array);
-
-                    break;
-                }
-                case "integer":
-                    stAttributeMap.putInt(key, attribute.getInt("value"));
-
-                    break;
-                case "integerArray": {
-                    ArrayList<Integer> array = new ArrayList<>();
-                    JSONArray values = attribute.getJSONArray("value");
-                    for (int i = 0; i < values.length(); i++) {
-                        Integer j = values.getInt(i);
-                        array.add(j);
-                    }
-
-                    stAttributeMap.putIntArray(key, array);
-
-                    break;
-                }
-                case "boolean":
-                    stAttributeMap.putBoolean(key, attribute.getBoolean("value"));
-
-                    break;
-                case "float":
-                    stAttributeMap.putFloat(key, (float) attribute.getDouble("value"));
-
-                    break;
-                case "floatArray": {
-                    ArrayList<Float> array = new ArrayList<>();
-                    JSONArray values = attribute.getJSONArray("value");
-                    for (int i = 0; i < values.length(); i++) {
-                        Float value = Float.parseFloat(values.get(i).toString());
-                        array.add(value);
-                    }
-
-                    stAttributeMap.putFloatArray(key, array);
-
-                    break;
-                }
-                case "date":
-                    Date value = new Date(attribute.getLong("value"));
-                    stAttributeMap.putDate(key, value);
-
-                    break;
-                case "dateArray": {
-                    ArrayList<Date> array = new ArrayList<>();
-                    JSONArray values = attribute.getJSONArray("value");
-                    for (int i = 0; i < values.length(); i++) {
-                        long dateValue = values.getLong(i);
-                        Date date = new Date(dateValue);
-                        array.add(date);
-                    }
-
-                    stAttributeMap.putDateArray(key, array);
-                    break;
-                }
-            }
+    public void setAttributes(ReadableMap readableMap, final Promise promise) {
+        AttributeMap attributeMap;
+        try {
+            attributeMap = getAttributeMap(readableMap);
+        } catch(JSONException e) {
+            promise.reject(ERROR_CODE_DEVICE, e.getMessage());
+            return;
         }
 
-        sailthruMobile.setAttributes(stAttributeMap, new SailthruMobile.AttributesHandler() {
+        sailthruMobile.setAttributes(attributeMap, new SailthruMobile.AttributesHandler() {
             @Override
             public void onSuccess() {
                 promise.resolve(null);
@@ -247,7 +173,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
             @Override
             public void onFailure(@NonNull Error error) {
-                promise.reject(error.getLocalizedMessage(), error);
+                promise.reject(ERROR_CODE_DEVICE, error.getMessage());
             }
         });
     }
@@ -267,7 +193,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
                         JSONObject messageJson = (JSONObject) toJsonMethod.invoke(message);
                         if (messageJson == null)
                             continue;
-                        array.pushMap(convertJsonToMap(messageJson));
+                        array.pushMap(jsonConverter.convertJsonToMap(messageJson));
                     }
                     promise.resolve(array);
                 } catch (NoSuchMethodException | IllegalAccessException | JSONException | InvocationTargetException e) {
@@ -285,166 +211,6 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     // Moved out to separate method for testing as WritableNativeArray cannot be mocked
     WritableArray getWritableArray() {
         return new WritableNativeArray();
-    }
-
-    WritableMap convertJsonToMap(JSONObject jsonObject) throws JSONException {
-        WritableMap map = new WritableNativeMap();
-
-        Iterator<String> iterator = jsonObject.keys();
-        while (iterator.hasNext()) {
-            String key = iterator.next();
-            Object value = jsonObject.get(key);
-            if (value instanceof JSONObject) {
-                map.putMap(key, convertJsonToMap((JSONObject) value));
-            } else if (value instanceof JSONArray) {
-                map.putArray(key, convertJsonToArray((JSONArray) value));
-            } else if (value instanceof Boolean) {
-                map.putBoolean(key, (Boolean) value);
-            } else if (value instanceof Integer) {
-                map.putInt(key, (Integer) value);
-            } else if (value instanceof Double) {
-                map.putDouble(key, (Double) value);
-            } else if (value instanceof String) {
-                map.putString(key, (String) value);
-            } else {
-                map.putString(key, value.toString());
-            }
-        }
-        return map;
-    }
-
-    WritableArray convertJsonToArray(JSONArray jsonArray) throws JSONException {
-        WritableArray array = new WritableNativeArray();
-
-        for (int i = 0; i < jsonArray.length(); i++) {
-            Object value = jsonArray.get(i);
-            if (value instanceof JSONObject) {
-                array.pushMap(convertJsonToMap((JSONObject) value));
-            } else if (value instanceof JSONArray) {
-                array.pushArray(convertJsonToArray((JSONArray) value));
-            } else if (value instanceof Boolean) {
-                array.pushBoolean((Boolean) value);
-            } else if (value instanceof Integer) {
-                array.pushInt((Integer) value);
-            } else if (value instanceof Double) {
-                array.pushDouble((Double) value);
-            } else if (value instanceof String) {
-                array.pushString((String) value);
-            } else {
-                array.pushString(value.toString());
-            }
-        }
-        return array;
-    }
-
-    JSONObject convertMapToJson(ReadableMap readableMap) throws JSONException {
-        JSONObject object = new JSONObject();
-        ReadableMapKeySetIterator iterator = readableMap.keySetIterator();
-        while (iterator.hasNextKey()) {
-            String key = iterator.nextKey();
-            switch (readableMap.getType(key)) {
-                case Null:
-                    object.put(key, JSONObject.NULL);
-                    break;
-                case Boolean:
-                    object.put(key, readableMap.getBoolean(key));
-                    break;
-                case Number:
-                    object.put(key, readableMap.getDouble(key));
-                    break;
-                case String:
-                    object.put(key, readableMap.getString(key));
-                    break;
-                case Map:
-                    object.put(key, convertMapToJson(readableMap.getMap(key)));
-                    break;
-                case Array:
-                    object.put(key, convertArrayToJson(readableMap.getArray(key)));
-                    break;
-            }
-        }
-        return object;
-    }
-
-    JSONArray convertArrayToJson(ReadableArray readableArray) throws JSONException {
-        JSONArray array = new JSONArray();
-        for (int i = 0; i < readableArray.size(); i++) {
-            switch (readableArray.getType(i)) {
-                case Null:
-                    break;
-                case Boolean:
-                    array.put(readableArray.getBoolean(i));
-                    break;
-                case Number:
-                    array.put(readableArray.getDouble(i));
-                    break;
-                case String:
-                    array.put(readableArray.getString(i));
-                    break;
-                case Map:
-                    array.put(convertMapToJson(readableArray.getMap(i)));
-                    break;
-                case Array:
-                    array.put(convertArrayToJson(readableArray.getArray(i)));
-                    break;
-            }
-        }
-        return array;
-    }
-
-    JSONObject convertPurchaseMapToJson(ReadableMap readableMap) throws JSONException {
-        JSONObject object = new JSONObject();
-        ReadableMapKeySetIterator iterator = readableMap.keySetIterator();
-        while (iterator.hasNextKey()) {
-            String key = iterator.nextKey();
-            switch (readableMap.getType(key)) {
-                case Null:
-                    object.put(key, JSONObject.NULL);
-                    break;
-                case Boolean:
-                    object.put(key, readableMap.getBoolean(key));
-                    break;
-                case Number:
-                    object.put(key, readableMap.getInt(key));
-                    break;
-                case String:
-                    object.put(key, readableMap.getString(key));
-                    break;
-                case Map:
-                    object.put(key, convertPurchaseMapToJson(readableMap.getMap(key)));
-                    break;
-                case Array:
-                    object.put(key, convertPurchaseArrayToJson(readableMap.getArray(key)));
-                    break;
-            }
-        }
-        return object;
-    }
-
-    JSONArray convertPurchaseArrayToJson(ReadableArray readableArray) throws JSONException {
-        JSONArray array = new JSONArray();
-        for (int i = 0; i < readableArray.size(); i++) {
-            switch (readableArray.getType(i)) {
-                case Null:
-                    break;
-                case Boolean:
-                    array.put(readableArray.getBoolean(i));
-                    break;
-                case Number:
-                    array.put(readableArray.getDouble(i));
-                    break;
-                case String:
-                    array.put(readableArray.getString(i));
-                    break;
-                case Map:
-                    array.put(convertPurchaseMapToJson(readableArray.getMap(i)));
-                    break;
-                case Array:
-                    array.put(convertPurchaseArrayToJson(readableArray.getArray(i)));
-                    break;
-            }
-        }
-        return array;
     }
 
     @ReactMethod
@@ -494,7 +260,14 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     @ReactMethod
     public void removeMessage(ReadableMap messageMap, final Promise promise) {
-        Message message = getMessage(messageMap);
+        Message message;
+        try {
+            message = getMessage(messageMap);
+        } catch (JSONException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            promise.reject(ERROR_CODE_MESSAGES, e.getMessage());
+            return;
+        }
+
         messageStream.deleteMessage(message, new MessageStream.MessageDeletedHandler() {
             @Override
             public void onSuccess() {
@@ -510,21 +283,35 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     @ReactMethod
     public void registerMessageImpression(int typeCode, ReadableMap messageMap) {
-        Message message = getMessage(messageMap);
-        ImpressionType type = null;
-
-        if (typeCode == 0) type = ImpressionType.IMPRESSION_TYPE_IN_APP_VIEW;
-        else if (typeCode == 1) type = ImpressionType.IMPRESSION_TYPE_STREAM_VIEW;
-        else if (typeCode == 2) type = ImpressionType.IMPRESSION_TYPE_DETAIL_VIEW;
-
-        if (type != null) {
-            messageStream.registerMessageImpression(type, message);
+        ImpressionType type;
+        switch (typeCode) {
+            case 0: type = ImpressionType.IMPRESSION_TYPE_IN_APP_VIEW; break;
+            case 1: type = ImpressionType.IMPRESSION_TYPE_STREAM_VIEW; break;
+            case 2: type = ImpressionType.IMPRESSION_TYPE_DETAIL_VIEW; break;
+            default: return;
         }
+
+        Message message;
+        try {
+            message = getMessage(messageMap);
+        } catch (JSONException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        messageStream.registerMessageImpression(type, message);
     }
 
     @ReactMethod
     public void markMessageAsRead(ReadableMap messageMap, final Promise promise) {
-        Message message = getMessage(messageMap);
+        Message message;
+        try {
+            message = getMessage(messageMap);
+        } catch (JSONException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            promise.reject(ERROR_CODE_MESSAGES, e.getMessage());
+            return;
+        }
+
         messageStream.setMessageRead(message, new MessageStream.MessagesReadHandler() {
             @Override
             public void onSuccess() {
@@ -570,13 +357,12 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     @ReactMethod
     public void getRecommendations(String sectionId, final Promise promise) {
         sailthruMobile.getRecommendations(sectionId, new SailthruMobile.RecommendationsHandler() {
-
             @Override
             public void onSuccess(@NonNull ArrayList<ContentItem> contentItems) {
                 WritableArray array = getWritableArray();
                 try {
                     for (ContentItem contentItem : contentItems) {
-                        array.pushMap(convertJsonToMap(contentItem.toJSON()));
+                        array.pushMap(jsonConverter.convertJsonToMap(contentItem.toJSON()));
                     }
                     promise.resolve(array);
                 } catch (Exception e) {
@@ -593,75 +379,84 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     @ReactMethod
     public void trackClick(String sectionId, String url, final Promise promise) {
+        URI uri;
         try {
-            sailthruMobile.trackClick(sectionId, new URI(url), new SailthruMobile.TrackHandler() {
-                @Override
-                public void onSuccess() {
-                    promise.resolve(true);
-                }
-
-                @Override
-                public void onFailure(@NonNull Error error) {
-                    promise.reject(ERROR_CODE_TRACKING, error.getMessage());
-                }
-            });
+            uri = new URI(url);
         } catch (URISyntaxException e) {
             promise.reject(ERROR_CODE_TRACKING, e.getMessage());
+            return;
         }
+
+        sailthruMobile.trackClick(sectionId, uri, new SailthruMobile.TrackHandler() {
+            @Override
+            public void onSuccess() {
+                promise.resolve(true);
+            }
+
+            @Override
+            public void onFailure(@NonNull Error error) {
+                promise.reject(ERROR_CODE_TRACKING, error.getMessage());
+            }
+        });
     }
 
     @ReactMethod
     public void trackPageview(String url, ReadableArray tags, final Promise promise) {
+        URI uri;
         try {
-            List<String> convertedTags = null;
-            if (tags != null) {
-                convertedTags = new ArrayList<>();
-                for (int i = 0; i < tags.size(); i++) {
-                    convertedTags.add(tags.getString(i));
-                }
-            }
-
-            sailthruMobile.trackPageview(new URI(url), convertedTags, new SailthruMobile.TrackHandler() {
-                @Override
-                public void onSuccess() {
-                    promise.resolve(true);
-                }
-
-                @Override
-                public void onFailure(@NonNull Error error) {
-                    promise.reject(ERROR_CODE_TRACKING, error.getMessage());
-                }
-            });
+            uri = new URI(url);
         } catch (URISyntaxException e) {
             promise.reject(ERROR_CODE_TRACKING, e.getMessage());
+            return;
         }
+
+        List<String> convertedTags = null;
+        if (tags != null) {
+            convertedTags = new ArrayList<>();
+            for (int i = 0; i < tags.size(); i++) {
+                convertedTags.add(tags.getString(i));
+            }
+        }
+
+        sailthruMobile.trackPageview(uri, convertedTags, new SailthruMobile.TrackHandler() {
+            @Override
+            public void onSuccess() {
+                promise.resolve(true);
+            }
+
+            @Override
+            public void onFailure(@NonNull Error error) {
+                promise.reject(ERROR_CODE_TRACKING, error.getMessage());
+            }
+        });
     }
 
     @ReactMethod
     public void trackImpression(String sectionId, ReadableArray urls, final Promise promise) {
-        try {
-            List<URI> convertedUrls = null;
-            if (urls != null) {
+        List<URI> convertedUrls = null;
+        if (urls != null) {
+            try {
                 convertedUrls = new ArrayList<>();
                 for (int i = 0; i < urls.size(); i++) {
                     convertedUrls.add(new URI(urls.getString(i)));
                 }
+            } catch (URISyntaxException e) {
+                promise.reject(ERROR_CODE_TRACKING, e.getMessage());
+                return;
+            }
+        }
+
+        sailthruMobile.trackImpression(sectionId, convertedUrls, new SailthruMobile.TrackHandler() {
+            @Override
+            public void onSuccess() {
+                promise.resolve(true);
             }
 
-            sailthruMobile.trackImpression(sectionId, convertedUrls, new SailthruMobile.TrackHandler() {
-                @Override
-                public void onSuccess() {
-                    promise.resolve(true);
-                }
-
-                @Override
-                public void onFailure(@NonNull Error error) {
-                    promise.reject(ERROR_CODE_TRACKING, error.getMessage());
-                }
-            });
-        } catch (URISyntaxException e) {
-            promise.reject(ERROR_CODE_TRACKING, e.getMessage());
-        }
+            @Override
+            public void onFailure(@NonNull Error error) {
+                promise.reject(ERROR_CODE_TRACKING, error.getMessage());
+            }
+        });
     }
 
     @ReactMethod
@@ -706,8 +501,15 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    public void setProfileVars(ReadableMap vars, final Promise promise) throws JSONException {
-        JSONObject varsJson = convertMapToJson(vars);
+    public void setProfileVars(ReadableMap vars, final Promise promise) {
+        JSONObject varsJson;
+        try {
+            varsJson = jsonConverter.convertMapToJson(vars);
+        } catch (JSONException e) {
+            promise.reject(ERROR_CODE_VARS, e.getMessage());
+            return;
+        }
+
         sailthruMobile.setProfileVars(varsJson, new SailthruMobile.SailthruMobileHandler<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -727,7 +529,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             @Override
             public void onSuccess(JSONObject jsonObject) {
                 try {
-                    WritableMap vars = convertJsonToMap(jsonObject);
+                    WritableMap vars = jsonConverter.convertJsonToMap(jsonObject);
                     promise.resolve(vars);
                 } catch (JSONException e) {
                     promise.reject(ERROR_CODE_VARS, e.getMessage());
@@ -742,71 +544,154 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    public void logPurchase(ReadableMap purchaseMap, final Promise promise) throws JSONException {
-        Purchase purchase = getPurchaseInstance(purchaseMap, promise);
-        if (purchase != null) {
-            sailthruMobile.logPurchase(purchase, new SailthruMobile.SailthruMobileHandler<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    promise.resolve(true);
-                }
-
-                @Override
-                public void onFailure(@NonNull Error error) {
-                    promise.reject(ERROR_CODE_PURCHASE, error.getMessage());
-                }
-            });
+    public void logPurchase(ReadableMap purchaseMap, final Promise promise) {
+        Purchase purchase;
+        try {
+            purchase = getPurchaseInstance(purchaseMap);
+        } catch (JSONException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
+            return;
         }
+
+        sailthruMobile.logPurchase(purchase, new SailthruMobile.SailthruMobileHandler<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                promise.resolve(true);
+            }
+
+            @Override
+            public void onFailure(@NonNull Error error) {
+                promise.reject(ERROR_CODE_PURCHASE, error.getMessage());
+            }
+        });
     }
 
     @ReactMethod
-    public void logAbandonedCart(ReadableMap purchaseMap, final Promise promise) throws JSONException {
-        Purchase purchase = getPurchaseInstance(purchaseMap, promise);
-        if (purchase != null) {
-            sailthruMobile.logAbandonedCart(purchase, new SailthruMobile.SailthruMobileHandler<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    promise.resolve(true);
-                }
-
-                @Override
-                public void onFailure(@NonNull Error error) {
-                    promise.reject(ERROR_CODE_PURCHASE, error.getMessage());
-                }
-            });
+    public void logAbandonedCart(ReadableMap purchaseMap, final Promise promise) {
+        Purchase purchase;
+        try {
+            purchase = getPurchaseInstance(purchaseMap);
+        } catch (JSONException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
+            return;
         }
+
+        sailthruMobile.logAbandonedCart(purchase, new SailthruMobile.SailthruMobileHandler<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                promise.resolve(true);
+            }
+
+            @Override
+            public void onFailure(@NonNull Error error) {
+                promise.reject(ERROR_CODE_PURCHASE, error.getMessage());
+            }
+        });
     }
 
     @VisibleForTesting
-    Purchase getPurchaseInstance(ReadableMap purchaseMap, final Promise promise) throws JSONException {
-        JSONObject purchaseJson = convertPurchaseMapToJson(purchaseMap);
-        try {
-          Constructor<Purchase> purchaseConstructor = Purchase.class.getDeclaredConstructor(JSONObject.class);
-          purchaseConstructor.setAccessible(true);
-          return purchaseConstructor.newInstance(purchaseJson);
-
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
-            promise.reject(ERROR_CODE_PURCHASE, e.getMessage());
-        }
-        return null;
+    @NonNull Purchase getPurchaseInstance(ReadableMap purchaseMap) throws JSONException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        JSONObject purchaseJson = jsonConverter.convertMapToJson(purchaseMap, false);
+        Constructor<Purchase> purchaseConstructor = Purchase.class.getDeclaredConstructor(JSONObject.class);
+        purchaseConstructor.setAccessible(true);
+        return purchaseConstructor.newInstance(purchaseJson);
     }
 
     /*
      * Helper Methods
      */
 
-    protected Message getMessage(ReadableMap messageMap) {
+    protected @NonNull Message getMessage(ReadableMap messageMap) throws JSONException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        JSONObject messageJson = jsonConverter.convertMapToJson(messageMap);
+        Constructor<Message> constructor = Message.class.getDeclaredConstructor(String.class);
+        constructor.setAccessible(true);
+        return constructor.newInstance(messageJson.toString());
+    }
 
-        Message message = null;
-        try {
-            JSONObject messageJson = convertMapToJson(messageMap);
-            Constructor<Message> constructor;
-            constructor = Message.class.getDeclaredConstructor(String.class);
-            constructor.setAccessible(true);
-            message = constructor.newInstance(messageJson.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
+    @VisibleForTesting
+    @NonNull AttributeMap getAttributeMap(ReadableMap readableMap) throws JSONException {
+        JSONObject attributeMapJson = jsonConverter.convertMapToJson(readableMap);
+        JSONObject attributes = attributeMapJson.getJSONObject("attributes");
+        AttributeMap attributeMap = new AttributeMap();
+        attributeMap.setMergeRules(attributeMapJson.getInt("mergeRule"));
+
+        Iterator<String> keys = attributes.keys();
+
+        while (keys.hasNext()) {
+            String key = keys.next();
+            JSONObject attribute = attributes.getJSONObject(key);
+            String attributeType = attribute.getString("type");
+            switch (attributeType) {
+                case "string":
+                    attributeMap.putString(key, attribute.getString("value"));
+
+                    break;
+                case "stringArray": {
+                    ArrayList<String> array = new ArrayList<>();
+                    JSONArray values = attribute.getJSONArray("value");
+                    for (int i = 0; i < values.length(); i++) {
+                        array.add((String) values.get(i));
+                    }
+
+                    attributeMap.putStringArray(key, array);
+
+                    break;
+                }
+                case "integer":
+                    attributeMap.putInt(key, attribute.getInt("value"));
+
+                    break;
+                case "integerArray": {
+                    ArrayList<Integer> array = new ArrayList<>();
+                    JSONArray values = attribute.getJSONArray("value");
+                    for (int i = 0; i < values.length(); i++) {
+                        Integer j = values.getInt(i);
+                        array.add(j);
+                    }
+
+                    attributeMap.putIntArray(key, array);
+
+                    break;
+                }
+                case "boolean":
+                    attributeMap.putBoolean(key, attribute.getBoolean("value"));
+
+                    break;
+                case "float":
+                    attributeMap.putFloat(key, (float) attribute.getDouble("value"));
+
+                    break;
+                case "floatArray": {
+                    ArrayList<Float> array = new ArrayList<>();
+                    JSONArray values = attribute.getJSONArray("value");
+                    for (int i = 0; i < values.length(); i++) {
+                        Float value = Float.parseFloat(values.get(i).toString());
+                        array.add(value);
+                    }
+
+                    attributeMap.putFloatArray(key, array);
+
+                    break;
+                }
+                case "date":
+                    Date value = new Date(attribute.getLong("value"));
+                    attributeMap.putDate(key, value);
+
+                    break;
+                case "dateArray": {
+                    ArrayList<Date> array = new ArrayList<>();
+                    JSONArray values = attribute.getJSONArray("value");
+                    for (int i = 0; i < values.length(); i++) {
+                        long dateValue = values.getLong(i);
+                        Date date = new Date(dateValue);
+                        array.add(date);
+                    }
+
+                    attributeMap.putDateArray(key, array);
+                    break;
+                }
+            }
         }
-        return message;
+        return attributeMap;
     }
 }
