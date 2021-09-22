@@ -40,7 +40,7 @@ public class RNSailthruMobilePackageTest {
 
     @Before
     public void setup() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         PowerMockito.whenNew(SailthruMobile.class).withAnyArguments().thenReturn(sailthruMobile);
 
         builder = RNSailthruMobilePackage.Builder.createInstance(mockContext, appKey).setDisplayInAppNotifications(false).setGeoIPTrackingDefault(false);

@@ -70,7 +70,7 @@ public class RNSailthruMobileModuleTest {
 
     @Before
     public void setup() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         PowerMockito.mockStatic(RNSailthruMobileModule.class);
 
         PowerMockito.whenNew(SailthruMobile.class).withAnyArguments().thenReturn(sailthruMobile);
@@ -98,7 +98,7 @@ public class RNSailthruMobileModuleTest {
 
         when(message.toJSON()).thenReturn(jsonObject);
         when(jsonConverter.convertJsonToMap(jsonObject)).thenReturn(writableMap);
-        when(mockContext.getJSModule(any(Class.class))).thenReturn(module);
+        when(mockContext.getJSModule(any())).thenReturn(module);
 
         boolean shouldPresent = rnSailthruMobileModuleSpy.shouldPresentInAppNotification(message);
 
@@ -679,7 +679,7 @@ public class RNSailthruMobileModuleTest {
         rnSailthruMobileModule.trackPageview(urlString, null, promise);
 
         // Verify result
-        verify(sailthruMobile).trackPageview(any(URI.class), ArgumentMatchers.<List<String>>isNull(), any(SailthruMobile.TrackHandler.class));
+        verify(sailthruMobile).trackPageview(any(URI.class), ArgumentMatchers.isNull(), any(SailthruMobile.TrackHandler.class));
     }
 
     @Test
@@ -693,7 +693,7 @@ public class RNSailthruMobileModuleTest {
 
         // Verify result
         verify(promise).reject(eq(RNSailthruMobileModule.ERROR_CODE_TRACKING), anyString());
-        verify(sailthruMobile, times(0)).trackPageview(any(URI.class), ArgumentMatchers.<String>anyList(), any(SailthruMobile.TrackHandler.class));
+        verify(sailthruMobile, times(0)).trackPageview(any(URI.class), ArgumentMatchers.anyList(), any(SailthruMobile.TrackHandler.class));
     }
 
     @Test
@@ -741,7 +741,7 @@ public class RNSailthruMobileModuleTest {
         rnSailthruMobileModule.trackImpression(sectionID, null, promise);
 
         // Verify result
-        verify(sailthruMobile).trackImpression(eq(sectionID), ArgumentMatchers.<List<URI>>isNull(), any(SailthruMobile.TrackHandler.class));
+        verify(sailthruMobile).trackImpression(eq(sectionID), ArgumentMatchers.isNull(), any(SailthruMobile.TrackHandler.class));
     }
 
     @Test
@@ -761,7 +761,7 @@ public class RNSailthruMobileModuleTest {
 
         // Verify result
         verify(promise).reject(eq(RNSailthruMobileModule.ERROR_CODE_TRACKING), anyString());
-        verify(sailthruMobile, times(0)).trackImpression(anyString(), ArgumentMatchers.<URI>anyList(), any(SailthruMobile.TrackHandler.class));
+        verify(sailthruMobile, times(0)).trackImpression(anyString(), ArgumentMatchers.anyList(), any(SailthruMobile.TrackHandler.class));
     }
 
     @Test
