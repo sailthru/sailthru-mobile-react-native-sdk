@@ -1,13 +1,13 @@
 
 buildscript {
-    ext.kotlin_version = '1.5.31'
+    ext.kotlin_version = '1.6.21'
     repositories {
         mavenCentral()
         google()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.2'
+        classpath 'com.android.tools.build:gradle:7.2.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -16,12 +16,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdk 31
-    buildToolsVersion '30.0.3'
+    compileSdk 32
+    buildToolsVersion '32.0.0'
 
     defaultConfig {
         minSdk 21
-        targetSdk 31
+        targetSdk 32
     }
     testOptions {
         unitTests {
@@ -33,9 +33,6 @@ android {
                 }
             }
         }
-    }
-    lint {
-        abortOnError false
     }
 }
 
@@ -64,6 +61,6 @@ dependencies {
     testImplementation 'org.powermock:powermock-core:2.0.2'
     testImplementation 'org.powermock:powermock-module-junit4:2.0.2'
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
-    testImplementation 'org.json:json:20210307'
+    testImplementation 'org.json:json:20220320'
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
 }
