@@ -57,4 +57,4 @@ trigger_map:
   workflow: primary-send-slack
 meta:
   bitrise.io:
-    stack: osx-xcode-13.4.x
+    stack: osx-xcode-13.3.x
