@@ -53,7 +53,7 @@ dependencies {
         exclude group:'com.facebook.fbjni'
         exclude group:'com.facebook.yoga'
     }
-    api 'com.sailthru.mobile.sdk:sailthru-mobile:15.0.0'
+    api 'com.sailthru.mobile.sdk:sailthru-mobile:17.0.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
 
     testImplementation 'junit:junit:4.13.2'
