@@ -33,6 +33,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -54,6 +55,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
+// Fixes issue with PowerMock/Retrofit in SDK: https://stackoverflow.com/a/23937192
+@PowerMockIgnore("javax.net.ssl.*")
 @PrepareForTest({RNSailthruMobileModule.class})
 public class RNSailthruMobileModuleTest {
     @Mock
