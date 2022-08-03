@@ -1,7 +1,7 @@
 ---
 format_version: '6'
 default_step_lib_source: 'https://github.com/bitrise-io/bitrise-steplib.git'
-project_type: react-native
+project_type: ios
 workflows:
   primary:
     steps:
@@ -10,7 +10,7 @@ workflows:
     - git-clone: {}
     - certificate-and-profile-installer: {}
     - yarn: {}
-    - yarn@0:
+    - yarn:
         inputs:
         - command: test
         title: Run yarn tests
@@ -57,4 +57,4 @@ trigger_map:
   workflow: primary-send-slack
 meta:
   bitrise.io:
-    stack: osx-xcode-13.3.x
+    stack: osx-xcode-13.4.x
