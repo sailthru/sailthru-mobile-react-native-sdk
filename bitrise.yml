@@ -10,7 +10,7 @@ workflows:
     - git-clone: {}
     - certificate-and-profile-installer: {}
     - yarn: {}
-    - yarn:
+    - yarn@0.1:
         inputs:
         - command: test
         title: Run yarn tests
