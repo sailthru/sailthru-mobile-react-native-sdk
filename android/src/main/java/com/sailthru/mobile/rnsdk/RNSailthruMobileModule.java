@@ -72,7 +72,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
         this.displayInAppNotifications = displayInAppNotifications;
 
         messageStream.setOnInAppNotificationDisplayListener(this);
-        setWrapperInfo(sailthruMobile);
+        setWrapperInfo();
     }
 
     @Override
@@ -94,7 +94,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
         return "RNSailthruMobile";
     }
 
-    protected static void setWrapperInfo(SailthruMobile sailthruMobile) {
+    protected static void setWrapperInfo() {
         try {
             Class<?>[] cArg = new Class[2];
             cArg[0] = String.class;
@@ -109,9 +109,11 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    @SuppressWarnings("unused")
-    public void registerForPushNotifications(boolean optInForPush) {
-        // noop. It's here to share signatures with iOS.
+    public void registerForPushNotifications() {
+        Activity activity = currentActivity();
+        if (activity == null) return;
+
+        sailthruMobile.requestNotificationPermission(activity);
     }
 
     @ReactMethod

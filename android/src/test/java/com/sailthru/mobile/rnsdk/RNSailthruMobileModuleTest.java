@@ -49,6 +49,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -89,7 +90,7 @@ public class RNSailthruMobileModuleTest {
         verify(messageStream).setOnInAppNotificationDisplayListener(rnSailthruMobileModule);
 
         PowerMockito.verifyStatic(RNSailthruMobileModule.class);
-        RNSailthruMobileModule.setWrapperInfo((SailthruMobile) any());
+        RNSailthruMobileModule.setWrapperInfo();
     }
 
     @Test
@@ -140,6 +141,28 @@ public class RNSailthruMobileModuleTest {
         verify(location).setLatitude(latitude);
         verify(location).setLongitude(longitude);
         verify(sailthruMobile).updateLocation(location);
+    }
+
+    @Test
+    public void testRegisterForPushNotifications() {
+        Activity activity = mock(Activity.class);
+
+        // Mock behaviour
+        doReturn(activity).when(rnSailthruMobileModuleSpy).currentActivity();
+
+        rnSailthruMobileModuleSpy.registerForPushNotifications();
+
+        verify(sailthruMobile).requestNotificationPermission(activity);
+    }
+
+    @Test
+    public void testRegisterForPushNotificationsNoActivity() {
+        // Mock behaviour
+        doReturn(null).when(rnSailthruMobileModuleSpy).currentActivity();
+
+        rnSailthruMobileModuleSpy.registerForPushNotifications();
+
+        verify(sailthruMobile, never()).requestNotificationPermission(any());
     }
 
     @Test
