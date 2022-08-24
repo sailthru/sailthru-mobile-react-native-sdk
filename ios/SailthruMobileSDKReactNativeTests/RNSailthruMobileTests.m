@@ -32,6 +32,7 @@
 -(void)setGeoIPTrackingDefault:(BOOL)enabled;
 -(void)setCrashHandlersEnabled:(BOOL)enabled;
 -(void)registerForPushNotifications;
+-(void)syncNotificationSettings;
 -(void)clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)setProfileVars:(NSDictionary *)vars resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)getProfileVars:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
@@ -744,6 +745,14 @@ describe(@"RNSailthruMobile", ^{
                 void (^opBlock)(void) = queueCapture.argument;
                 opBlock();
             });
+        });
+    });
+    
+    context(@"the syncNotificationSettings method", ^{
+        it(@"should call native method", ^{
+            [[sailthruMobile should] receive:@selector(syncNotificationSettings)];
+            
+            [rnSailthruMobile syncNotificationSettings];
         });
     });
     
