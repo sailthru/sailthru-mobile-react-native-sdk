@@ -166,6 +166,13 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
+    public void testSyncNotificationSettings() {
+        rnSailthruMobileModule.syncNotificationSettings();
+
+        verify(sailthruMobile).syncNotificationSettings();
+    }
+
+    @Test
     public void testGetDeviceID() {
         // Setup variables
         String deviceID = "device ID";

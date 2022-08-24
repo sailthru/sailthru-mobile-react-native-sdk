@@ -384,6 +384,10 @@ RCT_EXPORT_METHOD(registerForPushNotifications) {
     }];
 }
 
+RCT_EXPORT_METHOD(syncNotificationSettings) {
+    [self.sailthruMobile syncNotificationSettings];
+}
+
 RCT_EXPORT_METHOD(clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     [self.sailthruMobile clearDeviceData:(STMDeviceDataType)options withResponse:^(NSError * _Nullable error) {
         if (error) {

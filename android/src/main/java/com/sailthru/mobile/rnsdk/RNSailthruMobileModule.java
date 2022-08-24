@@ -117,6 +117,11 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
+    public void syncNotificationSettings() {
+        sailthruMobile.syncNotificationSettings();
+    }
+
+    @ReactMethod
     public void updateLocation(double latitude, double longitude) {
         Location location = new Location("React-Native");
         location.setLatitude(latitude);
