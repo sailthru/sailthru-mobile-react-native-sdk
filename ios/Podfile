@@ -17,8 +17,8 @@ target "SailthruMobileSDKReactNative" do
                       # to enable hermes on iOS, change `false` to `true` and then install pods
                       :hermes_enabled => false)
 
-    pod "SailthruMobile", "13.0.2"
-    pod "SailthruMobile-Extension", "13.0.2"
+    pod "SailthruMobile", "13.0.3"
+    pod "SailthruMobile-Extension", "13.0.3"
     pod "Kiwi", "2.4.0"
     pod "OCMock", "3.1.2"
   end
