@@ -112,3 +112,33 @@ For push set up, follow the usual [Android Integration](https://docs.mobile.sail
 ## Example
 
 We have provided an example JS file for both iOS and Android. Examples of the promises-based wrapper can be found there.
+
+## Development
+
+You can setup the project locally for development and running the test suites.
+
+### Prerequisites
+
+You will need the following things installed on your system.
+
+* [Git](https://git-scm.com/)
+* [Node.js](https://nodejs.org/) (v12.16.1)
+* [Yarn](https://yarnpkg.com/)
+* [Android Studio](https://developer.android.com/studio)
+* [Xcode](https://developer.apple.com/xcode/)
+
+### Installation
+
+Run `yarn` in the project root to install the required node dependencies.
+
+Move into the `ios` folder and run `pod install --repo-update` to install the iOS dependencies, you can then open `SailthruMobileSDKReactNative.xcworkspace` in Xcode.
+
+Open the `android` folder in Android Studio and perform a gradle sync to install the Android dependencies.
+
+### Testing
+
+Run `yarn test` in the project root to run the Jest test suite.
+
+Run `Product` -> `Test` in the Xcode toolbar to run the iOS test suite.
+
+Run the `RNSailthruMobileModuleTest` configuration in Android Studio to run the Android test suite.
