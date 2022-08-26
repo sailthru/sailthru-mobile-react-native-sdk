@@ -30,7 +30,7 @@
     "type": "git",
     "url": "git+https://github.com/carnivalmobile/carnival-sdk-react-native.git"
   },
-  "version": "7.0.1",
+  "version": "8.0.0",
   "devDependencies": {
     "@babel/core": "^7.13.14",
     "@babel/preset-env": "^7.1.6",
