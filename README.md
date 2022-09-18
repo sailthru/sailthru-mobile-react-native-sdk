@@ -67,8 +67,7 @@ repositories {
 
 dependencies {
     ...
-    compile project(':react-native-sailthru-mobile')
-    compile 'com.sailthru.mobile.sdk:sailthru-mobile:10.1.+'
+    implementation project(':react-native-sailthru-mobile')
 }
 ```
 
@@ -83,11 +82,9 @@ public class MainApplication extends Application implements ReactApplication {
 
     @Override
     protected List<ReactPackage> getPackages() {
-      return Arrays.<ReactPackage>asList(
-          new MainReactPackage(),
-          new RNSailthruMobilePackage(getApplicationContext(), // Should pass in application context
-                                      SDK_KEY)                 // Obtain SDK key from your Sailthru Mobile app settings
-      );
+      List<ReactPackage> packages = new PackageList(this).getPackages();
+      packages.add(new RNSailthruMobilePackage(getApplicationContext(), SDK_KEY)); // Obtain SDK key from your Sailthru Mobile app settings
+      return packages;
     }
   ...
 
@@ -122,7 +119,7 @@ You can setup the project locally for development and running the test suites.
 You will need the following things installed on your system.
 
 * [Git](https://git-scm.com/)
-* [Node.js](https://nodejs.org/) (v12.16.1)
+* [Node.js](https://nodejs.org/) (v18.8.0)
 * [Yarn](https://yarnpkg.com/)
 * [Android Studio](https://developer.android.com/studio)
 * [Xcode](https://developer.apple.com/xcode/)
