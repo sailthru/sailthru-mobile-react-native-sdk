@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
@@ -68,6 +69,9 @@ public class RNSailthruMobileModuleTest {
     private MessageStream messageStream;
     @Mock
     private JsonConverter jsonConverter;
+
+    @Captor
+    private ArgumentCaptor<Runnable> runnableCaptor;
 
     private RNSailthruMobileModule rnSailthruMobileModule;
     private RNSailthruMobileModule rnSailthruMobileModuleSpy;
@@ -135,6 +139,8 @@ public class RNSailthruMobileModuleTest {
 
         rnSailthruMobileModule.startEngine(testKey);
 
+        verify(mockContext).runOnUiQueueThread(runnableCaptor.capture());
+        runnableCaptor.getValue().run();
         verify(sailthruMobile).startEngine(mockContext, testKey);
     }
 
