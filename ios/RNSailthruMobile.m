@@ -38,12 +38,14 @@
 
 @implementation RNSailthruMobile
 
--(instancetype)init {
-    [NSException raise:@"Unsupported Method" format:@"Default initializer should not be called"];
-    return nil;
+// Automatically export module as RNSailthruMobile
+RCT_EXPORT_MODULE();
+
+- (instancetype)init {
+    return [self initWithDisplayInAppNotifications:YES];
 }
 
--(instancetype)initWithDisplayInAppNotifications:(BOOL)displayNotifications {
+- (instancetype)initWithDisplayInAppNotifications:(BOOL)displayNotifications {
     self = [super init];
     if(self) {
         _displayInAppNotifications = displayNotifications;
@@ -56,8 +58,11 @@
     return self;
 }
 
-- (NSArray<NSString *> *)supportedEvents
-{
++ (BOOL)requiresMainQueueSetup {
+    return NO;
+}
+
+- (NSArray<NSString *> *)supportedEvents {
     return @[@"inappnotification"];
 }
 
@@ -70,6 +75,12 @@
 
     [self sendEventWithName:@"inappnotification" body:payload];
     return self.displayInAppNotifications;
+}
+
+RCT_EXPORT_METHOD(startEngine:(NSString *)sdkKey) {
+    [self dispatchOnMainQueue:^{
+        [self.sailthruMobile startEngine:sdkKey withAuthorizationOption:STMPushAuthorizationOptionNoRequest];
+    }];
 }
 
 #pragma mark - Messages
@@ -369,15 +380,9 @@ RCT_EXPORT_METHOD(setCrashHandlersEnabled:(BOOL)enabled) {
 // Push Registration
 RCT_EXPORT_METHOD(registerForPushNotifications) {
     UNAuthorizationOptions options = UNAuthorizationOptionAlert | UNAuthorizationOptionBadge | UNAuthorizationOptionSound;
-    if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion >= 10) {
-        [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:options completionHandler:^(BOOL granted, NSError * _Nullable error) {}];
-    }
-    else {
-        UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:(UIUserNotificationType)options categories:nil];
-        [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
-    }
+    [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:options completionHandler:^(BOOL granted, NSError * _Nullable error) {}];
 
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+    [self dispatchOnMainQueue:^{
         if(![[UIApplication sharedApplication] isRegisteredForRemoteNotifications]) {
             [[UIApplication sharedApplication] registerForRemoteNotifications];
         }
@@ -470,6 +475,16 @@ RCT_EXPORT_METHOD(logAbandonedCart:(NSDictionary *)purchaseDict resolver:(RCTPro
     [items addObject:[contentItem dictionary]];
   }
   return items;
+}
+
+- (void)dispatchOnMainQueue:(dispatch_block_t) block {
+    if (!block) return;
+    
+    if ([NSThread isMainThread]) {
+        block();
+    } else {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:block];
+    }
 }
 
 @end

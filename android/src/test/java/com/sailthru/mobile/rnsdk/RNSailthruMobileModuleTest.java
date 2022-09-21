@@ -130,6 +130,15 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
+    public void testStartEngine() {
+        String testKey = "TEST KEY";
+
+        rnSailthruMobileModule.startEngine(testKey);
+
+        verify(sailthruMobile).startEngine(mockContext, testKey);
+    }
+
+    @Test
     public void testUpdateLocation() throws Exception {
         double latitude = 10, longitude = 10;
 

@@ -3,6 +3,7 @@ package com.sailthru.mobile.rnsdk;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
 import com.sailthru.mobile.sdk.SailthruMobile;
@@ -20,17 +21,14 @@ import java.util.List;
  * React native package for the Sailthru Mobile SDK.
  */
 public class RNSailthruMobilePackage implements ReactPackage {
-    protected ReactApplicationContext reactApplicationContext;
     protected boolean displayInAppNotifications = true;
     @VisibleForTesting
     SailthruMobile sailthruMobile = new SailthruMobile();
 
     /**
-     * Default constructor - should not be used
+     * Default constructor - for auto linking
      */
-    protected RNSailthruMobilePackage() {
-        throw new UnsupportedOperationException("RNSailthruMobilePackage constructor with parameters must be used");
-    }
+    public RNSailthruMobilePackage() {}
 
     /**
      * Constructor for the RNSailthruMobilePackage.
@@ -48,11 +46,11 @@ public class RNSailthruMobilePackage implements ReactPackage {
         this.displayInAppNotifications = builder.displayInAppNotifications;
     }
 
+    @NonNull
     @Override
-    public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-        reactApplicationContext = reactContext;
+    public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
         List<NativeModule> modules = new ArrayList<>();
-        modules.add(new RNSailthruMobileModule(reactApplicationContext, displayInAppNotifications));
+        modules.add(new RNSailthruMobileModule(reactContext, displayInAppNotifications));
         return modules;
     }
 
@@ -60,9 +58,10 @@ public class RNSailthruMobilePackage implements ReactPackage {
         return Collections.emptyList();
     }
 
+    @NonNull
     @Override
     @SuppressWarnings("rawtypes")
-    public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
+    public List<ViewManager> createViewManagers(@NonNull ReactApplicationContext reactContext) {
         return Collections.emptyList();
     }
 

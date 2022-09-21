@@ -8,7 +8,7 @@
 @interface RNSailthruMobile ()
 
 -(instancetype)init;
-// getMessages method
+-(void)startEngine:(NSString*)sdkKey;
 -(void)resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)setAttributes:(NSDictionary *)attributeMap resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)updateLocation:(CGFloat)lat lon:(CGFloat)lon;
@@ -77,16 +77,21 @@ describe(@"RNSailthruMobile", ^{
     });
          
     context(@"the init method", ^{
-        it(@"should throw an exception", ^{
-            BOOL exceptionThrown = NO;
-            @try {
-                RNSailthruMobile *rnSailthruMobile = [[RNSailthruMobile alloc] init];
-                (void)rnSailthruMobile;
-            }
-            @catch(NSException *e) {
-                exceptionThrown = YES;
-            }
-            [[theValue(exceptionThrown) should] beYes];
+        it(@"should set message stream delegate as self", ^{
+            [[messageStream should] receive:@selector(setDelegate:)];
+            RNSailthruMobile *rnSailthruMobile = [[RNSailthruMobile alloc] init];
+            (void)rnSailthruMobile;
+        });
+
+        it(@"should set the wrapper name and version", ^{
+            [[sailthruMobile should] receive:@selector(setWrapperName:andVersion:)];
+            RNSailthruMobile *rnSailthruMobile = [[RNSailthruMobile alloc] init];
+            (void)rnSailthruMobile;
+        });
+
+        it(@"should set the displayInAppNotifications to YES", ^{
+            RNSailthruMobile *rnSailthruMobile = [[RNSailthruMobile alloc] init];
+            [[theValue(rnSailthruMobile.displayInAppNotifications) should] beYes];
         });
     });
 
@@ -106,6 +111,14 @@ describe(@"RNSailthruMobile", ^{
         it(@"should set the displayInAppNotifications", ^{
             RNSailthruMobile *rnSailthruMobile = [[RNSailthruMobile alloc] initWithDisplayInAppNotifications:NO];
             [[theValue(rnSailthruMobile.displayInAppNotifications) should] beNo];
+        });
+    });
+    
+    context(@"the startEngine: method", ^{
+        it(@"should call native method", ^{
+            NSString *testKey = @"TESTKEY";
+            [[sailthruMobile should] receive:@selector(startEngine:withAuthorizationOption:) withArguments:testKey, theValue(STMPushAuthorizationOptionNoRequest)];
+            [rnSailthruMobile startEngine:testKey];
         });
     });
 
@@ -664,13 +677,9 @@ describe(@"RNSailthruMobile", ^{
     
     context(@"the registerForPushNotifications method", ^{
         __block NSProcessInfo *mockInfo = nil;
-        __block UNAuthorizationOptions options = UNAuthorizationOptionAlert | UNAuthorizationOptionBadge | UNAuthorizationOptionSound;
-        __block NSOperationQueue *mockQueue;
+        __block UNUserNotificationCenter *mockCenter;
+        
         beforeEach(^{
-            mockQueue = [NSOperationQueue mock];
-            [mockQueue stub:@selector(addOperationWithBlock:)];
-            [NSOperationQueue stub:@selector(mainQueue) andReturn:mockQueue];
-            
             NSOperatingSystemVersion version;
             version.majorVersion = 10;
             version.minorVersion = 0;
@@ -680,70 +689,30 @@ describe(@"RNSailthruMobile", ^{
             [mockInfo stub:@selector(operatingSystemVersion) andReturn:theValue(version)];
             
             [NSProcessInfo stub:@selector(processInfo) andReturn:mockInfo];
+            
+            mockCenter = [UNUserNotificationCenter mock];
+            [mockCenter stub:@selector(requestAuthorizationWithOptions:completionHandler:)];
+            [UNUserNotificationCenter stub:@selector(currentNotificationCenter) andReturn:mockCenter];
         });
         
-        context(@"on iOS 10+", ^{
-            __block UNUserNotificationCenter *mockCenter;
-            beforeEach(^{
-                mockCenter = [UNUserNotificationCenter mock];
-                [UNUserNotificationCenter stub:@selector(currentNotificationCenter) andReturn:mockCenter];
-            });
+        it(@"should request authorization from the UNUserNotificationCenter", ^{
+            [[mockCenter should] receive:@selector(requestAuthorizationWithOptions:completionHandler:)];
             
-            it(@"should request authorization from the UNUserNotificationCenter", ^{
-                [[mockCenter should] receive:@selector(requestAuthorizationWithOptions:completionHandler:)];
-                
-                [rnSailthruMobile registerForPushNotifications];
-            });
-        });
-        
-        context(@"on iOS 8-9", ^{
-            __block UIApplication *mockApplication;
-            beforeEach(^{
-                mockApplication = [UIApplication mock];
-                [UIApplication stub:@selector(sharedApplication) andReturn:mockApplication];
-                
-                NSOperatingSystemVersion version;
-                version.majorVersion = 8;
-                version.minorVersion = 0;
-                version.patchVersion = 0;
-                
-                mockInfo = [NSProcessInfo mock];
-                [mockInfo stub:@selector(operatingSystemVersion) andReturn:theValue(version)];
-                
-                [NSProcessInfo stub:@selector(processInfo) andReturn:mockInfo];
-            });
-            
-            it(@"should register user notification settings with UIApplication", ^{
-                UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:(UIUserNotificationType)options categories:nil];
-                [[mockApplication should] receive:@selector(registerUserNotificationSettings:) withArguments:settings];
-                
-                [rnSailthruMobile registerForPushNotifications];
-            });
+            [rnSailthruMobile registerForPushNotifications];
         });
         
         context(@"if application is not registered for remote notifications", ^{
-            __block UNUserNotificationCenter *mockCenter;
             __block UIApplication *mockApplication;
             beforeEach(^{
-                mockCenter = [UNUserNotificationCenter mock];
-                [mockCenter stub:@selector(requestAuthorizationWithOptions:completionHandler:)];
-                [UNUserNotificationCenter stub:@selector(currentNotificationCenter) andReturn:mockCenter];
-                
                 mockApplication = [UIApplication mock];
                 [mockApplication stub:@selector(isRegisteredForRemoteNotifications) andReturn:theValue(NO)];
                 [UIApplication stub:@selector(sharedApplication) andReturn:mockApplication];
-                
-                
             });
             
             it(@"should register for remote notifications", ^{
                 [[mockApplication should] receive:@selector(registerForRemoteNotifications)];
-                KWCaptureSpy *queueCapture = [mockQueue captureArgument:@selector(addOperationWithBlock:) atIndex:0];
                 
                 [rnSailthruMobile registerForPushNotifications];
-                
-                void (^opBlock)(void) = queueCapture.argument;
-                opBlock();
             });
         });
     });

@@ -57,8 +57,6 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     private final boolean displayInAppNotifications;
 
-    private final ReactApplicationContext reactApplicationContext;
-
     @VisibleForTesting
     SailthruMobile sailthruMobile = new SailthruMobile();
     @VisibleForTesting
@@ -68,7 +66,6 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     public RNSailthruMobileModule(ReactApplicationContext reactContext, boolean displayInAppNotifications) {
         super(reactContext);
-        reactApplicationContext = reactContext;
         this.displayInAppNotifications = displayInAppNotifications;
 
         messageStream.setOnInAppNotificationDisplayListener(this);
@@ -79,7 +76,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
     public boolean shouldPresentInAppNotification(@NonNull Message message) {
         try {
             WritableMap writableMap = jsonConverter.convertJsonToMap(message.toJSON());
-            reactApplicationContext
+            getReactApplicationContext()
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                     .emit("inappnotification", writableMap);
 
@@ -106,6 +103,11 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
+    }
+
+    @ReactMethod
+    public void startEngine(String sdkKey) {
+        getReactApplicationContext().runOnUiQueueThread(() -> sailthruMobile.startEngine(getReactApplicationContext(), sdkKey));
     }
 
     @ReactMethod
