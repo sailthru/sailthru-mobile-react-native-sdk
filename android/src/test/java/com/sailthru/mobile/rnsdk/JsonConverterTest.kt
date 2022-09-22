@@ -1,8 +1,6 @@
 package com.sailthru.mobile.rnsdk
 
 import com.facebook.react.bridge.*
-import com.nhaarman.mockitokotlin2.doAnswer
-import com.nhaarman.mockitokotlin2.spy
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
@@ -10,6 +8,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.BlockJUnit4ClassRunner
+import org.mockito.Mockito.doAnswer
+import org.mockito.Mockito.spy
 
 @RunWith(BlockJUnit4ClassRunner::class)
 class JsonConverterTest {
