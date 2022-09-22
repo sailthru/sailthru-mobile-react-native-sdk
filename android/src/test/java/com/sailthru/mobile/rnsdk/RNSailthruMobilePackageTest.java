@@ -12,25 +12,24 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedConstruction;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({RNSailthruMobilePackage.class, RNSailthruMobileModule.class})
+@RunWith(MockitoJUnitRunner.class)
 public class RNSailthruMobilePackageTest {
-
     @Mock
     private Context mockContext;
     @Mock
     private ReactApplicationContext reactApplicationContext;
     @Mock
+    private MockedConstruction<RNSailthruMobileModule> staticRnSailthruMobileModule;
+    @Mock
+    private MockedConstruction<SailthruMobile> staticSailthruMobile;
+
     private SailthruMobile sailthruMobile;
 
     private final String appKey = "App Key";
@@ -39,13 +38,12 @@ public class RNSailthruMobilePackageTest {
     private RNSailthruMobilePackage rnSTPackage;
 
     @Before
-    public void setup() throws Exception {
-        MockitoAnnotations.openMocks(this);
-        PowerMockito.whenNew(SailthruMobile.class).withAnyArguments().thenReturn(sailthruMobile);
-
+    public void setup() {
         builder = RNSailthruMobilePackage.Builder.createInstance(mockContext, appKey).setDisplayInAppNotifications(false).setGeoIPTrackingDefault(false);
 
         rnSTPackage = new RNSailthruMobilePackage(mockContext, appKey);
+
+        sailthruMobile = staticSailthruMobile.constructed().get(0);
     }
 
     @Test
@@ -55,8 +53,8 @@ public class RNSailthruMobilePackageTest {
 
     @Test
     public void testBuilderConstructor() {
-        reset(sailthruMobile);
         RNSailthruMobilePackage rnSTPackageFromBuilderConstructor = new RNSailthruMobilePackage(builder);
+        sailthruMobile = staticSailthruMobile.constructed().get(1);
         verify(sailthruMobile).startEngine(mockContext, appKey);
         verify(sailthruMobile).setGeoIpTrackingDefault(false);
         verify(sailthruMobile).setGeoIpTrackingDefault(false);
@@ -64,13 +62,11 @@ public class RNSailthruMobilePackageTest {
     }
 
     @Test
-    public void testCreateNativeModules() throws Exception {
-        RNSailthruMobileModule rnSailthruMobileModule = PowerMockito.mock(RNSailthruMobileModule.class);
-        PowerMockito.whenNew(RNSailthruMobileModule.class).withAnyArguments().thenReturn(rnSailthruMobileModule);
+    public void testCreateNativeModules() {
         List<NativeModule> nativeModules = rnSTPackage.createNativeModules(reactApplicationContext);
         Assert.assertEquals(1, nativeModules.size());
         NativeModule nativeModule = nativeModules.get(0);
-        Assert.assertEquals(rnSailthruMobileModule, nativeModule);
+        Assert.assertEquals(staticRnSailthruMobileModule.constructed().get(0), nativeModule);
     }
 
     @Test
@@ -112,8 +108,8 @@ public class RNSailthruMobilePackageTest {
 
     @Test
     public void testBuilderBuild() {
-        reset(sailthruMobile);
         RNSailthruMobilePackage rnSTPackageFromBuilderBuild = builder.build();
+        sailthruMobile = staticSailthruMobile.constructed().get(1);
         verify(sailthruMobile).startEngine(mockContext, appKey);
         verify(sailthruMobile).setGeoIpTrackingDefault(false);
         Assert.assertFalse(rnSTPackageFromBuilderBuild.displayInAppNotifications);

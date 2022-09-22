@@ -32,11 +32,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -50,25 +48,28 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(PowerMockRunner.class)
-// Fixes issue with PowerMock/Retrofit in SDK: https://stackoverflow.com/a/23937192
-@PowerMockIgnore("javax.net.ssl.*")
-@PrepareForTest({RNSailthruMobileModule.class})
+@RunWith(MockitoJUnitRunner.class)
 public class RNSailthruMobileModuleTest {
     @Mock
     private ReactApplicationContext mockContext;
     @Mock
-    private SailthruMobile sailthruMobile;
-    @Mock
-    private MessageStream messageStream;
-    @Mock
     private JsonConverter jsonConverter;
+    @Mock
+    private MockedStatic<RNSailthruMobileModule> staticRnSailthruMobileModule;
+    @Mock
+    private MockedConstruction<SailthruMobile> staticSailthruMobile;
+    @Mock
+    private MockedConstruction<MessageStream> staticMessageStream;
+
+    private SailthruMobile sailthruMobile;
+    private MessageStream messageStream;
 
     @Captor
     private ArgumentCaptor<Runnable> runnableCaptor;
@@ -77,24 +78,20 @@ public class RNSailthruMobileModuleTest {
     private RNSailthruMobileModule rnSailthruMobileModuleSpy;
 
     @Before
-    public void setup() throws Exception {
-        MockitoAnnotations.openMocks(this);
-        PowerMockito.mockStatic(RNSailthruMobileModule.class);
-
-        PowerMockito.whenNew(SailthruMobile.class).withAnyArguments().thenReturn(sailthruMobile);
-        PowerMockito.whenNew(MessageStream.class).withAnyArguments().thenReturn(messageStream);
-
+    public void setup() {
         rnSailthruMobileModule = new RNSailthruMobileModule(mockContext, true);
         rnSailthruMobileModule.jsonConverter = jsonConverter;
         rnSailthruMobileModuleSpy = spy(rnSailthruMobileModule);
+
+        sailthruMobile = staticSailthruMobile.constructed().get(0);
+        messageStream = staticMessageStream.constructed().get(0);
     }
 
     @Test
     public void testConstructor() {
         verify(messageStream).setOnInAppNotificationDisplayListener(rnSailthruMobileModule);
 
-        PowerMockito.verifyStatic(RNSailthruMobileModule.class);
-        RNSailthruMobileModule.setWrapperInfo();
+        staticRnSailthruMobileModule.verify(RNSailthruMobileModule::setWrapperInfo);
     }
 
     @Test
@@ -145,17 +142,17 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
-    public void testUpdateLocation() throws Exception {
+    public void testUpdateLocation() {
         double latitude = 10, longitude = 10;
 
-        Location location = mock(Location.class);
-        PowerMockito.whenNew(Location.class).withAnyArguments().thenReturn(location);
+        try(MockedConstruction<Location> staticLocation = mockConstruction(Location.class)) {
+            rnSailthruMobileModule.updateLocation(latitude, longitude);
 
-        rnSailthruMobileModule.updateLocation(latitude, longitude);
-
-        verify(location).setLatitude(latitude);
-        verify(location).setLongitude(longitude);
-        verify(sailthruMobile).updateLocation(location);
+            Location location = staticLocation.constructed().get(0);
+            verify(location).setLatitude(latitude);
+            verify(location).setLongitude(longitude);
+            verify(sailthruMobile).updateLocation(location);
+        }
     }
 
     @Test
@@ -495,13 +492,10 @@ public class RNSailthruMobileModuleTest {
     }
 
     @Test
-    public void testRegisterMessageImpressionInvalidCode() throws Exception {
+    public void testRegisterMessageImpressionInvalidCode() {
         // Create input
         int typeCode = 10;
         ReadableMap readableMap = mock(ReadableMap.class);
-        Message message = mock(Message.class);
-
-        doReturn(message).when(rnSailthruMobileModuleSpy).getMessage(readableMap);
 
         // Initiate test
         rnSailthruMobileModuleSpy.registerMessageImpression(typeCode, readableMap);
