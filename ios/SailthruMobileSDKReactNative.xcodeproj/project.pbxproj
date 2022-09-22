@@ -9,9 +9,7 @@
 /* Begin PBXBuildFile section */
 		74C61317D00580FC180D2F4F /* libPods-SailthruMobileSDKReactNative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EF11149F35ACC4E5947F2783 /* libPods-SailthruMobileSDKReactNative.a */; };
 		B934F55423EA1E68009DE68E /* RNSailthruMobileBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55223EA1E68009DE68E /* RNSailthruMobileBridge.m */; };
-		B934F55523EA1E68009DE68E /* RNSailthruMobileBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55223EA1E68009DE68E /* RNSailthruMobileBridge.m */; };
 		B934F55623EA1E68009DE68E /* RNSailthruMobile.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55323EA1E68009DE68E /* RNSailthruMobile.m */; };
-		B934F55723EA1E68009DE68E /* RNSailthruMobile.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55323EA1E68009DE68E /* RNSailthruMobile.m */; };
 		B934F55A23EA1EE3009DE68E /* RNSailthruMobileTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55823EA1EE3009DE68E /* RNSailthruMobileTests.m */; };
 		B934F55B23EA1EE3009DE68E /* RNSailtrhuMobileBridgeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55923EA1EE3009DE68E /* RNSailtrhuMobileBridgeTests.m */; };
 		C344D9A63B93F3BD481D8AD4 /* libPods-SailthruMobileSDKReactNativeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 99B00A731ECC941F96668D29 /* libPods-SailthruMobileSDKReactNativeTests.a */; };
@@ -301,9 +299,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B934F55723EA1E68009DE68E /* RNSailthruMobile.m in Sources */,
 				B934F55A23EA1EE3009DE68E /* RNSailthruMobileTests.m in Sources */,
-				B934F55523EA1E68009DE68E /* RNSailthruMobileBridge.m in Sources */,
 				B934F55B23EA1EE3009DE68E /* RNSailtrhuMobileBridgeTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

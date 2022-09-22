@@ -64,17 +64,6 @@ public class RNSailthruMobilePackageTest {
     }
 
     @Test
-    public void testDefaultConstructor() {
-        boolean exceptionThrown = false;
-        try {
-            new RNSailthruMobilePackage();
-        } catch (UnsupportedOperationException e) {
-            exceptionThrown = true;
-        }
-        Assert.assertTrue(exceptionThrown);
-    }
-
-    @Test
     public void testCreateNativeModules() throws Exception {
         RNSailthruMobileModule rnSailthruMobileModule = PowerMockito.mock(RNSailthruMobileModule.class);
         PowerMockito.whenNew(RNSailthruMobileModule.class).withAnyArguments().thenReturn(rnSailthruMobileModule);

@@ -43,9 +43,8 @@
     "react-native-codegen": "^0.0.7"
   },
   "files": [
-    "/ios/SailthruMobile.xcframework",
-    "/ios/SailthruMobileExtension.xcframework",
     "/ios/RN*",
+    "/react-native-sailthru-mobile.podspec",
     "/android/src/main",
     "/android/build.gradle",
     "/example"

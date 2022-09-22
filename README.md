@@ -6,6 +6,17 @@ Wraps the native Sailthru Mobile SDK for React Native apps.
 
 `npm install react-native-sailthru-mobile --save`
 
+This project supports auto linking!
+Running `pod install` in the `ios` folder should set up everything you need on the iOS side. On the Android side the only manual step required involves adding our maven URL to the repositories in the app level `build.gradle`:
+
+```
+maven {
+    url "https://github.com/carnivalmobile/maven-repository/raw/master/"
+}
+```
+
+However, if you would like to manually integrate the SDK please follow the steps below.
+
 
 ### iOS
 
