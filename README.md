@@ -11,7 +11,7 @@ Running `pod install` in the `ios` folder should set up everything you need on t
 
 ```
 maven {
-    url "https://github.com/carnivalmobile/maven-repository/raw/master/"
+    url "https://github.com/sailthru/maven-repository/raw/master/"
 }
 ```
 
@@ -72,7 +72,7 @@ repositories {
     google()
 
     maven {
-        url "https://github.com/carnivalmobile/maven-repository/raw/master/"
+        url "https://github.com/sailthru/maven-repository/raw/master/"
     }
 }
 

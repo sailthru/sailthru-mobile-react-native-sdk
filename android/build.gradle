@@ -39,7 +39,7 @@ android {
 repositories {
     mavenCentral()
     maven {
-        url "https://github.com/carnivalmobile/maven-repository/raw/master/"
+        url "https://github.com/sailthru/maven-repository/raw/master/"
     }
     google()
     maven {
