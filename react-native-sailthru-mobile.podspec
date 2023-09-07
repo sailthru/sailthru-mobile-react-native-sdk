@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.homepage     = package['homepage']
   s.platforms    = { :ios => "10.0" }
 
-  s.source       = { :git => "https://github.com/carnivalmobile/carnival-sdk-react-native.git", :tag => "v#{s.version}" }
+  s.source       = { :git => "https://github.com/sailthru/sailthru-mobile-react-native-sdk.git", :tag => "v#{s.version}" }
   s.source_files = "ios/*.{h,m}"
 
   s.dependency 'SailthruMobile', '13.0.3'

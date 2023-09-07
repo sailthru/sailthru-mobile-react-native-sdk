@@ -3,10 +3,10 @@
     "name": "Sailthru Mobile <support@sailthru.com>"
   },
   "bugs": {
-    "url": "https://github.com/carnivalmobile/carnival-sdk-react-native/issues"
+    "url": "https://github.com/sailthru/sailthru-mobile-react-native-sdk/issues"
   },
   "description": "React Native wrapper for the Sailthru Mobile Android and iOS SDKs",
-  "homepage": "https://github.com/carnivalmobile/carnival-sdk-react-native",
+  "homepage": "https://github.com/sailthru/sailthru-mobile-react-native-sdk",
   "keywords": [
     "android",
     "ios",
@@ -28,7 +28,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/carnivalmobile/carnival-sdk-react-native.git"
+    "url": "git+https://github.com/sailthru/sailthru-mobile-react-native-sdk.git"
   },
   "version": "9.0.0",
   "devDependencies": {
