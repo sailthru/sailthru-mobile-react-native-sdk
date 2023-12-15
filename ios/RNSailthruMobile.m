@@ -53,7 +53,7 @@ RCT_EXPORT_MODULE();
         _messageStream = [STMMessageStream new];
 
         [_messageStream setDelegate:self];
-        [_sailthruMobile setWrapperName:@"React Native" andVersion:@"9.0.0"];
+        [_sailthruMobile setWrapperName:@"React Native" andVersion:@"10.0.0"];
     }
     return self;
 }
