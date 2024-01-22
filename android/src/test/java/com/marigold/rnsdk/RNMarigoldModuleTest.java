@@ -1,25 +1,25 @@
-package com.sailthru.mobile.rnsdk;
+package com.marigold.rnsdk;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
 
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.sailthru.mobile.sdk.MessageStream;
-import com.sailthru.mobile.sdk.model.AttributeMap;
-import com.sailthru.mobile.sdk.SailthruMobile;
-import com.sailthru.mobile.sdk.enums.ImpressionType;
-import com.sailthru.mobile.sdk.model.ContentItem;
-import com.sailthru.mobile.sdk.model.Message;
-import com.sailthru.mobile.sdk.model.Purchase;
+import com.marigold.sdk.MessageStream;
+import com.marigold.sdk.model.AttributeMap;
+import com.marigold.sdk.Marigold;
+import com.marigold.sdk.enums.ImpressionType;
+import com.marigold.sdk.model.ContentItem;
+import com.marigold.sdk.model.Message;
+import com.marigold.sdk.model.Purchase;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
-import com.sailthru.mobile.sdk.model.PurchaseAdjustment;
-import com.sailthru.mobile.sdk.model.PurchaseItem;
+import com.marigold.sdk.model.PurchaseAdjustment;
+import com.marigold.sdk.model.PurchaseItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,42 +56,42 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RNSailthruMobileModuleTest {
+public class RNMarigoldModuleTest {
     @Mock
     private ReactApplicationContext mockContext;
     @Mock
     private JsonConverter jsonConverter;
     @Mock
-    private MockedStatic<RNSailthruMobileModule> staticRnSailthruMobileModule;
+    private MockedStatic<RNMarigoldModule> staticRnMarigoldModule;
     @Mock
-    private MockedConstruction<SailthruMobile> staticSailthruMobile;
+    private MockedConstruction<Marigold> staticMarigold;
     @Mock
     private MockedConstruction<MessageStream> staticMessageStream;
 
-    private SailthruMobile sailthruMobile;
+    private Marigold marigold;
     private MessageStream messageStream;
 
     @Captor
     private ArgumentCaptor<Runnable> runnableCaptor;
 
-    private RNSailthruMobileModule rnSailthruMobileModule;
-    private RNSailthruMobileModule rnSailthruMobileModuleSpy;
+    private RNMarigoldModule rnMarigoldModule;
+    private RNMarigoldModule rnMarigoldModuleSpy;
 
     @Before
     public void setup() {
-        rnSailthruMobileModule = new RNSailthruMobileModule(mockContext, true);
-        rnSailthruMobileModule.jsonConverter = jsonConverter;
-        rnSailthruMobileModuleSpy = spy(rnSailthruMobileModule);
+        rnMarigoldModule = new RNMarigoldModule(mockContext, true);
+        rnMarigoldModule.jsonConverter = jsonConverter;
+        rnMarigoldModuleSpy = spy(rnMarigoldModule);
 
-        sailthruMobile = staticSailthruMobile.constructed().get(0);
+        marigold = staticMarigold.constructed().get(0);
         messageStream = staticMessageStream.constructed().get(0);
     }
 
     @Test
     public void testConstructor() {
-        verify(messageStream).setOnInAppNotificationDisplayListener(rnSailthruMobileModule);
+        verify(messageStream).setOnInAppNotificationDisplayListener(rnMarigoldModule);
 
-        staticRnSailthruMobileModule.verify(RNSailthruMobileModule::setWrapperInfo);
+        staticRnMarigoldModule.verify(RNMarigoldModule::setWrapperInfo);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class RNSailthruMobileModuleTest {
         when(jsonConverter.convertJsonToMap(jsonObject)).thenReturn(writableMap);
         when(mockContext.getJSModule(any())).thenReturn(module);
 
-        boolean shouldPresent = rnSailthruMobileModuleSpy.shouldPresentInAppNotification(message);
+        boolean shouldPresent = rnMarigoldModuleSpy.shouldPresentInAppNotification(message);
 
         verify(mockContext).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
         verify(module).emit("inappnotification", writableMap);
@@ -122,7 +122,7 @@ public class RNSailthruMobileModuleTest {
         when(message.toJSON()).thenReturn(jsonObject);
         when(jsonConverter.convertJsonToMap(jsonObject)).thenThrow(jsonException);
 
-        boolean shouldPresent = rnSailthruMobileModuleSpy.shouldPresentInAppNotification(message);
+        boolean shouldPresent = rnMarigoldModuleSpy.shouldPresentInAppNotification(message);
 
         verify(mockContext, times(0)).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
         verify(jsonException).printStackTrace();
@@ -134,11 +134,11 @@ public class RNSailthruMobileModuleTest {
     public void testStartEngine() {
         String testKey = "TEST KEY";
 
-        rnSailthruMobileModule.startEngine(testKey);
+        rnMarigoldModule.startEngine(testKey);
 
         verify(mockContext).runOnUiQueueThread(runnableCaptor.capture());
         runnableCaptor.getValue().run();
-        verify(sailthruMobile).startEngine(mockContext, testKey);
+        verify(marigold).startEngine(mockContext, testKey);
     }
 
     @Test
@@ -146,12 +146,12 @@ public class RNSailthruMobileModuleTest {
         double latitude = 10, longitude = 10;
 
         try(MockedConstruction<Location> staticLocation = mockConstruction(Location.class)) {
-            rnSailthruMobileModule.updateLocation(latitude, longitude);
+            rnMarigoldModule.updateLocation(latitude, longitude);
 
             Location location = staticLocation.constructed().get(0);
             verify(location).setLatitude(latitude);
             verify(location).setLongitude(longitude);
-            verify(sailthruMobile).updateLocation(location);
+            verify(marigold).updateLocation(location);
         }
     }
 
@@ -160,28 +160,28 @@ public class RNSailthruMobileModuleTest {
         Activity activity = mock(Activity.class);
 
         // Mock behaviour
-        doReturn(activity).when(rnSailthruMobileModuleSpy).currentActivity();
+        doReturn(activity).when(rnMarigoldModuleSpy).currentActivity();
 
-        rnSailthruMobileModuleSpy.registerForPushNotifications();
+        rnMarigoldModuleSpy.registerForPushNotifications();
 
-        verify(sailthruMobile).requestNotificationPermission(activity);
+        verify(marigold).requestNotificationPermission(activity);
     }
 
     @Test
     public void testRegisterForPushNotificationsNoActivity() {
         // Mock behaviour
-        doReturn(null).when(rnSailthruMobileModuleSpy).currentActivity();
+        doReturn(null).when(rnMarigoldModuleSpy).currentActivity();
 
-        rnSailthruMobileModuleSpy.registerForPushNotifications();
+        rnMarigoldModuleSpy.registerForPushNotifications();
 
-        verify(sailthruMobile, never()).requestNotificationPermission(any());
+        verify(marigold, never()).requestNotificationPermission(any());
     }
 
     @Test
     public void testSyncNotificationSettings() {
-        rnSailthruMobileModule.syncNotificationSettings();
+        rnMarigoldModule.syncNotificationSettings();
 
-        verify(sailthruMobile).syncNotificationSettings();
+        verify(marigold).syncNotificationSettings();
     }
 
     @Test
@@ -196,30 +196,30 @@ public class RNSailthruMobileModuleTest {
         doReturn(errorMessage).when(error).getMessage();
 
         // Start test
-        rnSailthruMobileModule.getDeviceID(promise);
+        rnMarigoldModule.getDeviceID(promise);
 
         // Capture handler for verification
         @SuppressWarnings("unchecked")
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<String>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
-        verify(sailthruMobile).getDeviceId(argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler<String> sailthruMobileHandler = argumentCaptor.getValue();
+        ArgumentCaptor<Marigold.MarigoldHandler<String>> argumentCaptor = ArgumentCaptor.forClass(Marigold.MarigoldHandler.class);
+        verify(marigold).getDeviceId(argumentCaptor.capture());
+        Marigold.MarigoldHandler<String> marigoldHandler = argumentCaptor.getValue();
 
         // Test success
-        sailthruMobileHandler.onSuccess(deviceID);
+        marigoldHandler.onSuccess(deviceID);
         verify(promise).resolve(deviceID);
 
         // Test failure
-        sailthruMobileHandler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_DEVICE, errorMessage);
+        marigoldHandler.onFailure(error);
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, errorMessage);
     }
 
     @Test
     public void testLogEvent() {
         String event = "event string";
 
-        rnSailthruMobileModule.logEvent(event);
+        rnMarigoldModule.logEvent(event);
 
-        verify(sailthruMobile).logEvent(event);
+        verify(Marigold).logEvent(event);
     }
 
     @Test
@@ -234,9 +234,9 @@ public class RNSailthruMobileModuleTest {
         // setup mocking
         when(jsonConverter.convertMapToJson(readableMap)).thenReturn(varsJson);
 
-        rnSailthruMobileModuleSpy.logEvent(event, readableMap);
+        rnMarigoldModuleSpy.logEvent(event, readableMap);
 
-        verify(sailthruMobile).logEvent(event, varsJson);
+        verify(marigold).logEvent(event, varsJson);
     }
 
     @Test
@@ -250,10 +250,10 @@ public class RNSailthruMobileModuleTest {
         // setup mocking
         when(jsonConverter.convertMapToJson(readableMap)).thenThrow(jsonException);
 
-        rnSailthruMobileModuleSpy.logEvent(event, readableMap);
+        rnMarigoldModuleSpy.logEvent(event, readableMap);
 
         verify(jsonException).printStackTrace();
-        verify(sailthruMobile).logEvent(event, null);
+        verify(marigold).logEvent(event, null);
     }
 
     @Test
@@ -282,13 +282,13 @@ public class RNSailthruMobileModuleTest {
 
         // Capture Attributes to verify
         ArgumentCaptor<AttributeMap> attributeCaptor = ArgumentCaptor.forClass(AttributeMap.class);
-        ArgumentCaptor<SailthruMobile.AttributesHandler> handlerCaptor = ArgumentCaptor.forClass(SailthruMobile.AttributesHandler.class);
+        ArgumentCaptor<Marigold.AttributesHandler> handlerCaptor = ArgumentCaptor.forClass(Marigold.AttributesHandler.class);
 
         // Initiate test
-        rnSailthruMobileModuleSpy.setAttributes(readableMap, promise);
+        rnMarigoldModuleSpy.setAttributes(readableMap, promise);
 
         // Verify results
-        verify(sailthruMobile).setAttributes(attributeCaptor.capture(), handlerCaptor.capture());
+        verify(marigold).setAttributes(attributeCaptor.capture(), handlerCaptor.capture());
 
         AttributeMap attributes = attributeCaptor.getValue();
 
@@ -296,13 +296,13 @@ public class RNSailthruMobileModuleTest {
         Assert.assertEquals("test string", attributes.getString("string key"));
         Assert.assertEquals(123, attributes.getInt("int key", 0));
 
-        SailthruMobile.AttributesHandler handler = handlerCaptor.getValue();
+        Marigold.AttributesHandler handler = handlerCaptor.getValue();
 
         handler.onSuccess();
         verify(promise).resolve(null);
 
         handler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_DEVICE, error.getMessage());
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, error.getMessage());
     }
 
     @Test
@@ -313,7 +313,7 @@ public class RNSailthruMobileModuleTest {
         Error error = mock(Error.class);
 
         // Initiate test
-        rnSailthruMobileModuleSpy.getMessages(promise);
+        rnMarigoldModuleSpy.getMessages(promise);
 
         // Capture MessagesHandler to verify behaviour
         ArgumentCaptor<MessageStream.MessagesHandler> argumentCaptor = ArgumentCaptor.forClass(MessageStream.MessagesHandler.class);
@@ -321,7 +321,7 @@ public class RNSailthruMobileModuleTest {
         MessageStream.MessagesHandler messagesHandler = argumentCaptor.getValue();
 
         // Replace native array with mock
-        doReturn(writableArray).when(rnSailthruMobileModuleSpy).getWritableArray();
+        doReturn(writableArray).when(rnMarigoldModuleSpy).getWritableArray();
 
         // Setup message array
         ArrayList<Message> messages = new ArrayList<>();
@@ -336,7 +336,7 @@ public class RNSailthruMobileModuleTest {
 
         // Test error handler
         messagesHandler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_MESSAGES, errorMessage);
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, errorMessage);
     }
 
     @Test
@@ -346,13 +346,13 @@ public class RNSailthruMobileModuleTest {
         Error error = mock(Error.class);
         String userID = "user ID";
 
-        rnSailthruMobileModule.setUserId(userID, promise);
+        rnMarigoldModule.setUserId(userID, promise);
 
-        // Capture SailthruMobileHandler to verify behaviour
+        // Capture MarigoldHandler to verify behaviour
         @SuppressWarnings("unchecked")
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
-        verify(sailthruMobile).setUserId(eq(userID), argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler<Void> handler = argumentCaptor.getValue();
+        ArgumentCaptor<Marigold.MarigoldHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(Marigold.MarigoldHandler.class);
+        verify(marigold).setUserId(eq(userID), argumentCaptor.capture());
+        Marigold.MarigoldHandler<Void> handler = argumentCaptor.getValue();
 
         // Test success handler
         handler.onSuccess(null);
@@ -364,7 +364,7 @@ public class RNSailthruMobileModuleTest {
 
         // Test error handler
         handler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_DEVICE, errorMessage);
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, errorMessage);
     }
 
     @Test
@@ -374,13 +374,13 @@ public class RNSailthruMobileModuleTest {
         Error error = mock(Error.class);
         String userEmail = "user email";
 
-        rnSailthruMobileModule.setUserEmail(userEmail, promise);
+        rnMarigoldModule.setUserEmail(userEmail, promise);
 
-        // Capture SailthruMobileHandler to verify behaviour
+        // Capture MarigoldHandler to verify behaviour
         @SuppressWarnings("unchecked")
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
-        verify(sailthruMobile).setUserEmail(eq(userEmail), argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler<Void> handler = argumentCaptor.getValue();
+        ArgumentCaptor<Marigold.MarigoldHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(Marigold.MarigoldHandler.class);
+        verify(marigold).setUserEmail(eq(userEmail), argumentCaptor.capture());
+        Marigold.MarigoldHandler<Void> handler = argumentCaptor.getValue();
 
         // Test success handler
         handler.onSuccess(null);
@@ -392,7 +392,7 @@ public class RNSailthruMobileModuleTest {
 
         // Test error handler
         handler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_DEVICE, errorMessage);
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, errorMessage);
     }
 
     @Test
@@ -404,7 +404,7 @@ public class RNSailthruMobileModuleTest {
         Error error = mock(Error.class);
 
         // Initiate test
-        rnSailthruMobileModule.getUnreadCount(promise);
+        rnMarigoldModule.getUnreadCount(promise);
 
         // Capture MessagesHandler to verify behaviour
         @SuppressWarnings("unchecked")
@@ -422,7 +422,7 @@ public class RNSailthruMobileModuleTest {
 
         // Test error handler
         countHandler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_MESSAGES, errorMessage);
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, errorMessage);
     }
 
     @Test
@@ -433,13 +433,13 @@ public class RNSailthruMobileModuleTest {
         ReadableMap readableMap = mock(ReadableMap.class);
         Message message = mock(Message.class);
 
-        RNSailthruMobileModule moduleSpy = spy(rnSailthruMobileModule);
+        RNMarigoldModule moduleSpy = spy(rnMarigoldModule);
         doReturn(message).when(moduleSpy).getMessage(readableMap);
 
         // Initiate test
         moduleSpy.removeMessage(readableMap, promise);
 
-        // Capture SailthruMobileHandler to verify behaviour
+        // Capture MarigoldHandler to verify behaviour
         ArgumentCaptor<MessageStream.MessageDeletedHandler> argumentCaptor = ArgumentCaptor.forClass(MessageStream.MessageDeletedHandler.class);
         verify(messageStream).deleteMessage(eq(message), argumentCaptor.capture());
         MessageStream.MessageDeletedHandler handler = argumentCaptor.getValue();
@@ -454,7 +454,7 @@ public class RNSailthruMobileModuleTest {
 
         // Test error handler
         handler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_MESSAGES, errorMessage);
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, errorMessage);
     }
 
     @Test
@@ -464,14 +464,14 @@ public class RNSailthruMobileModuleTest {
         ReadableMap readableMap = mock(ReadableMap.class);
         JSONException jsonException = new JSONException("test exception");
 
-        RNSailthruMobileModule moduleSpy = spy(rnSailthruMobileModule);
+        RNMarigoldModule moduleSpy = spy(rnMarigoldModule);
         doThrow(jsonException).when(moduleSpy).getMessage(readableMap);
 
         // Initiate test
         moduleSpy.removeMessage(readableMap, promise);
 
         // Verify result
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_MESSAGES, jsonException.getMessage());
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, jsonException.getMessage());
         verify(messageStream, times(0)).deleteMessage(any(Message.class), any(MessageStream.MessageDeletedHandler.class));
     }
 
@@ -482,10 +482,10 @@ public class RNSailthruMobileModuleTest {
         ReadableMap readableMap = mock(ReadableMap.class);
         Message message = mock(Message.class);
 
-        doReturn(message).when(rnSailthruMobileModuleSpy).getMessage(readableMap);
+        doReturn(message).when(rnMarigoldModuleSpy).getMessage(readableMap);
 
         // Initiate test
-        rnSailthruMobileModuleSpy.registerMessageImpression(typeCode, readableMap);
+        rnMarigoldModuleSpy.registerMessageImpression(typeCode, readableMap);
 
         // Verify result
         verify(messageStream).registerMessageImpression(ImpressionType.IMPRESSION_TYPE_IN_APP_VIEW, message);
@@ -498,7 +498,7 @@ public class RNSailthruMobileModuleTest {
         ReadableMap readableMap = mock(ReadableMap.class);
 
         // Initiate test
-        rnSailthruMobileModuleSpy.registerMessageImpression(typeCode, readableMap);
+        rnMarigoldModuleSpy.registerMessageImpression(typeCode, readableMap);
 
         // Verify result
         verify(messageStream, times(0)).registerMessageImpression(any(ImpressionType.class), any(Message.class));
@@ -511,10 +511,10 @@ public class RNSailthruMobileModuleTest {
         ReadableMap readableMap = mock(ReadableMap.class);
         JSONException jsonException = mock(JSONException.class);
 
-        doThrow(jsonException).when(rnSailthruMobileModuleSpy).getMessage(readableMap);
+        doThrow(jsonException).when(rnMarigoldModuleSpy).getMessage(readableMap);
 
         // Initiate test
-        rnSailthruMobileModuleSpy.registerMessageImpression(typeCode, readableMap);
+        rnMarigoldModuleSpy.registerMessageImpression(typeCode, readableMap);
 
         // Verify result
         verify(jsonException).printStackTrace();
@@ -529,13 +529,13 @@ public class RNSailthruMobileModuleTest {
         Message message = mock(Message.class);
         Error error = mock(Error.class);
 
-        RNSailthruMobileModule moduleSpy = spy(rnSailthruMobileModule);
+        RNMarigoldModule moduleSpy = spy(rnMarigoldModule);
         doReturn(message).when(moduleSpy).getMessage(readableMap);
 
         // Initiate test
         moduleSpy.markMessageAsRead(readableMap, promise);
 
-        // Capture SailthruMobileHandler to verify behaviour
+        // Capture MarigoldHandler to verify behaviour
         ArgumentCaptor<MessageStream.MessagesReadHandler> argumentCaptor = ArgumentCaptor.forClass(MessageStream.MessagesReadHandler.class);
         verify(messageStream).setMessageRead(eq(message), argumentCaptor.capture());
         MessageStream.MessagesReadHandler handler = argumentCaptor.getValue();
@@ -550,7 +550,7 @@ public class RNSailthruMobileModuleTest {
 
         // Test error handler
         handler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_MESSAGES, errorMessage);
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, errorMessage);
     }
 
     @Test
@@ -560,14 +560,14 @@ public class RNSailthruMobileModuleTest {
         Promise promise = mock(Promise.class);
         JSONException jsonException = new JSONException("test exception");
 
-        RNSailthruMobileModule moduleSpy = spy(rnSailthruMobileModule);
+        RNMarigoldModule moduleSpy = spy(rnMarigoldModule);
         doThrow(jsonException).when(moduleSpy).getMessage(readableMap);
 
         // Initiate test
         moduleSpy.markMessageAsRead(readableMap, promise);
 
         // Verify result
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_MESSAGES, jsonException.getMessage());
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, jsonException.getMessage());
         verify(messageStream, times(0)).setMessageRead(any(Message.class), any(MessageStream.MessagesReadHandler.class));
     }
 
@@ -582,12 +582,12 @@ public class RNSailthruMobileModuleTest {
         Intent intent = mock(Intent.class);
 
         // Mock behaviour
-        when(message.getString(RNSailthruMobileModule.MESSAGE_ID)).thenReturn(messageID);
-        doReturn(activity).when(rnSailthruMobileModuleSpy).currentActivity();
-        doReturn(intent).when(rnSailthruMobileModuleSpy).getMessageActivityIntent(any(Activity.class), anyString());
+        when(message.getString(RNMarigoldModule.MESSAGE_ID)).thenReturn(messageID);
+        doReturn(activity).when(rnMarigoldModuleSpy).currentActivity();
+        doReturn(intent).when(rnMarigoldModuleSpy).getMessageActivityIntent(any(Activity.class), anyString());
 
         // Initiate test
-        rnSailthruMobileModuleSpy.presentMessageDetail(message);
+        rnMarigoldModuleSpy.presentMessageDetail(message);
 
         // Verify result
         verify(activity).startActivity(intent);
@@ -602,15 +602,15 @@ public class RNSailthruMobileModuleTest {
         String sectionID = "Section ID";
 
         // Initiate test
-        rnSailthruMobileModuleSpy.getRecommendations(sectionID, promise);
+        rnMarigoldModuleSpy.getRecommendations(sectionID, promise);
 
         // Capture MessagesHandler to verify behaviour
-        ArgumentCaptor<SailthruMobile.RecommendationsHandler> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.RecommendationsHandler.class);
-        verify(sailthruMobile).getRecommendations(eq(sectionID), argumentCaptor.capture());
-        SailthruMobile.RecommendationsHandler recommendationsHandler = argumentCaptor.getValue();
+        ArgumentCaptor<Marigold.RecommendationsHandler> argumentCaptor = ArgumentCaptor.forClass(Marigold.RecommendationsHandler.class);
+        verify(marigold).getRecommendations(eq(sectionID), argumentCaptor.capture());
+        Marigold.RecommendationsHandler recommendationsHandler = argumentCaptor.getValue();
 
         // Replace native array with mock
-        doReturn(writableArray).when(rnSailthruMobileModuleSpy).getWritableArray();
+        doReturn(writableArray).when(rnMarigoldModuleSpy).getWritableArray();
 
         // Setup message array
         ArrayList<ContentItem> contentItems = new ArrayList<>();
@@ -625,7 +625,7 @@ public class RNSailthruMobileModuleTest {
 
         // Test error handler
         recommendationsHandler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_RECOMMENDATIONS, errorMessage);
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_RECOMMENDATIONS, errorMessage);
     }
 
     @Test
@@ -637,16 +637,16 @@ public class RNSailthruMobileModuleTest {
         Error error = new Error("test error");
 
         // Initiate test
-        rnSailthruMobileModule.trackClick(sectionID, urlString, promise);
+        rnMarigoldModule.trackClick(sectionID, urlString, promise);
 
         // Capture arguments to verify behaviour
         ArgumentCaptor<URI> uriCaptor = ArgumentCaptor.forClass(URI.class);
-        ArgumentCaptor<SailthruMobile.TrackHandler> handlerCaptor = ArgumentCaptor.forClass(SailthruMobile.TrackHandler.class);
+        ArgumentCaptor<Marigold.TrackHandler> handlerCaptor = ArgumentCaptor.forClass(Marigold.TrackHandler.class);
 
         // Verify result
-        verify(sailthruMobile).trackClick(eq(sectionID), uriCaptor.capture(), handlerCaptor.capture());
+        verify(marigold).trackClick(eq(sectionID), uriCaptor.capture(), handlerCaptor.capture());
         URI uri = uriCaptor.getValue();
-        SailthruMobile.TrackHandler trackHandler = handlerCaptor.getValue();
+        Marigold.TrackHandler trackHandler = handlerCaptor.getValue();
 
         Assert.assertEquals(urlString, uri.toString());
 
@@ -654,7 +654,7 @@ public class RNSailthruMobileModuleTest {
         verify(promise).resolve(true);
 
         trackHandler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_TRACKING, error.getMessage());
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_TRACKING, error.getMessage());
     }
 
     @Test
@@ -665,11 +665,11 @@ public class RNSailthruMobileModuleTest {
         String urlString = "Wrong URL Format";
 
         // Initiate test
-        rnSailthruMobileModule.trackClick(sectionID, urlString, promise);
+        rnMarigoldModule.trackClick(sectionID, urlString, promise);
 
         // Verify result
-        verify(promise).reject(eq(RNSailthruMobileModule.ERROR_CODE_TRACKING), anyString());
-        verify(sailthruMobile, times(0)).trackClick(anyString(), any(URI.class), any(SailthruMobile.TrackHandler.class));
+        verify(promise).reject(eq(RNMarigoldModule.ERROR_CODE_TRACKING), anyString());
+        verify(marigold, times(0)).trackClick(anyString(), any(URI.class), any(Marigold.TrackHandler.class));
     }
 
     @Test
@@ -687,18 +687,18 @@ public class RNSailthruMobileModuleTest {
         when(tagsArray.getString(anyInt())).thenReturn(testTag);
 
         // Initiate test
-        rnSailthruMobileModule.trackPageview(urlString, tagsArray, promise);
+        rnMarigoldModule.trackPageview(urlString, tagsArray, promise);
 
         // Capture arguments to verify behaviour
         ArgumentCaptor<URI> uriCaptor = ArgumentCaptor.forClass(URI.class);
         ArgumentCaptor<ArrayList<String>> arrayCaptor = ArgumentCaptor.forClass(ArrayList.class);
-        ArgumentCaptor<SailthruMobile.TrackHandler> handlerCaptor = ArgumentCaptor.forClass(SailthruMobile.TrackHandler.class);
+        ArgumentCaptor<Marigold.TrackHandler> handlerCaptor = ArgumentCaptor.forClass(Marigold.TrackHandler.class);
 
         // Verify result
-        verify(sailthruMobile).trackPageview(uriCaptor.capture(), arrayCaptor.capture(), handlerCaptor.capture());
+        verify(marigold).trackPageview(uriCaptor.capture(), arrayCaptor.capture(), handlerCaptor.capture());
         URI uri = uriCaptor.getValue();
         ArrayList<String> tags = arrayCaptor.getValue();
-        SailthruMobile.TrackHandler trackHandler = handlerCaptor.getValue();
+        Marigold.TrackHandler trackHandler = handlerCaptor.getValue();
 
         Assert.assertEquals(urlString, uri.toString());
 
@@ -708,7 +708,7 @@ public class RNSailthruMobileModuleTest {
         verify(promise).resolve(true);
 
         trackHandler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_TRACKING, error.getMessage());
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_TRACKING, error.getMessage());
     }
 
     @Test
@@ -718,10 +718,10 @@ public class RNSailthruMobileModuleTest {
         String urlString = "www.notarealurl.com";
 
         // Initiate test
-        rnSailthruMobileModule.trackPageview(urlString, null, promise);
+        rnMarigoldModule.trackPageview(urlString, null, promise);
 
         // Verify result
-        verify(sailthruMobile).trackPageview(any(URI.class), ArgumentMatchers.isNull(), any(SailthruMobile.TrackHandler.class));
+        verify(marigold).trackPageview(any(URI.class), ArgumentMatchers.isNull(), any(Marigold.TrackHandler.class));
     }
 
     @Test
@@ -731,11 +731,11 @@ public class RNSailthruMobileModuleTest {
         String urlString = "Wrong URL Format";
 
         // Initiate test
-        rnSailthruMobileModule.trackPageview(urlString, null, promise);
+        rnMarigoldModule.trackPageview(urlString, null, promise);
 
         // Verify result
-        verify(promise).reject(eq(RNSailthruMobileModule.ERROR_CODE_TRACKING), anyString());
-        verify(sailthruMobile, times(0)).trackPageview(any(URI.class), ArgumentMatchers.anyList(), any(SailthruMobile.TrackHandler.class));
+        verify(promise).reject(eq(RNMarigoldModule.ERROR_CODE_TRACKING), anyString());
+        verify(marigold, times(0)).trackPageview(any(URI.class), ArgumentMatchers.anyList(), any(Marigold.TrackHandler.class));
     }
 
     @Test
@@ -753,16 +753,16 @@ public class RNSailthruMobileModuleTest {
         doReturn(urlString).when(readableArray).getString(anyInt());
 
         // Initiate test
-        rnSailthruMobileModule.trackImpression(sectionID, readableArray, promise);
+        rnMarigoldModule.trackImpression(sectionID, readableArray, promise);
 
         // Capture arguments to verify behaviour
         ArgumentCaptor<List<URI>> uriCaptor = ArgumentCaptor.forClass(List.class);
-        ArgumentCaptor<SailthruMobile.TrackHandler> handlerCaptor = ArgumentCaptor.forClass(SailthruMobile.TrackHandler.class);
+        ArgumentCaptor<Marigold.TrackHandler> handlerCaptor = ArgumentCaptor.forClass(Marigold.TrackHandler.class);
 
         // Verify result
-        verify(sailthruMobile).trackImpression(eq(sectionID), uriCaptor.capture(), handlerCaptor.capture());
+        verify(marigold).trackImpression(eq(sectionID), uriCaptor.capture(), handlerCaptor.capture());
         List<URI> uriList = uriCaptor.getValue();
-        SailthruMobile.TrackHandler trackHandler = handlerCaptor.getValue();
+        Marigold.TrackHandler trackHandler = handlerCaptor.getValue();
 
         Assert.assertEquals(urlString, uriList.get(0).toString());
 
@@ -770,7 +770,7 @@ public class RNSailthruMobileModuleTest {
         verify(promise).resolve(true);
 
         trackHandler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_TRACKING, error.getMessage());
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_TRACKING, error.getMessage());
     }
 
     @Test
@@ -780,10 +780,10 @@ public class RNSailthruMobileModuleTest {
         String sectionID = "Section ID";
 
         // Initiate test
-        rnSailthruMobileModule.trackImpression(sectionID, null, promise);
+        rnMarigoldModule.trackImpression(sectionID, null, promise);
 
         // Verify result
-        verify(sailthruMobile).trackImpression(eq(sectionID), ArgumentMatchers.isNull(), any(SailthruMobile.TrackHandler.class));
+        verify(marigold).trackImpression(eq(sectionID), ArgumentMatchers.isNull(), any(Marigold.TrackHandler.class));
     }
 
     @Test
@@ -799,20 +799,20 @@ public class RNSailthruMobileModuleTest {
         doReturn(urlString).when(readableArray).getString(anyInt());
 
         // Initiate test
-        rnSailthruMobileModule.trackImpression(sectionID, readableArray, promise);
+        rnMarigoldModule.trackImpression(sectionID, readableArray, promise);
 
         // Verify result
-        verify(promise).reject(eq(RNSailthruMobileModule.ERROR_CODE_TRACKING), anyString());
-        verify(sailthruMobile, times(0)).trackImpression(anyString(), ArgumentMatchers.anyList(), any(SailthruMobile.TrackHandler.class));
+        verify(promise).reject(eq(RNMarigoldModule.ERROR_CODE_TRACKING), anyString());
+        verify(marigold, times(0)).trackImpression(anyString(), ArgumentMatchers.anyList(), any(Marigold.TrackHandler.class));
     }
 
     @Test
     public void testSetGeoIPTrackingEnabled() {
         // Initiate test
-        rnSailthruMobileModule.setGeoIPTrackingEnabled(true);
+        rnMarigoldModule.setGeoIPTrackingEnabled(true);
 
         // Verify result
-        verify(sailthruMobile).setGeoIpTrackingEnabled(true);
+        verify(marigold).setGeoIpTrackingEnabled(true);
     }
 
     @Test
@@ -822,13 +822,13 @@ public class RNSailthruMobileModuleTest {
         Error error = mock(Error.class);
 
         // Initiate test
-        rnSailthruMobileModule.setGeoIPTrackingEnabled(false, promise);
+        rnMarigoldModule.setGeoIPTrackingEnabled(false, promise);
 
         // Verify result
         @SuppressWarnings("unchecked")
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
-        verify(sailthruMobile).setGeoIpTrackingEnabled(eq(false), argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler<Void> clearHandler = argumentCaptor.getValue();
+        ArgumentCaptor<Marigold.MarigoldHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(Marigold.MarigoldHandler.class);
+        verify(marigold).setGeoIpTrackingEnabled(eq(false), argumentCaptor.capture());
+        Marigold.MarigoldHandler<Void> clearHandler = argumentCaptor.getValue();
 
         // Test success handler
         clearHandler.onSuccess(null);
@@ -840,24 +840,24 @@ public class RNSailthruMobileModuleTest {
 
         // Test error handler
         clearHandler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_DEVICE, errorMessage);
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, errorMessage);
     }
 
     @Test
     public void testClearDevice() {
         // Create input
-        int clearValue = SailthruMobile.ATTRIBUTES;
+        int clearValue = Marigold.ATTRIBUTES;
         Promise promise = mock(Promise.class);
         Error error = mock(Error.class);
 
         // Initiate test
-        rnSailthruMobileModule.clearDevice(clearValue, promise);
+        rnMarigoldModule.clearDevice(clearValue, promise);
 
         // Verify result
         @SuppressWarnings("unchecked")
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
-        verify(sailthruMobile).clearDevice(eq(clearValue), argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler<Void> clearHandler = argumentCaptor.getValue();
+        ArgumentCaptor<Marigold.MarigoldHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(Marigold.MarigoldHandler.class);
+        verify(marigold).clearDevice(eq(clearValue), argumentCaptor.capture());
+        Marigold.MarigoldHandler<Void> clearHandler = argumentCaptor.getValue();
 
         // Test success handler
         clearHandler.onSuccess(null);
@@ -869,7 +869,7 @@ public class RNSailthruMobileModuleTest {
 
         // Test error handler
         clearHandler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_DEVICE, errorMessage);
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, errorMessage);
     }
 
     @Test
@@ -885,13 +885,13 @@ public class RNSailthruMobileModuleTest {
         when(jsonConverter.convertMapToJson(vars)).thenReturn(varsJson);
 
         // Initiate test
-        rnSailthruMobileModuleSpy.setProfileVars(vars, promise);
+        rnMarigoldModuleSpy.setProfileVars(vars, promise);
 
         // Verify result
         @SuppressWarnings("unchecked")
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
-        verify(sailthruMobile).setProfileVars(eq(varsJson), argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler<Void> setVarsHandler = argumentCaptor.getValue();
+        ArgumentCaptor<Marigold.MarigoldHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(Marigold.MarigoldHandler.class);
+        verify(marigold).setProfileVars(eq(varsJson), argumentCaptor.capture());
+        Marigold.MarigoldHandler<Void> setVarsHandler = argumentCaptor.getValue();
 
         // Test success handler
         setVarsHandler.onSuccess(null);
@@ -903,7 +903,7 @@ public class RNSailthruMobileModuleTest {
 
         // Test error handler
         setVarsHandler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_VARS, errorMessage);
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_VARS, errorMessage);
     }
 
     @Test
@@ -919,11 +919,11 @@ public class RNSailthruMobileModuleTest {
         when(jsonConverter.convertMapToJson(vars)).thenThrow(jsonException);
 
         // Initiate test
-        rnSailthruMobileModuleSpy.setProfileVars(vars, promise);
+        rnMarigoldModuleSpy.setProfileVars(vars, promise);
 
         // Verify result
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_VARS, jsonException.getMessage());
-        verify(sailthruMobile, times(0)).setProfileVars(any(JSONObject.class), any(SailthruMobile.SailthruMobileHandler.class));
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_VARS, jsonException.getMessage());
+        verify(marigold, times(0)).setProfileVars(any(JSONObject.class), any(Marigold.MarigoldHandler.class));
     }
 
     @Test
@@ -938,13 +938,13 @@ public class RNSailthruMobileModuleTest {
         when(jsonConverter.convertJsonToMap(varsJson)).thenReturn(mockMap);
 
         // Initiate test
-        rnSailthruMobileModuleSpy.getProfileVars(promise);
+        rnMarigoldModuleSpy.getProfileVars(promise);
 
         // Verify result
         @SuppressWarnings("unchecked")
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<JSONObject>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
-        verify(sailthruMobile).getProfileVars(argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler<JSONObject> getVarsHandler = spy(argumentCaptor.getValue());
+        ArgumentCaptor<Marigold.MarigoldHandler<JSONObject>> argumentCaptor = ArgumentCaptor.forClass(Marigold.MarigoldHandler.class);
+        verify(marigold).getProfileVars(argumentCaptor.capture());
+        Marigold.MarigoldHandler<JSONObject> getVarsHandler = spy(argumentCaptor.getValue());
 
         // Test success handler
         getVarsHandler.onSuccess(varsJson);
@@ -957,7 +957,7 @@ public class RNSailthruMobileModuleTest {
 
         // Test error handler
         getVarsHandler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_VARS, errorMessage);
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_VARS, errorMessage);
     }
 
     @Test
@@ -969,16 +969,16 @@ public class RNSailthruMobileModuleTest {
         Error error = mock(Error.class);
 
         // Mock methods
-        doReturn(purchase).when(rnSailthruMobileModuleSpy).getPurchaseInstance(purchaseMap);
+        doReturn(purchase).when(rnMarigoldModuleSpy).getPurchaseInstance(purchaseMap);
 
         // Initiate test
-        rnSailthruMobileModuleSpy.logPurchase(purchaseMap, promise);
+        rnMarigoldModuleSpy.logPurchase(purchaseMap, promise);
 
         // Verify result
         @SuppressWarnings("unchecked")
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
-        verify(sailthruMobile).logPurchase(eq(purchase), argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler<Void> purchaseHandler = argumentCaptor.getValue();
+        ArgumentCaptor<Marigold.MarigoldHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(Marigold.MarigoldHandler.class);
+        verify(marigold).logPurchase(eq(purchase), argumentCaptor.capture());
+        Marigold.MarigoldHandler<Void> purchaseHandler = argumentCaptor.getValue();
 
         // Test success handler
         purchaseHandler.onSuccess(null);
@@ -990,7 +990,7 @@ public class RNSailthruMobileModuleTest {
 
         // Test error handler
         purchaseHandler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_PURCHASE, errorMessage);
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_PURCHASE, errorMessage);
     }
 
     @Test
@@ -1002,14 +1002,14 @@ public class RNSailthruMobileModuleTest {
         JSONException jsonException = new JSONException("test exception");
 
         // Mock methods
-        doThrow(jsonException).when(rnSailthruMobileModuleSpy).getPurchaseInstance(purchaseMap);
+        doThrow(jsonException).when(rnMarigoldModuleSpy).getPurchaseInstance(purchaseMap);
 
         // Initiate test
-        rnSailthruMobileModuleSpy.logPurchase(purchaseMap, promise);
+        rnMarigoldModuleSpy.logPurchase(purchaseMap, promise);
 
         // Verify result
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_PURCHASE, jsonException.getMessage());
-        verify(sailthruMobile, times(0)).logPurchase(any(Purchase.class), any(SailthruMobile.SailthruMobileHandler.class));
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_PURCHASE, jsonException.getMessage());
+        verify(marigold, times(0)).logPurchase(any(Purchase.class), any(Marigold.MarigoldHandler.class));
     }
 
     @Test
@@ -1021,16 +1021,16 @@ public class RNSailthruMobileModuleTest {
         Error error = mock(Error.class);
 
         // Mock methods
-        doReturn(purchase).when(rnSailthruMobileModuleSpy).getPurchaseInstance(purchaseMap);
+        doReturn(purchase).when(rnMarigoldModuleSpy).getPurchaseInstance(purchaseMap);
 
         // Initiate test
-        rnSailthruMobileModuleSpy.logAbandonedCart(purchaseMap, promise);
+        rnMarigoldModuleSpy.logAbandonedCart(purchaseMap, promise);
 
         // Verify result
         @SuppressWarnings("unchecked")
-        ArgumentCaptor<SailthruMobile.SailthruMobileHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(SailthruMobile.SailthruMobileHandler.class);
-        verify(sailthruMobile).logAbandonedCart(eq(purchase), argumentCaptor.capture());
-        SailthruMobile.SailthruMobileHandler<Void> purchaseHandler = argumentCaptor.getValue();
+        ArgumentCaptor<Marigold.MarigoldHandler<Void>> argumentCaptor = ArgumentCaptor.forClass(Marigold.MarigoldHandler.class);
+        verify(marigold).logAbandonedCart(eq(purchase), argumentCaptor.capture());
+        Marigold.MarigoldHandler<Void> purchaseHandler = argumentCaptor.getValue();
 
         // Test success handler
         purchaseHandler.onSuccess(null);
@@ -1042,7 +1042,7 @@ public class RNSailthruMobileModuleTest {
 
         // Test error handler
         purchaseHandler.onFailure(error);
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_PURCHASE, errorMessage);
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_PURCHASE, errorMessage);
     }
 
     @Test
@@ -1054,14 +1054,14 @@ public class RNSailthruMobileModuleTest {
         JSONException jsonException = new JSONException("test exception");
 
         // Mock methods
-        doThrow(jsonException).when(rnSailthruMobileModuleSpy).getPurchaseInstance(purchaseMap);
+        doThrow(jsonException).when(rnMarigoldModuleSpy).getPurchaseInstance(purchaseMap);
 
         // Initiate test
-        rnSailthruMobileModuleSpy.logAbandonedCart(purchaseMap, promise);
+        rnMarigoldModuleSpy.logAbandonedCart(purchaseMap, promise);
 
         // Verify result
-        verify(promise).reject(RNSailthruMobileModule.ERROR_CODE_PURCHASE, jsonException.getMessage());
-        verify(sailthruMobile, times(0)).logAbandonedCart(any(Purchase.class), any(SailthruMobile.SailthruMobileHandler.class));
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_PURCHASE, jsonException.getMessage());
+        verify(marigold, times(0)).logAbandonedCart(any(Purchase.class), any(Marigold.MarigoldHandler.class));
     }
 
     @Test
@@ -1072,7 +1072,7 @@ public class RNSailthruMobileModuleTest {
         when(jsonConverter.convertMapToJson(readableMap, false)).thenReturn(purchaseJson);
 
         // Initiate test
-        Purchase purchase = rnSailthruMobileModuleSpy.getPurchaseInstance(readableMap);
+        Purchase purchase = rnMarigoldModuleSpy.getPurchaseInstance(readableMap);
 
         // Verify result
         verify(jsonConverter).convertMapToJson(readableMap, false);
@@ -1097,7 +1097,7 @@ public class RNSailthruMobileModuleTest {
         when(jsonConverter.convertMapToJson(readableMap, false)).thenReturn(purchaseJson);
 
         // Initiate test
-        Purchase purchase = rnSailthruMobileModuleSpy.getPurchaseInstance(readableMap);
+        Purchase purchase = rnMarigoldModuleSpy.getPurchaseInstance(readableMap);
 
         // Verify result
         verify(jsonConverter).convertMapToJson(readableMap, false);
@@ -1122,7 +1122,7 @@ public class RNSailthruMobileModuleTest {
         when(jsonConverter.convertMapToJson(readableMap)).thenReturn(messageJson);
 
         // Initiate test
-        Message message = rnSailthruMobileModuleSpy.getMessage(readableMap);
+        Message message = rnMarigoldModuleSpy.getMessage(readableMap);
 
         // Verify result
         verify(jsonConverter).convertMapToJson(readableMap);
@@ -1140,7 +1140,7 @@ public class RNSailthruMobileModuleTest {
         when(jsonConverter.convertMapToJson(readableMap)).thenReturn(attributeJson);
 
         // Initiate test
-        AttributeMap attributeMap = rnSailthruMobileModuleSpy.getAttributeMap(readableMap);
+        AttributeMap attributeMap = rnMarigoldModuleSpy.getAttributeMap(readableMap);
 
         // Verify result
         verify(jsonConverter).convertMapToJson(readableMap);

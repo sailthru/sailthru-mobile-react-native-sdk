@@ -1,11 +1,11 @@
-package com.sailthru.mobile.rnsdk;
+package com.marigold.rnsdk;
 
 import android.content.Context;
 
 import com.facebook.react.bridge.JavaScriptModule;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.sailthru.mobile.sdk.SailthruMobile;
+import com.marigold.sdk.Marigold;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,44 +20,44 @@ import java.util.List;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RNSailthruMobilePackageTest {
+public class RNMarigoldPackageTest {
     @Mock
     private Context mockContext;
     @Mock
     private ReactApplicationContext reactApplicationContext;
     @Mock
-    private MockedConstruction<RNSailthruMobileModule> staticRnSailthruMobileModule;
+    private MockedConstruction<RNMarigoldModule> staticRnMarigoldModule;
     @Mock
-    private MockedConstruction<SailthruMobile> staticSailthruMobile;
+    private MockedConstruction<Marigold> staticMarigold;
 
-    private SailthruMobile sailthruMobile;
+    private Marigold marigold;
 
     private final String appKey = "App Key";
-    private RNSailthruMobilePackage.Builder builder;
+    private RNMarigoldPackage.Builder builder;
 
-    private RNSailthruMobilePackage rnSTPackage;
+    private RNMarigoldPackage rnSTPackage;
 
     @Before
     public void setup() {
-        builder = RNSailthruMobilePackage.Builder.createInstance(mockContext, appKey).setDisplayInAppNotifications(false).setGeoIPTrackingDefault(false);
+        builder = RNMarigoldPackage.Builder.createInstance(mockContext, appKey).setDisplayInAppNotifications(false).setGeoIPTrackingDefault(false);
 
-        rnSTPackage = new RNSailthruMobilePackage(mockContext, appKey);
+        rnSTPackage = new RNMarigoldPackage(mockContext, appKey);
 
-        sailthruMobile = staticSailthruMobile.constructed().get(0);
+        marigold = staticMarigold.constructed().get(0);
     }
 
     @Test
     public void testConstructor() {
-        verify(sailthruMobile).startEngine(mockContext, appKey);
+        verify(marigold).startEngine(mockContext, appKey);
     }
 
     @Test
     public void testBuilderConstructor() {
-        RNSailthruMobilePackage rnSTPackageFromBuilderConstructor = new RNSailthruMobilePackage(builder);
-        sailthruMobile = staticSailthruMobile.constructed().get(1);
-        verify(sailthruMobile).startEngine(mockContext, appKey);
-        verify(sailthruMobile).setGeoIpTrackingDefault(false);
-        verify(sailthruMobile).setGeoIpTrackingDefault(false);
+        RNMarigoldPackage rnSTPackageFromBuilderConstructor = new RNMarigoldPackage(builder);
+        marigold = staticMarigold.constructed().get(1);
+        verify(marigold).startEngine(mockContext, appKey);
+        verify(marigold).setGeoIpTrackingDefault(false);
+        verify(marigold).setGeoIpTrackingDefault(false);
         Assert.assertFalse(rnSTPackageFromBuilderConstructor.displayInAppNotifications);
     }
 
@@ -66,7 +66,7 @@ public class RNSailthruMobilePackageTest {
         List<NativeModule> nativeModules = rnSTPackage.createNativeModules(reactApplicationContext);
         Assert.assertEquals(1, nativeModules.size());
         NativeModule nativeModule = nativeModules.get(0);
-        Assert.assertEquals(staticRnSailthruMobileModule.constructed().get(0), nativeModule);
+        Assert.assertEquals(staticRnMarigoldModule.constructed().get(0), nativeModule);
     }
 
     @Test
@@ -87,31 +87,31 @@ public class RNSailthruMobilePackageTest {
 
     @Test
     public void testBuilderCreateInstance() {
-        RNSailthruMobilePackage.Builder builder = RNSailthruMobilePackage.Builder.createInstance(mockContext, appKey);
+        RNMarigoldPackage.Builder builder = RNMarigoldPackage.Builder.createInstance(mockContext, appKey);
         Assert.assertEquals(mockContext, builder.context);
         Assert.assertEquals(appKey, builder.appKey);
     }
 
     @Test
     public void testBuilderSetDisplayInAppNotifications() {
-        RNSailthruMobilePackage.Builder builder = RNSailthruMobilePackage.Builder.createInstance(mockContext, appKey)
+        RNMarigoldPackage.Builder builder = RNMarigoldPackage.Builder.createInstance(mockContext, appKey)
                 .setDisplayInAppNotifications(false);
         Assert.assertFalse(builder.displayInAppNotifications);
     }
 
     @Test
     public void testBuilderSetGeoIPTrackingDefault() {
-        RNSailthruMobilePackage.Builder builder = RNSailthruMobilePackage.Builder.createInstance(mockContext, appKey)
+        RNMarigoldPackage.Builder builder = RNMarigoldPackage.Builder.createInstance(mockContext, appKey)
                 .setGeoIPTrackingDefault(false);
         Assert.assertFalse(builder.geoIPTrackingDefault);
     }
 
     @Test
     public void testBuilderBuild() {
-        RNSailthruMobilePackage rnSTPackageFromBuilderBuild = builder.build();
-        sailthruMobile = staticSailthruMobile.constructed().get(1);
-        verify(sailthruMobile).startEngine(mockContext, appKey);
-        verify(sailthruMobile).setGeoIpTrackingDefault(false);
+        RNMarigoldPackage rnSTPackageFromBuilderBuild = builder.build();
+        marigold = staticMarigold.constructed().get(1);
+        verify(marigold).startEngine(mockContext, appKey);
+        verify(marigold).setGeoIpTrackingDefault(false);
         Assert.assertFalse(rnSTPackageFromBuilderBuild.displayInAppNotifications);
     }
 }

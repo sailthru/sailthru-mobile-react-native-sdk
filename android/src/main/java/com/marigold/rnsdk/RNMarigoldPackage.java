@@ -1,12 +1,12 @@
 
-package com.sailthru.mobile.rnsdk;
+package com.marigold.rnsdk;
 
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
-import com.sailthru.mobile.sdk.SailthruMobile;
+import com.marigold.sdk.Marigold;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JavaScriptModule;
 import com.facebook.react.bridge.NativeModule;
@@ -18,31 +18,31 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * React native package for the Sailthru Mobile SDK.
+ * React native package for the Marigold SDK.
  */
-public class RNSailthruMobilePackage implements ReactPackage {
+public class RNMarigoldPackage implements ReactPackage {
     protected boolean displayInAppNotifications = true;
     @VisibleForTesting
-    SailthruMobile sailthruMobile = new SailthruMobile();
+    Marigold marigold = new Marigold();
 
     /**
      * Default constructor - for auto linking
      */
-    public RNSailthruMobilePackage() {}
+    public RNMarigoldPackage() {}
 
     /**
-     * Constructor for the RNSailthruMobilePackage.
+     * Constructor for the RNMarigoldPackage.
      *
      * @param context                   the application context
      * @param appKey                    the app key provided when you registered your application.
      */
-    public RNSailthruMobilePackage(Context context, String appKey) {
-        sailthruMobile.startEngine(context, appKey);
+    public RNMarigoldPackage(Context context, String appKey) {
+        marigold.startEngine(context, appKey);
     }
 
-    protected RNSailthruMobilePackage(Builder builder) {
-        sailthruMobile.setGeoIpTrackingDefault(builder.geoIPTrackingDefault);
-        sailthruMobile.startEngine(builder.context, builder.appKey);
+    protected RNMarigoldPackage(Builder builder) {
+        marigold.setGeoIpTrackingDefault(builder.geoIPTrackingDefault);
+        marigold.startEngine(builder.context, builder.appKey);
         this.displayInAppNotifications = builder.displayInAppNotifications;
     }
 
@@ -50,7 +50,7 @@ public class RNSailthruMobilePackage implements ReactPackage {
     @Override
     public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
         List<NativeModule> modules = new ArrayList<>();
-        modules.add(new RNSailthruMobileModule(reactContext, displayInAppNotifications));
+        modules.add(new RNMarigoldModule(reactContext, displayInAppNotifications));
         return modules;
     }
 
@@ -66,8 +66,8 @@ public class RNSailthruMobilePackage implements ReactPackage {
     }
 
     /**
-     * Builder for the RNSailthruMobilePackage class. Use this specify additional options
-     * in the RNSailthruMobilePackage class such as whether to display in app messages.
+     * Builder for the RNMarigoldPackage class. Use this specify additional options
+     * in the RNMarigoldPackage class such as whether to display in app messages.
      */
     public static class Builder {
         protected Context context;
@@ -83,7 +83,7 @@ public class RNSailthruMobilePackage implements ReactPackage {
         }
 
         /**
-         * Create an instance of the RNSailthruMobilePackage builder.
+         * Create an instance of the RNMarigoldPackage builder.
          *
          * @param context                   the application context
          * @param appKey                    the app key provided when you registered your application.
@@ -94,7 +94,7 @@ public class RNSailthruMobilePackage implements ReactPackage {
         }
 
         /**
-         * Get an instance of the RNSailthruMobilePackage builder.
+         * Get an instance of the RNMarigoldPackage builder.
          *
          * @param context                   the application context
          * @param appKey                    the app key provided when you registered your application.
@@ -125,11 +125,11 @@ public class RNSailthruMobilePackage implements ReactPackage {
         }
 
         /**
-         * Create the RNSailthruMobilePackage instance.
-         * @return new RNSailthruMobilePackage instance
+         * Create the RNMarigoldPackage instance.
+         * @return new RNMarigoldPackage instance
          */
-        public RNSailthruMobilePackage build() {
-            return new RNSailthruMobilePackage(this);
+        public RNMarigoldPackage build() {
+            return new RNMarigoldPackage(this);
         }
     }
 }

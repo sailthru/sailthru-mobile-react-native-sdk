@@ -1,5 +1,5 @@
 
-package com.sailthru.mobile.rnsdk;
+package com.marigold.rnsdk;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -9,14 +9,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
 import com.facebook.react.bridge.WritableNativeArray;
-import com.sailthru.mobile.sdk.model.AttributeMap;
-import com.sailthru.mobile.sdk.SailthruMobile;
-import com.sailthru.mobile.sdk.MessageStream;
-import com.sailthru.mobile.sdk.enums.ImpressionType;
-import com.sailthru.mobile.sdk.model.ContentItem;
-import com.sailthru.mobile.sdk.model.Message;
-import com.sailthru.mobile.sdk.MessageActivity;
-import com.sailthru.mobile.sdk.model.Purchase;
+import com.marigold.sdk.model.AttributeMap;
+import com.marigold.sdk.Marigold;
+import com.marigold.sdk.MessageStream;
+import com.marigold.sdk.enums.ImpressionType;
+import com.marigold.sdk.model.ContentItem;
+import com.marigold.sdk.model.Message;
+import com.marigold.sdk.MessageActivity;
+import com.marigold.sdk.model.Purchase;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -43,28 +43,28 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * React native module for the Sailthru Mobile SDK.
+ * React native module for the Marigold SDK.
  */
-public class RNSailthruMobileModule extends ReactContextBaseJavaModule implements MessageStream.OnInAppNotificationDisplayListener {
+public class RNMarigoldModule extends ReactContextBaseJavaModule implements MessageStream.OnInAppNotificationDisplayListener {
 
-    protected final static String ERROR_CODE_DEVICE = "sailthru.mobile.device";
-    protected final static String ERROR_CODE_MESSAGES = "sailthru.mobile.messages";
-    protected final static String ERROR_CODE_RECOMMENDATIONS = "sailthru.mobile.recommendations";
-    protected final static String ERROR_CODE_TRACKING = "sailthru.mobile.tracking";
-    protected final static String ERROR_CODE_VARS = "sailthru.mobile.vars";
-    protected final static String ERROR_CODE_PURCHASE = "sailthru.mobile.purchase";
+    protected final static String ERROR_CODE_DEVICE = "marigold.device";
+    protected final static String ERROR_CODE_MESSAGES = "marigold.messages";
+    protected final static String ERROR_CODE_RECOMMENDATIONS = "marigold.recommendations";
+    protected final static String ERROR_CODE_TRACKING = "marigold.tracking";
+    protected final static String ERROR_CODE_VARS = "marigold.vars";
+    protected final static String ERROR_CODE_PURCHASE = "marigold.purchase";
     protected final static String MESSAGE_ID = "id";
 
     private final boolean displayInAppNotifications;
 
     @VisibleForTesting
-    SailthruMobile sailthruMobile = new SailthruMobile();
+    Marigold marigold = new Marigold();
     @VisibleForTesting
     MessageStream messageStream = new MessageStream();
     @VisibleForTesting
     JsonConverter jsonConverter = new JsonConverter();
 
-    public RNSailthruMobileModule(ReactApplicationContext reactContext, boolean displayInAppNotifications) {
+    public RNMarigoldModule(ReactApplicationContext reactContext, boolean displayInAppNotifications) {
         super(reactContext);
         this.displayInAppNotifications = displayInAppNotifications;
 
@@ -88,7 +88,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     @Override
     public @NonNull String getName() {
-        return "RNSailthruMobile";
+        return "RNMarigold";
     }
 
     protected static void setWrapperInfo() {
@@ -97,9 +97,9 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             cArg[0] = String.class;
             cArg[1] = String.class;
 
-            Method setWrapperMethod = SailthruMobile.Companion.getClass().getDeclaredMethod("setWrapper", cArg);
+            Method setWrapperMethod = Marigold.Companion.getClass().getDeclaredMethod("setWrapper", cArg);
             setWrapperMethod.setAccessible(true);
-            setWrapperMethod.invoke(SailthruMobile.Companion, "React Native", "10.0.0");
+            setWrapperMethod.invoke(Marigold.Companion, "React Native", "10.0.0");
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
@@ -107,7 +107,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     @ReactMethod
     public void startEngine(String sdkKey) {
-        getReactApplicationContext().runOnUiQueueThread(() -> sailthruMobile.startEngine(getReactApplicationContext(), sdkKey));
+        getReactApplicationContext().runOnUiQueueThread(() -> marigold.startEngine(getReactApplicationContext(), sdkKey));
     }
 
     @ReactMethod
@@ -115,12 +115,12 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
         Activity activity = currentActivity();
         if (activity == null) return;
 
-        sailthruMobile.requestNotificationPermission(activity);
+        marigold.requestNotificationPermission(activity);
     }
 
     @ReactMethod
     public void syncNotificationSettings() {
-        sailthruMobile.syncNotificationSettings();
+        marigold.syncNotificationSettings();
     }
 
     @ReactMethod
@@ -129,12 +129,12 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
         location.setLatitude(latitude);
         location.setLongitude(longitude);
 
-        sailthruMobile.updateLocation(location);
+        marigold.updateLocation(location);
     }
 
     @ReactMethod
     public void getDeviceID(final Promise promise) {
-        sailthruMobile.getDeviceId(new SailthruMobile.SailthruMobileHandler<String>() {
+        marigold.getDeviceId(new Marigold.MarigoldHandler<String>() {
             @Override
             public void onSuccess(String s) {
                 promise.resolve(s);
@@ -149,7 +149,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     @ReactMethod
     public void logEvent(String value) {
-        sailthruMobile.logEvent(value);
+        marigold.logEvent(value);
     }
 
     @ReactMethod
@@ -161,7 +161,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             e.printStackTrace();
         }
 
-        sailthruMobile.logEvent(eventName, varsJson);
+        marigold.logEvent(eventName, varsJson);
     }
 
     @ReactMethod
@@ -174,7 +174,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             return;
         }
 
-        sailthruMobile.setAttributes(attributeMap, new SailthruMobile.AttributesHandler() {
+        marigold.setAttributes(attributeMap, new Marigold.AttributesHandler() {
             @Override
             public void onSuccess() {
                 promise.resolve(null);
@@ -224,7 +224,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     @ReactMethod
     public void setUserId(String userId, final Promise promise) {
-        sailthruMobile.setUserId(userId, new SailthruMobile.SailthruMobileHandler<Void>() {
+        marigold.setUserId(userId, new Marigold.MarigoldHandler<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 promise.resolve(null);
@@ -239,7 +239,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     @ReactMethod
     public void setUserEmail(String userEmail, final Promise promise) {
-        sailthruMobile.setUserEmail(userEmail, new SailthruMobile.SailthruMobileHandler<Void>() {
+        marigold.setUserEmail(userEmail, new Marigold.MarigoldHandler<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 promise.resolve(null);
@@ -365,7 +365,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
      */
     @ReactMethod
     public void getRecommendations(String sectionId, final Promise promise) {
-        sailthruMobile.getRecommendations(sectionId, new SailthruMobile.RecommendationsHandler() {
+        marigold.getRecommendations(sectionId, new Marigold.RecommendationsHandler() {
             @Override
             public void onSuccess(@NonNull ArrayList<ContentItem> contentItems) {
                 WritableArray array = getWritableArray();
@@ -396,7 +396,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             return;
         }
 
-        sailthruMobile.trackClick(sectionId, uri, new SailthruMobile.TrackHandler() {
+        marigold.trackClick(sectionId, uri, new Marigold.TrackHandler() {
             @Override
             public void onSuccess() {
                 promise.resolve(true);
@@ -427,7 +427,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             }
         }
 
-        sailthruMobile.trackPageview(uri, convertedTags, new SailthruMobile.TrackHandler() {
+        marigold.trackPageview(uri, convertedTags, new Marigold.TrackHandler() {
             @Override
             public void onSuccess() {
                 promise.resolve(true);
@@ -455,7 +455,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             }
         }
 
-        sailthruMobile.trackImpression(sectionId, convertedUrls, new SailthruMobile.TrackHandler() {
+        marigold.trackImpression(sectionId, convertedUrls, new Marigold.TrackHandler() {
             @Override
             public void onSuccess() {
                 promise.resolve(true);
@@ -470,12 +470,12 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     @ReactMethod
     public void setGeoIPTrackingEnabled(boolean enabled) {
-        sailthruMobile.setGeoIpTrackingEnabled(enabled);
+        marigold.setGeoIpTrackingEnabled(enabled);
     }
 
     @ReactMethod
     public void setGeoIPTrackingEnabled(boolean enabled, final Promise promise) {
-        sailthruMobile.setGeoIpTrackingEnabled(enabled, new SailthruMobile.SailthruMobileHandler<Void>() {
+        marigold.setGeoIpTrackingEnabled(enabled, new Marigold.MarigoldHandler<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 promise.resolve(true);
@@ -496,7 +496,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     @ReactMethod
     public void clearDevice(int options, final Promise promise) {
-        sailthruMobile.clearDevice(options, new SailthruMobile.SailthruMobileHandler<Void>() {
+        marigold.clearDevice(options, new Marigold.MarigoldHandler<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 promise.resolve(true);
@@ -519,7 +519,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             return;
         }
 
-        sailthruMobile.setProfileVars(varsJson, new SailthruMobile.SailthruMobileHandler<Void>() {
+        marigold.setProfileVars(varsJson, new Marigold.MarigoldHandler<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 promise.resolve(true);
@@ -534,7 +534,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
 
     @ReactMethod
     public void getProfileVars(final Promise promise) {
-        sailthruMobile.getProfileVars(new SailthruMobile.SailthruMobileHandler<JSONObject>() {
+        marigold.getProfileVars(new Marigold.MarigoldHandler<JSONObject>() {
             @Override
             public void onSuccess(JSONObject jsonObject) {
                 try {
@@ -562,7 +562,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             return;
         }
 
-        sailthruMobile.logPurchase(purchase, new SailthruMobile.SailthruMobileHandler<Void>() {
+        marigold.logPurchase(purchase, new Marigold.MarigoldHandler<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 promise.resolve(true);
@@ -585,7 +585,7 @@ public class RNSailthruMobileModule extends ReactContextBaseJavaModule implement
             return;
         }
 
-        sailthruMobile.logAbandonedCart(purchase, new SailthruMobile.SailthruMobileHandler<Void>() {
+        marigold.logAbandonedCart(purchase, new Marigold.MarigoldHandler<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 promise.resolve(true);
