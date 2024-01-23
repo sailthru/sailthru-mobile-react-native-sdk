@@ -8,6 +8,9 @@ import com.facebook.react.bridge.JavaScriptModule
 import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.uimanager.ViewManager
+import java.util.ArrayList
+import java.util.Collections
+import java.util.List
 
 /**
  * React native package for the Marigold SDK.
@@ -16,7 +19,7 @@ class RNMarigoldPackage : ReactPackage {
     protected var displayInAppNotifications = true
 
     @VisibleForTesting
-    var marigold: Marigold = Marigold()
+    var marigold = Marigold()
 
     /**
      * Default constructor - for auto linking
@@ -38,21 +41,18 @@ class RNMarigoldPackage : ReactPackage {
         marigold.startEngine(builder.context, builder.appKey)
         displayInAppNotifications = builder.displayInAppNotifications
     }
-
-    @NonNull
-    fun createNativeModules(@NonNull reactContext: ReactApplicationContext?): List<NativeModule> {
-        val modules: MutableList<NativeModule> = java.util.ArrayList<NativeModule>()
+    override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
+        val modules = ArrayList()
         modules.add(RNMarigoldModule(reactContext, displayInAppNotifications))
         return modules
     }
 
-    fun createJSModules(): List<java.lang.Class<out JavaScriptModule?>> {
-        return emptyList<java.lang.Class<out JavaScriptModule?>>()
+    fun createJSModules(): List<Class<out JavaScriptModule?>> {
+        return Collections.emptyList()
     }
-
-    @NonNull
-    fun createViewManagers(@NonNull reactContext: ReactApplicationContext?): List<ViewManager> {
-        return emptyList<ViewManager>()
+    @SuppressWarnings("rawtypes")
+    override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager> {
+        return Collections.emptyList()
     }
 
     /**
@@ -60,15 +60,15 @@ class RNMarigoldPackage : ReactPackage {
      * in the RNMarigoldPackage class such as whether to display in app messages.
      */
     class Builder {
-        var context: Context? = null
-        var appKey: String? = null
+        var context = null
+        var appKey = null
         var displayInAppNotifications = true
         var geoIPTrackingDefault = true
 
         /**
          * Default constructor - should not be used
          */
-        @Suppress("unused")
+        @SuppressWarnings("unused")
         private constructor()
 
         /**

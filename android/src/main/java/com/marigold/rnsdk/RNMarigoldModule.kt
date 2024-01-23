@@ -50,8 +50,8 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
         protected const val MESSAGE_ID = "id"
         protected fun setWrapperInfo() {
             try {
-                val cArg: Array<Class<*>> = arrayOf(String::class.java, String::class.java)
-                val setWrapperMethod: Method = Marigold.Companion.getClass().getDeclaredMethod("setWrapper", cArg)
+                val cArg = arrayOf(String::class.java, String::class.java)
+                val setWrapperMethod = Marigold.Companion.getClass().getDeclaredMethod("setWrapper", cArg)
                 setWrapperMethod.setAccessible(true)
                 setWrapperMethod.invoke(Marigold.Companion, "React Native", "10.0.0")
             } catch (e: NoSuchMethodException) {
@@ -65,22 +65,22 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
     }
 
     @VisibleForTesting
-    var marigold: Marigold = Marigold()
+    var marigold = Marigold()
 
     @VisibleForTesting
-    var messageStream: MessageStream = MessageStream()
+    var messageStream = MessageStream()
 
     @VisibleForTesting
-    var jsonConverter: JsonConverter = JsonConverter()
+    var jsonConverter = JsonConverter()
 
     init {
         messageStream.setOnInAppNotificationDisplayListener(this)
         setWrapperInfo()
     }
 
-    override fun shouldPresentInAppNotification(@NonNull message: Message): Boolean {
+    override fun shouldPresentInAppNotification(message: Message): Boolean {
         try {
-            val writableMap: WritableMap = jsonConverter.convertJsonToMap(message.toJSON())
+            val writableMap = jsonConverter.convertJsonToMap(message.toJSON())
             reactApplicationContext
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                     .emit("inappnotification", writableMap)
@@ -103,7 +103,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
     @ReactMethod
     fun registerForPushNotifications() {
-        val activity: Activity = currentActivity() ?: return
+        val activity = currentActivity() ?: return
         marigold.requestNotificationPermission(activity)
     }
 
@@ -140,7 +140,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
     @ReactMethod
     fun logEvent(eventName: String?, varsMap: ReadableMap?) {
-        var varsJson: JSONObject? = null
+        var varsJson = null
         try {
             varsJson = jsonConverter.convertMapToJson(varsMap)
         } catch (e: JSONException) {
@@ -151,8 +151,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
     @ReactMethod
     fun setAttributes(readableMap: ReadableMap?, promise: Promise) {
-        val attributeMap: AttributeMap
-        attributeMap = try {
+        val attributeMap = try {
             getAttributeMap(readableMap)
         } catch (e: JSONException) {
             promise.reject(ERROR_CODE_DEVICE, e.getMessage())
@@ -163,7 +162,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
                 promise.resolve(null)
             }
 
-            override fun onFailure(@NonNull error: Error) {
+            override fun onFailure(error: Error) {
                 promise.reject(ERROR_CODE_DEVICE, error.getMessage())
             }
         })
@@ -239,7 +238,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
                 promise.resolve(integer)
             }
 
-            override fun onFailure(@NonNull error: Error) {
+            override fun onFailure(error: Error) {
                 promise.reject(ERROR_CODE_MESSAGES, error.getMessage())
             }
         })
@@ -247,8 +246,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
     @ReactMethod
     fun removeMessage(messageMap: ReadableMap?, promise: Promise) {
-        val message: Message
-        message = try {
+        val message = try {
             getMessage(messageMap)
         } catch (e: JSONException) {
             promise.reject(ERROR_CODE_MESSAGES, e.getMessage())
@@ -279,15 +277,13 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
     @ReactMethod
     fun registerMessageImpression(typeCode: Int, messageMap: ReadableMap?) {
-        val type: ImpressionType
-        type = when (typeCode) {
+        val type = when (typeCode) {
             0 -> ImpressionType.IMPRESSION_TYPE_IN_APP_VIEW
             1 -> ImpressionType.IMPRESSION_TYPE_STREAM_VIEW
             2 -> ImpressionType.IMPRESSION_TYPE_DETAIL_VIEW
             else -> return
         }
-        val message: Message
-        message = try {
+        val message = try {
             getMessage(messageMap)
         } catch (e: JSONException) {
             e.printStackTrace()
@@ -310,8 +306,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
     @ReactMethod
     fun markMessageAsRead(messageMap: ReadableMap?, promise: Promise) {
-        val message: Message
-        message = try {
+        val message = try {
             getMessage(messageMap)
         } catch (e: JSONException) {
             promise.reject(ERROR_CODE_MESSAGES, e.getMessage())
@@ -334,7 +329,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
                 promise.resolve(null)
             }
 
-            override fun onFailure(@NonNull error: Error) {
+            override fun onFailure(error: Error) {
                 promise.reject(ERROR_CODE_MESSAGES, error.getMessage())
             }
         })
@@ -342,10 +337,10 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
     @ReactMethod
     fun presentMessageDetail(message: ReadableMap) {
-        val messageId: String = message.getString(MESSAGE_ID)
-        val activity: Activity = currentActivity()
+        val messageId = message.getString(MESSAGE_ID)
+        val activity = currentActivity()
         if (messageId == null || activity == null) return
-        val i: Intent = getMessageActivityIntent(activity, messageId)
+        val i = getMessageActivityIntent(activity, messageId)
         activity.startActivity(i)
     }
 
@@ -355,7 +350,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
     }
 
     // wrapped for testing
-    protected fun getMessageActivityIntent(@NotNull activity: Activity?, @NotNull messageId: String?): Intent {
+    protected fun getMessageActivityIntent(activity: Activity, messageId: String): Intent {
         return MessageActivity.intentForMessage(activity, null, messageId)
     }
 
@@ -370,9 +365,9 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
      */
     @ReactMethod
     fun getRecommendations(sectionId: String?, promise: Promise) {
-        marigold.getRecommendations(sectionId, object : RecommendationsHandler() {
-            override fun onSuccess(@NonNull contentItems: ArrayList<ContentItem?>) {
-                val array: WritableArray = writableArray
+        marigold.getRecommendations(sectionId, object : Marigold.RecommendationsHandler() {
+            override fun onSuccess(contentItems: ArrayList<ContentItem>) {
+                val array = getWritableArray()
                 try {
                     for (contentItem in contentItems) {
                         array.pushMap(jsonConverter.convertJsonToMap(contentItem.toJSON()))
@@ -383,36 +378,33 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
                 }
             }
 
-            override fun onFailure(@NonNull error: Error) {
+            override fun onFailure(error: Error) {
                 promise.reject(ERROR_CODE_RECOMMENDATIONS, error.getMessage())
             }
         })
     }
 
     @ReactMethod
-    fun trackClick(sectionId: String?, url: String?, promise: Promise) {
-        val uri: URI
+    fun trackClick(sectionId: String, url: String, promise: Promise) {
         try {
-            uri = URI(url)
-        } catch (e: URISyntaxException) {
-            promise.reject(ERROR_CODE_TRACKING, e.getMessage())
-            return
-        }
-        marigold.trackClick(sectionId, uri, object : TrackHandler() {
-            override fun onSuccess() {
-                promise.resolve(true)
-            }
+            val uri = URI(url)
+            marigold.trackClick(sectionId, uri, object : Marigold.TrackHandler {
+                override fun onSuccess() {
+                    promise.resolve(true)
+                }
 
-            override fun onFailure(@NonNull error: Error) {
-                promise.reject(ERROR_CODE_TRACKING, error.getMessage())
-            }
-        })
+                override fun onFailure(error: Error) {
+                    promise.reject(ERROR_CODE_TRACKING, error.message)
+                }
+            })
+        } catch (e: URISyntaxException) {
+            promise.reject(ERROR_CODE_TRACKING, e.message)
+        }
     }
 
     @ReactMethod
     fun trackPageview(url: String?, tags: ReadableArray?, promise: Promise) {
-        val uri: URI
-        try {
+        val uri = try {
             uri = URI(url)
         } catch (e: URISyntaxException) {
             promise.reject(ERROR_CODE_TRACKING, e.getMessage())
@@ -430,7 +422,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
                 promise.resolve(true)
             }
 
-            override fun onFailure(@NonNull error: Error) {
+            override fun onFailure(error: Error) {
                 promise.reject(ERROR_CODE_TRACKING, error.getMessage())
             }
         })
@@ -455,7 +447,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
                 promise.resolve(true)
             }
 
-            override fun onFailure(@NonNull error: Error) {
+            override fun onFailure(error: Error) {
                 promise.reject(ERROR_CODE_TRACKING, error.getMessage())
             }
         })
@@ -468,12 +460,12 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
     @ReactMethod
     fun setGeoIPTrackingEnabled(enabled: Boolean, promise: Promise) {
-        marigold.setGeoIpTrackingEnabled(enabled, object : MarigoldHandler<Void?>() {
+        marigold.setGeoIpTrackingEnabled(enabled, object : Marigold.MarigoldHandler<Void?>() {
             override fun onSuccess(aVoid: Void?) {
                 promise.resolve(true)
             }
 
-            override fun onFailure(@NonNull error: Error) {
+            override fun onFailure(error: Error) {
                 promise.reject(ERROR_CODE_DEVICE, error.getMessage())
             }
         })
@@ -492,7 +484,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
                 promise.resolve(true)
             }
 
-            override fun onFailure(@NonNull error: Error) {
+            override fun onFailure(error: Error) {
                 promise.reject(ERROR_CODE_DEVICE, error.getMessage())
             }
         })
@@ -500,19 +492,18 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
     @ReactMethod
     fun setProfileVars(vars: ReadableMap?, promise: Promise) {
-        val varsJson: JSONObject
-        varsJson = try {
+        val varsJson = try {
             jsonConverter.convertMapToJson(vars)
         } catch (e: JSONException) {
             promise.reject(ERROR_CODE_VARS, e.getMessage())
             return
         }
-        marigold.setProfileVars(varsJson, object : MarigoldHandler<Void?>() {
+        marigold.setProfileVars(varsJson, object : Marigold.MarigoldHandler<Void?>() {
             override fun onSuccess(aVoid: Void?) {
                 promise.resolve(true)
             }
 
-            override fun onFailure(@NonNull error: Error) {
+            override fun onFailure(error: Error) {
                 promise.reject(ERROR_CODE_VARS, error.getMessage())
             }
         })
@@ -520,17 +511,17 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
     @ReactMethod
     fun getProfileVars(promise: Promise) {
-        marigold.getProfileVars(object : MarigoldHandler<JSONObject?>() {
+        marigold.getProfileVars(object : Marigold.MarigoldHandler<JSONObject?>() {
             override fun onSuccess(jsonObject: JSONObject?) {
                 try {
-                    val vars: WritableMap = jsonConverter.convertJsonToMap(jsonObject)
+                    val vars = jsonConverter.convertJsonToMap(jsonObject)
                     promise.resolve(vars)
                 } catch (e: JSONException) {
                     promise.reject(ERROR_CODE_VARS, e.getMessage())
                 }
             }
 
-            override fun onFailure(@NonNull error: Error) {
+            override fun onFailure(error: Error) {
                 promise.reject(ERROR_CODE_VARS, error.getMessage())
             }
         })
@@ -538,8 +529,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
     @ReactMethod
     fun logPurchase(purchaseMap: ReadableMap?, promise: Promise) {
-        val purchase: Purchase
-        purchase = try {
+        val purchase = try {
             getPurchaseInstance(purchaseMap)
         } catch (e: JSONException) {
             promise.reject(ERROR_CODE_PURCHASE, e.getMessage())
@@ -557,12 +547,12 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
             promise.reject(ERROR_CODE_PURCHASE, e.getMessage())
             return
         }
-        marigold.logPurchase(purchase, object : MarigoldHandler<Void?>() {
+        marigold.logPurchase(purchase, object : Marigold.MarigoldHandler<Void?>() {
             override fun onSuccess(aVoid: Void?) {
                 promise.resolve(true)
             }
 
-            override fun onFailure(@NonNull error: Error) {
+            override fun onFailure(error: Error) {
                 promise.reject(ERROR_CODE_PURCHASE, error.getMessage())
             }
         })
@@ -570,8 +560,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
     @ReactMethod
     fun logAbandonedCart(purchaseMap: ReadableMap?, promise: Promise) {
-        val purchase: Purchase
-        purchase = try {
+        val purchase = try {
             getPurchaseInstance(purchaseMap)
         } catch (e: JSONException) {
             promise.reject(ERROR_CODE_PURCHASE, e.getMessage())
@@ -589,23 +578,23 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
             promise.reject(ERROR_CODE_PURCHASE, e.getMessage())
             return
         }
-        marigold.logAbandonedCart(purchase, object : MarigoldHandler<Void?>() {
+        marigold.logAbandonedCart(purchase, object : Marigold.MarigoldHandler<Void?>() {
             override fun onSuccess(aVoid: Void?) {
                 promise.resolve(true)
             }
 
-            override fun onFailure(@NonNull error: Error) {
+            override fun onFailure(error: Error) {
                 promise.reject(ERROR_CODE_PURCHASE, error.getMessage())
             }
         })
     }
 
     @VisibleForTesting
-    @NonNull
+    @NotNull
     @kotlin.Throws(JSONException::class, NoSuchMethodException::class, IllegalAccessException::class, InvocationTargetException::class, InstantiationException::class)
     fun getPurchaseInstance(purchaseMap: ReadableMap?): Purchase {
-        val purchaseJson: JSONObject = jsonConverter.convertMapToJson(purchaseMap, false)
-        val purchaseConstructor: Constructor<Purchase> = Purchase::class.java.getDeclaredConstructor(JSONObject::class.java)
+        val purchaseJson = jsonConverter.convertMapToJson(purchaseMap, false)
+        val purchaseConstructor = Purchase::class.java.getDeclaredConstructor(JSONObject::class.java)
         purchaseConstructor.setAccessible(true)
         return purchaseConstructor.newInstance(purchaseJson)
     }
@@ -613,33 +602,33 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
     /*
      * Helper Methods
      */
-    @NonNull
+    @NotNull
     @kotlin.Throws(JSONException::class, NoSuchMethodException::class, IllegalAccessException::class, InvocationTargetException::class, InstantiationException::class)
     protected fun getMessage(messageMap: ReadableMap?): Message {
-        val messageJson: JSONObject = jsonConverter.convertMapToJson(messageMap)
-        val constructor: Constructor<Message> = Message::class.java.getDeclaredConstructor(String::class.java)
+        val messageJson = jsonConverter.convertMapToJson(messageMap)
+        val constructor = Message::class.java.getDeclaredConstructor(String::class.java)
         constructor.setAccessible(true)
         return constructor.newInstance(messageJson.toString())
     }
 
     @VisibleForTesting
-    @NonNull
+    @NotNull
     @kotlin.Throws(JSONException::class)
     fun getAttributeMap(readableMap: ReadableMap?): AttributeMap {
-        val attributeMapJson: JSONObject = jsonConverter.convertMapToJson(readableMap)
-        val attributes: JSONObject = attributeMapJson.getJSONObject("attributes")
+        val attributeMapJson = jsonConverter.convertMapToJson(readableMap)
+        val attributes = attributeMapJson.getJSONObject("attributes")
         val attributeMap = AttributeMap()
         attributeMap.setMergeRules(attributeMapJson.getInt("mergeRule"))
-        val keys: Iterator<String> = attributes.keys()
+        val keys = attributes.keys()
         while (keys.hasNext()) {
             val key = keys.next()
-            val attribute: JSONObject = attributes.getJSONObject(key)
-            val attributeType: String = attribute.getString("type")
+            val attribute = attributes.getJSONObject(key)
+            val attributeType = attribute.getString("type")
             when (attributeType) {
                 "string" -> attributeMap.putString(key, attribute.getString("value"))
                 "stringArray" -> {
-                    val array: ArrayList<String> = ArrayList()
-                    val values: JSONArray = attribute.getJSONArray("value")
+                    val array = ArrayList()
+                    val values = attribute.getJSONArray("value")
                     var i = 0
                     while (i < values.length()) {
                         array.add(values.get(i) as String)
@@ -650,11 +639,11 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
                 "integer" -> attributeMap.putInt(key, attribute.getInt("value"))
                 "integerArray" -> {
-                    val array: ArrayList<Integer> = ArrayList()
-                    val values: JSONArray = attribute.getJSONArray("value")
+                    val array = ArrayList()
+                    val values = attribute.getJSONArray("value")
                     var i = 0
                     while (i < values.length()) {
-                        val j: Integer = values.getInt(i)
+                        val j = values.getInt(i)
                         array.add(j)
                         i++
                     }
@@ -664,11 +653,11 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
                 "boolean" -> attributeMap.putBoolean(key, attribute.getBoolean("value"))
                 "float" -> attributeMap.putFloat(key, attribute.getDouble("value") as Float)
                 "floatArray" -> {
-                    val array: ArrayList<Float> = ArrayList()
-                    val values: JSONArray = attribute.getJSONArray("value")
+                    val array = ArrayList()
+                    val values = attribute.getJSONArray("value")
                     var i = 0
                     while (i < values.length()) {
-                        val value: Float = Float.parseFloat(values.get(i).toString())
+                        val value = Float.parseFloat(values.get(i).toString())
                         array.add(value)
                         i++
                     }
@@ -681,11 +670,11 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
                 }
 
                 "dateArray" -> {
-                    val array: ArrayList<Date> = ArrayList()
-                    val values: JSONArray = attribute.getJSONArray("value")
+                    val array = ArrayList()
+                    val values = attribute.getJSONArray("value")
                     var i = 0
                     while (i < values.length()) {
-                        val dateValue: Long = values.getLong(i)
+                        val dateValue = values.getLong(i)
                         val date = Date(dateValue)
                         array.add(date)
                         i++
