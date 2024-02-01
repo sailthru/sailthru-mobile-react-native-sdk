@@ -18,20 +18,20 @@ import org.mockito.Mockito.verify
 @RunWith(MockitoJUnitRunner::class)
 class RNMarigoldPackageTest {
     @Mock
-    private val mockContext: Context? = null
+    private val mockContext = null
 
     @Mock
-    private val reactApplicationContext: ReactApplicationContext? = null
+    private val reactApplicationContext = null
 
     @Mock
-    private val staticRnMarigoldModule: MockedConstruction<RNMarigoldModule>? = null
+    private val staticRnMarigoldModule = null
 
     @Mock
-    private val staticMarigold: MockedConstruction<Marigold>? = null
-    private var marigold: Marigold? = null
+    private val staticMarigold = null
+    private var marigold = null
     private val appKey = "App Key"
-    private var builder: RNMarigoldPackage.Builder? = null
-    private var rnSTPackage: RNMarigoldPackage? = null
+    private var builder = null
+    private var rnSTPackage = null
 
     @Before
     fun setup() {
@@ -57,49 +57,49 @@ class RNMarigoldPackageTest {
 
     @Test
     fun testCreateNativeModules() {
-        val nativeModules: List<NativeModule> = rnSTPackage.createNativeModules(reactApplicationContext)
+        val nativeModules = rnSTPackage.createNativeModules(reactApplicationContext)
         Assert.assertEquals(1, nativeModules.size())
-        val nativeModule: NativeModule = nativeModules[0]
+        val nativeModule = nativeModules[0]
         Assert.assertEquals(staticRnMarigoldModule.constructed().get(0), nativeModule)
     }
 
     @Test
     fun testCreateJSModules() {
-        val jsModules: List<Class<out JavaScriptModule?>> = rnSTPackage.createJSModules()
+        val jsModules = rnSTPackage.createJSModules()
         Assert.assertTrue(jsModules.isEmpty())
     }
 
     @Test
     fun testCreateViewManagers() {
-        @SuppressWarnings("rawtypes") val viewManagers: List<com.facebook.react.uimanager.ViewManager> = rnSTPackage.createViewManagers(reactApplicationContext)
+        @SuppressWarnings("rawtypes") val viewManagers = rnSTPackage.createViewManagers(reactApplicationContext)
         Assert.assertTrue(viewManagers.isEmpty())
     }
 
     // Builder Tests
     @Test
     fun testBuilderCreateInstance() {
-        val builder: RNMarigoldPackage.Builder = RNMarigoldPackage.Builder.createInstance(mockContext, appKey)
+        val builder = RNMarigoldPackage.Builder.createInstance(mockContext, appKey)
         Assert.assertEquals(mockContext, builder.context)
         Assert.assertEquals(appKey, builder.appKey)
     }
 
     @Test
     fun testBuilderSetDisplayInAppNotifications() {
-        val builder: RNMarigoldPackage.Builder = RNMarigoldPackage.Builder.createInstance(mockContext, appKey)
+        val builder = RNMarigoldPackage.Builder.createInstance(mockContext, appKey)
                 .setDisplayInAppNotifications(false)
         Assert.assertFalse(builder.displayInAppNotifications)
     }
 
     @Test
     fun testBuilderSetGeoIPTrackingDefault() {
-        val builder: RNMarigoldPackage.Builder = RNMarigoldPackage.Builder.createInstance(mockContext, appKey)
+        val builder = RNMarigoldPackage.Builder.createInstance(mockContext, appKey)
                 .setGeoIPTrackingDefault(false)
         Assert.assertFalse(builder.geoIPTrackingDefault)
     }
 
     @Test
     fun testBuilderBuild() {
-        val rnSTPackageFromBuilderBuild: RNMarigoldPackage = builder.build()
+        val rnSTPackageFromBuilderBuild = builder.build()
         marigold = staticMarigold.constructed().get(1)
         verify(marigold).startEngine(mockContext, appKey)
         verify(marigold).setGeoIpTrackingDefault(false)

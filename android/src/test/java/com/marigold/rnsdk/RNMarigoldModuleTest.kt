@@ -54,26 +54,26 @@ import org.mockito.Mockito.`when`
 @RunWith(MockitoJUnitRunner::class)
 class RNMarigoldModuleTest {
     @Mock
-    private val mockContext: ReactApplicationContext? = null
+    private val mockContext = null
 
     @Mock
-    private val jsonConverter: JsonConverter? = null
+    private val jsonConverter = null
 
     @Mock
-    private val staticRnMarigoldModule: MockedStatic<RNMarigoldModule>? = null
+    private val staticRnMarigoldModule = null
 
     @Mock
-    private val staticMarigold: MockedConstruction<Marigold>? = null
+    private val staticMarigold = null
 
     @Mock
-    private val staticMessageStream: MockedConstruction<MessageStream>? = null
-    private var marigold: Marigold? = null
-    private var messageStream: MessageStream? = null
+    private val staticMessageStream = null
+    private var marigold = null
+    private var messageStream = null
 
     @Captor
-    private val runnableCaptor: ArgumentCaptor<Runnable>? = null
-    private var rnMarigoldModule: RNMarigoldModule? = null
-    private var rnMarigoldModuleSpy: RNMarigoldModule? = null
+    private val runnableCaptor = null
+    private var rnMarigoldModule = null
+    private var rnMarigoldModuleSpy = null
     @Before
     fun setup() {
         rnMarigoldModule = RNMarigoldModule(mockContext, true)
