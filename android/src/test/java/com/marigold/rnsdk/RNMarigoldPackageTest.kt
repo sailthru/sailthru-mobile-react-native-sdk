@@ -11,33 +11,33 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockedConstruction
-import org.mockito.junit.MockitoJUnitRunner
-import java.util.List
 import org.mockito.Mockito.verify
+import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
 class RNMarigoldPackageTest {
     @Mock
-    private val mockContext = null
-
+    private lateinit var mockContext: Context
     @Mock
-    private val reactApplicationContext = null
-
+    private lateinit var reactApplicationContext: ReactApplicationContext
     @Mock
-    private val staticRnMarigoldModule = null
-
+    private lateinit var staticRnMarigoldModule: MockedConstruction<RNMarigoldModule>
     @Mock
-    private val staticMarigold = null
-    private var marigold = null
+    private lateinit var staticMarigold: MockedConstruction<Marigold>
+
+    private lateinit var marigold: Marigold
+
     private val appKey = "App Key"
-    private var builder = null
-    private var rnSTPackage = null
+    private lateinit var builder: RNMarigoldPackage.Builder
+
+    private lateinit var rnSTPackage: RNMarigoldPackage
 
     @Before
     fun setup() {
         builder = RNMarigoldPackage.Builder.createInstance(mockContext, appKey).setDisplayInAppNotifications(false).setGeoIPTrackingDefault(false)
         rnSTPackage = RNMarigoldPackage(mockContext, appKey)
-        marigold = staticMarigold.constructed().get(0)
+
+        marigold = staticMarigold.constructed()[0]
     }
 
     @Test
@@ -48,7 +48,7 @@ class RNMarigoldPackageTest {
     @Test
     fun testBuilderConstructor() {
         val rnSTPackageFromBuilderConstructor = RNMarigoldPackage(builder)
-        marigold = staticMarigold.constructed().get(1)
+        marigold = staticMarigold.constructed()[1]
         verify(marigold).startEngine(mockContext, appKey)
         verify(marigold).setGeoIpTrackingDefault(false)
         verify(marigold).setGeoIpTrackingDefault(false)
@@ -58,9 +58,9 @@ class RNMarigoldPackageTest {
     @Test
     fun testCreateNativeModules() {
         val nativeModules = rnSTPackage.createNativeModules(reactApplicationContext)
-        Assert.assertEquals(1, nativeModules.size())
+        Assert.assertEquals(1, nativeModules.size)
         val nativeModule = nativeModules[0]
-        Assert.assertEquals(staticRnMarigoldModule.constructed().get(0), nativeModule)
+        Assert.assertEquals(staticRnMarigoldModule.constructed()[0], nativeModule)
     }
 
     @Test
@@ -71,11 +71,12 @@ class RNMarigoldPackageTest {
 
     @Test
     fun testCreateViewManagers() {
-        @SuppressWarnings("rawtypes") val viewManagers = rnSTPackage.createViewManagers(reactApplicationContext)
+        val viewManagers = rnSTPackage.createViewManagers(reactApplicationContext)
         Assert.assertTrue(viewManagers.isEmpty())
     }
 
     // Builder Tests
+
     @Test
     fun testBuilderCreateInstance() {
         val builder = RNMarigoldPackage.Builder.createInstance(mockContext, appKey)
@@ -100,7 +101,7 @@ class RNMarigoldPackageTest {
     @Test
     fun testBuilderBuild() {
         val rnSTPackageFromBuilderBuild = builder.build()
-        marigold = staticMarigold.constructed().get(1)
+        marigold = staticMarigold.constructed()[1]
         verify(marigold).startEngine(mockContext, appKey)
         verify(marigold).setGeoIpTrackingDefault(false)
         Assert.assertFalse(rnSTPackageFromBuilderBuild.displayInAppNotifications)

@@ -9,7 +9,7 @@ import com.marigold.sdk.model.AttributeMap
 import com.marigold.sdk.Marigold
 import com.marigold.sdk.MessageStream
 import com.marigold.sdk.enums.ImpressionType
-import com.marigold.sdk.model.ContentItem
+//import com.marigold.sdk.model.ContentItem
 import com.marigold.sdk.model.Message
 import com.marigold.sdk.MessageActivity
 import com.marigold.sdk.model.Purchase
@@ -20,39 +20,39 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableArray
-import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
-import org.json.JSONArray
+import com.marigold.sdk.EngageBySailthru
 import org.json.JSONException
 import org.json.JSONObject
-import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
-import java.lang.reflect.Method
 import java.net.URI
 import java.net.URISyntaxException
 import java.util.ArrayList
 import java.util.Date
-import java.util.Iterator
-import java.util.List
 
 /**
  * React native module for the Marigold SDK.
  */
-class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, private val displayInAppNotifications: Boolean) : ReactContextBaseJavaModule(reactContext), MessageStream.OnInAppNotificationDisplayListener {
+class RNMarigoldModule(reactContext: ReactApplicationContext, private val displayInAppNotifications: Boolean) : ReactContextBaseJavaModule(reactContext), MessageStream.OnInAppNotificationDisplayListener {
 
     companion object {
-        protected const val ERROR_CODE_DEVICE = "marigold.device"
-        protected const val ERROR_CODE_MESSAGES = "marigold.messages"
-        protected const val ERROR_CODE_RECOMMENDATIONS = "marigold.recommendations"
-        protected const val ERROR_CODE_TRACKING = "marigold.tracking"
-        protected const val ERROR_CODE_VARS = "marigold.vars"
-        protected const val ERROR_CODE_PURCHASE = "marigold.purchase"
-        protected const val MESSAGE_ID = "id"
-        protected fun setWrapperInfo() {
+        const val ERROR_CODE_DEVICE = "marigold.device"
+        const val ERROR_CODE_MESSAGES = "marigold.messages"
+        const val ERROR_CODE_RECOMMENDATIONS = "marigold.recommendations"
+        const val ERROR_CODE_TRACKING = "marigold.tracking"
+        const val ERROR_CODE_VARS = "marigold.vars"
+        const val ERROR_CODE_PURCHASE = "marigold.purchase"
+        const val MESSAGE_ID = "id"
+        fun setWrapperInfo() {
             try {
+                //val setWrapperMethod = Marigold::class.java.getDeclaredMethod("setWrapper", String::class.java, String::class.java)
                 val cArg = arrayOf(String::class.java, String::class.java)
-                val setWrapperMethod = Marigold.Companion.getClass().getDeclaredMethod("setWrapper", cArg)
-                setWrapperMethod.setAccessible(true)
+//                val setWrapperMethod = Marigold::class.java.getDeclaredMethod("setWrapper", *cArg)
+
+                val companionClass = Marigold.Companion::class.java
+                val setWrapperMethod = companionClass.getDeclaredMethod("setWrapper", *cArg)
+
+                setWrapperMethod.isAccessible = true
                 setWrapperMethod.invoke(Marigold.Companion, "React Native", "10.0.0")
             } catch (e: NoSuchMethodException) {
                 e.printStackTrace()
@@ -66,6 +66,9 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
     @VisibleForTesting
     var marigold = Marigold()
+
+    @VisibleForTesting
+    var engage = EngageBySailthru()
 
     @VisibleForTesting
     var messageStream = MessageStream()
@@ -95,10 +98,8 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
     }
 
     @ReactMethod
-    fun startEngine(sdkKey: String?) {
-        reactApplicationContext.runOnUiQueueThread {
-            marigold.startEngine(reactApplicationContext, sdkKey)
-        }
+    fun startEngine(sdkKey: String) {
+        reactApplicationContext.runOnUiQueueThread { marigold.startEngine(reactApplicationContext, sdkKey) }
     }
 
     @ReactMethod
@@ -123,8 +124,8 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
     @ReactMethod
     fun getDeviceID(promise: Promise) {
         marigold.getDeviceId(object : Marigold.MarigoldHandler<String?> {
-            override fun onSuccess(s: String) {
-                promise.resolve(s)
+            override fun onSuccess(value: String?) {
+                promise.resolve(value)
             }
 
             override fun onFailure(error: Error) {
@@ -134,36 +135,36 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
     }
 
     @ReactMethod
-    fun logEvent(value: String?) {
-        marigold.logEvent(value)
+    fun logEvent(value: String) {
+        engage.logEvent(value)
     }
 
     @ReactMethod
-    fun logEvent(eventName: String?, varsMap: ReadableMap?) {
-        var varsJson = null
+    fun logEvent(eventName: String, varsMap: ReadableMap) {
+        var varsJson: JSONObject? = null
         try {
             varsJson = jsonConverter.convertMapToJson(varsMap)
         } catch (e: JSONException) {
             e.printStackTrace()
         }
-        marigold.logEvent(eventName, varsJson)
+        engage.logEvent(eventName, varsJson)
     }
 
     @ReactMethod
-    fun setAttributes(readableMap: ReadableMap?, promise: Promise) {
+    fun setAttributes(readableMap: ReadableMap, promise: Promise) {
         val attributeMap = try {
             getAttributeMap(readableMap)
         } catch (e: JSONException) {
-            promise.reject(ERROR_CODE_DEVICE, e.getMessage())
+            promise.reject(ERROR_CODE_DEVICE, e.message)
             return
         }
-        marigold.setAttributes(attributeMap, object : Marigold.AttributesHandler() {
+        engage.setAttributes(attributeMap, object : EngageBySailthru.AttributesHandler {
             override fun onSuccess() {
                 promise.resolve(null)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(ERROR_CODE_DEVICE, error.getMessage())
+                promise.reject(ERROR_CODE_DEVICE, error.message)
             }
         })
     }
@@ -178,8 +179,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
                     toJsonMethod.isAccessible = true
 
                     for (message in messages) {
-                        val messageJson = toJsonMethod.invoke(message) as? JSONObject
-                        if (messageJson == null) continue
+                        val messageJson = toJsonMethod.invoke(message) as? JSONObject ?: continue
                         array.pushMap(jsonConverter.convertJsonToMap(messageJson))
                     }
                     promise.resolve(array)
@@ -207,76 +207,76 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
     @ReactMethod
     fun setUserId(userId: String?, promise: Promise) {
-        marigold.setUserId(userId, object : Marigold.MarigoldHandler<Void?>() {
-            override fun onSuccess(aVoid: Void?) {
+        engage.setUserId(userId, object : Marigold.MarigoldHandler<Void?> {
+            override fun onSuccess(value: Void?) {
                 promise.resolve(null)
             }
 
-            override fun onFailure(@NotNull error: Error) {
-                promise.reject(ERROR_CODE_DEVICE, error.getMessage())
+            override fun onFailure(error: Error) {
+                promise.reject(ERROR_CODE_DEVICE, error.message)
             }
         })
     }
 
     @ReactMethod
     fun setUserEmail(userEmail: String?, promise: Promise) {
-        marigold.setUserEmail(userEmail, object : Marigold.MarigoldHandler<Void?>() {
-            override fun onSuccess(aVoid: Void?) {
+        engage.setUserEmail(userEmail, object : Marigold.MarigoldHandler<Void?> {
+            override fun onSuccess(value: Void?) {
                 promise.resolve(null)
             }
 
-            override fun onFailure(@NotNull error: Error) {
-                promise.reject(ERROR_CODE_DEVICE, error.getMessage())
+            override fun onFailure(error: Error) {
+                promise.reject(ERROR_CODE_DEVICE, error.message)
             }
         })
     }
 
     @ReactMethod
     fun getUnreadCount(promise: Promise) {
-        messageStream.getUnreadMessageCount(object : MessageStream.MessageStreamHandler<Integer?>() {
-            override fun onSuccess(integer: Integer?) {
-                promise.resolve(integer)
+        messageStream.getUnreadMessageCount(object : MessageStream.MessageStreamHandler<Int> {
+            override fun onSuccess(value: Int) {
+                promise.resolve(value)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(ERROR_CODE_MESSAGES, error.getMessage())
+                promise.reject(ERROR_CODE_MESSAGES, error.message)
             }
         })
     }
 
     @ReactMethod
-    fun removeMessage(messageMap: ReadableMap?, promise: Promise) {
+    fun removeMessage(messageMap: ReadableMap, promise: Promise) {
         val message = try {
             getMessage(messageMap)
         } catch (e: JSONException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.getMessage())
+            promise.reject(ERROR_CODE_MESSAGES, e.message)
             return
         } catch (e: NoSuchMethodException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.getMessage())
+            promise.reject(ERROR_CODE_MESSAGES, e.message)
             return
         } catch (e: IllegalAccessException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.getMessage())
+            promise.reject(ERROR_CODE_MESSAGES, e.message)
             return
         } catch (e: InvocationTargetException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.getMessage())
+            promise.reject(ERROR_CODE_MESSAGES, e.message)
             return
         } catch (e: InstantiationException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.getMessage())
+            promise.reject(ERROR_CODE_MESSAGES, e.message)
             return
         }
-        messageStream.deleteMessage(message, object : MessageStream.MessageDeletedHandler() {
+        messageStream.deleteMessage(message, object : MessageStream.MessageDeletedHandler {
             override fun onSuccess() {
                 promise.resolve(null)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(ERROR_CODE_MESSAGES, error.getMessage())
+                promise.reject(ERROR_CODE_MESSAGES, error.message)
             }
         })
     }
 
     @ReactMethod
-    fun registerMessageImpression(typeCode: Int, messageMap: ReadableMap?) {
+    fun registerMessageImpression(typeCode: Int, messageMap: ReadableMap) {
         val type = when (typeCode) {
             0 -> ImpressionType.IMPRESSION_TYPE_IN_APP_VIEW
             1 -> ImpressionType.IMPRESSION_TYPE_STREAM_VIEW
@@ -305,32 +305,32 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
     }
 
     @ReactMethod
-    fun markMessageAsRead(messageMap: ReadableMap?, promise: Promise) {
+    fun markMessageAsRead(messageMap: ReadableMap, promise: Promise) {
         val message = try {
             getMessage(messageMap)
         } catch (e: JSONException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.getMessage())
+            promise.reject(ERROR_CODE_MESSAGES, e.message)
             return
         } catch (e: NoSuchMethodException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.getMessage())
+            promise.reject(ERROR_CODE_MESSAGES, e.message)
             return
         } catch (e: IllegalAccessException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.getMessage())
+            promise.reject(ERROR_CODE_MESSAGES, e.message)
             return
         } catch (e: InvocationTargetException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.getMessage())
+            promise.reject(ERROR_CODE_MESSAGES, e.message)
             return
         } catch (e: InstantiationException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.getMessage())
+            promise.reject(ERROR_CODE_MESSAGES, e.message)
             return
         }
-        messageStream.setMessageRead(message, object : MessageStream.MessagesReadHandler() {
+        messageStream.setMessageRead(message, object : MessageStream.MessagesReadHandler {
             override fun onSuccess() {
                 promise.resolve(null)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(ERROR_CODE_MESSAGES, error.getMessage())
+                promise.reject(ERROR_CODE_MESSAGES, error.message)
             }
         })
     }
@@ -345,12 +345,12 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
     }
 
     // wrapped to expose for testing
-    protected fun currentActivity(): Activity {
-        return getCurrentActivity()
+    fun currentActivity(): Activity? {
+        return currentActivity
     }
 
     // wrapped for testing
-    protected fun getMessageActivityIntent(activity: Activity, messageId: String): Intent {
+    fun getMessageActivityIntent(activity: Activity, messageId: String): Intent {
         return MessageActivity.intentForMessage(activity, null, messageId)
     }
 
@@ -363,32 +363,32 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
     /*
     TRACK SPM
      */
-    @ReactMethod
-    fun getRecommendations(sectionId: String?, promise: Promise) {
-        marigold.getRecommendations(sectionId, object : Marigold.RecommendationsHandler() {
-            override fun onSuccess(contentItems: ArrayList<ContentItem>) {
-                val array = getWritableArray()
-                try {
-                    for (contentItem in contentItems) {
-                        array.pushMap(jsonConverter.convertJsonToMap(contentItem.toJSON()))
-                    }
-                    promise.resolve(array)
-                } catch (e: Exception) {
-                    promise.reject(ERROR_CODE_RECOMMENDATIONS, e.getMessage())
-                }
-            }
-
-            override fun onFailure(error: Error) {
-                promise.reject(ERROR_CODE_RECOMMENDATIONS, error.getMessage())
-            }
-        })
-    }
+//    @ReactMethod
+//    fun getRecommendations(sectionId: String?, promise: Promise) {
+//        marigold.getRecommendations(sectionId, object : Marigold.RecommendationsHandler() {
+//            override fun onSuccess(contentItems: ArrayList<ContentItem>) {
+//                val array = getWritableArray()
+//                try {
+//                    for (contentItem in contentItems) {
+//                        array.pushMap(jsonConverter.convertJsonToMap(contentItem.toJSON()))
+//                    }
+//                    promise.resolve(array)
+//                } catch (e: Exception) {
+//                    promise.reject(ERROR_CODE_RECOMMENDATIONS, e.message)
+//                }
+//            }
+//
+//            override fun onFailure(error: Error) {
+//                promise.reject(ERROR_CODE_RECOMMENDATIONS, error.message)
+//            }
+//        })
+//    }
 
     @ReactMethod
     fun trackClick(sectionId: String, url: String, promise: Promise) {
         try {
             val uri = URI(url)
-            marigold.trackClick(sectionId, uri, object : Marigold.TrackHandler {
+            engage.trackClick(sectionId, uri, object : EngageBySailthru.TrackHandler {
                 override fun onSuccess() {
                     promise.resolve(true)
                 }
@@ -405,9 +405,9 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
     @ReactMethod
     fun trackPageview(url: String?, tags: ReadableArray?, promise: Promise) {
         val uri = try {
-            uri = URI(url)
+            URI(url)
         } catch (e: URISyntaxException) {
-            promise.reject(ERROR_CODE_TRACKING, e.getMessage())
+            promise.reject(ERROR_CODE_TRACKING, e.message)
             return
         }
         var convertedTags: List<String?>? = null
@@ -417,20 +417,20 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
                 convertedTags.add(tags.getString(i))
             }
         }
-        marigold.trackPageview(uri, convertedTags, object : TrackHandler() {
+        engage.trackPageview(uri, convertedTags, object : EngageBySailthru.TrackHandler {
             override fun onSuccess() {
                 promise.resolve(true)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(ERROR_CODE_TRACKING, error.getMessage())
+                promise.reject(ERROR_CODE_TRACKING, error.message)
             }
         })
     }
 
     @ReactMethod
-    fun trackImpression(sectionId: String?, urls: ReadableArray?, promise: Promise) {
-        var convertedUrls: List<URI?>? = null
+    fun trackImpression(sectionId: String, urls: ReadableArray?, promise: Promise) {
+        var convertedUrls: List<URI>? = null
         if (urls != null) {
             try {
                 convertedUrls = ArrayList()
@@ -438,17 +438,17 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
                     convertedUrls.add(URI(urls.getString(i)))
                 }
             } catch (e: URISyntaxException) {
-                promise.reject(ERROR_CODE_TRACKING, e.getMessage())
+                promise.reject(ERROR_CODE_TRACKING, e.message)
                 return
             }
         }
-        marigold.trackImpression(sectionId, convertedUrls, object : TrackHandler() {
+        engage.trackImpression(sectionId, convertedUrls, object : EngageBySailthru.TrackHandler {
             override fun onSuccess() {
                 promise.resolve(true)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(ERROR_CODE_TRACKING, error.getMessage())
+                promise.reject(ERROR_CODE_TRACKING, error.message)
             }
         })
     }
@@ -460,13 +460,13 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
     @ReactMethod
     fun setGeoIPTrackingEnabled(enabled: Boolean, promise: Promise) {
-        marigold.setGeoIpTrackingEnabled(enabled, object : Marigold.MarigoldHandler<Void?>() {
+        marigold.setGeoIpTrackingEnabled(enabled, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(aVoid: Void?) {
                 promise.resolve(true)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(ERROR_CODE_DEVICE, error.getMessage())
+                promise.reject(ERROR_CODE_DEVICE, error.message)
             }
         })
     }
@@ -479,142 +479,139 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
     @ReactMethod
     fun clearDevice(options: Int, promise: Promise) {
-        marigold.clearDevice(options, object : MarigoldHandler<Void?>() {
-            override fun onSuccess(aVoid: Void?) {
+        marigold.clearDevice(options, object : Marigold.MarigoldHandler<Void?> {
+            override fun onSuccess(value: Void?) {
                 promise.resolve(true)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(ERROR_CODE_DEVICE, error.getMessage())
+                promise.reject(ERROR_CODE_DEVICE, error.message)
             }
         })
     }
 
     @ReactMethod
-    fun setProfileVars(vars: ReadableMap?, promise: Promise) {
+    fun setProfileVars(vars: ReadableMap, promise: Promise) {
         val varsJson = try {
             jsonConverter.convertMapToJson(vars)
         } catch (e: JSONException) {
-            promise.reject(ERROR_CODE_VARS, e.getMessage())
+            promise.reject(ERROR_CODE_VARS, e.message)
             return
         }
-        marigold.setProfileVars(varsJson, object : Marigold.MarigoldHandler<Void?>() {
-            override fun onSuccess(aVoid: Void?) {
+        engage.setProfileVars(varsJson, object : Marigold.MarigoldHandler<Void?> {
+            override fun onSuccess(value: Void?) {
                 promise.resolve(true)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(ERROR_CODE_VARS, error.getMessage())
+                promise.reject(ERROR_CODE_VARS, error.message)
             }
         })
     }
 
     @ReactMethod
     fun getProfileVars(promise: Promise) {
-        marigold.getProfileVars(object : Marigold.MarigoldHandler<JSONObject?>() {
-            override fun onSuccess(jsonObject: JSONObject?) {
+        engage.getProfileVars(object : Marigold.MarigoldHandler<JSONObject?> {
+            override fun onSuccess(value: JSONObject?) {
                 try {
-                    val vars = jsonConverter.convertJsonToMap(jsonObject)
+                    val vars = value?.let { jsonConverter.convertJsonToMap(it) }
                     promise.resolve(vars)
                 } catch (e: JSONException) {
-                    promise.reject(ERROR_CODE_VARS, e.getMessage())
+                    promise.reject(ERROR_CODE_VARS, e.message)
                 }
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(ERROR_CODE_VARS, error.getMessage())
+                promise.reject(ERROR_CODE_VARS, error.message)
             }
         })
     }
 
     @ReactMethod
-    fun logPurchase(purchaseMap: ReadableMap?, promise: Promise) {
+    fun logPurchase(purchaseMap: ReadableMap, promise: Promise) {
         val purchase = try {
             getPurchaseInstance(purchaseMap)
         } catch (e: JSONException) {
-            promise.reject(ERROR_CODE_PURCHASE, e.getMessage())
+            promise.reject(ERROR_CODE_PURCHASE, e.message)
             return
         } catch (e: NoSuchMethodException) {
-            promise.reject(ERROR_CODE_PURCHASE, e.getMessage())
+            promise.reject(ERROR_CODE_PURCHASE, e.message)
             return
         } catch (e: IllegalAccessException) {
-            promise.reject(ERROR_CODE_PURCHASE, e.getMessage())
+            promise.reject(ERROR_CODE_PURCHASE, e.message)
             return
         } catch (e: InvocationTargetException) {
-            promise.reject(ERROR_CODE_PURCHASE, e.getMessage())
+            promise.reject(ERROR_CODE_PURCHASE, e.message)
             return
         } catch (e: InstantiationException) {
-            promise.reject(ERROR_CODE_PURCHASE, e.getMessage())
+            promise.reject(ERROR_CODE_PURCHASE, e.message)
             return
         }
-        marigold.logPurchase(purchase, object : Marigold.MarigoldHandler<Void?>() {
+        engage.logPurchase(purchase, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(aVoid: Void?) {
                 promise.resolve(true)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(ERROR_CODE_PURCHASE, error.getMessage())
+                promise.reject(ERROR_CODE_PURCHASE, error.message)
             }
         })
     }
 
     @ReactMethod
-    fun logAbandonedCart(purchaseMap: ReadableMap?, promise: Promise) {
+    fun logAbandonedCart(purchaseMap: ReadableMap, promise: Promise) {
         val purchase = try {
             getPurchaseInstance(purchaseMap)
         } catch (e: JSONException) {
-            promise.reject(ERROR_CODE_PURCHASE, e.getMessage())
+            promise.reject(ERROR_CODE_PURCHASE, e.message)
             return
         } catch (e: NoSuchMethodException) {
-            promise.reject(ERROR_CODE_PURCHASE, e.getMessage())
+            promise.reject(ERROR_CODE_PURCHASE, e.message)
             return
         } catch (e: IllegalAccessException) {
-            promise.reject(ERROR_CODE_PURCHASE, e.getMessage())
+            promise.reject(ERROR_CODE_PURCHASE, e.message)
             return
         } catch (e: InvocationTargetException) {
-            promise.reject(ERROR_CODE_PURCHASE, e.getMessage())
+            promise.reject(ERROR_CODE_PURCHASE, e.message)
             return
         } catch (e: InstantiationException) {
-            promise.reject(ERROR_CODE_PURCHASE, e.getMessage())
+            promise.reject(ERROR_CODE_PURCHASE, e.message)
             return
         }
-        marigold.logAbandonedCart(purchase, object : Marigold.MarigoldHandler<Void?>() {
+        engage.logAbandonedCart(purchase, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(aVoid: Void?) {
                 promise.resolve(true)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(ERROR_CODE_PURCHASE, error.getMessage())
+                promise.reject(ERROR_CODE_PURCHASE, error.message)
             }
         })
     }
 
     @VisibleForTesting
-    @NotNull
     @kotlin.Throws(JSONException::class, NoSuchMethodException::class, IllegalAccessException::class, InvocationTargetException::class, InstantiationException::class)
-    fun getPurchaseInstance(purchaseMap: ReadableMap?): Purchase {
+    fun getPurchaseInstance(purchaseMap: ReadableMap): Purchase {
         val purchaseJson = jsonConverter.convertMapToJson(purchaseMap, false)
         val purchaseConstructor = Purchase::class.java.getDeclaredConstructor(JSONObject::class.java)
-        purchaseConstructor.setAccessible(true)
+        purchaseConstructor.isAccessible = true
         return purchaseConstructor.newInstance(purchaseJson)
     }
 
     /*
      * Helper Methods
      */
-    @NotNull
     @kotlin.Throws(JSONException::class, NoSuchMethodException::class, IllegalAccessException::class, InvocationTargetException::class, InstantiationException::class)
-    protected fun getMessage(messageMap: ReadableMap?): Message {
+    fun getMessage(messageMap: ReadableMap): Message {
         val messageJson = jsonConverter.convertMapToJson(messageMap)
         val constructor = Message::class.java.getDeclaredConstructor(String::class.java)
-        constructor.setAccessible(true)
+        constructor.isAccessible = true
         return constructor.newInstance(messageJson.toString())
     }
 
     @VisibleForTesting
-    @NotNull
     @kotlin.Throws(JSONException::class)
-    fun getAttributeMap(readableMap: ReadableMap?): AttributeMap {
+    fun getAttributeMap(readableMap: ReadableMap): AttributeMap {
         val attributeMapJson = jsonConverter.convertMapToJson(readableMap)
         val attributes = attributeMapJson.getJSONObject("attributes")
         val attributeMap = AttributeMap()
@@ -627,7 +624,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
             when (attributeType) {
                 "string" -> attributeMap.putString(key, attribute.getString("value"))
                 "stringArray" -> {
-                    val array = ArrayList()
+                    val array: ArrayList<String> = ArrayList()
                     val values = attribute.getJSONArray("value")
                     var i = 0
                     while (i < values.length()) {
@@ -639,7 +636,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
 
                 "integer" -> attributeMap.putInt(key, attribute.getInt("value"))
                 "integerArray" -> {
-                    val array = ArrayList()
+                    val array: ArrayList<Int> = ArrayList()
                     val values = attribute.getJSONArray("value")
                     var i = 0
                     while (i < values.length()) {
@@ -651,13 +648,13 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
                 }
 
                 "boolean" -> attributeMap.putBoolean(key, attribute.getBoolean("value"))
-                "float" -> attributeMap.putFloat(key, attribute.getDouble("value") as Float)
+                "float" -> attributeMap.putFloat(key, attribute.getDouble("value").toFloat())
                 "floatArray" -> {
-                    val array = ArrayList()
+                    val array: ArrayList<Float> = ArrayList()
                     val values = attribute.getJSONArray("value")
                     var i = 0
                     while (i < values.length()) {
-                        val value = Float.parseFloat(values.get(i).toString())
+                        val value = (values.get(i).toString()).toFloat()
                         array.add(value)
                         i++
                     }
@@ -670,7 +667,7 @@ class RNMarigoldModule(reactApplicationContext: ReactApplicationContext?, privat
                 }
 
                 "dateArray" -> {
-                    val array = ArrayList()
+                    val array: ArrayList<Date> = ArrayList()
                     val values = attribute.getJSONArray("value")
                     var i = 0
                     while (i < values.length()) {
