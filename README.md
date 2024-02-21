@@ -24,21 +24,21 @@ Open your Project's Xcode Project.
 
 Drag into "Libraries" the following files from node_modules/react-native-sailthru-mobile:
 
- * RNSailthruMobile.h
- * RNSailthruMobile.m (Make sure this file's Target Membership is your main app's target)
- * RNSailthruMobileBridge.h
- * RNSailthruMobileBridge.m (Make sure this file's Target Membership is your main app's target)
+ * RNMarigold.h
+ * RNMarigold.m (Make sure this file's Target Membership is your main app's target)
+ * RNMarigoldBridge.h
+ * RNMarigoldBridge.m (Make sure this file's Target Membership is your main app's target)
 
-Next, Install Sailthru Mobile iOS SDK from Cocoapods (add `pod 'SailthruMobile'` to your Podfile), Swift Package Manager, Carthage or install the XCFramework [manually](https://docs.mobile.sailthru.com/docs/ios-integration#section-manual-integration) (SailthruMobile.xcframework can be obtained from node_modules/react-native-sailthru-mobile).
+Next, Install Marigold iOS SDK from Cocoapods (add `pod 'Marigold'` to your Podfile), Swift Package Manager, Carthage or install the XCFramework [manually](https://docs.mobile.sailthru.com/docs/ios-integration#section-manual-integration) (Marigold.xcframework can be obtained from node_modules/react-native-marigold).
 
-You will then need replace the code that creates your RCTRootView with the code below. This adds the SailthruMobile React Native modules to the root view.
+You will then need replace the code that creates your RCTRootView with the code below. This adds the Marigold React Native modules to the root view.
 
 ```Objective-C
-#import "RNSailthruMobileBridge.h"
+#import "RNMarigoldBridge.h"
 
 - (BOOL)application:(UIApplication * )application didFinishLaunchingWithOptions:(NSDictionary * )launchOptions {
       ...
-      id<RCTBridgeDelegate> moduleInitialiser = [[RNSailthruMobileBridge alloc]
+      id<RCTBridgeDelegate> moduleInitialiser = [[RNMarigoldBridge alloc]
                                                  initWithJSCodeLocation:jsCodeLocation   // JS Code location used here should be same location used before
                                                  appKey:SDK_KEY];                        // Obtain SDK key from your Sailthru Mobile app settings
 
@@ -86,7 +86,7 @@ dependencies {
 * Register module (in MainApplication.java)
 
 ```java
-import com.sailthru.mobile.rnsdk.RNSailthruMobilePackage; // <--- import
+import com.sailthru.mobile.rnsdk.RNMarigoldPackage; // <--- import
 
 public class MainApplication extends Application implements ReactApplication {
   ...
@@ -94,7 +94,7 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     protected List<ReactPackage> getPackages() {
       List<ReactPackage> packages = new PackageList(this).getPackages();
-      packages.add(new RNSailthruMobilePackage(getApplicationContext(), SDK_KEY)); // Obtain SDK key from your Sailthru Mobile app settings
+      packages.add(new RNMarigoldPackage(getApplicationContext(), SDK_KEY)); // Obtain SDK key from your Sailthru Mobile app settings
       return packages;
     }
   ...
@@ -139,7 +139,7 @@ You will need the following things installed on your system.
 
 Run `yarn` in the project root to install the required node dependencies.
 
-Move into the `ios` folder and run `pod install --repo-update` to install the iOS dependencies, you can then open `SailthruMobileSDKReactNative.xcworkspace` in Xcode.
+Move into the `ios` folder and run `pod install --repo-update` to install the iOS dependencies, you can then open `MarigoldSDKReactNative.xcworkspace` in Xcode.
 
 Open the `android` folder in Android Studio and perform a gradle sync to install the Android dependencies.
 
@@ -149,4 +149,4 @@ Run `yarn test` in the project root to run the Jest test suite.
 
 Run `Product` -> `Test` in the Xcode toolbar to run the iOS test suite.
 
-Run the `RNSailthruMobileModuleTest` configuration in Android Studio to run the Android test suite.
+Run the `RNMarigoldModuleTest` configuration in Android Studio to run the Android test suite.

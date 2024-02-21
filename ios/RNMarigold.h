@@ -2,17 +2,17 @@
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
 
-#include <SailthruMobile/SailthruMobile.h>
+#include <Marigold/Marigold.h>
 
-@interface RNSailthruMobile : RCTEventEmitter <RCTBridgeModule, STMMessageStreamDelegate>
+@interface RNMarigold : RCTEventEmitter <RCTBridgeModule, MARMessageStreamDelegate>
 
 @property BOOL displayInAppNotifications;
 
 /**
- * Initialize RNSailthruMobile and set whether to automatically display in app notifications.\
+ * Initialize RNMarigold and set whether to automatically display in app notifications.\
  *
  * @param displayInAppNotifications set whether the SDK should automatically display in app notifications.
- * @return RNSailthruMobile instance.
+ * @return RNMarigold instance.
  */
 -(instancetype)initWithDisplayInAppNotifications:(BOOL)displayInAppNotifications;
 

@@ -2,9 +2,9 @@
 #import <Foundation/Foundation.h>
 #import <React/RCTBridgeDelegate.h>
 
-#include <SailthruMobile/SailthruMobile.h>
+#include <Marigold/Marigold.h>
 
-@interface RNSailthruMobileBridge : NSObject <RCTBridgeDelegate>
+@interface RNMarigoldBridge : NSObject <RCTBridgeDelegate>
 
 @property (strong, nonatomic) NSURL *jsCodeLocation;
 
@@ -12,27 +12,27 @@
 @property BOOL displayInAppNotifications;
 
 /**
- * Initialise the RNSailthruMobileBridge.
+ * Initialise the RNMarigoldBridge.
  *
  * @param jsCodeLocation               the location to load JS code from.
  * @param appKey                       the app key provided when you registered your application.
- * @return RNSailthruMobileBridge instance
+ * @return RNMarigoldBridge instance
  */
 - (instancetype)initWithJSCodeLocation:(NSURL *)jsCodeLocation
                                 appKey:(NSString *)appKey;
 
 /**
- * Initialise the RNSailthruMobileBridge.
+ * Initialise the RNMarigoldBridge.
  *
  * @param jsCodeLocation               the location to load JS code from.
  * @param appKey                       the app key provided when you registered your application.
  * @param pushAuthorizationOption  push authorization option to request.
  * @param geoIpTrackingDefault         boolean to set whether the geo IP tracking should be enabled by default.
- * @return RNSailthruMobileBridge instance
+ * @return RNMarigoldBridge instance
  */
 - (instancetype)initWithJSCodeLocation:(NSURL *)jsCodeLocation
                                 appKey:(NSString *)appKey
-               pushAuthorizationOption:(STMPushAuthorizationOption)pushAuthorizationOption
+               pushAuthorizationOption:(MARPushAuthorizationOption)pushAuthorizationOption
                   geoIpTrackingDefault:(BOOL)geoIpTrackingDefault;
 
 @end

@@ -1,9 +1,9 @@
 
-#import "RNSailthruMobileBridge.h"
-#import "RNSailthruMobile.h"
-#import <SailthruMobile/SailthruMobile.h>
+#import "RNMarigoldBridge.h"
+#import "RNMarigold.h"
+#import <Marigold/Marigold.h>
 
-@implementation RNSailthruMobileBridge
+@implementation RNMarigoldBridge
 
 -(instancetype)init {
     [NSException raise:@"Unsupported Method" format:@"Default initializer should not be called"];
@@ -12,18 +12,18 @@
 
 - (instancetype)initWithJSCodeLocation:(NSURL *)jsCodeLocation
                                 appKey:(NSString *)appKey {
-    return [self initWithJSCodeLocation:jsCodeLocation appKey:appKey pushAuthorizationOption:STMPushAuthorizationOptionFull geoIpTrackingDefault:YES];
+    return [self initWithJSCodeLocation:jsCodeLocation appKey:appKey pushAuthorizationOption:MARPushAuthorizationOptionFull geoIpTrackingDefault:YES];
 }
 
 - (instancetype)initWithJSCodeLocation:(NSURL *)jsCodeLocation
                                 appKey:(NSString *)appKey
-               pushAuthorizationOption:(STMPushAuthorizationOption)pushAuthorizationOption
+               pushAuthorizationOption:(MARPushAuthorizationOption)pushAuthorizationOption
                   geoIpTrackingDefault:(BOOL)geoIpTrackingDefault {
     self = [super init];
     if(self) {
-        SailthruMobile *sailthruMobile = [SailthruMobile new];
-        [sailthruMobile setGeoIPTrackingDefault:geoIpTrackingDefault];
-        [sailthruMobile startEngine:appKey withAuthorizationOption:pushAuthorizationOption];
+        Marigold *marigold = [Marigold new];
+        [marigold setGeoIPTrackingDefault:geoIpTrackingDefault];
+        [marigold startEngine:appKey withAuthorizationOption:pushAuthorizationOption error:nil];
         _jsCodeLocation = jsCodeLocation;
         _displayInAppNotifications = YES;
     }
@@ -35,8 +35,8 @@
 }
 
 - (NSArray<id<RCTBridgeModule>> *)extraModulesForBridge:(RCTBridge *)bridge {
-    RNSailthruMobile *rnSailthruMobile = [[RNSailthruMobile alloc] initWithDisplayInAppNotifications:self.displayInAppNotifications];
-    NSArray *modules = @[ rnSailthruMobile ];
+    RNMarigold *rnMarigold = [[RNMarigold alloc] initWithDisplayInAppNotifications:self.displayInAppNotifications];
+    NSArray *modules = @[ rnMarigold ];
     return modules;
 }
 

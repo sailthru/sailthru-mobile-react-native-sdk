@@ -21,7 +21,7 @@
     "messaging"
   ],
   "main": "index.js",
-  "name": "react-native-sailthru-mobile",
+  "name": "react-native-marigold",
   "optionalDependencies": {},
   "peerDependencies": {
     "react-native": ">=0.25.1"
