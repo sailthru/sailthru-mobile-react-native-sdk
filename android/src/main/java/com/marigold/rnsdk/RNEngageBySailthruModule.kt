@@ -19,7 +19,7 @@ import java.net.URISyntaxException
 import java.util.ArrayList
 import java.util.Date
 
-class RNEngageBySailthru (reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
     @VisibleForTesting
     var engage = EngageBySailthru()
