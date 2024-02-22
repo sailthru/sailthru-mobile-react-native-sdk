@@ -103,6 +103,11 @@ class RNMarigoldModule(reactContext: ReactApplicationContext, private val displa
     }
 
     @ReactMethod
+    fun logRegistrationEvent(userId: String) {
+        marigold.logRegistrationEvent(userId)
+    }
+
+    @ReactMethod
     fun getDeviceID(promise: Promise) {
         marigold.getDeviceId(object : Marigold.MarigoldHandler<String?> {
             override fun onSuccess(value: String?) {
@@ -166,24 +171,7 @@ class RNMarigoldModule(reactContext: ReactApplicationContext, private val displa
 
     @ReactMethod
     fun removeMessage(messageMap: ReadableMap, promise: Promise) {
-        val message = try {
-            getMessage(messageMap)
-        } catch (e: JSONException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.message)
-            return
-        } catch (e: NoSuchMethodException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.message)
-            return
-        } catch (e: IllegalAccessException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.message)
-            return
-        } catch (e: InvocationTargetException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.message)
-            return
-        } catch (e: InstantiationException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.message)
-            return
-        }
+        val message = getMessage(messageMap, promise) ?: return
         messageStream.deleteMessage(message, object : MessageStream.MessageDeletedHandler {
             override fun onSuccess() {
                 promise.resolve(null)
@@ -203,47 +191,13 @@ class RNMarigoldModule(reactContext: ReactApplicationContext, private val displa
             2 -> ImpressionType.IMPRESSION_TYPE_DETAIL_VIEW
             else -> return
         }
-        val message = try {
-            getMessage(messageMap)
-        } catch (e: JSONException) {
-            e.printStackTrace()
-            return
-        } catch (e: NoSuchMethodException) {
-            e.printStackTrace()
-            return
-        } catch (e: IllegalAccessException) {
-            e.printStackTrace()
-            return
-        } catch (e: InvocationTargetException) {
-            e.printStackTrace()
-            return
-        } catch (e: InstantiationException) {
-            e.printStackTrace()
-            return
-        }
+        val message = getMessage(messageMap, null) ?: return
         messageStream.registerMessageImpression(type, message)
     }
 
     @ReactMethod
     fun markMessageAsRead(messageMap: ReadableMap, promise: Promise) {
-        val message = try {
-            getMessage(messageMap)
-        } catch (e: JSONException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.message)
-            return
-        } catch (e: NoSuchMethodException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.message)
-            return
-        } catch (e: IllegalAccessException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.message)
-            return
-        } catch (e: InvocationTargetException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.message)
-            return
-        } catch (e: InstantiationException) {
-            promise.reject(ERROR_CODE_MESSAGES, e.message)
-            return
-        }
+        val message = getMessage(messageMap, promise) ?: return
         messageStream.setMessageRead(message, object : MessageStream.MessagesReadHandler {
             override fun onSuccess() {
                 promise.resolve(null)
@@ -320,11 +274,18 @@ class RNMarigoldModule(reactContext: ReactApplicationContext, private val displa
     /*
      * Helper Methods
      */
-    @kotlin.Throws(JSONException::class, NoSuchMethodException::class, IllegalAccessException::class, InvocationTargetException::class, InstantiationException::class)
-    fun getMessage(messageMap: ReadableMap): Message {
+    @VisibleForTesting
+    fun getMessage(messageMap: ReadableMap, promise: Promise?): Message? = try {
         val messageJson = jsonConverter.convertMapToJson(messageMap)
         val constructor = Message::class.java.getDeclaredConstructor(String::class.java)
         constructor.isAccessible = true
-        return constructor.newInstance(messageJson.toString())
+        constructor.newInstance(messageJson.toString())
+    } catch(e: Exception) {
+        if (promise == null) {
+            e.printStackTrace()
+        } else {
+            promise.reject(ERROR_CODE_MESSAGES, e.message)
+        }
+        null
     }
 }

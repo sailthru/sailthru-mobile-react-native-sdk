@@ -13,7 +13,6 @@ import com.marigold.sdk.model.AttributeMap
 import com.marigold.sdk.model.Purchase
 import org.json.JSONException
 import org.json.JSONObject
-import java.lang.reflect.InvocationTargetException
 import java.net.URI
 import java.net.URISyntaxException
 import java.util.ArrayList
@@ -22,14 +21,11 @@ import java.util.Date
 class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
     @VisibleForTesting
-    var engage = EngageBySailthru()
-
-    @VisibleForTesting
     var jsonConverter = JsonConverter()
 
     @ReactMethod
     fun logEvent(value: String) {
-        engage.logEvent(value)
+        createEngageBySailthru().logEvent(value)
     }
 
     @ReactMethod
@@ -40,7 +36,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
         } catch (e: JSONException) {
             e.printStackTrace()
         }
-        engage.logEvent(eventName, varsJson)
+        createEngageBySailthru().logEvent(eventName, varsJson)
     }
 
     @ReactMethod
@@ -52,7 +48,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
             promise.reject(RNMarigoldModule.ERROR_CODE_DEVICE, e.message)
             return
         }
-        engage.setAttributes(attributeMap, object : EngageBySailthru.AttributesHandler {
+        createEngageBySailthru().setAttributes(attributeMap, object : EngageBySailthru.AttributesHandler {
             override fun onSuccess() {
                 promise.resolve(null)
             }
@@ -66,7 +62,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
 
     @ReactMethod
     fun setUserId(userId: String?, promise: Promise) {
-        engage.setUserId(userId, object : Marigold.MarigoldHandler<Void?> {
+        createEngageBySailthru().setUserId(userId, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise.resolve(null)
             }
@@ -79,7 +75,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
 
     @ReactMethod
     fun setUserEmail(userEmail: String?, promise: Promise) {
-        engage.setUserEmail(userEmail, object : Marigold.MarigoldHandler<Void?> {
+        createEngageBySailthru().setUserEmail(userEmail, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise.resolve(null)
             }
@@ -94,7 +90,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
     fun trackClick(sectionId: String, url: String, promise: Promise) {
         try {
             val uri = URI(url)
-            engage.trackClick(sectionId, uri, object : EngageBySailthru.TrackHandler {
+            createEngageBySailthru().trackClick(sectionId, uri, object : EngageBySailthru.TrackHandler {
                 override fun onSuccess() {
                     promise.resolve(true)
                 }
@@ -123,7 +119,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
                 convertedTags.add(tags.getString(i))
             }
         }
-        engage.trackPageview(uri, convertedTags, object : EngageBySailthru.TrackHandler {
+        createEngageBySailthru().trackPageview(uri, convertedTags, object : EngageBySailthru.TrackHandler {
             override fun onSuccess() {
                 promise.resolve(true)
             }
@@ -148,7 +144,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
                 return
             }
         }
-        engage.trackImpression(sectionId, convertedUrls, object : EngageBySailthru.TrackHandler {
+        createEngageBySailthru().trackImpression(sectionId, convertedUrls, object : EngageBySailthru.TrackHandler {
             override fun onSuccess() {
                 promise.resolve(true)
             }
@@ -167,7 +163,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
             promise.reject(RNMarigoldModule.ERROR_CODE_VARS, e.message)
             return
         }
-        engage.setProfileVars(varsJson, object : Marigold.MarigoldHandler<Void?> {
+        createEngageBySailthru().setProfileVars(varsJson, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise.resolve(true)
             }
@@ -180,7 +176,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
 
     @ReactMethod
     fun getProfileVars(promise: Promise) {
-        engage.getProfileVars(object : Marigold.MarigoldHandler<JSONObject?> {
+        createEngageBySailthru().getProfileVars(object : Marigold.MarigoldHandler<JSONObject?> {
             override fun onSuccess(value: JSONObject?) {
                 try {
                     val vars = value?.let { jsonConverter.convertJsonToMap(it) }
@@ -198,26 +194,9 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
 
     @ReactMethod
     fun logPurchase(purchaseMap: ReadableMap, promise: Promise) {
-        val purchase = try {
-            getPurchaseInstance(purchaseMap)
-        } catch (e: JSONException) {
-            promise.reject(RNMarigoldModule.ERROR_CODE_PURCHASE, e.message)
-            return
-        } catch (e: NoSuchMethodException) {
-            promise.reject(RNMarigoldModule.ERROR_CODE_PURCHASE, e.message)
-            return
-        } catch (e: IllegalAccessException) {
-            promise.reject(RNMarigoldModule.ERROR_CODE_PURCHASE, e.message)
-            return
-        } catch (e: InvocationTargetException) {
-            promise.reject(RNMarigoldModule.ERROR_CODE_PURCHASE, e.message)
-            return
-        } catch (e: InstantiationException) {
-            promise.reject(RNMarigoldModule.ERROR_CODE_PURCHASE, e.message)
-            return
-        }
-        engage.logPurchase(purchase, object : Marigold.MarigoldHandler<Void?> {
-            override fun onSuccess(aVoid: Void?) {
+        val purchase = getPurchaseInstance(purchaseMap, promise) ?: return
+        createEngageBySailthru().logPurchase(purchase, object : Marigold.MarigoldHandler<Void?> {
+            override fun onSuccess(value: Void?) {
                 promise.resolve(true)
             }
 
@@ -229,26 +208,9 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
 
     @ReactMethod
     fun logAbandonedCart(purchaseMap: ReadableMap, promise: Promise) {
-        val purchase = try {
-            getPurchaseInstance(purchaseMap)
-        } catch (e: JSONException) {
-            promise.reject(RNMarigoldModule.ERROR_CODE_PURCHASE, e.message)
-            return
-        } catch (e: NoSuchMethodException) {
-            promise.reject(RNMarigoldModule.ERROR_CODE_PURCHASE, e.message)
-            return
-        } catch (e: IllegalAccessException) {
-            promise.reject(RNMarigoldModule.ERROR_CODE_PURCHASE, e.message)
-            return
-        } catch (e: InvocationTargetException) {
-            promise.reject(RNMarigoldModule.ERROR_CODE_PURCHASE, e.message)
-            return
-        } catch (e: InstantiationException) {
-            promise.reject(RNMarigoldModule.ERROR_CODE_PURCHASE, e.message)
-            return
-        }
-        engage.logAbandonedCart(purchase, object : Marigold.MarigoldHandler<Void?> {
-            override fun onSuccess(aVoid: Void?) {
+        val purchase = getPurchaseInstance(purchaseMap, promise) ?: return
+        createEngageBySailthru().logAbandonedCart(purchase, object : Marigold.MarigoldHandler<Void?> {
+            override fun onSuccess(value: Void?) {
                 promise.resolve(true)
             }
 
@@ -262,13 +224,20 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
         return "RNEngageBySailthru"
     }
 
+    //Helper method for instantiating EngageBySailthru
+    fun createEngageBySailthru(): EngageBySailthru {
+        return EngageBySailthru()
+    }
+
     @VisibleForTesting
-    @kotlin.Throws(JSONException::class, NoSuchMethodException::class, IllegalAccessException::class, InvocationTargetException::class, InstantiationException::class)
-    fun getPurchaseInstance(purchaseMap: ReadableMap): Purchase {
+    fun getPurchaseInstance(purchaseMap: ReadableMap, promise: Promise): Purchase? = try {
         val purchaseJson = jsonConverter.convertMapToJson(purchaseMap, false)
         val purchaseConstructor = Purchase::class.java.getDeclaredConstructor(JSONObject::class.java)
         purchaseConstructor.isAccessible = true
-        return purchaseConstructor.newInstance(purchaseJson)
+        purchaseConstructor.newInstance(purchaseJson)
+    } catch(e: Exception) {
+        promise.reject(RNMarigoldModule.ERROR_CODE_PURCHASE, e.message)
+        null
     }
 
     @VisibleForTesting

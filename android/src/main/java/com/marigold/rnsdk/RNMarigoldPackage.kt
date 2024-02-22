@@ -6,6 +6,7 @@ import com.facebook.react.bridge.JavaScriptModule
 import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.uimanager.ViewManager
+import com.marigold.sdk.EngageBySailthru
 import com.marigold.sdk.Marigold
 
 class RNMarigoldPackage : ReactPackage {
@@ -15,9 +16,13 @@ class RNMarigoldPackage : ReactPackage {
     @VisibleForTesting
     private val marigold = Marigold()
 
+    @VisibleForTesting
+    private val engageBySailthru = EngageBySailthru()
+
     override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
         val modules: MutableList<NativeModule> = ArrayList()
         modules.add(RNMarigoldModule(reactContext, displayInAppNotifications))
+        modules.add(RNEngageBySailthruModule(reactContext))
         return modules
     }
 

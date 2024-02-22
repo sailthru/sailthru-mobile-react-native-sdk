@@ -12,7 +12,6 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.marigold.sdk.Marigold
 import com.marigold.sdk.MessageStream
 import com.marigold.sdk.enums.ImpressionType
-import com.marigold.sdk.model.AttributeMap
 import com.marigold.sdk.model.Message
 import org.json.JSONException
 import org.json.JSONObject
@@ -21,7 +20,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
-import org.mockito.Captor
 import org.mockito.Mock
 import org.mockito.MockedConstruction
 import org.mockito.Mockito.doReturn
@@ -142,6 +140,13 @@ class RNMarigoldModuleTest {
     }
 
     @Test
+    fun testlogRegistrationEvent() {
+        val userID = "device ID"
+        rnMarigoldModule.logRegistrationEvent(userID)
+        verify(marigold).logRegistrationEvent(userID)
+    }
+
+    @Test
     fun testGetDeviceID() {
         // Setup variables
         val deviceID = "device ID"
@@ -243,7 +248,7 @@ class RNMarigoldModuleTest {
         val readableMap: ReadableMap = mock()
         val message: Message = mock()
         val moduleSpy = spy(rnMarigoldModule)
-        doReturn(message).`when`(moduleSpy).getMessage(readableMap)
+        doReturn(message).`when`(moduleSpy).getMessage(readableMap, promise)
 
         // Initiate test
         moduleSpy.removeMessage(readableMap, promise)
@@ -274,13 +279,15 @@ class RNMarigoldModuleTest {
         val readableMap: ReadableMap = mock()
         val jsonException = JSONException("test exception")
         val moduleSpy = spy(rnMarigoldModule)
-        doThrow(jsonException).`when`(moduleSpy).getMessage(readableMap)
+        doThrow(jsonException).`when`(moduleSpy).getMessage(readableMap, promise)
 
         // Initiate test
-        moduleSpy.removeMessage(readableMap, promise)
+        Assert.assertThrows(JSONException::class.java) {
+            moduleSpy.removeMessage(readableMap, promise)
+            verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, jsonException.message)
+        }
 
         // Verify result
-        verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, jsonException.message)
         verify(messageStream, times(0)).deleteMessage(any(), any())
     }
 
@@ -291,7 +298,7 @@ class RNMarigoldModuleTest {
         val typeCode = 0
         val readableMap: ReadableMap = mock()
         val message: Message = mock()
-        doReturn(message).`when`(rnMarigoldModuleSpy).getMessage(readableMap)
+        doReturn(message).`when`(rnMarigoldModuleSpy).getMessage(readableMap, null)
 
         // Initiate test
         rnMarigoldModuleSpy.registerMessageImpression(typeCode, readableMap)
@@ -320,13 +327,15 @@ class RNMarigoldModuleTest {
         val typeCode = 0
         val readableMap: ReadableMap = mock()
         val jsonException: JSONException = mock()
-        doThrow(jsonException).`when`(rnMarigoldModuleSpy).getMessage(readableMap)
+        doThrow(jsonException).`when`(rnMarigoldModuleSpy).getMessage(readableMap, null)
 
         // Initiate test
-        rnMarigoldModuleSpy.registerMessageImpression(typeCode, readableMap)
+        Assert.assertThrows(Exception::class.java) {
+            rnMarigoldModuleSpy.registerMessageImpression(typeCode, readableMap)
+            verify(jsonException).printStackTrace()
+        }
 
         // Verify result
-        verify(jsonException).printStackTrace()
         verify(messageStream, times(0)).registerMessageImpression(any(), any())
     }
 
@@ -339,7 +348,7 @@ class RNMarigoldModuleTest {
         val message: Message = mock()
         val error: Error = mock()
         val moduleSpy = spy(rnMarigoldModule)
-        doReturn(message).`when`(moduleSpy).getMessage(readableMap)
+        doReturn(message).`when`(moduleSpy).getMessage(readableMap, promise)
 
         // Initiate test
         moduleSpy.markMessageAsRead(readableMap, promise)
@@ -370,13 +379,15 @@ class RNMarigoldModuleTest {
         val promise: Promise = mock()
         val jsonException = JSONException("test exception")
         val moduleSpy = spy(rnMarigoldModule)
-        doThrow(jsonException).`when`(moduleSpy).getMessage(readableMap)
+        doThrow(jsonException).`when`(moduleSpy).getMessage(readableMap, promise)
 
         // Initiate test
-        moduleSpy.markMessageAsRead(readableMap, promise)
+        Assert.assertThrows(JSONException::class.java) {
+            moduleSpy.markMessageAsRead(readableMap, promise)
+            verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, jsonException.message)
+        }
 
         // Verify result
-        verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, jsonException.message)
         verify(messageStream, times(0)).setMessageRead(any(), any())
     }
 
@@ -472,14 +483,15 @@ class RNMarigoldModuleTest {
     fun testGetMessage() {
         // Mock methods
         val readableMap: ReadableMap = mock()
+        val promise: Promise = mock()
         val messageJson = JSONObject().put("title", "test title")
         `when`(jsonConverter.convertMapToJson(readableMap)).thenReturn(messageJson)
 
         // Initiate test
-        val message = rnMarigoldModuleSpy.getMessage(readableMap)
+        val message = rnMarigoldModuleSpy.getMessage(readableMap, promise)
 
         // Verify result
         verify(jsonConverter).convertMapToJson(readableMap)
-        Assert.assertEquals("test title", message.title)
+        Assert.assertEquals("test title", message!!.title)
     }
 }

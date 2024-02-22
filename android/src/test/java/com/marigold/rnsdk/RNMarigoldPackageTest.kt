@@ -1,7 +1,7 @@
 package com.marigold.rnsdk
 
-import android.content.Context
 import com.facebook.react.bridge.ReactApplicationContext
+import com.marigold.sdk.EngageBySailthru
 import com.marigold.sdk.Marigold
 import org.junit.Assert
 import org.junit.Before
@@ -18,11 +18,15 @@ class RNMarigoldPackageTest {
     @Mock
     private lateinit var staticRnMarigoldModule: MockedConstruction<RNMarigoldModule>
     @Mock
+    private lateinit var staticRnEngageBySailthru: MockedConstruction<RNEngageBySailthruModule>
+    @Mock
     private lateinit var staticMarigold: MockedConstruction<Marigold>
+    @Mock
+    private lateinit var staticEngageBySailthru: MockedConstruction<EngageBySailthru>
 
     private lateinit var marigold: Marigold
 
-    private val appKey = "App Key"
+    private lateinit var engageBySailthru: EngageBySailthru
 
     private lateinit var rnSTPackage: RNMarigoldPackage
 
@@ -30,14 +34,15 @@ class RNMarigoldPackageTest {
     fun setup() {
         rnSTPackage = RNMarigoldPackage()
         marigold = staticMarigold.constructed()[0]
+        engageBySailthru = staticEngageBySailthru.constructed()[0]
     }
 
     @Test
     fun testCreateNativeModules() {
         val nativeModules = rnSTPackage.createNativeModules(reactApplicationContext)
-        Assert.assertEquals(1, nativeModules.size)
-        val nativeModule = nativeModules[0]
-        Assert.assertEquals(staticRnMarigoldModule.constructed()[0], nativeModule)
+        Assert.assertEquals(2, nativeModules.size)
+        Assert.assertEquals(staticRnMarigoldModule.constructed()[0], nativeModules[0])
+        Assert.assertEquals(staticRnEngageBySailthru.constructed()[0], nativeModules[1])
     }
 
     @Test
