@@ -1,13 +1,6 @@
 
-#import "RNMarigold.h"
 #import "RNEngageBySailthru.h"
 #import <UserNotifications/UserNotifications.h>
-
-@interface EngageBySailthru ()
-
-- (void)setWrapperName:(NSString *)wrapperName andVersion:(NSString *)wrapperVersion;
-
-@end
 
 @interface MARPurchase ()
 
