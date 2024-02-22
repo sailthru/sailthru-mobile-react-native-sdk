@@ -1,6 +1,7 @@
 #import <XCTest/XCTest.h>
 #import "RNMarigoldBridge.h"
 #import "RNMarigold.h"
+#import "RNEngageBySailthru.h"
 #import "Kiwi.h"
 
 @interface Marigold ()
@@ -35,99 +36,52 @@ describe(@"RNMarigoldBridge", ^{
         });
     });
     
-    context(@"the initWithJSCodeLocation:appKey: method", ^{
+    context(@"the initWithJSCodeLocation: method", ^{
         __block NSURL *jsCodeLocation = nil;
-        __block NSString *appKey = nil;
         
         beforeEach(^{
             jsCodeLocation = [NSURL mock];
-            appKey = [NSString mock];
-        });
-        
-        it(@"should set geo IP tracking default", ^{
-            [[marigold should] receive:@selector(setGeoIPTrackingDefault:) withArguments:theValue(YES)];
-            
-            RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation appKey:appKey];
-            (void)rnMarigoldBridge;
-        });
-        
-        it(@"should call startEngine", ^{
-            [[marigold should] receive:@selector(startEngine:withAuthorizationOption:error:) withArguments:appKey, theValue(MARPushAuthorizationOptionFull), nil];
-            
-            RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation appKey:appKey];
-            (void)rnMarigoldBridge;
         });
         
         it(@"should set the JS code location", ^{
-            RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation appKey:appKey];
+            RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation];
             [[rnMarigoldBridge.jsCodeLocation should] equal:jsCodeLocation];
         });
         
         it(@"should set whether to display in app notifications", ^{
-            RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation appKey:appKey];
+            RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation];
             [[theValue(rnMarigoldBridge.displayInAppNotifications) should] equal:theValue(YES)];
         });
     });
     
-    context(@"the initWithJSCodeLocation:appKey:pushAuthorizationOption:geoIpTrackingDefault: method", ^{
+    context(@"the initWithJSCodeLocation:pushAuthorizationOption:geoIpTrackingDefault: method", ^{
         __block NSURL *jsCodeLocation = nil;
-        __block NSString *appKey = nil;
         
         beforeEach(^{
             jsCodeLocation = [NSURL mock];
-            appKey = [NSString mock];
-        });
-        
-        it(@"should set geo IP tracking default", ^{
-            [[marigold should] receive:@selector(setGeoIPTrackingDefault:) withArguments:theValue(NO)];
-            
-            RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation
-                                                                                           appKey:appKey
-                                                                          pushAuthorizationOption:MARPushAuthorizationOptionFull
-                                                                             geoIpTrackingDefault:NO];
-            (void)rnMarigoldBridge;
-        });
-        
-        it(@"should call startEngine", ^{
-            [[marigold should] receive:@selector(startEngine:withAuthorizationOption:error:) withArguments:appKey, theValue(MARPushAuthorizationOptionProvisional), nil];
-            
-            RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation
-                                                                                           appKey:appKey
-                                                                          pushAuthorizationOption:MARPushAuthorizationOptionProvisional
-                                                                             geoIpTrackingDefault:NO];
-            (void)rnMarigoldBridge;
         });
         
         it(@"should set the JS code location", ^{
-            RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation
-                                                                                           appKey:appKey
-                                                                          pushAuthorizationOption:MARPushAuthorizationOptionFull
-                                                                             geoIpTrackingDefault:NO];
+            RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation];
             [[rnMarigoldBridge.jsCodeLocation should] equal:jsCodeLocation];
         });
         
         it(@"should set whether to display in app notifications", ^{
-            RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation
-                                                                                           appKey:appKey
-                                                                          pushAuthorizationOption:MARPushAuthorizationOptionFull
-                                                                             geoIpTrackingDefault:NO];
+            RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation];
             [[theValue(rnMarigoldBridge.displayInAppNotifications) should] equal:theValue(YES)];
         });
     });
     
     context(@"the sourceURLForBridge: method", ^{
         __block NSURL *jsCodeLocation = nil;
-        __block NSString *appKey = nil;
         __block RNMarigoldBridge *rnMarigoldBridge = nil;
         
         beforeEach(^{
             [marigold stub:@selector(startEngine:withAuthorizationOption:error:)];
             
             jsCodeLocation = [NSURL mock];
-            appKey = [NSString mock];
             
-            rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation
-                                                                         appKey:appKey];
+            rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation];
         });
         
         it(@"should return jsCodeLocation", ^{
@@ -138,7 +92,6 @@ describe(@"RNMarigoldBridge", ^{
     
     context(@"the extraModulesForBridge: method", ^{
         __block NSURL *jsCodeLocation = nil;
-        __block NSString *appKey = nil;
         __block RNMarigoldBridge *rnMarigoldBridge = nil;
         
         beforeEach(^{
@@ -146,17 +99,22 @@ describe(@"RNMarigoldBridge", ^{
             [marigold stub:@selector(setWrapperName:andVersion:)];
             
             jsCodeLocation = [NSURL mock];
-            appKey = [NSString mock];
             
-            rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation
-                                                                         appKey:appKey];
+            rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation];
         });
         
         it(@"should return RNMarigold in array", ^{
             NSArray *modules = [rnMarigoldBridge extraModulesForBridge:nil];
-            [[theValue(modules.count) should] equal:theValue(1)];
+            [[theValue(modules.count) should] equal:theValue(2)];
             id<RCTBridgeModule> module = [modules objectAtIndex:0];
             [[theValue([module isKindOfClass:[RNMarigold class]]) should] beYes];
+        });
+        
+        it(@"should return RNEngageBySailthru in array", ^{
+            NSArray *modules = [rnMarigoldBridge extraModulesForBridge:nil];
+            [[theValue(modules.count) should] equal:theValue(2)];
+            id<RCTBridgeModule> module = [modules objectAtIndex:1];
+            [[theValue([module isKindOfClass:[RNEngageBySailthru class]]) should] beYes];
         });
     });
 });

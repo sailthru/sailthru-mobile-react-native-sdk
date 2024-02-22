@@ -23,10 +23,11 @@
 
 @implementation RNEngageBySailthru
 
+RCT_EXPORT_MODULE();
+
 - (instancetype)init {
     self = [super init];
     _engageBySailthru = [EngageBySailthru new];
-    [_engageBySailthru setWrapperName:@"React Native" andVersion:@"10.0.0"];
     return self;
 }
 

@@ -1,7 +1,9 @@
 
 #import "RNMarigoldBridge.h"
 #import "RNMarigold.h"
+#import "RNEngageBySailthru.h"
 #import <Marigold/Marigold.h>
+#import <Marigold/EngageBySailthru.h>
 
 @implementation RNMarigoldBridge
 
@@ -10,20 +12,9 @@
     return nil;
 }
 
-- (instancetype)initWithJSCodeLocation:(NSURL *)jsCodeLocation
-                                appKey:(NSString *)appKey {
-    return [self initWithJSCodeLocation:jsCodeLocation appKey:appKey pushAuthorizationOption:MARPushAuthorizationOptionFull geoIpTrackingDefault:YES];
-}
-
-- (instancetype)initWithJSCodeLocation:(NSURL *)jsCodeLocation
-                                appKey:(NSString *)appKey
-               pushAuthorizationOption:(MARPushAuthorizationOption)pushAuthorizationOption
-                  geoIpTrackingDefault:(BOOL)geoIpTrackingDefault {
+- (instancetype)initWithJSCodeLocation:(NSURL *)jsCodeLocation {
     self = [super init];
     if(self) {
-        Marigold *marigold = [Marigold new];
-        [marigold setGeoIPTrackingDefault:geoIpTrackingDefault];
-        [marigold startEngine:appKey withAuthorizationOption:pushAuthorizationOption error:nil];
         _jsCodeLocation = jsCodeLocation;
         _displayInAppNotifications = YES;
     }
@@ -36,7 +27,8 @@
 
 - (NSArray<id<RCTBridgeModule>> *)extraModulesForBridge:(RCTBridge *)bridge {
     RNMarigold *rnMarigold = [[RNMarigold alloc] initWithDisplayInAppNotifications:self.displayInAppNotifications];
-    NSArray *modules = @[ rnMarigold ];
+    RNEngageBySailthru *rnEngageBySailthru = [[RNEngageBySailthru alloc] init];
+    NSArray *modules = @[ rnMarigold, rnEngageBySailthru ];
     return modules;
 }
 

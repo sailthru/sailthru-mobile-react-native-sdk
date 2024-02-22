@@ -180,6 +180,10 @@ RCT_EXPORT_METHOD(setCrashHandlersEnabled:(BOOL)enabled) {
     [self.marigold setCrashHandlersEnabled:enabled];
 }
 
+RCT_EXPORT_METHOD(logRegistrationEvent:(NSString * _Nullable)userId) {
+    [self.marigold logRegistrationEvent:userId];
+}
+
 // Push Registration
 RCT_EXPORT_METHOD(registerForPushNotifications) {
     UNAuthorizationOptions options = UNAuthorizationOptionAlert | UNAuthorizationOptionBadge | UNAuthorizationOptionSound;

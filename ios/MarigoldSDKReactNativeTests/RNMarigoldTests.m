@@ -22,6 +22,7 @@
 -(void)setGeoIPTrackingEnabled:(BOOL)enabled resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)setGeoIPTrackingDefault:(BOOL)enabled;
 -(void)setCrashHandlersEnabled:(BOOL)enabled;
+-(void)logRegistrationEvent:(NSString * _Nullable)userId;
 -(void)registerForPushNotifications;
 -(void)syncNotificationSettings;
 -(void)clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
@@ -372,6 +373,13 @@ describe(@"RNMarigold", ^{
             [[marigold should] receive:@selector(setCrashHandlersEnabled:)];
             
             [rnMarigold setCrashHandlersEnabled:YES];
+        });
+    });
+    
+    context(@"the logRegistrationEvent: method", ^{
+        it(@"should call native method", ^{
+            [[marigold should] receive:@selector(logRegistrationEvent:)];
+            [rnMarigold logRegistrationEvent:@"event"];
         });
     });
     
