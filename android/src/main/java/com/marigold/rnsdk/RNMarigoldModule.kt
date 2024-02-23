@@ -60,7 +60,7 @@ class RNMarigoldModule(reactContext: ReactApplicationContext, private val displa
     var messageStream = MessageStream()
 
     @VisibleForTesting
-    var jsonConverter = JsonConverter()
+    internal var jsonConverter: JsonConverter = JsonConverter()
 
     init {
         messageStream.setOnInAppNotificationDisplayListener(this)

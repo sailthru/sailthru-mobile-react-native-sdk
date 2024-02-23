@@ -9,7 +9,7 @@ import org.json.JSONObject
 /**
  * Class for handling conversion between Native Maps and Arrays and JSON Objects and Arrays.
  */
-class JsonConverter {
+internal class JsonConverter {
 
     /**
      * Convert JSONObject to WritableMap

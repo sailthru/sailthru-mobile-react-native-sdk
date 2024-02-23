@@ -21,7 +21,7 @@ import java.util.Date
 class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
     @VisibleForTesting
-    var jsonConverter = JsonConverter()
+    internal var jsonConverter = JsonConverter()
 
     @ReactMethod
     fun logEvent(value: String) {
