@@ -14,7 +14,7 @@
 		B934F55A23EA1EE3009DE68E /* RNMarigoldTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55823EA1EE3009DE68E /* RNMarigoldTests.m */; };
 		B934F55B23EA1EE3009DE68E /* RNMarigoldBridgeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55923EA1EE3009DE68E /* RNMarigoldBridgeTests.m */; };
 		E282D1A92B8581F300EECE61 /* RNEngageBySailthruTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E282D1A82B8581F300EECE61 /* RNEngageBySailthruTests.m */; };
-		E282D1AB2B85824300EECE61 /* RNEngageBySailthru.m in Sources */ = {isa = PBXBuildFile; fileRef = E282D1AA2B85824300EECE61 /* RNEngageBySailthru.m */; };
+		E2D064132B882B1800F1ADDB /* RNEngageBySailthru.m in Sources */ = {isa = PBXBuildFile; fileRef = E282D1AA2B85824300EECE61 /* RNEngageBySailthru.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -306,6 +306,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E2D064132B882B1800F1ADDB /* RNEngageBySailthru.m in Sources */,
 				B934F55423EA1E68009DE68E /* RNMarigoldBridge.m in Sources */,
 				B934F55623EA1E68009DE68E /* RNMarigold.m in Sources */,
 			);
@@ -316,7 +317,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				E282D1A92B8581F300EECE61 /* RNEngageBySailthruTests.m in Sources */,
-				E282D1AB2B85824300EECE61 /* RNEngageBySailthru.m in Sources */,
 				B934F55A23EA1EE3009DE68E /* RNMarigoldTests.m in Sources */,
 				B934F55B23EA1EE3009DE68E /* RNMarigoldBridgeTests.m in Sources */,
 			);
