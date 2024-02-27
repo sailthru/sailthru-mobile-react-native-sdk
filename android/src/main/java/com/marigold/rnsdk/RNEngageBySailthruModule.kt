@@ -25,6 +25,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
         const val ERROR_CODE_TRACKING = "marigold.tracking"
         const val ERROR_CODE_VARS = "marigold.vars"
         const val ERROR_CODE_PURCHASE = "marigold.purchase"
+        const val ERROR_CODE_KEY = "marigold.key"
     }
 
     @VisibleForTesting
@@ -55,7 +56,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
             promise.reject(ERROR_CODE_DEVICE, e.message)
             return
         }
-        createEngageBySailthru()?.setAttributes(attributeMap, object : EngageBySailthru.AttributesHandler {
+        createEngageBySailthru(promise)?.setAttributes(attributeMap, object : EngageBySailthru.AttributesHandler {
             override fun onSuccess() {
                 promise.resolve(null)
             }
@@ -69,7 +70,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
 
     @ReactMethod
     fun setUserId(userId: String?, promise: Promise) {
-        createEngageBySailthru()?.setUserId(userId, object : Marigold.MarigoldHandler<Void?> {
+        createEngageBySailthru(promise)?.setUserId(userId, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise.resolve(null)
             }
@@ -82,7 +83,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
 
     @ReactMethod
     fun setUserEmail(userEmail: String?, promise: Promise) {
-        createEngageBySailthru()?.setUserEmail(userEmail, object : Marigold.MarigoldHandler<Void?> {
+        createEngageBySailthru(promise)?.setUserEmail(userEmail, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise.resolve(null)
             }
@@ -97,7 +98,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
     fun trackClick(sectionId: String, url: String, promise: Promise) {
         try {
             val uri = URI(url)
-            createEngageBySailthru()?.trackClick(sectionId, uri, object : EngageBySailthru.TrackHandler {
+            createEngageBySailthru(promise)?.trackClick(sectionId, uri, object : EngageBySailthru.TrackHandler {
                 override fun onSuccess() {
                     promise.resolve(true)
                 }
@@ -126,7 +127,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
                 convertedTags.add(tags.getString(i))
             }
         }
-        createEngageBySailthru()?.trackPageview(uri, convertedTags, object : EngageBySailthru.TrackHandler {
+        createEngageBySailthru(promise)?.trackPageview(uri, convertedTags, object : EngageBySailthru.TrackHandler {
             override fun onSuccess() {
                 promise.resolve(true)
             }
@@ -151,7 +152,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
                 return
             }
         }
-        createEngageBySailthru()?.trackImpression(sectionId, convertedUrls, object : EngageBySailthru.TrackHandler {
+        createEngageBySailthru(promise)?.trackImpression(sectionId, convertedUrls, object : EngageBySailthru.TrackHandler {
             override fun onSuccess() {
                 promise.resolve(true)
             }
@@ -170,7 +171,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
             promise.reject(ERROR_CODE_VARS, e.message)
             return
         }
-        createEngageBySailthru()?.setProfileVars(varsJson, object : Marigold.MarigoldHandler<Void?> {
+        createEngageBySailthru(promise)?.setProfileVars(varsJson, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise.resolve(true)
             }
@@ -183,7 +184,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
 
     @ReactMethod
     fun getProfileVars(promise: Promise) {
-        createEngageBySailthru()?.getProfileVars(object : Marigold.MarigoldHandler<JSONObject?> {
+        createEngageBySailthru(promise)?.getProfileVars(object : Marigold.MarigoldHandler<JSONObject?> {
             override fun onSuccess(value: JSONObject?) {
                 try {
                     val vars = value?.let { jsonConverter.convertJsonToMap(it) }
@@ -202,7 +203,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
     @ReactMethod
     fun logPurchase(purchaseMap: ReadableMap, promise: Promise) {
         val purchase = getPurchaseInstance(purchaseMap, promise) ?: return
-        createEngageBySailthru()?.logPurchase(purchase, object : Marigold.MarigoldHandler<Void?> {
+        createEngageBySailthru(promise)?.logPurchase(purchase, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise.resolve(true)
             }
@@ -216,7 +217,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
     @ReactMethod
     fun logAbandonedCart(purchaseMap: ReadableMap, promise: Promise) {
         val purchase = getPurchaseInstance(purchaseMap, promise) ?: return
-        createEngageBySailthru()?.logAbandonedCart(purchase, object : Marigold.MarigoldHandler<Void?> {
+        createEngageBySailthru(promise)?.logAbandonedCart(purchase, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise.resolve(true)
             }
@@ -232,9 +233,10 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
     }
 
     //Helper method for instantiating EngageBySailthru
-    fun createEngageBySailthru(): EngageBySailthru? = try {
+    fun createEngageBySailthru(promise: Promise? = null): EngageBySailthru? = try {
         EngageBySailthru()
     } catch (e: Exception) {
+        promise?.reject(ERROR_CODE_KEY,  e.message)
         null
     }
 

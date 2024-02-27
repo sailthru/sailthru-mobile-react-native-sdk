@@ -49,6 +49,9 @@ class RNEngageBySailthruModuleTest {
     @Mock
     private lateinit var engage: EngageBySailthru
 
+    @Mock
+    private lateinit var promise: Promise
+
     @Captor
     private lateinit var attributeCaptor: ArgumentCaptor<AttributeMap>
 
@@ -62,6 +65,7 @@ class RNEngageBySailthruModuleTest {
         rnEngageBySailthruModuleSpy = Mockito.spy(rnEngageBySailthruModule)
         // Mock instance creation of EngageBySailthru to return the mocked instance
         doReturn(engage).whenever(rnEngageBySailthruModuleSpy).createEngageBySailthru()
+        doReturn(engage).whenever(rnEngageBySailthruModuleSpy).createEngageBySailthru(promise)
     }
 
     @Test
@@ -125,7 +129,6 @@ class RNEngageBySailthruModuleTest {
         val error = Error("test error")
 
         // setup mocks
-        val promise: Promise = mock()
         val readableMap: ReadableMap = mock()
 
         // setup mocking for conversion from ReadableMap to JSON
@@ -153,7 +156,6 @@ class RNEngageBySailthruModuleTest {
     @Test
     fun testSetUserId() {
         // Setup mocks
-        val promise: Promise = mock()
         val error: Error = mock()
         val userID = "user ID"
         rnEngageBySailthruModuleSpy.setUserId(userID, promise)
@@ -180,7 +182,6 @@ class RNEngageBySailthruModuleTest {
     @Test
     fun testSetUserEmail() {
         // Setup mocks
-        val promise: Promise = mock()
         val error: Error = mock()
         val userEmail = "user email"
         rnEngageBySailthruModuleSpy.setUserEmail(userEmail, promise)
@@ -207,7 +208,6 @@ class RNEngageBySailthruModuleTest {
     @Test
     fun testTrackClick() {
         // Create input
-        val promise: Promise = mock()
         val sectionID = "Section ID"
         val urlString = "www.notarealurl.com"
         val error = Error("test error")
@@ -233,7 +233,6 @@ class RNEngageBySailthruModuleTest {
     @Test
     fun testTrackClickException() {
         // Create input
-        val promise: Promise = mock()
         val sectionID = "Section ID"
         val urlString = "Wrong URL Format"
 
@@ -254,7 +253,6 @@ class RNEngageBySailthruModuleTest {
         val error = Error("test error")
 
         // Create mocks
-        val promise: Promise = mock()
         val tagsArray: ReadableArray = mock()
         doReturn(1).whenever(tagsArray).size()
         doReturn(testTag).whenever(tagsArray).getString(ArgumentMatchers.anyInt())
@@ -283,7 +281,6 @@ class RNEngageBySailthruModuleTest {
     @Test
     fun testTrackPageviewNullTags() {
         // Create input
-        val promise: Promise = mock()
         val urlString = "www.notarealurl.com"
 
         // Initiate test
@@ -296,7 +293,6 @@ class RNEngageBySailthruModuleTest {
     @Test
     fun testTrackPageviewException() {
         // Create input
-        val promise: Promise = mock()
         val urlString = "Wrong URL Format"
 
         // Initiate test
@@ -311,7 +307,6 @@ class RNEngageBySailthruModuleTest {
     @SuppressWarnings("unchecked")
     fun testTrackImpression() {
         // Create input
-        val promise: Promise = mock()
         val sectionID = "Section ID"
         val urlString = "www.notarealurl.com"
         val readableArray: ReadableArray = mock()
@@ -342,7 +337,6 @@ class RNEngageBySailthruModuleTest {
     @Test
     fun testTrackImpressionNullUrls() {
         // Create input
-        val promise: Promise = mock()
         val sectionID = "Section ID"
 
         // Initiate test
@@ -355,7 +349,6 @@ class RNEngageBySailthruModuleTest {
     @Test
     fun testTrackImpressionException() {
         // Create input
-        val promise: Promise = mock()
         val sectionID = "Section ID"
         val urlString = "Wrong URL Format"
         val readableArray: ReadableArray = mock()
@@ -379,7 +372,6 @@ class RNEngageBySailthruModuleTest {
 
         // Create input
         val vars: ReadableMap = mock()
-        val promise: Promise = mock()
         val error: Error = mock()
 
         // Mock methods
@@ -414,7 +406,6 @@ class RNEngageBySailthruModuleTest {
 
         // Create input
         val vars: ReadableMap = mock()
-        val promise: Promise = mock()
 
         // Mock methods
         doThrow(jsonException).whenever(jsonConverter).convertMapToJson(vars)
@@ -432,7 +423,6 @@ class RNEngageBySailthruModuleTest {
     fun testGetProfileVars() {
         // Create input
         val varsJson = JSONObject().put("test var", 123)
-        val promise: Promise = mock()
         val error: Error = mock()
         val mockMap: WritableMap = mock()
 
@@ -468,7 +458,6 @@ class RNEngageBySailthruModuleTest {
         // Create input
         val purchaseMap: ReadableMap = mock()
         val purchase: Purchase = mock()
-        val promise: Promise = mock()
         val error: Error = mock()
 
         // Mock methods
@@ -502,7 +491,6 @@ class RNEngageBySailthruModuleTest {
     fun testLogPurchaseException() {
         // Create input
         val purchaseMap: ReadableMap = mock()
-        val promise: Promise = mock()
         val jsonException = JSONException("test exception")
 
         // Mock methods
@@ -523,7 +511,6 @@ class RNEngageBySailthruModuleTest {
         // Create input
         val purchaseMap: ReadableMap = mock()
         val purchase: Purchase = mock()
-        val promise: Promise = mock()
         val error: Error = mock()
 
         // Mock methods
@@ -557,7 +544,6 @@ class RNEngageBySailthruModuleTest {
     fun testLogAbandonedCartException() {
         // Create input
         val purchaseMap: ReadableMap = mock()
-        val promise: Promise = mock()
         val jsonException = JSONException("test exception")
 
         // Mock methods
@@ -577,7 +563,6 @@ class RNEngageBySailthruModuleTest {
     fun testGetPurchaseInstancePositiveAdjustment() {
         // Mock methods
         val readableMap: ReadableMap = mock()
-        val promise: Promise = mock()
         val purchaseJson = createPurchaseJson(234)
         doReturn(purchaseJson).whenever(jsonConverter).convertMapToJson(readableMap, false)
 
@@ -602,7 +587,6 @@ class RNEngageBySailthruModuleTest {
     fun testGetPurchaseInstanceNegativeAdjustment() {
         // Mock methods
         val readableMap: ReadableMap = mock()
-        val promise: Promise = mock()
         val purchaseJson = createPurchaseJson(-234)
         doReturn(purchaseJson).whenever(jsonConverter).convertMapToJson(readableMap, false)
 
