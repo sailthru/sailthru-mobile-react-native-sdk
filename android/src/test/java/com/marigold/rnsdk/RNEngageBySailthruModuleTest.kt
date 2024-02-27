@@ -399,7 +399,7 @@ class RNEngageBySailthruModuleTest {
 
         // Setup error
         val errorMessage = "error message"
-        Mockito.`when`(error.message).thenReturn(errorMessage)
+        doReturn(errorMessage).whenever(error).message
 
         // Test error handler
         setVarsHandler.onFailure(error)
@@ -455,7 +455,7 @@ class RNEngageBySailthruModuleTest {
 
         // Setup error
         val errorMessage = "error message"
-        Mockito.`when`(error.message).thenReturn(errorMessage)
+        doReturn(errorMessage).whenever(error).message
 
         // Test error handler
         getVarsHandler.onFailure(error)
@@ -489,7 +489,7 @@ class RNEngageBySailthruModuleTest {
 
         // Setup error
         val errorMessage = "error message"
-        Mockito.`when`(error.message).thenReturn(errorMessage)
+        doReturn(errorMessage).whenever(error).message
 
         // Test error handler
         purchaseHandler.onFailure(error)
@@ -544,7 +544,7 @@ class RNEngageBySailthruModuleTest {
 
         // Setup error
         val errorMessage = "error message"
-        Mockito.`when`(error.message).thenReturn(errorMessage)
+        doReturn(errorMessage).whenever(error).message
 
         // Test error handler
         purchaseHandler.onFailure(error)

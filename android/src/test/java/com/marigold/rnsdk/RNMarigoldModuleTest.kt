@@ -22,13 +22,10 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Mock
 import org.mockito.MockedConstruction
-import org.mockito.Mockito.doReturn
-import org.mockito.Mockito.doThrow
 import org.mockito.Mockito.mockConstruction
 import org.mockito.Mockito.never
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.times
-import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.*
 
@@ -77,9 +74,9 @@ class RNMarigoldModuleTest {
         val writableMap: WritableMap = mock()
         val jsonObject: JSONObject = mock()
 
-        `when`(message.toJSON()).thenReturn(jsonObject)
-        `when`(jsonConverter.convertJsonToMap(jsonObject)).thenReturn(writableMap)
-        `when`(mockContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)).thenReturn(module)
+        doReturn(jsonObject).whenever(message).toJSON()
+        doReturn(writableMap).whenever(jsonConverter).convertJsonToMap(jsonObject)
+        doReturn(module).whenever(mockContext).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
 
         val shouldPresent = rnMarigoldModuleSpy.shouldPresentInAppNotification(message)
 
@@ -94,8 +91,9 @@ class RNMarigoldModuleTest {
         val message: Message = mock()
         val jsonObject: JSONObject = mock()
         val jsonException: JSONException = mock()
-        `when`(message.toJSON()).thenReturn(jsonObject)
-        `when`(jsonConverter.convertJsonToMap(jsonObject)).thenThrow(jsonException)
+        doReturn(jsonObject).whenever(message).toJSON()
+        doThrow(jsonException).whenever(jsonConverter).convertJsonToMap(jsonObject)
+
         val shouldPresent = rnMarigoldModuleSpy.shouldPresentInAppNotification(message)
         verify(mockContext, times(0)).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
         verify(jsonException).printStackTrace()
@@ -120,7 +118,7 @@ class RNMarigoldModuleTest {
         val activity: Activity = mock()
 
         // Mock behaviour
-        doReturn(activity).`when`(rnMarigoldModuleSpy).currentActivity()
+        doReturn(activity).whenever(rnMarigoldModuleSpy).currentActivity()
         rnMarigoldModuleSpy.registerForPushNotifications()
         verify(marigold).requestNotificationPermission(activity)
     }
@@ -128,7 +126,7 @@ class RNMarigoldModuleTest {
     @Test
     fun testRegisterForPushNotificationsNoActivity() {
         // Mock behaviour
-        doReturn(null).`when`(rnMarigoldModuleSpy).currentActivity()
+        doReturn(null).whenever(rnMarigoldModuleSpy).currentActivity()
         rnMarigoldModuleSpy.registerForPushNotifications()
         verify(marigold, never()).requestNotificationPermission(any(), any(), any())
     }
@@ -155,7 +153,7 @@ class RNMarigoldModuleTest {
         val error: Error = mock()
 
         // Mock methods
-        doReturn(errorMessage).`when`(error).message
+        doReturn(errorMessage).whenever(error).message
 
         // Start test
         rnMarigoldModule.getDeviceID(promise)
@@ -191,7 +189,7 @@ class RNMarigoldModuleTest {
         val messagesHandler = argumentCaptor.value
 
         // Replace native array with mock
-        doReturn(writableArray).`when`(rnMarigoldModuleSpy).getWritableArray()
+        doReturn(writableArray).whenever(rnMarigoldModuleSpy).getWritableArray()
 
         // Setup message array
         val messages: ArrayList<Message> = ArrayList()
@@ -202,7 +200,7 @@ class RNMarigoldModuleTest {
 
         // Setup error
         val errorMessage = "error message"
-        `when`(error.message).thenReturn(errorMessage)
+        doReturn(errorMessage).whenever(error).message
 
         // Test error handler
         messagesHandler.onFailure(error)
@@ -232,7 +230,7 @@ class RNMarigoldModuleTest {
 
         // Setup error
         val errorMessage = "error message"
-        `when`(error.message).thenReturn(errorMessage)
+        doReturn(errorMessage).whenever(error).message
 
         // Test error handler
         countHandler.onFailure(error)
@@ -248,7 +246,7 @@ class RNMarigoldModuleTest {
         val readableMap: ReadableMap = mock()
         val message: Message = mock()
         val moduleSpy = spy(rnMarigoldModule)
-        doReturn(message).`when`(moduleSpy).getMessage(readableMap, promise)
+        doReturn(message).whenever(moduleSpy).getMessage(readableMap, promise)
 
         // Initiate test
         moduleSpy.removeMessage(readableMap, promise)
@@ -264,7 +262,7 @@ class RNMarigoldModuleTest {
 
         // Setup error
         val errorMessage = "error message"
-        `when`(error.message).thenReturn(errorMessage)
+        doReturn(errorMessage).whenever(error).message
 
         // Test error handler
         handler.onFailure(error)
@@ -279,7 +277,7 @@ class RNMarigoldModuleTest {
         val readableMap: ReadableMap = mock()
         val jsonException = JSONException("test exception")
         val moduleSpy = spy(rnMarigoldModule)
-        doThrow(jsonException).`when`(moduleSpy).getMessage(readableMap, promise)
+        doThrow(jsonException).whenever(moduleSpy).getMessage(readableMap, promise)
 
         // Initiate test
         Assert.assertThrows(JSONException::class.java) {
@@ -298,7 +296,7 @@ class RNMarigoldModuleTest {
         val typeCode = 0
         val readableMap: ReadableMap = mock()
         val message: Message = mock()
-        doReturn(message).`when`(rnMarigoldModuleSpy).getMessage(readableMap, null)
+        doReturn(message).whenever(rnMarigoldModuleSpy).getMessage(readableMap, null)
 
         // Initiate test
         rnMarigoldModuleSpy.registerMessageImpression(typeCode, readableMap)
@@ -327,7 +325,7 @@ class RNMarigoldModuleTest {
         val typeCode = 0
         val readableMap: ReadableMap = mock()
         val jsonException: JSONException = mock()
-        doThrow(jsonException).`when`(rnMarigoldModuleSpy).getMessage(readableMap, null)
+        doThrow(jsonException).whenever(rnMarigoldModuleSpy).getMessage(readableMap, null)
 
         // Initiate test
         Assert.assertThrows(Exception::class.java) {
@@ -348,7 +346,7 @@ class RNMarigoldModuleTest {
         val message: Message = mock()
         val error: Error = mock()
         val moduleSpy = spy(rnMarigoldModule)
-        doReturn(message).`when`(moduleSpy).getMessage(readableMap, promise)
+        doReturn(message).whenever(moduleSpy).getMessage(readableMap, promise)
 
         // Initiate test
         moduleSpy.markMessageAsRead(readableMap, promise)
@@ -364,7 +362,7 @@ class RNMarigoldModuleTest {
 
         // Setup error
         val errorMessage = "error message"
-        `when`(error.message).thenReturn(errorMessage)
+        doReturn(errorMessage).whenever(error).message
 
         // Test error handler
         handler.onFailure(error)
@@ -379,7 +377,7 @@ class RNMarigoldModuleTest {
         val promise: Promise = mock()
         val jsonException = JSONException("test exception")
         val moduleSpy = spy(rnMarigoldModule)
-        doThrow(jsonException).`when`(moduleSpy).getMessage(readableMap, promise)
+        doThrow(jsonException).whenever(moduleSpy).getMessage(readableMap, promise)
 
         // Initiate test
         Assert.assertThrows(JSONException::class.java) {
@@ -402,9 +400,9 @@ class RNMarigoldModuleTest {
         val intent: Intent = mock()
 
         // Mock behaviour
-        `when`(message.getString(RNMarigoldModule.MESSAGE_ID)).thenReturn(messageID)
-        doReturn(activity).`when`(rnMarigoldModuleSpy).currentActivity()
-        doReturn(intent).`when`(rnMarigoldModuleSpy).getMessageActivityIntent(any(), any())
+        doReturn(messageID).whenever(message).getString(RNMarigoldModule.MESSAGE_ID)
+        doReturn(activity).whenever(rnMarigoldModuleSpy).currentActivity()
+        doReturn(intent).whenever(rnMarigoldModuleSpy).getMessageActivityIntent(any(), any())
 
         // Initiate test
         rnMarigoldModuleSpy.presentMessageDetail(message)
@@ -443,7 +441,7 @@ class RNMarigoldModuleTest {
 
         // Setup error
         val errorMessage = "error message"
-        `when`(error.message).thenReturn(errorMessage)
+        doReturn(errorMessage).whenever(error).message
 
         // Test error handler
         clearHandler.onFailure(error)
@@ -471,7 +469,7 @@ class RNMarigoldModuleTest {
 
         // Setup error
         val errorMessage = "error message"
-        `when`(error.message).thenReturn(errorMessage)
+        doReturn(errorMessage).whenever(error).message
 
         // Test error handler
         clearHandler.onFailure(error)
@@ -485,7 +483,7 @@ class RNMarigoldModuleTest {
         val readableMap: ReadableMap = mock()
         val promise: Promise = mock()
         val messageJson = JSONObject().put("title", "test title")
-        `when`(jsonConverter.convertMapToJson(readableMap)).thenReturn(messageJson)
+        doReturn(messageJson).whenever(jsonConverter).convertMapToJson(readableMap)
 
         // Initiate test
         val message = rnMarigoldModuleSpy.getMessage(readableMap, promise)
