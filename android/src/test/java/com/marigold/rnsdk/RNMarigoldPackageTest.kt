@@ -1,8 +1,6 @@
 package com.marigold.rnsdk
 
 import com.facebook.react.bridge.ReactApplicationContext
-import com.marigold.sdk.EngageBySailthru
-import com.marigold.sdk.Marigold
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -19,22 +17,12 @@ class RNMarigoldPackageTest {
     private lateinit var staticRnMarigoldModule: MockedConstruction<RNMarigoldModule>
     @Mock
     private lateinit var staticRnEngageBySailthru: MockedConstruction<RNEngageBySailthruModule>
-    @Mock
-    private lateinit var staticMarigold: MockedConstruction<Marigold>
-    @Mock
-    private lateinit var staticEngageBySailthru: MockedConstruction<EngageBySailthru>
-
-    private lateinit var marigold: Marigold
-
-    private lateinit var engageBySailthru: EngageBySailthru
 
     private lateinit var rnSTPackage: RNMarigoldPackage
 
     @Before
     fun setup() {
         rnSTPackage = RNMarigoldPackage()
-        marigold = staticMarigold.constructed()[0]
-        engageBySailthru = staticEngageBySailthru.constructed()[0]
     }
 
     @Test

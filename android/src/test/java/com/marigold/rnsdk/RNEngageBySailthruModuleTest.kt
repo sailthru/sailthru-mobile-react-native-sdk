@@ -26,9 +26,12 @@ import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
 import org.mockito.kotlin.capture
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import java.net.URI
 import java.util.Date
 
@@ -58,8 +61,7 @@ class RNEngageBySailthruModuleTest {
         rnEngageBySailthruModule.jsonConverter = jsonConverter
         rnEngageBySailthruModuleSpy = Mockito.spy(rnEngageBySailthruModule)
         // Mock instance creation of EngageBySailthru to return the mocked instance
-        Mockito.`when`(rnEngageBySailthruModuleSpy.createEngageBySailthru()).thenReturn(engage)
-
+        doReturn(engage).whenever(rnEngageBySailthruModuleSpy).createEngageBySailthru()
     }
 
     @Test
@@ -84,7 +86,7 @@ class RNEngageBySailthruModuleTest {
         val readableMap: ReadableMap = mock()
 
         // setup mocking
-        Mockito.`when`(jsonConverter.convertMapToJson(readableMap)).thenReturn(varsJson)
+        doReturn(varsJson).whenever(jsonConverter).convertMapToJson(readableMap)
         rnEngageBySailthruModuleSpy.logEvent(event, readableMap)
         verify(engage).logEvent(event, varsJson)
     }
@@ -99,7 +101,7 @@ class RNEngageBySailthruModuleTest {
         val readableMap: ReadableMap = mock()
 
         // setup mocking
-        Mockito.`when`(jsonConverter.convertMapToJson(readableMap)).thenThrow(jsonException)
+        doThrow(jsonException).whenever(jsonConverter).convertMapToJson(readableMap)
         rnEngageBySailthruModuleSpy.logEvent(event, readableMap)
         verify(jsonException).printStackTrace()
         verify(engage).logEvent(event, null)
@@ -127,7 +129,7 @@ class RNEngageBySailthruModuleTest {
         val readableMap: ReadableMap = mock()
 
         // setup mocking for conversion from ReadableMap to JSON
-        Mockito.`when`(jsonConverter.convertMapToJson(readableMap)).thenReturn(attributeMapJson)
+        doReturn(attributeMapJson).whenever(jsonConverter).convertMapToJson(readableMap)
 
         // Capture Attributes to verify
         val handlerCaptor = ArgumentCaptor.forClass(EngageBySailthru.AttributesHandler::class.java)
@@ -168,7 +170,7 @@ class RNEngageBySailthruModuleTest {
 
         // Setup error
         val errorMessage = "error message"
-        Mockito.`when`(error.message).thenReturn(errorMessage)
+        doReturn(errorMessage).whenever(error).message
 
         // Test error handler
         handler.onFailure(error)
@@ -195,7 +197,7 @@ class RNEngageBySailthruModuleTest {
 
         // Setup error
         val errorMessage = "error message"
-        Mockito.`when`(error.message).thenReturn(errorMessage)
+        doReturn(errorMessage).whenever(error).message
 
         // Test error handler
         handler.onFailure(error)
@@ -254,8 +256,8 @@ class RNEngageBySailthruModuleTest {
         // Create mocks
         val promise: Promise = mock()
         val tagsArray: ReadableArray = mock()
-        Mockito.`when`(tagsArray.size()).thenReturn(1)
-        Mockito.`when`(tagsArray.getString(ArgumentMatchers.anyInt())).thenReturn(testTag)
+        doReturn(1).whenever(tagsArray).size()
+        doReturn(testTag).whenever(tagsArray).getString(ArgumentMatchers.anyInt())
 
         // Initiate test
         rnEngageBySailthruModuleSpy.trackPageview(urlString, tagsArray, promise)
@@ -316,8 +318,8 @@ class RNEngageBySailthruModuleTest {
         val error = Error("test error")
 
         // Mock methods
-        Mockito.doReturn(1).`when`(readableArray).size()
-        Mockito.doReturn(urlString).`when`(readableArray).getString(any())
+        doReturn(1).whenever(readableArray).size()
+        doReturn(urlString).whenever(readableArray).getString(any())
 
         // Initiate test
         rnEngageBySailthruModuleSpy.trackImpression(sectionID, readableArray, promise)
@@ -359,8 +361,8 @@ class RNEngageBySailthruModuleTest {
         val readableArray: ReadableArray = mock()
 
         // Mock methods
-        Mockito.doReturn(1).`when`(readableArray).size()
-        Mockito.doReturn(urlString).`when`(readableArray).getString(any())
+        doReturn(1).whenever(readableArray).size()
+        doReturn(urlString).whenever(readableArray).getString(any())
 
         // Initiate test
         rnEngageBySailthruModule.trackImpression(sectionID, readableArray, promise)
@@ -381,7 +383,7 @@ class RNEngageBySailthruModuleTest {
         val error: Error = mock()
 
         // Mock methods
-        Mockito.`when`(jsonConverter.convertMapToJson(vars)).thenReturn(varsJson)
+        doReturn(varsJson).whenever(jsonConverter).convertMapToJson(vars)
 
         // Initiate test
         rnEngageBySailthruModuleSpy.setProfileVars(vars, promise)
@@ -415,7 +417,7 @@ class RNEngageBySailthruModuleTest {
         val promise: Promise = mock()
 
         // Mock methods
-        Mockito.`when`(jsonConverter.convertMapToJson(vars)).thenThrow(jsonException)
+        doThrow(jsonException).whenever(jsonConverter).convertMapToJson(vars)
 
         // Initiate test
         rnEngageBySailthruModuleSpy.setProfileVars(vars, promise)
@@ -435,7 +437,7 @@ class RNEngageBySailthruModuleTest {
         val mockMap: WritableMap = mock()
 
         // Mock methods
-        Mockito.`when`(jsonConverter.convertJsonToMap(varsJson)).thenReturn(mockMap)
+        doReturn(mockMap).whenever(jsonConverter).convertJsonToMap(varsJson)
 
         // Initiate test
         rnEngageBySailthruModuleSpy.getProfileVars(promise)
@@ -470,7 +472,7 @@ class RNEngageBySailthruModuleTest {
         val error: Error = mock()
 
         // Mock methods
-        Mockito.doReturn(purchase).`when`(rnEngageBySailthruModuleSpy).getPurchaseInstance(purchaseMap, promise)
+        doReturn(purchase).whenever(rnEngageBySailthruModuleSpy).getPurchaseInstance(purchaseMap, promise)
 
         // Initiate test
         rnEngageBySailthruModuleSpy.logPurchase(purchaseMap, promise)
@@ -504,7 +506,8 @@ class RNEngageBySailthruModuleTest {
         val jsonException = JSONException("test exception")
 
         // Mock methods
-        Mockito.doThrow(jsonException).`when`(rnEngageBySailthruModuleSpy).getPurchaseInstance(purchaseMap, promise)
+        doThrow(jsonException).whenever(rnEngageBySailthruModuleSpy).getPurchaseInstance(purchaseMap, promise)
+
         // Initiate test
         assertThrows(JSONException::class.java) {
             rnEngageBySailthruModuleSpy.logPurchase(purchaseMap, promise)
@@ -524,7 +527,7 @@ class RNEngageBySailthruModuleTest {
         val error: Error = mock()
 
         // Mock methods
-        Mockito.doReturn(purchase).`when`(rnEngageBySailthruModuleSpy).getPurchaseInstance(purchaseMap, promise)
+        doReturn(purchase).whenever(rnEngageBySailthruModuleSpy).getPurchaseInstance(purchaseMap, promise)
 
         // Initiate test
         rnEngageBySailthruModuleSpy.logAbandonedCart(purchaseMap, promise)
@@ -558,7 +561,8 @@ class RNEngageBySailthruModuleTest {
         val jsonException = JSONException("test exception")
 
         // Mock methods
-        Mockito.doThrow(jsonException).`when`(rnEngageBySailthruModuleSpy).getPurchaseInstance(purchaseMap, promise)
+        doThrow(jsonException).whenever(rnEngageBySailthruModuleSpy).getPurchaseInstance(purchaseMap, promise)
+
         // Initiate test
         assertThrows(JSONException::class.java) {
             rnEngageBySailthruModuleSpy.logAbandonedCart(purchaseMap, promise)
@@ -575,7 +579,7 @@ class RNEngageBySailthruModuleTest {
         val readableMap: ReadableMap = mock()
         val promise: Promise = mock()
         val purchaseJson = createPurchaseJson(234)
-        Mockito.`when`(jsonConverter.convertMapToJson(readableMap, false)).thenReturn(purchaseJson)
+        doReturn(purchaseJson).whenever(jsonConverter).convertMapToJson(readableMap, false)
 
         // Initiate test
         val purchase: Purchase? = rnEngageBySailthruModuleSpy.getPurchaseInstance(readableMap, promise)
@@ -600,7 +604,7 @@ class RNEngageBySailthruModuleTest {
         val readableMap: ReadableMap = mock()
         val promise: Promise = mock()
         val purchaseJson = createPurchaseJson(-234)
-        Mockito.`when`(jsonConverter.convertMapToJson(readableMap, false)).thenReturn(purchaseJson)
+        doReturn(purchaseJson).whenever(jsonConverter).convertMapToJson(readableMap, false)
 
         // Initiate test
         val purchase = rnEngageBySailthruModuleSpy.getPurchaseInstance(readableMap, promise)
@@ -626,7 +630,7 @@ class RNEngageBySailthruModuleTest {
         // Mock methods
         val readableMap: ReadableMap = mock()
         val attributeJson = createAttributeMapJson(date)
-        Mockito.`when`(jsonConverter.convertMapToJson(readableMap)).thenReturn(attributeJson)
+        doReturn(attributeJson).whenever(jsonConverter).convertMapToJson(readableMap)
 
         // Initiate test
         val attributeMap = rnEngageBySailthruModuleSpy.getAttributeMap(readableMap)

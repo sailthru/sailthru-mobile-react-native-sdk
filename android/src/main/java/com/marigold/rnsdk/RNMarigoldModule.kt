@@ -30,7 +30,6 @@ class RNMarigoldModule(reactContext: ReactApplicationContext, private val displa
     companion object {
         const val ERROR_CODE_DEVICE = "marigold.device"
         const val ERROR_CODE_MESSAGES = "marigold.messages"
-        const val ERROR_CODE_RECOMMENDATIONS = "marigold.recommendations"
         const val ERROR_CODE_TRACKING = "marigold.tracking"
         const val ERROR_CODE_VARS = "marigold.vars"
         const val ERROR_CODE_PURCHASE = "marigold.purchase"

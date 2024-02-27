@@ -20,12 +20,19 @@ import java.util.Date
 
 class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
+    companion object {
+        const val ERROR_CODE_DEVICE = "marigold.device"
+        const val ERROR_CODE_TRACKING = "marigold.tracking"
+        const val ERROR_CODE_VARS = "marigold.vars"
+        const val ERROR_CODE_PURCHASE = "marigold.purchase"
+    }
+
     @VisibleForTesting
     internal var jsonConverter = JsonConverter()
 
     @ReactMethod
     fun logEvent(value: String) {
-        createEngageBySailthru().logEvent(value)
+        createEngageBySailthru()?.logEvent(value)
     }
 
     @ReactMethod
@@ -36,7 +43,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
         } catch (e: JSONException) {
             e.printStackTrace()
         }
-        createEngageBySailthru().logEvent(eventName, varsJson)
+        createEngageBySailthru()?.logEvent(eventName, varsJson)
     }
 
     @ReactMethod
@@ -45,16 +52,16 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
         val attributeMap = try {
             getAttributeMap(readableMap)
         } catch (e: JSONException) {
-            promise.reject(RNMarigoldModule.ERROR_CODE_DEVICE, e.message)
+            promise.reject(ERROR_CODE_DEVICE, e.message)
             return
         }
-        createEngageBySailthru().setAttributes(attributeMap, object : EngageBySailthru.AttributesHandler {
+        createEngageBySailthru()?.setAttributes(attributeMap, object : EngageBySailthru.AttributesHandler {
             override fun onSuccess() {
                 promise.resolve(null)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(RNMarigoldModule.ERROR_CODE_DEVICE, error.message)
+                promise.reject(ERROR_CODE_DEVICE, error.message)
             }
         })
     }
@@ -62,26 +69,26 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
 
     @ReactMethod
     fun setUserId(userId: String?, promise: Promise) {
-        createEngageBySailthru().setUserId(userId, object : Marigold.MarigoldHandler<Void?> {
+        createEngageBySailthru()?.setUserId(userId, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise.resolve(null)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(RNMarigoldModule.ERROR_CODE_DEVICE, error.message)
+                promise.reject(ERROR_CODE_DEVICE, error.message)
             }
         })
     }
 
     @ReactMethod
     fun setUserEmail(userEmail: String?, promise: Promise) {
-        createEngageBySailthru().setUserEmail(userEmail, object : Marigold.MarigoldHandler<Void?> {
+        createEngageBySailthru()?.setUserEmail(userEmail, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise.resolve(null)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(RNMarigoldModule.ERROR_CODE_DEVICE, error.message)
+                promise.reject(ERROR_CODE_DEVICE, error.message)
             }
         })
     }
@@ -90,17 +97,17 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
     fun trackClick(sectionId: String, url: String, promise: Promise) {
         try {
             val uri = URI(url)
-            createEngageBySailthru().trackClick(sectionId, uri, object : EngageBySailthru.TrackHandler {
+            createEngageBySailthru()?.trackClick(sectionId, uri, object : EngageBySailthru.TrackHandler {
                 override fun onSuccess() {
                     promise.resolve(true)
                 }
 
                 override fun onFailure(error: Error) {
-                    promise.reject(RNMarigoldModule.ERROR_CODE_TRACKING, error.message)
+                    promise.reject(ERROR_CODE_TRACKING, error.message)
                 }
             })
         } catch (e: URISyntaxException) {
-            promise.reject(RNMarigoldModule.ERROR_CODE_TRACKING, e.message)
+            promise.reject(ERROR_CODE_TRACKING, e.message)
         }
     }
 
@@ -109,7 +116,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
         val uri = try {
             URI(url)
         } catch (e: URISyntaxException) {
-            promise.reject(RNMarigoldModule.ERROR_CODE_TRACKING, e.message)
+            promise.reject(ERROR_CODE_TRACKING, e.message)
             return
         }
         var convertedTags: List<String?>? = null
@@ -119,13 +126,13 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
                 convertedTags.add(tags.getString(i))
             }
         }
-        createEngageBySailthru().trackPageview(uri, convertedTags, object : EngageBySailthru.TrackHandler {
+        createEngageBySailthru()?.trackPageview(uri, convertedTags, object : EngageBySailthru.TrackHandler {
             override fun onSuccess() {
                 promise.resolve(true)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(RNMarigoldModule.ERROR_CODE_TRACKING, error.message)
+                promise.reject(ERROR_CODE_TRACKING, error.message)
             }
         })
     }
@@ -140,17 +147,17 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
                     convertedUrls.add(URI(urls.getString(i)))
                 }
             } catch (e: URISyntaxException) {
-                promise.reject(RNMarigoldModule.ERROR_CODE_TRACKING, e.message)
+                promise.reject(ERROR_CODE_TRACKING, e.message)
                 return
             }
         }
-        createEngageBySailthru().trackImpression(sectionId, convertedUrls, object : EngageBySailthru.TrackHandler {
+        createEngageBySailthru()?.trackImpression(sectionId, convertedUrls, object : EngageBySailthru.TrackHandler {
             override fun onSuccess() {
                 promise.resolve(true)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(RNMarigoldModule.ERROR_CODE_TRACKING, error.message)
+                promise.reject(ERROR_CODE_TRACKING, error.message)
             }
         })
     }
@@ -160,34 +167,34 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
         val varsJson = try {
             jsonConverter.convertMapToJson(vars)
         } catch (e: JSONException) {
-            promise.reject(RNMarigoldModule.ERROR_CODE_VARS, e.message)
+            promise.reject(ERROR_CODE_VARS, e.message)
             return
         }
-        createEngageBySailthru().setProfileVars(varsJson, object : Marigold.MarigoldHandler<Void?> {
+        createEngageBySailthru()?.setProfileVars(varsJson, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise.resolve(true)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(RNMarigoldModule.ERROR_CODE_VARS, error.message)
+                promise.reject(ERROR_CODE_VARS, error.message)
             }
         })
     }
 
     @ReactMethod
     fun getProfileVars(promise: Promise) {
-        createEngageBySailthru().getProfileVars(object : Marigold.MarigoldHandler<JSONObject?> {
+        createEngageBySailthru()?.getProfileVars(object : Marigold.MarigoldHandler<JSONObject?> {
             override fun onSuccess(value: JSONObject?) {
                 try {
                     val vars = value?.let { jsonConverter.convertJsonToMap(it) }
                     promise.resolve(vars)
                 } catch (e: JSONException) {
-                    promise.reject(RNMarigoldModule.ERROR_CODE_VARS, e.message)
+                    promise.reject(ERROR_CODE_VARS, e.message)
                 }
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(RNMarigoldModule.ERROR_CODE_VARS, error.message)
+                promise.reject(ERROR_CODE_VARS, error.message)
             }
         })
     }
@@ -195,13 +202,13 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
     @ReactMethod
     fun logPurchase(purchaseMap: ReadableMap, promise: Promise) {
         val purchase = getPurchaseInstance(purchaseMap, promise) ?: return
-        createEngageBySailthru().logPurchase(purchase, object : Marigold.MarigoldHandler<Void?> {
+        createEngageBySailthru()?.logPurchase(purchase, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise.resolve(true)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(RNMarigoldModule.ERROR_CODE_PURCHASE, error.message)
+                promise.reject(ERROR_CODE_PURCHASE, error.message)
             }
         })
     }
@@ -209,13 +216,13 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
     @ReactMethod
     fun logAbandonedCart(purchaseMap: ReadableMap, promise: Promise) {
         val purchase = getPurchaseInstance(purchaseMap, promise) ?: return
-        createEngageBySailthru().logAbandonedCart(purchase, object : Marigold.MarigoldHandler<Void?> {
+        createEngageBySailthru()?.logAbandonedCart(purchase, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise.resolve(true)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(RNMarigoldModule.ERROR_CODE_PURCHASE, error.message)
+                promise.reject(ERROR_CODE_PURCHASE, error.message)
             }
         })
     }
@@ -225,8 +232,10 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
     }
 
     //Helper method for instantiating EngageBySailthru
-    fun createEngageBySailthru(): EngageBySailthru {
-        return EngageBySailthru()
+    fun createEngageBySailthru(): EngageBySailthru? = try {
+        EngageBySailthru()
+    } catch (e: Exception) {
+        null
     }
 
     @VisibleForTesting
@@ -236,7 +245,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
         purchaseConstructor.isAccessible = true
         purchaseConstructor.newInstance(purchaseJson)
     } catch(e: Exception) {
-        promise.reject(RNMarigoldModule.ERROR_CODE_PURCHASE, e.message)
+        promise.reject(ERROR_CODE_PURCHASE, e.message)
         null
     }
 
