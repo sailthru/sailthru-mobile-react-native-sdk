@@ -1,4 +1,4 @@
-package com.sailthru.mobile.rnsdk
+package com.marigold.rnsdk
 
 import com.facebook.react.bridge.*
 import org.json.JSONArray

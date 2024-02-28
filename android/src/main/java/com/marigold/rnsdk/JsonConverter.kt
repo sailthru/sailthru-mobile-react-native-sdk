@@ -1,4 +1,4 @@
-package com.sailthru.mobile.rnsdk
+package com.marigold.rnsdk
 
 import androidx.annotation.VisibleForTesting
 import com.facebook.react.bridge.*
