@@ -38,6 +38,8 @@ You will then need replace the code that creates your RCTRootView with the code 
 
 - (BOOL)application:(UIApplication * )application didFinishLaunchingWithOptions:(NSDictionary * )launchOptions {
       ...
+      
+      [[Marigold new] startEngine:SDK_KEY withAuthorizationOption:STMPushAuthorizationOptionProvisional]; // Obtain SDK key from your Sailthru Mobile app settings
       id<RCTBridgeDelegate> moduleInitialiser = [[RNMarigoldBridge alloc]
                                                  initWithJSCodeLocation:jsCodeLocation]; // Obtain SDK key from your Sailthru Mobile app settings
 
@@ -93,7 +95,7 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     protected List<ReactPackage> getPackages() {
       List<ReactPackage> packages = new PackageList(this).getPackages();
-      packages.add(new RNMarigoldPackage(getApplicationContext(), SDK_KEY)); // Obtain SDK key from your Sailthru Mobile app settings
+      packages.add(new RNMarigoldPackage(getApplicationContext()));
       return packages;
     }
   ...

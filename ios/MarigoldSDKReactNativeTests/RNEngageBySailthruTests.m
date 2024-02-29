@@ -7,7 +7,7 @@
 // interface to expose methods for testing
 @interface RNEngageBySailthru ()
 
--(instancetype)init;
+-(instancetype)initializeEngageBySailthruWithResolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)setAttributes:(NSDictionary *)attributeMap resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject __deprecated_msg("use setProfileVars:withResponse: instead");
 -(void)logEvent:(NSString *)name;
 -(void)logEvent:(NSString *)name withVars:(NSDictionary*)varsDict;
@@ -32,8 +32,7 @@ describe(@"RNEngageBySailthru", ^{
         engageBySailthru = [EngageBySailthru mock];
         [engageBySailthru stub:@selector(initWithError:) andReturn:engageBySailthru];
         [EngageBySailthru stub:@selector(alloc) andReturn:engageBySailthru];
-        rnEngageBySailthru = [[RNEngageBySailthru alloc] init];
-        
+        rnEngageBySailthru = [[RNEngageBySailthru alloc] initializeEngageBySailthruWithResolver:nil rejecter:nil];
     });
     
     

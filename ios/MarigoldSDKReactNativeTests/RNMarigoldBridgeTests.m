@@ -17,8 +17,6 @@ describe(@"RNMarigoldBridge", ^{
     
     beforeEach(^{
         marigold = [Marigold mock];
-        [marigold stub:@selector(setGeoIPTrackingDefault:)];
-        [marigold stub:@selector(startEngine:withAuthorizationOption:error:)];
         [Marigold stub:@selector(new) andReturn:marigold];
     });
     
@@ -77,8 +75,6 @@ describe(@"RNMarigoldBridge", ^{
         __block RNMarigoldBridge *rnMarigoldBridge = nil;
         
         beforeEach(^{
-            [marigold stub:@selector(startEngine:withAuthorizationOption:error:)];
-            
             jsCodeLocation = [NSURL mock];
             
             rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation];
@@ -95,7 +91,6 @@ describe(@"RNMarigoldBridge", ^{
         __block RNMarigoldBridge *rnMarigoldBridge = nil;
         
         beforeEach(^{
-            [marigold stub:@selector(startEngine:withAuthorizationOption:error:)];
             [marigold stub:@selector(setWrapperName:andVersion:)];
             
             jsCodeLocation = [NSURL mock];

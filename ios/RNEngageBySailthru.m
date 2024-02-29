@@ -18,22 +18,13 @@
 
 RCT_EXPORT_MODULE();
 
-- (instancetype)init {
-    self = [super init];
+- (RNEngageBySailthru *)initializeEngageBySailthruWithResolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
     NSError *error;
-    _engageBySailthru = [self initializeEngageBySailthruWithError:&error];
-    return self;
-}
-
-- (EngageBySailthru *)initializeEngageBySailthruWithError:(NSError **)error {
-    EngageBySailthru *engageBySailthru = [[EngageBySailthru alloc] initWithError:error];
-
-    if (*error) {
-        NSLog(@"Error creating EngageBySailthru instance: %@", *error);
-        return nil;
+    self.engageBySailthru = [[EngageBySailthru alloc] initWithError:&error];
+    if (error) {
+        [RNEngageBySailthru rejectPromise:reject withError:error];
     }
-
-    return engageBySailthru;
+    return self;
 }
 
 - (NSArray<NSString *> *)supportedEvents {
