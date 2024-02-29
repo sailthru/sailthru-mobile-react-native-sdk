@@ -20,8 +20,20 @@ RCT_EXPORT_MODULE();
 
 - (instancetype)init {
     self = [super init];
-    _engageBySailthru = [EngageBySailthru new];
+    NSError *error;
+    _engageBySailthru = [self initializeEngageBySailthruWithError:&error];
     return self;
+}
+
+- (EngageBySailthru *)initializeEngageBySailthruWithError:(NSError **)error {
+    EngageBySailthru *engageBySailthru = [[EngageBySailthru alloc] initWithError:error];
+
+    if (*error) {
+        NSLog(@"Error creating EngageBySailthru instance: %@", *error);
+        return nil;
+    }
+
+    return engageBySailthru;
 }
 
 - (NSArray<NSString *> *)supportedEvents {

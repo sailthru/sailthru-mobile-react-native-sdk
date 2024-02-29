@@ -1,5 +1,6 @@
 #import <XCTest/XCTest.h>
 #import "RNEngageBySailthru.h"
+#import <Marigold/EngageBySailthru.h>
 #import "Kiwi.h"
 #import <UserNotifications/UserNotifications.h>
 
@@ -21,12 +22,6 @@
 -(void)logAbandonedCart:(NSDictionary *)purchaseDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 @end
 
-@interface EngageBySailthru ()
-
-- (void)setWrapperName:(NSString *)wrapperName andVersion:(NSString *)wrapperVersion;
-
-@end
-
 SPEC_BEGIN(RNEngageBySailthruSpec)
 
 describe(@"RNEngageBySailthru", ^{
@@ -35,10 +30,10 @@ describe(@"RNEngageBySailthru", ^{
 
     beforeEach(^{
         engageBySailthru = [EngageBySailthru mock];
-        [engageBySailthru stub:@selector(setWrapperName:andVersion:)];
-        [EngageBySailthru stub:@selector(new) andReturn:engageBySailthru];
-
+        [engageBySailthru stub:@selector(initWithError:) andReturn:engageBySailthru];
+        [EngageBySailthru stub:@selector(alloc) andReturn:engageBySailthru];
         rnEngageBySailthru = [[RNEngageBySailthru alloc] init];
+        
     });
     
     

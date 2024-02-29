@@ -39,8 +39,7 @@ You will then need replace the code that creates your RCTRootView with the code 
 - (BOOL)application:(UIApplication * )application didFinishLaunchingWithOptions:(NSDictionary * )launchOptions {
       ...
       id<RCTBridgeDelegate> moduleInitialiser = [[RNMarigoldBridge alloc]
-                                                 initWithJSCodeLocation:jsCodeLocation   // JS Code location used here should be same location used before
-                                                 appKey:SDK_KEY];                        // Obtain SDK key from your Sailthru Mobile app settings
+                                                 initWithJSCodeLocation:jsCodeLocation]; // Obtain SDK key from your Sailthru Mobile app settings
 
       RCTBridge * bridge = [[RCTBridge alloc] initWithDelegate:moduleInitialiser launchOptions:launchOptions];
 
