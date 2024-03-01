@@ -12,7 +12,7 @@
 
 RCT_EXPORT_MODULE();
 
-- (EngageBySailthru *)engageBySailthruWithResolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
+- (EngageBySailthru *)engageBySailthruWithRejecter:(RCTPromiseRejectBlock)reject {
     NSError *error;
     EngageBySailthru *engageBySailthru = [[EngageBySailthru alloc] initWithError:&error];
     if (error) {
@@ -29,6 +29,10 @@ RCT_EXPORT_MODULE();
 #pragma mark - Attributes
 RCT_EXPORT_METHOD(setAttributes:(NSDictionary *)attributeMap resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
   {
+    EngageBySailthru *engageBySailthru = [self engageBySailthruWithRejecter:reject];
+    if (!engageBySailthru) {
+        return;
+    }
 
     MARAttributes *marAttributes = [[MARAttributes alloc] init];
     NSInteger mergeRule = [[attributeMap valueForKey:@"mergeRule"] integerValue];
@@ -102,7 +106,7 @@ RCT_EXPORT_METHOD(setAttributes:(NSDictionary *)attributeMap resolver:(RCTPromis
         }
     }
 
-    [[self engageBySailthruWithResolver:resolve rejecter:reject] setAttributes:marAttributes withResponse:^(NSError * _Nullable error) {
+    [[self engageBySailthruWithRejecter:reject] setAttributes:marAttributes withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNEngageBySailthru rejectPromise:reject withError:error];
         } else {
@@ -114,11 +118,11 @@ RCT_EXPORT_METHOD(setAttributes:(NSDictionary *)attributeMap resolver:(RCTPromis
 #pragma mark - Events
 
 RCT_EXPORT_METHOD(logEvent:(NSString *)name) {
-    [[self engageBySailthruWithResolver:nil rejecter:nil] logEvent:name];
+    [[self engageBySailthruWithRejecter:nil] logEvent:name];
 }
 
 RCT_EXPORT_METHOD(logEvent:(NSString *)name withVars:(NSDictionary*)varsDict) {
-    [[self engageBySailthruWithResolver:nil rejecter:nil] logEvent:name withVars:varsDict];
+    [[self engageBySailthruWithRejecter:nil] logEvent:name withVars:varsDict];
 }
 
 #pragma mark - IDs
@@ -126,7 +130,7 @@ RCT_EXPORT_METHOD(logEvent:(NSString *)name withVars:(NSDictionary*)varsDict) {
 RCT_EXPORT_METHOD(setUserId:(NSString *)userID resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     
-    [[self engageBySailthruWithResolver:resolve rejecter:reject] setUserId:userID withResponse:^(NSError * _Nullable error) {
+    [[self engageBySailthruWithRejecter:reject] setUserId:userID withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNEngageBySailthru rejectPromise:reject withError:error];
         } else {
@@ -137,7 +141,7 @@ RCT_EXPORT_METHOD(setUserId:(NSString *)userID resolver:(RCTPromiseResolveBlock)
 
 RCT_EXPORT_METHOD(setUserEmail:(NSString *)userEmail resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    [[self engageBySailthruWithResolver:resolve rejecter:reject] setUserEmail:userEmail withResponse:^(NSError * _Nullable error) {
+    [[self engageBySailthruWithRejecter:reject] setUserEmail:userEmail withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNEngageBySailthru rejectPromise:reject withError:error];
         } else {
@@ -151,7 +155,7 @@ RCT_EXPORT_METHOD(setUserEmail:(NSString *)userEmail resolver:(RCTPromiseResolve
 RCT_EXPORT_METHOD(trackClick:(NSString *)sectionID url:(NSString *)url resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     NSURL *nsUrl = [[NSURL alloc] initWithString:url];
-    [[self engageBySailthruWithResolver:resolve rejecter:reject] trackClickWithSection:sectionID andUrl:nsUrl andResponse:^(NSError * _Nullable error) {
+    [[self engageBySailthruWithRejecter:reject] trackClickWithSection:sectionID andUrl:nsUrl andResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNEngageBySailthru rejectPromise:reject withError:error];
         } else {
@@ -172,10 +176,10 @@ RCT_EXPORT_METHOD(trackPageview:(NSString *)url tags:(NSArray *)tags resolver:(R
     };
 
     if(tags) {
-        [[self engageBySailthruWithResolver:resolve rejecter:reject] trackPageviewWithUrl:nsUrl andTags:tags andResponse:responseBlock];
+        [[self engageBySailthruWithRejecter:reject] trackPageviewWithUrl:nsUrl andTags:tags andResponse:responseBlock];
     }
     else {
-        [[self engageBySailthruWithResolver:resolve rejecter:reject] trackPageviewWithUrl:nsUrl andResponse:responseBlock];
+        [[self engageBySailthruWithRejecter:reject] trackPageviewWithUrl:nsUrl andResponse:responseBlock];
     }
 }
 
@@ -195,17 +199,17 @@ RCT_EXPORT_METHOD(trackImpression:(NSString *)sectionID url:(NSArray *)urls reso
             NSURL *nsUrl = [[NSURL alloc] initWithString:url];
             [nsUrls addObject:nsUrl];
         }
-        [[self engageBySailthruWithResolver:resolve rejecter:reject] trackImpressionWithSection:sectionID andUrls:nsUrls andResponse:responseBlock];
+        [[self engageBySailthruWithRejecter:reject] trackImpressionWithSection:sectionID andUrls:nsUrls andResponse:responseBlock];
     }
     else {
-        [[self engageBySailthruWithResolver:resolve rejecter:reject] trackImpressionWithSection:sectionID andResponse:responseBlock];
+        [[self engageBySailthruWithRejecter:reject] trackImpressionWithSection:sectionID andResponse:responseBlock];
     }
 }
 
 #pragma mark - Profile Vars
 
 RCT_EXPORT_METHOD(setProfileVars:(NSDictionary *)vars resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-    [[self engageBySailthruWithResolver:resolve rejecter:reject] setProfileVars:vars withResponse:^(NSError * _Nullable error) {
+    [[self engageBySailthruWithRejecter:reject] setProfileVars:vars withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNEngageBySailthru rejectPromise:reject withError:error];
         } else {
@@ -215,7 +219,7 @@ RCT_EXPORT_METHOD(setProfileVars:(NSDictionary *)vars resolver:(RCTPromiseResolv
 }
 
 RCT_EXPORT_METHOD(getProfileVars:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-    [[self engageBySailthruWithResolver:resolve rejecter:reject] getProfileVarsWithResponse:^(NSDictionary<NSString *,id> * _Nullable vars, NSError * _Nullable error) {
+    [[self engageBySailthruWithRejecter:reject] getProfileVarsWithResponse:^(NSDictionary<NSString *,id> * _Nullable vars, NSError * _Nullable error) {
         if (error) {
             [RNEngageBySailthru rejectPromise:reject withError:error];
         } else {
@@ -228,7 +232,7 @@ RCT_EXPORT_METHOD(getProfileVars:(RCTPromiseResolveBlock)resolve rejecter:(RCTPr
 
 RCT_EXPORT_METHOD(logPurchase:(NSDictionary *)purchaseDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     MARPurchase *purchase = [[MARPurchase alloc] initWithDictionary:purchaseDict];
-    [[self engageBySailthruWithResolver:resolve rejecter:reject] logPurchase:purchase withResponse:^(NSError * _Nullable error) {
+    [[self engageBySailthruWithRejecter:reject] logPurchase:purchase withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNEngageBySailthru rejectPromise:reject withError:error];
         } else {
@@ -239,7 +243,7 @@ RCT_EXPORT_METHOD(logPurchase:(NSDictionary *)purchaseDict resolver:(RCTPromiseR
 
 RCT_EXPORT_METHOD(logAbandonedCart:(NSDictionary *)purchaseDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     MARPurchase *purchase = [[MARPurchase alloc] initWithDictionary:purchaseDict];
-    [[self engageBySailthruWithResolver:resolve rejecter:reject] logAbandonedCart:purchase withResponse:^(NSError * _Nullable error) {
+    [[self engageBySailthruWithRejecter:reject] logAbandonedCart:purchase withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNEngageBySailthru rejectPromise:reject withError:error];
         } else {

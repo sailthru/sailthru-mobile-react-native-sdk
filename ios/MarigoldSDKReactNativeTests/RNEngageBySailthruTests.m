@@ -32,7 +32,6 @@ describe(@"RNEngageBySailthru", ^{
         engageBySailthru = [EngageBySailthru mock];
         [engageBySailthru stub:@selector(initWithError:) andReturn:engageBySailthru];
         [EngageBySailthru stub:@selector(alloc) andReturn:engageBySailthru];
-        engageBySailthru = [[RNEngageBySailthru alloc] engageBySailthruWithResolver:nil rejecter:nil];
         rnEngageBySailthru = [[RNEngageBySailthru alloc] init];
     });
     
