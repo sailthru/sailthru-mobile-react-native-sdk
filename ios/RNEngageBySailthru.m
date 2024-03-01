@@ -106,7 +106,7 @@ RCT_EXPORT_METHOD(setAttributes:(NSDictionary *)attributeMap resolver:(RCTPromis
         }
     }
 
-    [[self engageBySailthruWithRejecter:reject] setAttributes:marAttributes withResponse:^(NSError * _Nullable error) {
+    [engageBySailthru setAttributes:marAttributes withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNEngageBySailthru rejectPromise:reject withError:error];
         } else {
