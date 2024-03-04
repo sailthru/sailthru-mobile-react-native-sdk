@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "FA5EF5BA213F433200D9E6A9"
-               BuildableName = "SailthruMobileSDKReactNativeTests.xctest"
-               BlueprintName = "SailthruMobileSDKReactNativeTests"
-               ReferencedContainer = "container:SailthruMobileSDKReactNative.xcodeproj">
+               BuildableName = "MarigoldSDKReactNativeTests.xctest"
+               BlueprintName = "MarigoldSDKReactNativeTests"
+               ReferencedContainer = "container:MarigoldSDKReactNative.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "FA5EF5BA213F433200D9E6A9"
-               BuildableName = "SailthruMobileSDKReactNativeTests.xctest"
-               BlueprintName = "SailthruMobileSDKReactNativeTests"
-               ReferencedContainer = "container:SailthruMobileSDKReactNative.xcodeproj">
+               BuildableName = "MarigoldSDKReactNativeTests.xctest"
+               BlueprintName = "MarigoldSDKReactNativeTests"
+               ReferencedContainer = "container:MarigoldSDKReactNative.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -54,9 +54,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "FA5EF5BA213F433200D9E6A9"
-            BuildableName = "SailthruMobileSDKReactNativeTests.xctest"
-            BlueprintName = "SailthruMobileSDKReactNativeTests"
-            ReferencedContainer = "container:SailthruMobileSDKReactNative.xcodeproj">
+            BuildableName = "MarigoldSDKReactNativeTests.xctest"
+            BlueprintName = "MarigoldSDKReactNativeTests"
+            ReferencedContainer = "container:MarigoldSDKReactNative.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </LaunchAction>
@@ -70,9 +70,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "FA5EF5BA213F433200D9E6A9"
-            BuildableName = "SailthruMobileSDKReactNativeTests.xctest"
-            BlueprintName = "SailthruMobileSDKReactNativeTests"
-            ReferencedContainer = "container:SailthruMobileSDKReactNative.xcodeproj">
+            BuildableName = "MarigoldSDKReactNativeTests.xctest"
+            BlueprintName = "MarigoldSDKReactNativeTests"
+            ReferencedContainer = "container:MarigoldSDKReactNative.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

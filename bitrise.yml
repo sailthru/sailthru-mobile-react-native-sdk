@@ -39,10 +39,10 @@ app:
   envs:
   - opts:
       is_expand: false
-    BITRISE_PROJECT_PATH: ios/SailthruMobileSDKReactNative.xcworkspace
+    BITRISE_PROJECT_PATH: ios/MarigoldSDKReactNative.xcworkspace
   - opts:
       is_expand: false
-    BITRISE_SCHEME: SailthruMobileSDKReactNativeTests
+    BITRISE_SCHEME: MarigoldSDKReactNativeTests
   - opts:
       is_expand: false
     GRADLEW_PATH: "./android/gradlew"

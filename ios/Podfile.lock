@@ -12,6 +12,8 @@ PODS:
   - fmt (6.2.1)
   - glog (0.3.5)
   - Kiwi (2.4.0)
+  - Marigold (15.0.0)
+  - Marigold-Extension (15.0.0)
   - OCMock (3.1.2)
   - RCT-Folly (2021.06.28.00-v2):
     - boost
@@ -222,10 +224,10 @@ PODS:
   - React-jsinspector (0.69.4)
   - React-logger (0.69.4):
     - glog
-  - react-native-sailthru-mobile (8.0.0):
+  - react-native-marigold (10.0.0):
+    - Marigold (= 15.0.0)
+    - Marigold-Extension (= 15.0.0)
     - React-Core
-    - SailthruMobile (= 13.0.3)
-    - SailthruMobile-Extension (= 13.0.3)
   - React-perflogger (0.69.4)
   - React-RCTActionSheet (0.69.4):
     - React-Core/RCTActionSheetHeaders (= 0.69.4)
@@ -292,8 +294,6 @@ PODS:
     - React-jsi (= 0.69.4)
     - React-logger (= 0.69.4)
     - React-perflogger (= 0.69.4)
-  - SailthruMobile (13.0.3)
-  - SailthruMobile-Extension (13.0.3)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -319,7 +319,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
-  - react-native-sailthru-mobile (from `../`)
+  - react-native-marigold (from `../`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
@@ -338,9 +338,9 @@ SPEC REPOS:
   trunk:
     - fmt
     - Kiwi
+    - Marigold
+    - Marigold-Extension
     - OCMock
-    - SailthruMobile
-    - SailthruMobile-Extension
 
 EXTERNAL SOURCES:
   boost:
@@ -381,7 +381,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
-  react-native-sailthru-mobile:
+  react-native-marigold:
     :path: "../"
   React-perflogger:
     :path: "../node_modules/react-native/ReactCommon/reactperflogger"
@@ -412,12 +412,14 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
-  DoubleConversion: cde416483dac037923206447da6e1454df403714
+  DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   FBLazyVector: c71b8c429a8af2aff1013934a7152e9d9d0c937d
   FBReactNativeSpec: cb0df4f0084281b394f76bb9b4d1d9540f35963f
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
-  glog: 40a13f7840415b9a77023fbcae0f1e6f43192af3
+  glog: 3d02b25ca00c2d456734d0bcff864cbc62f6ae1a
   Kiwi: f49c9d54b28917df5928fe44968a39ed198cb8a8
+  Marigold: 27710863a31c4b60102551f0553ee40c1c581fbb
+  Marigold-Extension: 3bf83d9a041f839107a8b99f5af4faa4c694806e
   OCMock: a10ea9f0a6e921651f96f78b6faee95ebc813b92
   RCT-Folly: b9d9fe1fc70114b751c076104e52f3b1b5e5a95a
   RCTRequired: bd9d2ab0fda10171fcbcf9ba61a7df4dc15a28f4
@@ -433,7 +435,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: a27badbbdbc0ff781813370736a2d1c7261181d4
   React-jsinspector: 8a3d3f5dcd23a91e8c80b1bf0e96902cd1dca999
   React-logger: 1088859f145b8f6dd0d3ed051a647ef0e3e80fad
-  react-native-sailthru-mobile: eb0bbe15df1aba69f67b33cba4170930fbe181d9
+  react-native-marigold: cc337132d915e4e0c4513f5884baf30df8d21ca3
   React-perflogger: cb386fd44c97ec7f8199c04c12b22066b0f2e1e0
   React-RCTActionSheet: f803a85e46cf5b4066c2ac5e122447f918e9c6e5
   React-RCTAnimation: 19c80fa950ccce7f4db76a2a7f2cf79baae07fc7
@@ -446,10 +448,8 @@ SPEC CHECKSUMS:
   React-RCTVibration: 9adb4a3cbb598d1bbd46a05256f445e4b8c70603
   React-runtimeexecutor: 61ee22a8cdf8b6bb2a7fb7b4ba2cc763e5285196
   ReactCommon: 8f67bd7e0a6afade0f20718f859dc8c2275f2e83
-  SailthruMobile: af829db7601df9feae0ec428cbbd461944df431a
-  SailthruMobile-Extension: 9ed721b8c581cc598dd17b3ba60e1b6ec9628d16
   Yoga: ff994563b2fd98c982ca58e8cd9db2cdaf4dda74
 
-PODFILE CHECKSUM: dd1a7a4d5d8932f0596ddfcacf8d68535bd87335
+PODFILE CHECKSUM: ec739cbb17016e30839265f7e4b950335d5d562b
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.14.3
