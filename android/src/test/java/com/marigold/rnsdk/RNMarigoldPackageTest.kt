@@ -17,6 +17,8 @@ class RNMarigoldPackageTest {
     private lateinit var staticRnMarigoldModule: MockedConstruction<RNMarigoldModule>
     @Mock
     private lateinit var staticRnEngageBySailthru: MockedConstruction<RNEngageBySailthruModule>
+    @Mock
+    private lateinit var staticRnMessageStreamModule: MockedConstruction<RNMessageStreamModule>
 
     private lateinit var rnSTPackage: RNMarigoldPackage
 
@@ -28,9 +30,10 @@ class RNMarigoldPackageTest {
     @Test
     fun testCreateNativeModules() {
         val nativeModules = rnSTPackage.createNativeModules(reactApplicationContext)
-        Assert.assertEquals(2, nativeModules.size)
+        Assert.assertEquals(3, nativeModules.size)
         Assert.assertEquals(staticRnMarigoldModule.constructed()[0], nativeModules[0])
         Assert.assertEquals(staticRnEngageBySailthru.constructed()[0], nativeModules[1])
+        Assert.assertEquals(staticRnMessageStreamModule.constructed()[0], nativeModules[2])
     }
 
     @Test

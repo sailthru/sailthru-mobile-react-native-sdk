@@ -12,8 +12,9 @@ class RNMarigoldPackage : ReactPackage {
 
     override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
         val modules: MutableList<NativeModule> = ArrayList()
-        modules.add(RNMarigoldModule(reactContext, displayInAppNotifications))
+        modules.add(RNMarigoldModule(reactContext))
         modules.add(RNEngageBySailthruModule(reactContext))
+        modules.add(RNMessageStreamModule(reactContext, displayInAppNotifications))
         return modules
     }
 
