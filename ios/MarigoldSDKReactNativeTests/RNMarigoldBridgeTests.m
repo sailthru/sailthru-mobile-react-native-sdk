@@ -2,6 +2,7 @@
 #import "RNMarigoldBridge.h"
 #import "RNMarigold.h"
 #import "RNEngageBySailthru.h"
+#import "RNMessageStream.h"
 #import "Kiwi.h"
 
 @interface Marigold ()
@@ -100,16 +101,23 @@ describe(@"RNMarigoldBridge", ^{
         
         it(@"should return RNMarigold in array", ^{
             NSArray *modules = [rnMarigoldBridge extraModulesForBridge:nil];
-            [[theValue(modules.count) should] equal:theValue(2)];
+            [[theValue(modules.count) should] equal:theValue(3)];
             id<RCTBridgeModule> module = [modules objectAtIndex:0];
             [[theValue([module isKindOfClass:[RNMarigold class]]) should] beYes];
         });
         
         it(@"should return RNEngageBySailthru in array", ^{
             NSArray *modules = [rnMarigoldBridge extraModulesForBridge:nil];
-            [[theValue(modules.count) should] equal:theValue(2)];
+            [[theValue(modules.count) should] equal:theValue(3)];
             id<RCTBridgeModule> module = [modules objectAtIndex:1];
             [[theValue([module isKindOfClass:[RNEngageBySailthru class]]) should] beYes];
+        });
+        
+        it(@"should return RNMessageStream in array", ^{
+            NSArray *modules = [rnMarigoldBridge extraModulesForBridge:nil];
+            [[theValue(modules.count) should] equal:theValue(3)];
+            id<RCTBridgeModule> module = [modules objectAtIndex:2];
+            [[theValue([module isKindOfClass:[RNMessageStream class]]) should] beYes];
         });
     });
 });

@@ -7,13 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		215B00DBF5AABB974E09F2C4 /* libPods-MarigoldSDKReactNativeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 773844B95E8A5A7FA0BA7898 /* libPods-MarigoldSDKReactNativeTests.a */; };
-		98F2F01803124DCA63B2D1D0 /* libPods-MarigoldSDKReactNative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A3DED6FE891CF196EE2638E /* libPods-MarigoldSDKReactNative.a */; };
+		6DA0768DE24958A845077C2B /* libPods-MarigoldSDKReactNative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B2CDE475BD8742FC22DFBE98 /* libPods-MarigoldSDKReactNative.a */; };
+		B70342875100E40956188347 /* libPods-MarigoldSDKReactNativeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 586682E969C08944A97B803E /* libPods-MarigoldSDKReactNativeTests.a */; };
 		B934F55423EA1E68009DE68E /* RNMarigoldBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55223EA1E68009DE68E /* RNMarigoldBridge.m */; };
 		B934F55623EA1E68009DE68E /* RNMarigold.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55323EA1E68009DE68E /* RNMarigold.m */; };
 		B934F55A23EA1EE3009DE68E /* RNMarigoldTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55823EA1EE3009DE68E /* RNMarigoldTests.m */; };
 		B934F55B23EA1EE3009DE68E /* RNMarigoldBridgeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B934F55923EA1EE3009DE68E /* RNMarigoldBridgeTests.m */; };
 		E282D1A92B8581F300EECE61 /* RNEngageBySailthruTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E282D1A82B8581F300EECE61 /* RNEngageBySailthruTests.m */; };
+		E2B0BA392B96BFAC008A982B /* RNMessageStream.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B0BA342B96A87D008A982B /* RNMessageStream.m */; };
+		E2B0BA3B2B96BFE7008A982B /* RNMessageStreamTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B0BA362B96ABB4008A982B /* RNMessageStreamTests.m */; };
 		E2D064132B882B1800F1ADDB /* RNEngageBySailthru.m in Sources */ = {isa = PBXBuildFile; fileRef = E282D1AA2B85824300EECE61 /* RNEngageBySailthru.m */; };
 /* End PBXBuildFile section */
 
@@ -30,12 +32,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		24F5A6848FCB813EFC839F89 /* Pods-MarigoldSDKReactNativeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarigoldSDKReactNativeTests.debug.xcconfig"; path = "Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests.debug.xcconfig"; sourceTree = "<group>"; };
-		3A3DED6FE891CF196EE2638E /* libPods-MarigoldSDKReactNative.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MarigoldSDKReactNative.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		773844B95E8A5A7FA0BA7898 /* libPods-MarigoldSDKReactNativeTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MarigoldSDKReactNativeTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		83FC7AEE353A2A724F42404F /* Pods-MarigoldSDKReactNativeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarigoldSDKReactNativeTests.release.xcconfig"; path = "Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests.release.xcconfig"; sourceTree = "<group>"; };
-		8822A4A7732DB75416D8F285 /* Pods-MarigoldSDKReactNative.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarigoldSDKReactNative.debug.xcconfig"; path = "Target Support Files/Pods-MarigoldSDKReactNative/Pods-MarigoldSDKReactNative.debug.xcconfig"; sourceTree = "<group>"; };
-		94515BE99D4F5F96FAB2F8CA /* Pods-MarigoldSDKReactNative.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarigoldSDKReactNative.release.xcconfig"; path = "Target Support Files/Pods-MarigoldSDKReactNative/Pods-MarigoldSDKReactNative.release.xcconfig"; sourceTree = "<group>"; };
+		038EC2E5B0A99461A95D2FC1 /* Pods-MarigoldSDKReactNative.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarigoldSDKReactNative.release.xcconfig"; path = "Target Support Files/Pods-MarigoldSDKReactNative/Pods-MarigoldSDKReactNative.release.xcconfig"; sourceTree = "<group>"; };
+		28E8275FA0265C1A7936A73F /* Pods-MarigoldSDKReactNativeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarigoldSDKReactNativeTests.release.xcconfig"; path = "Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests.release.xcconfig"; sourceTree = "<group>"; };
+		3E52CE12CE3D03F59B83EC02 /* Pods-MarigoldSDKReactNative.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarigoldSDKReactNative.debug.xcconfig"; path = "Target Support Files/Pods-MarigoldSDKReactNative/Pods-MarigoldSDKReactNative.debug.xcconfig"; sourceTree = "<group>"; };
+		51947D4C8C2BC095356AD164 /* Pods-MarigoldSDKReactNativeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarigoldSDKReactNativeTests.debug.xcconfig"; path = "Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests.debug.xcconfig"; sourceTree = "<group>"; };
+		586682E969C08944A97B803E /* libPods-MarigoldSDKReactNativeTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MarigoldSDKReactNativeTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2CDE475BD8742FC22DFBE98 /* libPods-MarigoldSDKReactNative.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MarigoldSDKReactNative.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B934F55023EA1E67009DE68E /* RNMarigoldBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNMarigoldBridge.h; sourceTree = "<group>"; };
 		B934F55123EA1E67009DE68E /* RNMarigold.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNMarigold.h; sourceTree = "<group>"; };
 		B934F55223EA1E68009DE68E /* RNMarigoldBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNMarigoldBridge.m; sourceTree = "<group>"; };
@@ -45,6 +47,9 @@
 		E282D1A82B8581F300EECE61 /* RNEngageBySailthruTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNEngageBySailthruTests.m; sourceTree = "<group>"; };
 		E282D1AA2B85824300EECE61 /* RNEngageBySailthru.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNEngageBySailthru.m; sourceTree = "<group>"; };
 		E282D1AC2B85825400EECE61 /* RNEngageBySailthru.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNEngageBySailthru.h; sourceTree = "<group>"; };
+		E2B0BA332B96A85D008A982B /* RNMessageStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNMessageStream.h; sourceTree = "<group>"; };
+		E2B0BA342B96A87D008A982B /* RNMessageStream.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNMessageStream.m; sourceTree = "<group>"; };
+		E2B0BA362B96ABB4008A982B /* RNMessageStreamTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNMessageStreamTests.m; sourceTree = "<group>"; };
 		FA5EF5A7213F41AF00D9E6A9 /* libMarigoldSDKReactNative.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMarigoldSDKReactNative.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA5EF5BB213F433200D9E6A9 /* MarigoldSDKReactNativeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MarigoldSDKReactNativeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA5EF5BF213F433200D9E6A9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -55,7 +60,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				98F2F01803124DCA63B2D1D0 /* libPods-MarigoldSDKReactNative.a in Frameworks */,
+				6DA0768DE24958A845077C2B /* libPods-MarigoldSDKReactNative.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -63,18 +68,18 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				215B00DBF5AABB974E09F2C4 /* libPods-MarigoldSDKReactNativeTests.a in Frameworks */,
+				B70342875100E40956188347 /* libPods-MarigoldSDKReactNativeTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0DE8FAFD831897900255FA2E /* Frameworks */ = {
+		085873E585CD1328A2C47EBD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				3A3DED6FE891CF196EE2638E /* libPods-MarigoldSDKReactNative.a */,
-				773844B95E8A5A7FA0BA7898 /* libPods-MarigoldSDKReactNativeTests.a */,
+				B2CDE475BD8742FC22DFBE98 /* libPods-MarigoldSDKReactNative.a */,
+				586682E969C08944A97B803E /* libPods-MarigoldSDKReactNativeTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -82,10 +87,10 @@
 		F3AB1E13B6D82B526F6C9899 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				8822A4A7732DB75416D8F285 /* Pods-MarigoldSDKReactNative.debug.xcconfig */,
-				94515BE99D4F5F96FAB2F8CA /* Pods-MarigoldSDKReactNative.release.xcconfig */,
-				24F5A6848FCB813EFC839F89 /* Pods-MarigoldSDKReactNativeTests.debug.xcconfig */,
-				83FC7AEE353A2A724F42404F /* Pods-MarigoldSDKReactNativeTests.release.xcconfig */,
+				3E52CE12CE3D03F59B83EC02 /* Pods-MarigoldSDKReactNative.debug.xcconfig */,
+				038EC2E5B0A99461A95D2FC1 /* Pods-MarigoldSDKReactNative.release.xcconfig */,
+				51947D4C8C2BC095356AD164 /* Pods-MarigoldSDKReactNativeTests.debug.xcconfig */,
+				28E8275FA0265C1A7936A73F /* Pods-MarigoldSDKReactNativeTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -97,7 +102,7 @@
 				FA5EF5BC213F433200D9E6A9 /* MarigoldSDKReactNativeTests */,
 				FA5EF5A8213F41AF00D9E6A9 /* Products */,
 				F3AB1E13B6D82B526F6C9899 /* Pods */,
-				0DE8FAFD831897900255FA2E /* Frameworks */,
+				085873E585CD1328A2C47EBD /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -116,6 +121,7 @@
 				E282D1A82B8581F300EECE61 /* RNEngageBySailthruTests.m */,
 				B934F55923EA1EE3009DE68E /* RNMarigoldBridgeTests.m */,
 				B934F55823EA1EE3009DE68E /* RNMarigoldTests.m */,
+				E2B0BA362B96ABB4008A982B /* RNMessageStreamTests.m */,
 				FA5EF5BF213F433200D9E6A9 /* Info.plist */,
 			);
 			path = MarigoldSDKReactNativeTests;
@@ -130,6 +136,8 @@
 				B934F55323EA1E68009DE68E /* RNMarigold.m */,
 				B934F55023EA1E67009DE68E /* RNMarigoldBridge.h */,
 				B934F55223EA1E68009DE68E /* RNMarigoldBridge.m */,
+				E2B0BA332B96A85D008A982B /* RNMessageStream.h */,
+				E2B0BA342B96A87D008A982B /* RNMessageStream.m */,
 			);
 			name = MarigoldSDKReactNative;
 			sourceTree = "<group>";
@@ -141,7 +149,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FA5EF5B0213F41AF00D9E6A9 /* Build configuration list for PBXNativeTarget "MarigoldSDKReactNative" */;
 			buildPhases = (
-				2BF45DDCD61AF2663185BC6A /* [CP] Check Pods Manifest.lock */,
+				6BECFBBE6A156281F6954A30 /* [CP] Check Pods Manifest.lock */,
 				FA5EF5A3213F41AF00D9E6A9 /* Sources */,
 				FA5EF5A4213F41AF00D9E6A9 /* Frameworks */,
 				FA5EF5A5213F41AF00D9E6A9 /* CopyFiles */,
@@ -159,12 +167,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FA5EF5C3213F433200D9E6A9 /* Build configuration list for PBXNativeTarget "MarigoldSDKReactNativeTests" */;
 			buildPhases = (
-				3EC5879E93FB554F9373EB3E /* [CP] Check Pods Manifest.lock */,
+				B65E2DA4BE44EEBA29B94B3F /* [CP] Check Pods Manifest.lock */,
 				FA5EF5B7213F433200D9E6A9 /* Sources */,
 				FA5EF5B8213F433200D9E6A9 /* Frameworks */,
 				FA5EF5B9213F433200D9E6A9 /* Resources */,
-				453FBE4B9DE7EB8460DC9EF0 /* [CP] Embed Pods Frameworks */,
-				91FEB559990CAA3CD3E54E26 /* [CP] Copy Pods Resources */,
+				AB9B1CB65E35E45ED9EBB6E4 /* [CP] Embed Pods Frameworks */,
+				4884A6CA21D6D8AA721B4BCD /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -221,7 +229,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		2BF45DDCD61AF2663185BC6A /* [CP] Check Pods Manifest.lock */ = {
+		4884A6CA21D6D8AA721B4BCD /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		6BECFBBE6A156281F6954A30 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -243,7 +268,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		3EC5879E93FB554F9373EB3E /* [CP] Check Pods Manifest.lock */ = {
+		AB9B1CB65E35E45ED9EBB6E4 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B65E2DA4BE44EEBA29B94B3F /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -265,40 +307,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		453FBE4B9DE7EB8460DC9EF0 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		91FEB559990CAA3CD3E54E26 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -307,6 +315,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E2D064132B882B1800F1ADDB /* RNEngageBySailthru.m in Sources */,
+				E2B0BA392B96BFAC008A982B /* RNMessageStream.m in Sources */,
 				B934F55423EA1E68009DE68E /* RNMarigoldBridge.m in Sources */,
 				B934F55623EA1E68009DE68E /* RNMarigold.m in Sources */,
 			);
@@ -317,6 +326,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E282D1A92B8581F300EECE61 /* RNEngageBySailthruTests.m in Sources */,
+				E2B0BA3B2B96BFE7008A982B /* RNMessageStreamTests.m in Sources */,
 				B934F55A23EA1EE3009DE68E /* RNMarigoldTests.m in Sources */,
 				B934F55B23EA1EE3009DE68E /* RNMarigoldBridgeTests.m in Sources */,
 			);
@@ -441,7 +451,7 @@
 		};
 		FA5EF5B1213F41AF00D9E6A9 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8822A4A7732DB75416D8F285 /* Pods-MarigoldSDKReactNative.debug.xcconfig */;
+			baseConfigurationReference = 3E52CE12CE3D03F59B83EC02 /* Pods-MarigoldSDKReactNative.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
@@ -457,7 +467,7 @@
 		};
 		FA5EF5B2213F41AF00D9E6A9 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 94515BE99D4F5F96FAB2F8CA /* Pods-MarigoldSDKReactNative.release.xcconfig */;
+			baseConfigurationReference = 038EC2E5B0A99461A95D2FC1 /* Pods-MarigoldSDKReactNative.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
@@ -473,7 +483,7 @@
 		};
 		FA5EF5C4213F433200D9E6A9 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 24F5A6848FCB813EFC839F89 /* Pods-MarigoldSDKReactNativeTests.debug.xcconfig */;
+			baseConfigurationReference = 51947D4C8C2BC095356AD164 /* Pods-MarigoldSDKReactNativeTests.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
@@ -493,7 +503,7 @@
 		};
 		FA5EF5C5213F433200D9E6A9 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 83FC7AEE353A2A724F42404F /* Pods-MarigoldSDKReactNativeTests.release.xcconfig */;
+			baseConfigurationReference = 28E8275FA0265C1A7936A73F /* Pods-MarigoldSDKReactNativeTests.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
