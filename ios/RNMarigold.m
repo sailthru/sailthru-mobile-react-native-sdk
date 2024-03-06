@@ -38,7 +38,7 @@ RCT_EXPORT_MODULE();
 }
 
 - (NSArray<NSString *> *)supportedEvents {
-    return @[@"inappnotification"];
+    return @[];
 }
 
 RCT_EXPORT_METHOD(startEngine:(NSString *)sdkKey) {
