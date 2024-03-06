@@ -18,6 +18,8 @@
 
 @implementation RNMessageStream
 
+RCT_EXPORT_MODULE();
+
 - (instancetype)init {
     return [self initWithDisplayInAppNotifications:YES];
 }
