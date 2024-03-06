@@ -23,7 +23,7 @@ RCT_EXPORT_MODULE();
 }
 
 - (NSArray<NSString *> *)supportedEvents {
-    return @[@"inappnotification"];
+    return @[];
 }
 
 #pragma mark - Attributes
