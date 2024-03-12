@@ -1,10 +1,10 @@
-import SailthruMobile from "../index";
+import Marigold from "../index";
 
 describe("PurchaseItem", () => {
   var purchaseItem;
 
   beforeEach(() => {
-    purchaseItem = new SailthruMobile.PurchaseItem(
+    purchaseItem = new Marigold.PurchaseItem(
       2,
       "myTitle",
       3456,
@@ -37,7 +37,7 @@ describe("PurchaseItem", () => {
     describe("when quantity is wrong type", () => {
       it("should throw a type error", () => {
         const run = () => {
-          purchaseItem = new SailthruMobile.PurchaseItem(
+          purchaseItem = new Marigold.PurchaseItem(
             "2",
             "myTitle",
             3456,
@@ -52,7 +52,7 @@ describe("PurchaseItem", () => {
     describe("when quantity is not an integer", () => {
       it("should throw a type error", () => {
         const run = () => {
-          purchaseItem = new SailthruMobile.PurchaseItem(
+          purchaseItem = new Marigold.PurchaseItem(
             2.5,
             "myTitle",
             3456,
@@ -67,7 +67,7 @@ describe("PurchaseItem", () => {
     describe("when title is not a string", () => {
       it("should throw a type error", () => {
         const run = () => {
-          purchaseItem = new SailthruMobile.PurchaseItem(
+          purchaseItem = new Marigold.PurchaseItem(
             2,
             55,
             3456,
@@ -82,7 +82,7 @@ describe("PurchaseItem", () => {
     describe("when price is wrong type", () => {
       it("should throw a type error", () => {
         const run = () => {
-          purchaseItem = new SailthruMobile.PurchaseItem(
+          purchaseItem = new Marigold.PurchaseItem(
             2,
             "myTitle",
             "3456",
@@ -97,7 +97,7 @@ describe("PurchaseItem", () => {
     describe("when price is not an integer", () => {
       it("should throw a type error", () => {
         const run = () => {
-          purchaseItem = new SailthruMobile.PurchaseItem(
+          purchaseItem = new Marigold.PurchaseItem(
             "2",
             "myTitle",
             34.56,
@@ -112,7 +112,7 @@ describe("PurchaseItem", () => {
     describe("when id is not a string", () => {
       it("should throw a type error", () => {
         const run = () => {
-          purchaseItem = new SailthruMobile.PurchaseItem(
+          purchaseItem = new Marigold.PurchaseItem(
             2,
             "myTitle",
             3456,
@@ -127,7 +127,7 @@ describe("PurchaseItem", () => {
     describe("when url is not a string", () => {
       it("should throw a type error", () => {
         const run = () => {
-          purchaseItem = new SailthruMobile.PurchaseItem(
+          purchaseItem = new Marigold.PurchaseItem(
             2,
             "myTitle",
             3456,

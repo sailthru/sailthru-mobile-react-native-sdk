@@ -13,7 +13,7 @@ import {
   View
 } from 'react-native';
 
-var SailthruMobile = require('react-native-sailthru-mobile');
+var Marigold = require('react-native-marigold');
 var SDK_KEY = ''; // Put your SDK key in here.
 import { NativeEventEmitter } from 'react-native'
 
@@ -27,25 +27,25 @@ const instructions = Platform.select({
 
 export default class App extends Component {
   render() {
-    SailthruMobile.getMessages()
+    Marigold.getMessages()
       .then(messages => {
         if (messages.length > 2) {
-          SailthruMobile.markMessageAsRead(messages[0]);
-          SailthruMobile.presentMessageDetail(messages[0]);
-          SailthruMobile.registerMessageImpression(SailthruMobile.MessageImpressionType.InAppView, messages[1]);
+          Marigold.markMessageAsRead(messages[0]);
+          Marigold.presentMessageDetail(messages[0]);
+          Marigold.registerMessageImpression(Marigold.MessageImpressionType.InAppView, messages[1]);
         }
       })
       .catch(e => {
         console.log(e);
     });
 
-    SailthruMobile.getRecommendations("sectionID").then(function(contentItemsArray) {
+    Marigold.getRecommendations("sectionID").then(function(contentItemsArray) {
       // Content items contain data for recommended items
     }).catch(function(error) {
       // Handle errors here
     });
 
-    var attrMap = new SailthruMobile.AttributeMap();
+    var attrMap = new Marigold.AttributeMap();
     attrMap.setString("string_key", "This is the string value");
     attrMap.setStringArray("strings_key", ["This is first value", "This is the second value"]);
     attrMap.setDate("date_key", new Date());
@@ -56,38 +56,38 @@ export default class App extends Component {
     attrMap.setIntegerArray("integers_key", [1, 2, 3, 4]);
     attrMap.setBoolean("boolean_key", true);
 
-    SailthruMobile.setAttributes(attrMap).catch(e => {
+    Marigold.setAttributes(attrMap).catch(e => {
       console.log(e);
     });
 
-    SailthruMobile.updateLocation(-41.292178, 174.777535); //SailthruMobile Wellington.
+    Marigold.updateLocation(-41.292178, 174.777535); //Marigold Wellington.
 
-    SailthruMobile.logEvent("This is my event");
+    Marigold.logEvent("This is my event");
 
     var eventVars = {
       "varKey" : "varValue"
     };
-    SailthruMobile.logEvent("this is my event with vars", eventVars);
+    Marigold.logEvent("this is my event with vars", eventVars);
 
-    SailthruMobile.getUnreadCount().then(function(count) {
+    Marigold.getUnreadCount().then(function(count) {
       console.log(count);
     }, function(e){
       console.log(e);
     });
 
-    SailthruMobile.getDeviceID().then(function(id) {
+    Marigold.getDeviceID().then(function(id) {
       console.log(id);
     }, function(e){
       console.log(e);
     });
 
-    SailthruMobile.setUserId("person").then(result => {
+    Marigold.setUserId("person").then(result => {
       console.log("Set User ID Success");
     }, e => {
       console.log(e);
     });
 
-    SailthruMobile.setUserEmail("person@domain.com").then(result => {
+    Marigold.setUserEmail("person@domain.com").then(result => {
       console.log("Set User Email Success");
     }, e => {
       console.log(e);
@@ -97,29 +97,29 @@ export default class App extends Component {
       "string_key" : "string_value",
       "boolean_key" : true
     };
-    SailthruMobile.setProfileVars(profileVars).then(result => {
+    Marigold.setProfileVars(profileVars).then(result => {
       console.log("Set Profile Vars Success");
     }).catch(e => {
       console.log(e);
     });
 
-    SailthruMobile.getProfileVars().then(profileVars => {
+    Marigold.getProfileVars().then(profileVars => {
       console.log(profileVars);
     }).catch(e => {
       console.log(e);
     });
 
-    var purchaseItem1 = new SailthruMobile.PurchaseItem(1, "title", 1234, 2345, "www.example.com/item1");
-    var purchaseItem2 = new SailthruMobile.PurchaseItem(3, "other item", 1534, 2346, "www.example.com/item2");
+    var purchaseItem1 = new Marigold.PurchaseItem(1, "title", 1234, 2345, "www.example.com/item1");
+    var purchaseItem2 = new Marigold.PurchaseItem(3, "other item", 1534, 2346, "www.example.com/item2");
     var purchaseItems = [ purchaseItem1, purchaseItem2 ];
-    var purchase = new SailthruMobile.Purchase(purchaseItems);
-    SailthruMobile.logPurchase(purchase).then(result => {
+    var purchase = new Marigold.Purchase(purchaseItems);
+    Marigold.logPurchase(purchase).then(result => {
       console.log("Purchase Log Success");
     }).catch(e => {
       console.log(e);
     });
 
-    SailthruMobile.logAbandonedCart(purchase).then(result => {
+    Marigold.logAbandonedCart(purchase).then(result => {
       console.log("Abandoned Cart Log Success");
     }).catch(e => {
       console.log(e);

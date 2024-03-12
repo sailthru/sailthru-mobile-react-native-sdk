@@ -1,10 +1,10 @@
 import { NativeModules } from 'react-native';
-let SailthruMobile = NativeModules.RNSailthruMobile;
+let Marigold = NativeModules.RNMarigold;
 
 /**
  * A map for submitting collections of attributes to the SDK.
  */
-SailthruMobile.AttributeMap = function() {
+Marigold.AttributeMap = function() {
   this.MergeRules = {Update: 1, Replace: 2}
 
   this.mergeRule = this.MergeRules.Update;
@@ -140,8 +140,8 @@ SailthruMobile.AttributeMap = function() {
   }
 }
 
-SailthruMobile.MessageImpressionType = {StreamView: 1, DetailView: 2, InAppView: 0};
-SailthruMobile.DeviceValues = {Attributes: 1, MessageStream: 2, Events: 4, ClearAll: 7};
+Marigold.MessageImpressionType = {StreamView: 1, DetailView: 2, InAppView: 0};
+Marigold.DeviceValues = {Attributes: 1, MessageStream: 2, Events: 4, ClearAll: 7};
 
 /**
  * Creates a purchase item with the required fields.
@@ -151,7 +151,7 @@ SailthruMobile.DeviceValues = {Attributes: 1, MessageStream: 2, Events: 4, Clear
  * @param {string} ID The ID you have set for the item.
  * @param {string} url The url for the item.
  */
-SailthruMobile.PurchaseItem = function(quantity, title, price, id, url) {
+Marigold.PurchaseItem = function(quantity, title, price, id, url) {
   if (typeof quantity === 'number' && isFinite(quantity) && Math.floor(quantity) === quantity) {
     this.qty = quantity;
   } else {
@@ -251,7 +251,7 @@ SailthruMobile.PurchaseItem = function(quantity, title, price, id, url) {
  * Creates a purchase item from a content item.
  * @param {Object} contentItem The content item.
  */
-SailthruMobile.PurchaseItem.fromContentItem = function(contentItem) {
+Marigold.PurchaseItem.fromContentItem = function(contentItem) {
   var purchaseItem = new this(contentItem.purchase_qty, contentItem.title, contentItem.price, contentItem.sku, contentItem.url);
   purchaseItem.tags = contentItem.tags;
   purchaseItem.vars = contentItem.vars;
@@ -264,7 +264,7 @@ SailthruMobile.PurchaseItem.fromContentItem = function(contentItem) {
  * @param {string} title The name/title of the adjustment.
  * @param {int} price The price of the adjustment in cents (e.g. $10.99 is 1099, -$23.45 is -2345).
  */
-SailthruMobile.PurchaseAdjustment = function(title, price) {
+Marigold.PurchaseAdjustment = function(title, price) {
   if (typeof title === 'string') {
     this.title = title;
   } else {
@@ -280,9 +280,9 @@ SailthruMobile.PurchaseAdjustment = function(title, price) {
 
 /**
  * Creates a Purchase object with the required field.
- * @param {Array} purchaseItems an array of {SailthruMobile.PurchaseItem} objects.
+ * @param {Array} purchaseItems an array of {Marigold.PurchaseItem} objects.
  */
-SailthruMobile.Purchase = function(purchaseItems) {
+Marigold.Purchase = function(purchaseItems) {
   if (!Array.isArray(purchaseItems)) {
     throw new TypeError(purchaseItems + ' is not an array');
     return;
@@ -321,7 +321,7 @@ SailthruMobile.Purchase = function(purchaseItems) {
 
   /**
    * Set the message ID associated with the purchase. This is required to have revenue data matched
-   * to email sends in Sailthru. Pass the identifying message_id of the email the user is coming from;
+   * to email sends in Marigold. Pass the identifying message_id of the email the user is coming from;
    * this will be the value stored in the sailthru_bid cookie for your domain. The message attribution
    * will be displayed in your Campaign Summary, Transactional Report, Purchase Log, and in Lifecycle
    * Optimizer Metrics.
@@ -349,7 +349,7 @@ SailthruMobile.Purchase = function(purchaseItems) {
    * credits – Amount of order covered by account credit
    * tip – Any gratuity added to purchase
    * If you are using Retention Analytics, these keys or similar custom keys are highly recommended.
-   * @param {Array} purchaseAdjustments an array of {SailthruMobile.PurchaseAdjustment} objects.
+   * @param {Array} purchaseAdjustments an array of {Marigold.PurchaseAdjustment} objects.
    */
   this.setPurchaseAdjustments = function(purchaseAdjustments) {
     if (!Array.isArray(purchaseAdjustments)) {
@@ -375,12 +375,12 @@ SailthruMobile.Purchase = function(purchaseItems) {
  * Creates a Purchase object from an array of ContentItem objects.
  * @param {Array} contentItems an array of ContentItem objects.
  */
-SailthruMobile.Purchase.fromContentItems = function(contentItems) {
+Marigold.Purchase.fromContentItems = function(contentItems) {
   var purchaseItems = [];
   contentItems.forEach(function (item, index) {
-    purchaseItems.push(new SailthruMobile.PurchaseItem(item));
+    purchaseItems.push(new Marigold.PurchaseItem(item));
   });
   return new this(purchaseItems);
 }
 
-module.exports = SailthruMobile;
+module.exports = Marigold;

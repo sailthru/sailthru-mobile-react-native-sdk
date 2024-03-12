@@ -1,9 +1,9 @@
-import SailthruMobile from "../index";
+import Marigold from "../index";
 
 describe("AttributeMap", () => {
   var attributeMap;
   beforeEach(() => {
-    attributeMap = new SailthruMobile.AttributeMap();
+    attributeMap = new Marigold.AttributeMap();
   });
 
   describe("when created", () => {

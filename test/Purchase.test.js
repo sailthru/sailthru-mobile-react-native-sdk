@@ -1,9 +1,9 @@
-import SailthruMobile from "../index";
+import Marigold from "../index";
 
 describe("Purchase", () => {
   var purchase;
   beforeEach(() => {
-    purchase = new SailthruMobile.Purchase([{ fake: "item" }]);
+    purchase = new Marigold.Purchase([{ fake: "item" }]);
   });
 
   describe("when created", () => {
@@ -16,7 +16,7 @@ describe("Purchase", () => {
     describe("when value is not an array", () => {
       it("should throw a type error", () => {
         const run = () => {
-          purchase = new SailthruMobile.Purchase(1234);
+          purchase = new Marigold.Purchase(1234);
         };
         expect(run).toThrow(TypeError);
       });
@@ -25,7 +25,7 @@ describe("Purchase", () => {
     describe("when value does not contain purchase items", () => {
       it("should throw a type error", () => {
         const run = () => {
-          purchase = new SailthruMobile.Purchase([1234, 1234]);
+          purchase = new Marigold.Purchase([1234, 1234]);
         };
         expect(run).toThrow(TypeError);
       });
@@ -78,7 +78,7 @@ describe("Purchase", () => {
     describe("when value contains purchase adjustments", () => {
       beforeEach(() => {
         purchase.setPurchaseAdjustments([
-          new SailthruMobile.PurchaseAdjustment("tax", 1234),
+          new Marigold.PurchaseAdjustment("tax", 1234),
         ]);
       });
 
