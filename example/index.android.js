@@ -11,7 +11,6 @@ import {
   View
 } from 'react-native';
 
-
 var Marigold = require('react-native-marigold');
 var SDK_KEY = ''; // Put your SDK key in here.
 

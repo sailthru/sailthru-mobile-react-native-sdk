@@ -1,9 +1,9 @@
-import Marigold from "../index";
+import EngageBySailthru from "../index";
 
 describe("Purchase", () => {
   var purchase;
   beforeEach(() => {
-    purchase = new Marigold.Purchase([{ fake: "item" }]);
+    purchase = new EngageBySailthru.Purchase([{ fake: "item" }]);
   });
 
   describe("when created", () => {
@@ -16,7 +16,7 @@ describe("Purchase", () => {
     describe("when value is not an array", () => {
       it("should throw a type error", () => {
         const run = () => {
-          purchase = new Marigold.Purchase(1234);
+          purchase = new EngageBySailthru.Purchase(1234);
         };
         expect(run).toThrow(TypeError);
       });
@@ -25,7 +25,7 @@ describe("Purchase", () => {
     describe("when value does not contain purchase items", () => {
       it("should throw a type error", () => {
         const run = () => {
-          purchase = new Marigold.Purchase([1234, 1234]);
+          purchase = new EngageBySailthru.Purchase([1234, 1234]);
         };
         expect(run).toThrow(TypeError);
       });
@@ -78,7 +78,7 @@ describe("Purchase", () => {
     describe("when value contains purchase adjustments", () => {
       beforeEach(() => {
         purchase.setPurchaseAdjustments([
-          new Marigold.PurchaseAdjustment("tax", 1234),
+          new EngageBySailthru.PurchaseAdjustment("tax", 1234),
         ]);
       });
 

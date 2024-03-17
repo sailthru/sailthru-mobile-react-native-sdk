@@ -1,10 +1,12 @@
 import { NativeModules } from 'react-native';
 let Marigold = NativeModules.RNMarigold;
+let MessageStream = NativeModules.RNMessageStream;
+let EngageBySailthru = NativeModules.RNEngageBySailthru;
 
 /**
  * A map for submitting collections of attributes to the SDK.
  */
-Marigold.AttributeMap = function() {
+EngageBySailthru.AttributeMap = function() {
   this.MergeRules = {Update: 1, Replace: 2}
 
   this.mergeRule = this.MergeRules.Update;
@@ -140,7 +142,7 @@ Marigold.AttributeMap = function() {
   }
 }
 
-Marigold.MessageImpressionType = {StreamView: 1, DetailView: 2, InAppView: 0};
+MessageStream.MessageImpressionType = {StreamView: 1, DetailView: 2, InAppView: 0};
 Marigold.DeviceValues = {Attributes: 1, MessageStream: 2, Events: 4, ClearAll: 7};
 
 /**
@@ -151,7 +153,7 @@ Marigold.DeviceValues = {Attributes: 1, MessageStream: 2, Events: 4, ClearAll: 7
  * @param {string} ID The ID you have set for the item.
  * @param {string} url The url for the item.
  */
-Marigold.PurchaseItem = function(quantity, title, price, id, url) {
+EngageBySailthru.PurchaseItem = function(quantity, title, price, id, url) {
   if (typeof quantity === 'number' && isFinite(quantity) && Math.floor(quantity) === quantity) {
     this.qty = quantity;
   } else {
@@ -251,7 +253,7 @@ Marigold.PurchaseItem = function(quantity, title, price, id, url) {
  * Creates a purchase item from a content item.
  * @param {Object} contentItem The content item.
  */
-Marigold.PurchaseItem.fromContentItem = function(contentItem) {
+EngageBySailthru.PurchaseItem.fromContentItem = function(contentItem) {
   var purchaseItem = new this(contentItem.purchase_qty, contentItem.title, contentItem.price, contentItem.sku, contentItem.url);
   purchaseItem.tags = contentItem.tags;
   purchaseItem.vars = contentItem.vars;
@@ -264,7 +266,7 @@ Marigold.PurchaseItem.fromContentItem = function(contentItem) {
  * @param {string} title The name/title of the adjustment.
  * @param {int} price The price of the adjustment in cents (e.g. $10.99 is 1099, -$23.45 is -2345).
  */
-Marigold.PurchaseAdjustment = function(title, price) {
+EngageBySailthru.PurchaseAdjustment = function(title, price) {
   if (typeof title === 'string') {
     this.title = title;
   } else {
@@ -282,7 +284,7 @@ Marigold.PurchaseAdjustment = function(title, price) {
  * Creates a Purchase object with the required field.
  * @param {Array} purchaseItems an array of {Marigold.PurchaseItem} objects.
  */
-Marigold.Purchase = function(purchaseItems) {
+EngageBySailthru.Purchase = function(purchaseItems) {
   if (!Array.isArray(purchaseItems)) {
     throw new TypeError(purchaseItems + ' is not an array');
     return;
@@ -375,7 +377,7 @@ Marigold.Purchase = function(purchaseItems) {
  * Creates a Purchase object from an array of ContentItem objects.
  * @param {Array} contentItems an array of ContentItem objects.
  */
-Marigold.Purchase.fromContentItems = function(contentItems) {
+EngageBySailthru.Purchase.fromContentItems = function(contentItems) {
   var purchaseItems = [];
   contentItems.forEach(function (item, index) {
     purchaseItems.push(new Marigold.PurchaseItem(item));
@@ -384,3 +386,5 @@ Marigold.Purchase.fromContentItems = function(contentItems) {
 }
 
 module.exports = Marigold;
+module.exports = MessageStream;
+module.exports = EngageBySailthru;

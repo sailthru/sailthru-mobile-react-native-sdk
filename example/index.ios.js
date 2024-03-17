@@ -13,6 +13,7 @@ import {
 
 var Marigold = require('react-native-marigold');
 var SDK_KEY = ''; // Put your SDK key in here.
+
 import { NativeEventEmitter } from 'react-native'
 
 const myModuleEvt = new NativeEventEmitter(Marigold)

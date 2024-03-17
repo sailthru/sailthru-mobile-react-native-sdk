@@ -1,7 +1,7 @@
-import Marigold from "../index";
+import EngageBySailthru from "../index";
 
 describe("PurchaseAdjustment", () => {
-  var purchaseAdjustment = new Marigold.PurchaseAdjustment(
+  var purchaseAdjustment = new EngageBySailthru.PurchaseAdjustment(
     "myTitle",
     3456
   );
@@ -17,7 +17,7 @@ describe("PurchaseAdjustment", () => {
 
     describe("when price is negative", () => {
       beforeEach(() => {
-        purchaseAdjustment = new Marigold.PurchaseAdjustment(
+        purchaseAdjustment = new EngageBySailthru.PurchaseAdjustment(
           "myTitle",
           -3456
         );
@@ -35,7 +35,7 @@ describe("PurchaseAdjustment", () => {
     describe("when title is not a string", () => {
       it("should throw a type error", () => {
         const run = () => {
-          purchaseAdjustment = new Marigold.PurchaseAdjustment(
+          purchaseAdjustment = new EngageBySailthru.PurchaseAdjustment(
             1234,
             3456
           );
@@ -47,7 +47,7 @@ describe("PurchaseAdjustment", () => {
     describe("when price is not an integer", () => {
       it("should throw a type error", () => {
         const run = () => {
-          purchaseAdjustment = new Marigold.PurchaseAdjustment(
+          purchaseAdjustment = new EngageBySailthru.PurchaseAdjustment(
             1234,
             3.456
           );
