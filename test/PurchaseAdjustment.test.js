@@ -1,4 +1,4 @@
-import EngageBySailthru from "../index";
+import { EngageBySailthru } from "../index";
 
 describe("PurchaseAdjustment", () => {
   var purchaseAdjustment = new EngageBySailthru.PurchaseAdjustment(
