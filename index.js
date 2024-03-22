@@ -1,12 +1,10 @@
 import { NativeModules } from 'react-native';
-let Marigold = NativeModules.RNMarigold;
-let MessageStream = NativeModules.RNMessageStream;
-let EngageBySailthru = NativeModules.RNEngageBySailthru;
+const { RNMarigold, RNEngageBySailthru, RNMessageStream } = NativeModules;
 
 /**
  * A map for submitting collections of attributes to the SDK.
  */
-EngageBySailthru.AttributeMap = function() {
+RNEngageBySailthru.AttributeMap = function() {
   this.MergeRules = {Update: 1, Replace: 2}
 
   this.mergeRule = this.MergeRules.Update;
@@ -142,8 +140,8 @@ EngageBySailthru.AttributeMap = function() {
   }
 }
 
-MessageStream.MessageImpressionType = {StreamView: 1, DetailView: 2, InAppView: 0};
-Marigold.DeviceValues = {Attributes: 1, MessageStream: 2, Events: 4, ClearAll: 7};
+RNMessageStream.MessageImpressionType = {StreamView: 1, DetailView: 2, InAppView: 0};
+RNMarigold.DeviceValues = {MessageStream: 2, Events: 4, ClearAll: 7};
 
 /**
  * Creates a purchase item with the required fields.
@@ -153,7 +151,7 @@ Marigold.DeviceValues = {Attributes: 1, MessageStream: 2, Events: 4, ClearAll: 7
  * @param {string} ID The ID you have set for the item.
  * @param {string} url The url for the item.
  */
-EngageBySailthru.PurchaseItem = function(quantity, title, price, id, url) {
+RNEngageBySailthru.PurchaseItem = function(quantity, title, price, id, url) {
   if (typeof quantity === 'number' && isFinite(quantity) && Math.floor(quantity) === quantity) {
     this.qty = quantity;
   } else {
@@ -253,7 +251,7 @@ EngageBySailthru.PurchaseItem = function(quantity, title, price, id, url) {
  * Creates a purchase item from a content item.
  * @param {Object} contentItem The content item.
  */
-EngageBySailthru.PurchaseItem.fromContentItem = function(contentItem) {
+RNEngageBySailthru.PurchaseItem.fromContentItem = function(contentItem) {
   var purchaseItem = new this(contentItem.purchase_qty, contentItem.title, contentItem.price, contentItem.sku, contentItem.url);
   purchaseItem.tags = contentItem.tags;
   purchaseItem.vars = contentItem.vars;
@@ -266,7 +264,7 @@ EngageBySailthru.PurchaseItem.fromContentItem = function(contentItem) {
  * @param {string} title The name/title of the adjustment.
  * @param {int} price The price of the adjustment in cents (e.g. $10.99 is 1099, -$23.45 is -2345).
  */
-EngageBySailthru.PurchaseAdjustment = function(title, price) {
+RNEngageBySailthru.PurchaseAdjustment = function(title, price) {
   if (typeof title === 'string') {
     this.title = title;
   } else {
@@ -282,9 +280,9 @@ EngageBySailthru.PurchaseAdjustment = function(title, price) {
 
 /**
  * Creates a Purchase object with the required field.
- * @param {Array} purchaseItems an array of {Marigold.PurchaseItem} objects.
+ * @param {Array} purchaseItems an array of {RNEngageBySailthru.PurchaseItem} objects.
  */
-EngageBySailthru.Purchase = function(purchaseItems) {
+RNEngageBySailthru.Purchase = function(purchaseItems) {
   if (!Array.isArray(purchaseItems)) {
     throw new TypeError(purchaseItems + ' is not an array');
     return;
@@ -377,7 +375,7 @@ EngageBySailthru.Purchase = function(purchaseItems) {
  * Creates a Purchase object from an array of ContentItem objects.
  * @param {Array} contentItems an array of ContentItem objects.
  */
-EngageBySailthru.Purchase.fromContentItems = function(contentItems) {
+RNEngageBySailthru.Purchase.fromContentItems = function(contentItems) {
   var purchaseItems = [];
   contentItems.forEach(function (item, index) {
     purchaseItems.push(new Marigold.PurchaseItem(item));
@@ -385,6 +383,10 @@ EngageBySailthru.Purchase.fromContentItems = function(contentItems) {
   return new this(purchaseItems);
 }
 
-module.exports = Marigold;
-module.exports = MessageStream;
-module.exports = EngageBySailthru;
+module.exports = {
+  Marigold: RNMarigold,
+  EngageBySailthru: RNEngageBySailthru,
+  MessageStream: RNMessageStream
+};
+
+//const { Marigold, EngageBySailthru, MessageStream } = require('react-native-marigold');
