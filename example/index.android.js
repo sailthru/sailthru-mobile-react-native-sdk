@@ -11,7 +11,7 @@ import {
   View
 } from 'react-native';
 
-var Marigold = require('react-native-marigold');
+const { Marigold, EngageBySailthru, MessageStream } = require('react-native-marigold');
 var SDK_KEY = ''; // Put your SDK key in here.
 
 import { NativeEventEmitter } from 'react-native'
@@ -21,21 +21,21 @@ myModuleEvt.addListener('inappnotification', (data) => console.log(data))
 
 class ReactNativeSampleApp extends Component {
   render() {
-    Marigold.getMessages()
+    MessageStream.getMessages()
       .then(messages => {
         if (messages.length > 2) {
-          Marigold.markMessageAsRead(messages[0]);
+          MessageStream.markMessageAsRead(messages[0]);
         }
 
-        Marigold.presentMessageDetail(messages[0]);
+        MessageStream.presentMessageDetail(messages[0]);
 
-        Marigold.registerMessageImpression(Marigold.MessageImpressionType.InAppView, messages[1]);
+        MessageStream.registerMessageImpression(Marigold.MessageImpressionType.InAppView, messages[1]);
       })
       .catch(e => {
         console.log(e);
       });
 
-      var attrMap = new Marigold.AttributeMap();
+      var attrMap = new EngageBySailthru.AttributeMap();
       attrMap.setString("string_key", "This is the string value");
       attrMap.setStringArray("strings_key", ["This is first value", "This is the second value"]);
       attrMap.setDate("date_key", new Date());
@@ -46,20 +46,20 @@ class ReactNativeSampleApp extends Component {
       attrMap.setIntegerArray("integers_key", [1, 2, 3, 4]);
       attrMap.setBoolean("boolean_key", true);
 
-      Marigold.setAttributes(attrMap).catch(e => {
+      EngageBySailthru.setAttributes(attrMap).catch(e => {
         console.log(e);
       });
 
       Marigold.updateLocation(-41.292178, 174.777535); //Marigold Wellington.
 
-      Marigold.logEvent("This is my event");
+      EngageBySailthru.logEvent("This is my event");
 
       var eventVars = {
         "varKey" : "varValue"
       };
-      Marigold.logEvent("this is my event with vars", eventVars);
+      EngageBySailthru.logEvent("this is my event with vars", eventVars);
 
-      Marigold.getUnreadCount().then(function(count) {
+      MessageStream.getUnreadCount().then(function(count) {
         console.log(count);
       }, function(e){
         console.log(e);
@@ -71,13 +71,13 @@ class ReactNativeSampleApp extends Component {
         console.log(e);
       });
 
-      Marigold.setUserId("person").then(result => {
+      EngageBySailthru.setUserId("person").then(result => {
         console.log("Set User ID Success");
       }, e => {
         console.log(e);
       });
 
-      Marigold.setUserEmail("person@domain.com").then(result => {
+      EngageBySailthru.setUserEmail("person@domain.com").then(result => {
         console.log("Set User Email Success");
       }, e => {
         console.log(e);
@@ -87,13 +87,13 @@ class ReactNativeSampleApp extends Component {
         "string_key" : "string_value",
         "boolean_key" : true
       };
-      Marigold.setProfileVars(profileVars).then(result => {
+      EngageBySailthru.setProfileVars(profileVars).then(result => {
         console.log("Set Profile Vars Success");
       }).catch(e => {
         console.log(e);
       });
 
-      Marigold.getProfileVars().then(profileVars => {
+      EngageBySailthru.getProfileVars().then(profileVars => {
         console.log(profileVars);
       }).catch(e => {
         console.log(e);
@@ -103,13 +103,13 @@ class ReactNativeSampleApp extends Component {
     var purchaseItem2 = new Marigold.PurchaseItem(3, "other item", 1534, "2346", "https://www.example.com/item2");
     var purchaseItems = [ purchaseItem1, purchaseItem2 ];
     var purchase = new Marigold.Purchase(purchaseItems);
-    Marigold.logPurchase(purchase).then(result => {
+    EngageBySailthru.logPurchase(purchase).then(result => {
       console.log("Purchase Log Success");
     }).catch(e => {
       console.log(e);
     });
 
-    Marigold.logAbandonedCart(purchase).then(result => {
+    EngageBySailthru.logAbandonedCart(purchase).then(result => {
       console.log("Abandoned Cart Log Success");
     }).catch(e => {
       console.log(e);
