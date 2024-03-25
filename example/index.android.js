@@ -29,7 +29,7 @@ class ReactNativeSampleApp extends Component {
 
         MessageStream.presentMessageDetail(messages[0]);
 
-        MessageStream.registerMessageImpression(Marigold.MessageImpressionType.InAppView, messages[1]);
+        MessageStream.registerMessageImpression(MessageStream.MessageImpressionType.InAppView, messages[1]);
       })
       .catch(e => {
         console.log(e);
@@ -99,8 +99,8 @@ class ReactNativeSampleApp extends Component {
         console.log(e);
       });
 
-    var purchaseItem1 = new Marigold.PurchaseItem(1, "title", 1234, "2345", "https://www.example.com/item1");
-    var purchaseItem2 = new Marigold.PurchaseItem(3, "other item", 1534, "2346", "https://www.example.com/item2");
+    var purchaseItem1 = new EngageBySailthru.PurchaseItem(1, "title", 1234, "2345", "https://www.example.com/item1");
+    var purchaseItem2 = new EngageBySailthru.PurchaseItem(3, "other item", 1534, "2346", "https://www.example.com/item2");
     var purchaseItems = [ purchaseItem1, purchaseItem2 ];
     var purchase = new Marigold.Purchase(purchaseItems);
     EngageBySailthru.logPurchase(purchase).then(result => {
