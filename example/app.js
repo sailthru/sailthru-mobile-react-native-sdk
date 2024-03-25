@@ -106,7 +106,7 @@ export default class App extends Component {
     var purchaseItem1 = new EngageBySailthru.PurchaseItem(1, "title", 1234, 2345, "www.example.com/item1");
     var purchaseItem2 = new EngageBySailthru.PurchaseItem(3, "other item", 1534, 2346, "www.example.com/item2");
     var purchaseItems = [ purchaseItem1, purchaseItem2 ];
-    var purchase = new Marigold.Purchase(purchaseItems);
+    var purchase = new EngageBySailthru.Purchase(purchaseItems);
     EngageBySailthru.logPurchase(purchase).then(result => {
       console.log("Purchase Log Success");
     }).catch(e => {
