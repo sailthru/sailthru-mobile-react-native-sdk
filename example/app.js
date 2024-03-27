@@ -30,9 +30,9 @@ export default class App extends Component {
     MessageStream.getMessages()
       .then(messages => {
         if (messages.length > 2) {
-          Marigold.markMessageAsRead(messages[0]);
-          Marigold.presentMessageDetail(messages[0]);
-          Marigold.registerMessageImpression(MessageStream.MessageImpressionType.InAppView, messages[1]);
+          MessageStream.markMessageAsRead(messages[0]);
+          MessageStream.presentMessageDetail(messages[0]);
+          MessageStream.registerMessageImpression(MessageStream.MessageImpressionType.InAppView, messages[1]);
         }
       })
       .catch(e => {

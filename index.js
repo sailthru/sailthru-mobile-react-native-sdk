@@ -388,5 +388,3 @@ module.exports = {
   EngageBySailthru: RNEngageBySailthru,
   MessageStream: RNMessageStream
 };
-
-//const { Marigold, EngageBySailthru, MessageStream } = require('react-native-marigold');

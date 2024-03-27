@@ -26,9 +26,7 @@ class ReactNativeSampleApp extends Component {
         if (messages.length > 2) {
           MessageStream.markMessageAsRead(messages[0]);
         }
-
         MessageStream.presentMessageDetail(messages[0]);
-
         MessageStream.registerMessageImpression(MessageStream.MessageImpressionType.InAppView, messages[1]);
       })
       .catch(e => {
