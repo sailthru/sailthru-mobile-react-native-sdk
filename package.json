@@ -1,11 +1,11 @@
 {
   "author": {
-    "name": "Sailthru Mobile <support@sailthru.com>"
+    "name": "Marigold <support@sailthru.com>"
   },
   "bugs": {
     "url": "https://github.com/sailthru/sailthru-mobile-react-native-sdk/issues"
   },
-  "description": "React Native wrapper for the Sailthru Mobile Android and iOS SDKs",
+  "description": "React Native wrapper for the Marigold Android and iOS SDKs",
   "homepage": "https://github.com/sailthru/sailthru-mobile-react-native-sdk",
   "keywords": [
     "android",
@@ -44,7 +44,7 @@
   },
   "files": [
     "/ios/RN*",
-    "/react-native-sailthru-mobile.podspec",
+    "/react-native-marigold.podspec",
     "/android/src/main",
     "/android/build.gradle",
     "/example"

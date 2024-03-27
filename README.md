@@ -1,10 +1,10 @@
-# React Native : Sailthru Mobile SDK
+# React Native : Marigold SDK
 
-Wraps the native Sailthru Mobile SDK for React Native apps.
+Wraps the native Marigold SDK for React Native apps.
 
 ## Installation
 
-`npm install react-native-sailthru-mobile --save`
+`npm install react-native-marigold --save`
 
 This project supports auto linking!
 Running `pod install` in the `ios` folder should set up everything you need on the iOS side. On the Android side the only manual step required involves adding our maven URL to the repositories in the app level `build.gradle`:
@@ -22,7 +22,7 @@ However, if you would like to manually integrate the SDK please follow the steps
 
 Open your Project's Xcode Project.
 
-Drag into "Libraries" the following files from node_modules/react-native-sailthru-mobile:
+Drag into "Libraries" the following files from node_modules/react-native-marigold:
 
  * RNMarigold.h
  * RNMarigold.m (Make sure this file's Target Membership is your main app's target)
@@ -39,9 +39,9 @@ You will then need replace the code that creates your RCTRootView with the code 
 - (BOOL)application:(UIApplication * )application didFinishLaunchingWithOptions:(NSDictionary * )launchOptions {
       ...
       
-      [[Marigold new] startEngine:SDK_KEY withAuthorizationOption:STMPushAuthorizationOptionProvisional]; // Obtain SDK key from your Sailthru Mobile app settings
+      [[Marigold new] startEngine:SDK_KEY withAuthorizationOption:STMPushAuthorizationOptionProvisional]; // Obtain SDK key from your Marigold app settings
       id<RCTBridgeDelegate> moduleInitialiser = [[RNMarigoldBridge alloc]
-                                                 initWithJSCodeLocation:jsCodeLocation]; // Obtain SDK key from your Sailthru Mobile app settings
+                                                 initWithJSCodeLocation:jsCodeLocation]; // Obtain SDK key from your Marigold app settings
 
       RCTBridge * bridge = [[RCTBridge alloc] initWithDelegate:moduleInitialiser launchOptions:launchOptions];
 
@@ -61,8 +61,8 @@ Build and Run from Xcode.
 
 ```gradle
 ...
-include ':react-native-sailthru-mobile'
-project(':react-native-sailthru-mobile').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-sailthru-mobile/android')
+include ':react-native-marigold'
+project(':react-native-marigold').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-marigold/android')
 ```
 
 * In `android/app/build.gradle`
@@ -79,7 +79,7 @@ repositories {
 
 dependencies {
     ...
-    implementation project(':react-native-sailthru-mobile')
+    implementation project(':react-native-marigold')
 }
 ```
 
@@ -87,7 +87,7 @@ dependencies {
 * Register module (in MainApplication.java)
 
 ```java
-import com.sailthru.mobile.rnsdk.RNMarigoldPackage; // <--- import
+import com.marigold.rnsdk.RNMarigoldPackage; // <--- import
 
 public class MainApplication extends Application implements ReactApplication {
   ...

@@ -11,32 +11,29 @@ import {
   View
 } from 'react-native';
 
-
-var SailthruMobile = require('react-native-sailthru-mobile');
+const { Marigold, EngageBySailthru, MessageStream } = require('react-native-marigold');
 var SDK_KEY = ''; // Put your SDK key in here.
 
 import { NativeEventEmitter } from 'react-native'
 
-const myModuleEvt = new NativeEventEmitter(SailthruMobile)
+const myModuleEvt = new NativeEventEmitter(Marigold)
 myModuleEvt.addListener('inappnotification', (data) => console.log(data))
 
 class ReactNativeSampleApp extends Component {
   render() {
-    SailthruMobile.getMessages()
+    MessageStream.getMessages()
       .then(messages => {
         if (messages.length > 2) {
-          SailthruMobile.markMessageAsRead(messages[0]);
+          MessageStream.markMessageAsRead(messages[0]);
         }
-
-        SailthruMobile.presentMessageDetail(messages[0]);
-
-        SailthruMobile.registerMessageImpression(SailthruMobile.MessageImpressionType.InAppView, messages[1]);
+        MessageStream.presentMessageDetail(messages[0]);
+        MessageStream.registerMessageImpression(MessageStream.MessageImpressionType.InAppView, messages[1]);
       })
       .catch(e => {
         console.log(e);
       });
 
-      var attrMap = new SailthruMobile.AttributeMap();
+      var attrMap = new EngageBySailthru.AttributeMap();
       attrMap.setString("string_key", "This is the string value");
       attrMap.setStringArray("strings_key", ["This is first value", "This is the second value"]);
       attrMap.setDate("date_key", new Date());
@@ -47,38 +44,38 @@ class ReactNativeSampleApp extends Component {
       attrMap.setIntegerArray("integers_key", [1, 2, 3, 4]);
       attrMap.setBoolean("boolean_key", true);
 
-      SailthruMobile.setAttributes(attrMap).catch(e => {
+      EngageBySailthru.setAttributes(attrMap).catch(e => {
         console.log(e);
       });
 
-      SailthruMobile.updateLocation(-41.292178, 174.777535); //SailthruMobile Wellington.
+      Marigold.updateLocation(-41.292178, 174.777535); //Marigold Wellington.
 
-      SailthruMobile.logEvent("This is my event");
+      EngageBySailthru.logEvent("This is my event");
 
       var eventVars = {
         "varKey" : "varValue"
       };
-      SailthruMobile.logEvent("this is my event with vars", eventVars);
+      EngageBySailthru.logEvent("this is my event with vars", eventVars);
 
-      SailthruMobile.getUnreadCount().then(function(count) {
+      MessageStream.getUnreadCount().then(function(count) {
         console.log(count);
       }, function(e){
         console.log(e);
       });
 
-      SailthruMobile.getDeviceId().then(function(id) {
+      Marigold.getDeviceId().then(function(id) {
         console.log(id);
       }, function(e){
         console.log(e);
       });
 
-      SailthruMobile.setUserId("person").then(result => {
+      EngageBySailthru.setUserId("person").then(result => {
         console.log("Set User ID Success");
       }, e => {
         console.log(e);
       });
 
-      SailthruMobile.setUserEmail("person@domain.com").then(result => {
+      EngageBySailthru.setUserEmail("person@domain.com").then(result => {
         console.log("Set User Email Success");
       }, e => {
         console.log(e);
@@ -88,29 +85,29 @@ class ReactNativeSampleApp extends Component {
         "string_key" : "string_value",
         "boolean_key" : true
       };
-      SailthruMobile.setProfileVars(profileVars).then(result => {
+      EngageBySailthru.setProfileVars(profileVars).then(result => {
         console.log("Set Profile Vars Success");
       }).catch(e => {
         console.log(e);
       });
 
-      SailthruMobile.getProfileVars().then(profileVars => {
+      EngageBySailthru.getProfileVars().then(profileVars => {
         console.log(profileVars);
       }).catch(e => {
         console.log(e);
       });
 
-    var purchaseItem1 = new SailthruMobile.PurchaseItem(1, "title", 1234, "2345", "https://www.example.com/item1");
-    var purchaseItem2 = new SailthruMobile.PurchaseItem(3, "other item", 1534, "2346", "https://www.example.com/item2");
+    var purchaseItem1 = new EngageBySailthru.PurchaseItem(1, "title", 1234, "2345", "https://www.example.com/item1");
+    var purchaseItem2 = new EngageBySailthru.PurchaseItem(3, "other item", 1534, "2346", "https://www.example.com/item2");
     var purchaseItems = [ purchaseItem1, purchaseItem2 ];
-    var purchase = new SailthruMobile.Purchase(purchaseItems);
-    SailthruMobile.logPurchase(purchase).then(result => {
+    var purchase = new EngageBySailthru.Purchase(purchaseItems);
+    EngageBySailthru.logPurchase(purchase).then(result => {
       console.log("Purchase Log Success");
     }).catch(e => {
       console.log(e);
     });
 
-    SailthruMobile.logAbandonedCart(purchase).then(result => {
+    EngageBySailthru.logAbandonedCart(purchase).then(result => {
       console.log("Abandoned Cart Log Success");
     }).catch(e => {
       console.log(e);
@@ -119,7 +116,7 @@ class ReactNativeSampleApp extends Component {
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
-          Sailthru Mobile React Native Test App
+          Marigold React Native Test App
         </Text>
         <Text style={styles.instructions}>
           To get started, edit index.android.js

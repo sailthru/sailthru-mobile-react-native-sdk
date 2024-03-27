@@ -1,9 +1,9 @@
-import SailthruMobile from "../index";
+import { EngageBySailthru } from "../index";
 
 describe("AttributeMap", () => {
   var attributeMap;
   beforeEach(() => {
-    attributeMap = new SailthruMobile.AttributeMap();
+    attributeMap = new EngageBySailthru.AttributeMap();
   });
 
   describe("when created", () => {
