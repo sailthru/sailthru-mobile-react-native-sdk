@@ -20,6 +20,8 @@
 -(void)getProfileVars:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)logPurchase:(NSDictionary *)purchaseDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)logAbandonedCart:(NSDictionary *)purchaseDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)clearAttributes:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)clearEvents:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 @end
 
 SPEC_BEGIN(RNEngageBySailthruSpec)
@@ -391,6 +393,22 @@ describe(@"RNEngageBySailthru", ^{
             
             // Verify result
             [[check should] equal:error];
+        });
+    });
+    
+    context(@"the clearAttributes:rejecter: method", ^{
+        it(@"should call native method", ^{
+            [[engageBySailthru should] receive:@selector(clearAttributesWithResponse:)];
+            
+            [rnEngageBySailthru clearAttributes:nil rejecter:nil];
+        });
+    });
+    
+    context(@"the clearEvents:rejecter: method", ^{
+        it(@"should call native method", ^{
+            [[engageBySailthru should] receive:@selector(clearEventsWithResponse:)];
+            
+            [rnEngageBySailthru clearEvents:nil rejecter:nil];
         });
     });
 });

@@ -13,6 +13,7 @@
 -(void)presentMessageDetail:(NSDictionary *)jsDict;
 -(void)dismissMessageDetail;
 -(void)registerMessageImpression:(NSInteger)impressionType forMessage:(NSDictionary *)jsDict;
+-(void)clearMessages:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 
 @end
 
@@ -183,6 +184,14 @@ describe(@"RNMessageStream", ^{
             [[messageStream should] receive:@selector(registerImpressionWithType:forMessage:)];
             
             [rnMessageStream registerMessageImpression:1 forMessage:nil];
+        });
+    });
+    
+    context(@"the clearMessages method", ^{
+        it(@"should call native method", ^{
+            [[messageStream should] receive:@selector(clearMessagesWithResponse:)];
+            
+            [rnMessageStream clearMessages:nil rejecter:nil];
         });
     });
 });
