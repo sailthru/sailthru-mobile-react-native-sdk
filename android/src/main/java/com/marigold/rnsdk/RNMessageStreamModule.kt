@@ -11,6 +11,7 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableNativeArray
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.marigold.sdk.Marigold
 import com.marigold.sdk.MessageActivity
 import com.marigold.sdk.MessageStream
 import com.marigold.sdk.enums.ImpressionType
@@ -93,6 +94,19 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
         messageStream.deleteMessage(message, object : MessageStream.MessageDeletedHandler {
             override fun onSuccess() {
                 promise.resolve(null)
+            }
+
+            override fun onFailure(error: Error) {
+                promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, error.message)
+            }
+        })
+    }
+
+    @ReactMethod
+    fun clearMessages(promise: Promise) {
+        messageStream.clearMessages(object : MessageStream.MessageStreamHandler<Void?> {
+            override fun onSuccess(value: Void?) {
+                promise.resolve(true)
             }
 
             override fun onFailure(error: Error) {

@@ -124,6 +124,35 @@ class RNMessageStreamModuleTest {
     }
 
     @Test
+    @Throws(Exception::class)
+    fun testClearMessages() {
+        // Create mocks
+        val promise: Promise = mock()
+        val error: Error = mock()
+        val moduleSpy = Mockito.spy(rnMessageStreamModule)
+
+        // Initiate test
+        moduleSpy.clearMessages(promise)
+
+        // Capture MarigoldHandler to verify behaviour
+        val argumentCaptor = ArgumentCaptor.forClass(MessageStream.MessageStreamHandler::class.java)
+        verify(messageStream).clearMessages(capture(argumentCaptor) as MessageStream.MessageStreamHandler<Void?>?)
+        val handler = argumentCaptor.value as MessageStream.MessageStreamHandler<Void?>
+
+        // Test success handler
+        handler.onSuccess(null)
+        verify(promise).resolve(true)
+
+        // Setup error
+        val errorMessage = "error message"
+        doReturn(errorMessage).whenever(error).message
+
+        // Test error handler
+        handler.onFailure(error)
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, errorMessage)
+    }
+
+    @Test
     fun testGetUnreadCount() {
         val unreadCount = 4
 

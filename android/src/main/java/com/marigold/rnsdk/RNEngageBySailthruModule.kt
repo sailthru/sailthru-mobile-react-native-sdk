@@ -48,6 +48,33 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
     }
 
     @ReactMethod
+    fun clearEvents(promise: Promise) {
+        createEngageBySailthru(promise)?.clearEvents(object : Marigold.MarigoldHandler<Void?> {
+            override fun onSuccess(value: Void?) {
+                promise.resolve(true)
+            }
+
+            override fun onFailure(error: Error) {
+                promise.reject(ERROR_CODE_DEVICE, error.message)
+            }
+        })
+    }
+
+    @ReactMethod
+    @Deprecated("use setProfileVars instead")
+    fun clearAttributes(promise: Promise) {
+        createEngageBySailthru(promise)?.clearAttributes(object : Marigold.MarigoldHandler<Void?> {
+            override fun onSuccess(value: Void?) {
+                promise.resolve(true)
+            }
+
+            override fun onFailure(error: Error) {
+                promise.reject(ERROR_CODE_DEVICE, error.message)
+            }
+        })
+    }
+
+    @ReactMethod
     @Deprecated("use setProfileVars instead")
     fun setAttributes(readableMap: ReadableMap, promise: Promise) {
         val attributeMap = try {

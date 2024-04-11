@@ -113,6 +113,61 @@ class RNEngageBySailthruModuleTest {
 
     @Test
     @Throws(Exception::class)
+    fun testClearEvents() {
+        // Create input
+        val error: Error = mock()
+
+        // Initiate test
+        rnEngageBySailthruModuleSpy.clearEvents(promise)
+
+        // Verify result
+        val argumentCaptor = ArgumentCaptor.forClass(Marigold.MarigoldHandler::class.java)
+        verify(engage).clearEvents(capture(argumentCaptor) as Marigold.MarigoldHandler<Void?>?)
+        val clearHandler = argumentCaptor.value as Marigold.MarigoldHandler<Void?>
+
+        // Test success handler
+        clearHandler.onSuccess(null)
+        verify(promise).resolve(true)
+
+        // Setup error
+        val errorMessage = "error message"
+        doReturn(errorMessage).whenever(error).message
+
+        // Test error handler
+        clearHandler.onFailure(error)
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, errorMessage)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testClearAttributes() {
+        // Create input
+        val error: Error = mock()
+
+        // Initiate test
+        rnEngageBySailthruModuleSpy.clearAttributes(promise)
+
+        // Verify result
+        @SuppressWarnings("unchecked")
+        val argumentCaptor = ArgumentCaptor.forClass(Marigold.MarigoldHandler::class.java)
+        verify(engage).clearAttributes(capture(argumentCaptor) as Marigold.MarigoldHandler<Void?>?)
+        val clearHandler = argumentCaptor.value as Marigold.MarigoldHandler<Void?>
+
+        // Test success handler
+        clearHandler.onSuccess(null)
+        verify(promise).resolve(true)
+
+        // Setup error
+        val errorMessage = "error message"
+        doReturn(errorMessage).whenever(error).message
+
+        // Test error handler
+        clearHandler.onFailure(error)
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, errorMessage)
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun testSetAttributes() {
         val stringAttributeJson = JSONObject()
                 .put("type", "string")
