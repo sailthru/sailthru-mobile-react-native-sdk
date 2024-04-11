@@ -20,6 +20,7 @@
 -(void)registerForPushNotifications;
 -(void)syncNotificationSettings;
 -(void)clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)setInAppNotificationsEnabled:(BOOL)enabled;
 
 @end
 
@@ -298,6 +299,14 @@ describe(@"RNMarigold", ^{
             [[marigold should] receive:@selector(syncNotificationSettings)];
             
             [rnMarigold syncNotificationSettings];
+        });
+    });
+    
+    context(@"the setInAppNotificationsEnabled: method", ^{
+        it(@"should call native method", ^{
+            [[marigold should] receive:@selector(setInAppNotificationsEnabled:)];
+            
+            [rnMarigold setInAppNotificationsEnabled:YES];
         });
     });
     

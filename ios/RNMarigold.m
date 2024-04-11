@@ -115,6 +115,10 @@ RCT_EXPORT_METHOD(clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBloc
     }];
 }
 
+RCT_EXPORT_METHOD(setInAppNotificationsEnabled:(BOOL)enabled) {
+    [self.marigold setInAppNotificationsEnabled:enabled];
+}
+
 #pragma mark - Helper Functions
 
 + (void)rejectPromise:(RCTPromiseRejectBlock)reject withError:(NSError *)error {
