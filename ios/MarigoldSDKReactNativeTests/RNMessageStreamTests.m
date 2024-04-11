@@ -193,6 +193,45 @@ describe(@"RNMessageStream", ^{
             
             [rnMessageStream clearMessages:nil rejecter:nil];
         });
+        
+        it(@"should return success", ^{
+            // Setup variables
+            __block BOOL check = NO;
+            RCTPromiseResolveBlock resolve = ^(NSObject *ignored) {
+                check = YES;
+            };
+            KWCaptureSpy *capture = [messageStream captureArgument:@selector(clearMessagesWithResponse:) atIndex:0];
+            
+            // Start test
+            [rnMessageStream clearMessages:resolve rejecter:nil];
+            
+            // Capture argument
+            void (^completeBlock)(NSError * _Nullable) = capture.argument;
+            completeBlock(nil);
+            
+            // Verify result
+            [[theValue(check) should] equal:theValue(YES)];
+        });
+        
+        it(@"should return error on failure", ^{
+            // Setup variables
+            __block NSError *check = nil;
+            RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
+                check = error;
+            };
+            KWCaptureSpy *capture = [messageStream captureArgument:@selector(clearMessagesWithResponse:) atIndex:0];
+            
+            // Start test
+            [rnMessageStream clearMessages:nil rejecter:reject];
+            
+            // Capture argument
+            void (^completeBlock)(NSError * _Nullable) = capture.argument;
+            NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
+            completeBlock(error);
+            
+            // Verify result
+            [[check should] equal:error];
+        });
     });
 });
 
