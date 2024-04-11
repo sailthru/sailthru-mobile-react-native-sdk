@@ -102,6 +102,19 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
     }
 
     @ReactMethod
+    fun clearMessages(promise: Promise) {
+        messageStream.clearMessages(object : MessageStream.MessageStreamHandler<Void?> {
+            override fun onSuccess(value: Void?) {
+                promise.resolve(true)
+            }
+
+            override fun onFailure(error: Error) {
+                promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, error.message)
+            }
+        })
+    }
+
+    @ReactMethod
     fun registerMessageImpression(typeCode: Int, messageMap: ReadableMap) {
         val type = when (typeCode) {
             0 -> ImpressionType.IMPRESSION_TYPE_IN_APP_VIEW
