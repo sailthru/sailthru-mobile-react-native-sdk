@@ -123,6 +123,15 @@ class RNMarigoldModuleTest {
     }
 
     @Test
+    fun testSetInAppNotificationsEnabled() {
+        // Initiate test
+        rnMarigoldModule.setInAppNotificationsEnabled(true)
+
+        // Verify result
+        verify(marigold).setInAppNotificationsEnabled(true)
+    }
+
+    @Test
     fun testSetGeoIPTrackingEnabled() {
         // Initiate test
         rnMarigoldModule.setGeoIPTrackingEnabled(true)
