@@ -116,6 +116,16 @@ RCT_EXPORT_METHOD(registerMessageImpression:(NSInteger)impressionType forMessage
     [self.messageStream registerImpressionWithType:impressionType forMessage:[RNMessageStream messageFromDict:jsDict]];
 }
 
+RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    [self.messageStream clearMessagesWithResponse:^(NSError * _Nullable error) {
+        if (error) {
+            [RNMessageStream rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
+}
+
 #pragma mark - Helper Functions
 
 + (void)rejectPromise:(RCTPromiseRejectBlock)reject withError:(NSError *)error {

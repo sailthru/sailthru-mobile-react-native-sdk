@@ -252,6 +252,26 @@ RCT_EXPORT_METHOD(logAbandonedCart:(NSDictionary *)purchaseDict resolver:(RCTPro
     }];
 }
 
+RCT_EXPORT_METHOD(clearAttributes:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    [[self engageBySailthruWithRejecter:reject] clearAttributesWithResponse:^(NSError * _Nullable error) {
+        if (error) {
+            [RNEngageBySailthru rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(clearEvents:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    [[self engageBySailthruWithRejecter:reject] clearEventsWithResponse:^(NSError * _Nullable error) {
+        if (error) {
+            [RNEngageBySailthru rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
+}
+
 
 #pragma mark - Helper Fuctions
 

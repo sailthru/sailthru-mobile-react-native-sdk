@@ -20,6 +20,8 @@
 -(void)getProfileVars:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)logPurchase:(NSDictionary *)purchaseDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)logAbandonedCart:(NSDictionary *)purchaseDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)clearAttributes:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)clearEvents:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 @end
 
 SPEC_BEGIN(RNEngageBySailthruSpec)
@@ -383,6 +385,100 @@ describe(@"RNEngageBySailthru", ^{
             
             // Start test
             [rnEngageBySailthru logAbandonedCart:purchase resolver:nil rejecter:reject];
+            
+            // Capture argument
+            void (^completeBlock)(NSError * _Nullable) = capture.argument;
+            NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
+            completeBlock(error);
+            
+            // Verify result
+            [[check should] equal:error];
+        });
+    });
+    
+    context(@"the clearAttributes:rejecter: method", ^{
+        it(@"should call native method", ^{
+            [[engageBySailthru should] receive:@selector(clearAttributesWithResponse:)];
+            
+            [rnEngageBySailthru clearAttributes:nil rejecter:nil];
+        });
+        
+        it(@"should return success", ^{
+            // Setup variables
+            __block BOOL check = NO;
+            RCTPromiseResolveBlock resolve = ^(NSObject *ignored) {
+                check = YES;
+            };
+            KWCaptureSpy *capture = [engageBySailthru captureArgument:@selector(clearAttributesWithResponse:) atIndex:0];
+            
+            // Start test
+            [rnEngageBySailthru clearAttributes:resolve rejecter:nil];
+            
+            // Capture argument
+            void (^completeBlock)(NSError * _Nullable) = capture.argument;
+            completeBlock(nil);
+            
+            // Verify result
+            [[theValue(check) should] equal:theValue(YES)];
+        });
+        
+        it(@"should return error on failure", ^{
+            // Setup variables
+            __block NSError *check = nil;
+            RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
+                check = error;
+            };
+            KWCaptureSpy *capture = [engageBySailthru captureArgument:@selector(clearAttributesWithResponse:) atIndex:0];
+            
+            // Start test
+            [rnEngageBySailthru clearAttributes:nil rejecter:reject];
+            
+            // Capture argument
+            void (^completeBlock)(NSError * _Nullable) = capture.argument;
+            NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
+            completeBlock(error);
+            
+            // Verify result
+            [[check should] equal:error];
+        });
+    });
+    
+    context(@"the clearEvents:rejecter: method", ^{
+        it(@"should call native method", ^{
+            [[engageBySailthru should] receive:@selector(clearEventsWithResponse:)];
+            
+            [rnEngageBySailthru clearEvents:nil rejecter:nil];
+        });
+        
+        it(@"should return success", ^{
+            // Setup variables
+            __block BOOL check = NO;
+            RCTPromiseResolveBlock resolve = ^(NSObject *ignored) {
+                check = YES;
+            };
+            KWCaptureSpy *capture = [engageBySailthru captureArgument:@selector(clearEventsWithResponse:) atIndex:0];
+            
+            // Start test
+            [rnEngageBySailthru clearEvents:resolve rejecter:nil];
+            
+            // Capture argument
+            void (^completeBlock)(NSError * _Nullable) = capture.argument;
+            completeBlock(nil);
+            
+            // Verify result
+            [[theValue(check) should] equal:theValue(YES)];
+        });
+        
+        it(@"should return error on failure", ^{
+            // Setup variables
+            __block NSError *check = nil;
+            RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
+                check = error;
+            };
+            KWCaptureSpy *capture = [engageBySailthru captureArgument:@selector(clearEventsWithResponse:) atIndex:0];
+            
+            // Start test
+            [rnEngageBySailthru clearEvents:nil rejecter:reject];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
