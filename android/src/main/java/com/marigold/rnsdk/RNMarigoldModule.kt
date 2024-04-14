@@ -97,6 +97,11 @@ class RNMarigoldModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
 
     @ReactMethod
+    fun setInAppNotificationsEnabled(enabled: Boolean) {
+        marigold.setInAppNotificationsEnabled(enabled)
+    }
+
+    @ReactMethod
     fun setGeoIPTrackingEnabled(enabled: Boolean) {
         marigold.setGeoIpTrackingEnabled(enabled)
     }
