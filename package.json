@@ -30,7 +30,7 @@
     "type": "git",
     "url": "git+https://github.com/sailthru/sailthru-mobile-react-native-sdk.git"
   },
-  "version": "10.0.0",
+  "version": "11.0.0",
   "devDependencies": {
     "@babel/core": "^7.13.14",
     "@babel/preset-env": "^7.1.6",
