@@ -155,7 +155,7 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
     }
 
     @ReactMethod
-    @SuppressWarnings("unused")
+    @Suppress("unused")
     fun dismissMessageDetail() {
         // noop. It's here to share signatures with iOS.
     }

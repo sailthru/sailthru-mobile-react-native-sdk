@@ -29,7 +29,7 @@ class RNMarigoldModule(reactContext: ReactApplicationContext) : ReactContextBase
                 val setWrapperMethod = companionClass.getDeclaredMethod("setWrapper", *cArg)
 
                 setWrapperMethod.isAccessible = true
-                setWrapperMethod.invoke(Marigold.Companion, "React Native", "11.0.0")
+                setWrapperMethod.invoke(Marigold.Companion, "React Native", "12.0.0")
             } catch (e: NoSuchMethodException) {
                 e.printStackTrace()
             } catch (e: IllegalAccessException) {
@@ -67,9 +67,10 @@ class RNMarigoldModule(reactContext: ReactApplicationContext) : ReactContextBase
 
     @ReactMethod
     fun updateLocation(latitude: Double, longitude: Double) {
-        val location = Location("React-Native")
-        location.setLatitude(latitude)
-        location.setLongitude(longitude)
+        val location = Location("React-Native").apply {
+            this.latitude = latitude
+            this.longitude = longitude
+        }
         marigold.updateLocation(location)
     }
 
@@ -120,21 +121,8 @@ class RNMarigoldModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
 
     @ReactMethod
-    @SuppressWarnings("unused")
+    @Suppress("unused", "unused_parameter")
     fun setCrashHandlersEnabled(enabled: Boolean) {
         // noop. It's here to share signatures with iOS.
-    }
-
-    @ReactMethod
-    fun clearDevice(options: Int, promise: Promise) {
-        marigold.clearDevice(options, object : Marigold.MarigoldHandler<Void?> {
-            override fun onSuccess(value: Void?) {
-                promise.resolve(true)
-            }
-
-            override fun onFailure(error: Error) {
-                promise.reject(ERROR_CODE_DEVICE, error.message)
-            }
-        })
     }
 }

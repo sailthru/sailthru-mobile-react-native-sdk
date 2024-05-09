@@ -29,7 +29,7 @@ RCT_EXPORT_MODULE();
 
 - (instancetype)init {
     _marigold = [Marigold new];
-    [_marigold setWrapperName:@"React Native" andVersion:@"11.0.0"];
+    [_marigold setWrapperName:@"React Native" andVersion:@"12.0.0"];
     return self;
 }
 
@@ -103,16 +103,6 @@ RCT_EXPORT_METHOD(registerForPushNotifications) {
 
 RCT_EXPORT_METHOD(syncNotificationSettings) {
     [self.marigold syncNotificationSettings];
-}
-
-RCT_EXPORT_METHOD(clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-    [self.marigold clearDeviceData:(MARDeviceDataType)options withResponse:^(NSError * _Nullable error) {
-        if (error) {
-            [RNMarigold rejectPromise:reject withError:error];
-        } else {
-            resolve(nil);
-        }
-    }];
 }
 
 RCT_EXPORT_METHOD(setInAppNotificationsEnabled:(BOOL)enabled) {
