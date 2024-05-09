@@ -52,8 +52,5 @@
   ],
   "scripts": {
     "test": "jest --verbose"
-  },
-  "jest": {
-    "preset": "react-native"
   }
 }
