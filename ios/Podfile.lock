@@ -911,7 +911,7 @@ PODS:
   - React-Mapbuffer (0.74.1):
     - glog
     - React-debug
-  - react-native-marigold (11.0.0):
+  - react-native-marigold (12.0.0):
     - Marigold (= 16.0.1)
     - Marigold-Extension (= 16.0.1)
     - React-Core
@@ -1339,7 +1339,7 @@ SPEC CHECKSUMS:
   React-jsitracing: 233d1a798fe0ff33b8e630b8f00f62c4a8115fbc
   React-logger: 7e7403a2b14c97f847d90763af76b84b152b6fce
   React-Mapbuffer: 11029dcd47c5c9e057a4092ab9c2a8d10a496a33
-  react-native-marigold: 242e542f1bb34c4b8b325fb8a06f1761bd0f7b67
+  react-native-marigold: 0fe78359516a2449a398110703429639be0471cd
   React-nativeconfig: b0073a590774e8b35192fead188a36d1dca23dec
   React-NativeModulesApple: 81bc2bcb4e7da59a9de76f3b70c796abf049702e
   React-perflogger: 3d31e0d1e8ad891e43a09ac70b7b17a79773003a
