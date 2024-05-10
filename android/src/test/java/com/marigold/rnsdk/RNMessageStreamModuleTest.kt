@@ -18,6 +18,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
+import org.mockito.Captor
 import org.mockito.Mock
 import org.mockito.MockedConstruction
 import org.mockito.Mockito
@@ -41,6 +42,12 @@ class RNMessageStreamModuleTest {
 
     @Mock
     private lateinit var staticMessageStream: MockedConstruction<MessageStream>
+
+    @Captor
+    private lateinit var messageStreamVoidCaptor: ArgumentCaptor<MessageStream.MessageStreamHandler<Void?>>
+
+    @Captor
+    private lateinit var messageStreamIntCaptor: ArgumentCaptor<MessageStream.MessageStreamHandler<Int>>
 
     private lateinit var messageStream: MessageStream
 
@@ -135,9 +142,8 @@ class RNMessageStreamModuleTest {
         moduleSpy.clearMessages(promise)
 
         // Capture MarigoldHandler to verify behaviour
-        val argumentCaptor = ArgumentCaptor.forClass(MessageStream.MessageStreamHandler::class.java)
-        verify(messageStream).clearMessages(capture(argumentCaptor) as MessageStream.MessageStreamHandler<Void?>?)
-        val handler = argumentCaptor.value as MessageStream.MessageStreamHandler<Void?>
+        verify(messageStream).clearMessages(capture(messageStreamVoidCaptor))
+        val handler = messageStreamVoidCaptor.value
 
         // Test success handler
         handler.onSuccess(null)
@@ -164,10 +170,8 @@ class RNMessageStreamModuleTest {
         rnMessageStreamModule.getUnreadCount(promise)
 
         // Capture MessagesHandler to verify behaviour
-        @SuppressWarnings("unchecked")
-        val argumentCaptor = ArgumentCaptor.forClass(MessageStream.MessageStreamHandler::class.java)
-        verify(messageStream).getUnreadMessageCount(capture(argumentCaptor) as MessageStream.MessageStreamHandler<Int>?)
-        val countHandler = argumentCaptor.value as MessageStream.MessageStreamHandler<Int>
+        verify(messageStream).getUnreadMessageCount(capture(messageStreamIntCaptor))
+        val countHandler = messageStreamIntCaptor.value
 
         // Test success handler
         countHandler.onSuccess(unreadCount)

@@ -1,147 +1,7 @@
 import { NativeModules } from 'react-native';
 const { RNMarigold, RNEngageBySailthru, RNMessageStream } = NativeModules;
 
-/**
- * A map for submitting collections of attributes to the SDK.
- */
-RNEngageBySailthru.AttributeMap = function() {
-  this.MergeRules = {Update: 1, Replace: 2}
-
-  this.mergeRule = this.MergeRules.Update;
-  this.attributes = {};
-  this.getAttributes = function() {return {attributes: this.attributes, mergeRule: this.mergeRule}}
-  this.get = function(key) {return this.attributes[key] || null}
-  this.remove = function(key) {delete this.attributes[key]}
-  this.setMergeRule = function(rule) {
-    switch (rule) {
-      case this.MergeRules.Update:
-      case this.MergeRules.Replace:
-        this.mergeRule = rule;
-        return;
-    }
-
-    throw new TypeError('Invalid merge rule');
-  }
-
-  this.setString = function(key, value) {
-    if (typeof value === 'string') {
-      this.attributes[key] = {type: 'string', value: value};
-    } else {
-      throw new TypeError(key + ' is not a string');
-    }
-  }
-
-  this.setStringArray = function(key, value) {
-    if (!Array.isArray(value)) {
-      throw new TypeError(key + ' is not an array');
-      return;
-    }
-
-    var array = [];
-    for (var i in value) {
-      if (typeof value[i] === 'string') {
-        array.push(value[i]);
-      } else {
-        throw new TypeError(key + ': value at index ' + i + ' is not a string');
-        return;
-      }
-    }
-
-    this.attributes[key] = {type: 'stringArray', value: array};
-  }
-
-  this.setInteger = function(key, value) {
-    if (typeof value === 'number' && isFinite(value) && Math.floor(value) === value) {
-      this.attributes[key] = {type: 'integer', value: value};
-    } else {
-      throw new TypeError(key + ' is not an integer');
-    }
-  }
-
-  this.setIntegerArray = function(key, value) {
-    if (!Array.isArray(value)) {
-      throw new TypeError(key + ' is not an array');
-      return;
-    }
-
-    var array = [];
-    for (var i in value) {
-      if (typeof value[i] === 'number' && isFinite(value[i]) && Math.floor(value[i]) === value[i]) {
-        array.push(value[i]);
-      } else {
-        throw new TypeError(key + ': value at index ' + i + ' is not an integer');
-        return;
-      }
-    }
-
-    this.attributes[key] = {type: 'integerArray', value: array};
-  }
-
-  this.setBoolean = function(key, value) {
-    if (typeof value === 'boolean') {
-      this.attributes[key] = {type: 'boolean', value: value};
-    } else {
-      throw new TypeError(key + ' is not a boolean');
-    }
-  }
-
-  this.setFloat = function(key, value) {
-    if (typeof value === 'number') {
-      this.attributes[key] = {type: 'float', value: value};
-    } else {
-      throw new TypeError(key + ' is not a number');
-    }
-  }
-
-  this.setFloatArray = function(key, value) {
-    if (!Array.isArray(value)) {
-      throw new TypeError(key + ' is not an array');
-      return;
-    }
-
-    var array = [];
-    for (var i in value) {
-      if (typeof value[i] === 'number') {
-        array.push(value[i]);
-      } else {
-        throw new TypeError(key + ': value at index ' + i + ' is not a number');
-        return;
-      }
-    }
-
-    this.attributes[key] = {type: 'floatArray', value: array};
-  }
-
-  this.setDate = function(key, value) {
-    if (value instanceof Date && value.toString() !== 'Invalid Date') {
-      this.attributes[key] = {type: 'date', value: value.getTime()};
-    } else {
-      throw new TypeError(key + ' is not a valid Date object');
-    }
-  }
-
-  this.setDateArray = function(key, value) {
-    if (!Array.isArray(value)) {
-      throw new TypeError(key + ' is not an array');
-      return;
-    }
-
-    var array = [];
-    for (var i in value) {
-      if (value[i] instanceof Date && value[i].toString() !== 'Invalid Date') {
-        array.push(value[i].getTime());
-      } else {
-        throw new TypeError(key + ': value at index ' + i + ' is not a Date');
-        return;
-      }
-    }
-
-    this.attributes[key] = {type: 'dateArray', value: array};
-  }
-}
-
 RNMessageStream.MessageImpressionType = {StreamView: 1, DetailView: 2, InAppView: 0};
-RNMarigold.DeviceValues = {MessageStream: 2, Events: 4, ClearAll: 7};
 
 /**
  * Creates a purchase item with the required fields.
@@ -245,18 +105,6 @@ RNEngageBySailthru.PurchaseItem = function(quantity, title, price, id, url) {
     }
     this.images = imageMap;
   }
-}
-
-/**
- * Creates a purchase item from a content item.
- * @param {Object} contentItem The content item.
- */
-RNEngageBySailthru.PurchaseItem.fromContentItem = function(contentItem) {
-  var purchaseItem = new this(contentItem.purchase_qty, contentItem.title, contentItem.price, contentItem.sku, contentItem.url);
-  purchaseItem.tags = contentItem.tags;
-  purchaseItem.vars = contentItem.vars;
-  purchaseItem.images = contentItem.images;
-  return purchaseItem;
 }
 
 /**
@@ -369,18 +217,6 @@ RNEngageBySailthru.Purchase = function(purchaseItems) {
 
     this.adjustments = array;
   }
-}
-
-/**
- * Creates a Purchase object from an array of ContentItem objects.
- * @param {Array} contentItems an array of ContentItem objects.
- */
-RNEngageBySailthru.Purchase.fromContentItems = function(contentItems) {
-  var purchaseItems = [];
-  contentItems.forEach(function (item, index) {
-    purchaseItems.push(new Marigold.PurchaseItem(item));
-  });
-  return new this(purchaseItems);
 }
 
 module.exports = {

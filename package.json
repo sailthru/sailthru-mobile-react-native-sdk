@@ -24,22 +24,22 @@
   "name": "react-native-marigold",
   "optionalDependencies": {},
   "peerDependencies": {
-    "react-native": ">=0.25.1"
+    "react-native": ">=0.71.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sailthru/sailthru-mobile-react-native-sdk.git"
   },
-  "version": "11.0.0",
+  "version": "12.0.0",
   "devDependencies": {
-    "@babel/core": "^7.13.14",
-    "@babel/preset-env": "^7.1.6",
-    "babel-jest": "^27.2.1",
+    "@babel/core": "^7.20.0",
+    "@babel/preset-env": "^7.20.0",
+    "babel-jest": "^29.6.3",
     "babel-plugin-module-resolver": "^4.1.0",
     "babel-preset-expo": "^8.3.0",
-    "jest": "^27.2.1",
-    "react": "18.0.0",
-    "react-native": "^0.69.4",
+    "jest": "^29.6.3",
+    "react": "18.2.0",
+    "react-native": "0.74.1",
     "react-native-codegen": "^0.0.7"
   },
   "files": [
@@ -47,12 +47,10 @@
     "/react-native-marigold.podspec",
     "/android/src/main",
     "/android/build.gradle",
+    "/android/gradle.properties",
     "/example"
   ],
   "scripts": {
     "test": "jest --verbose"
-  },
-  "jest": {
-    "preset": "react-native"
   }
 }

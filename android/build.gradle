@@ -1,62 +1,93 @@
+import com.android.Version
 
 buildscript {
-    ext.kotlin_version = '1.8.22'
+    // Buildscript is evaluated before everything else so we can't use getExtOrDefault
+    def kotlin_version = rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : project.properties["MarigoldRNSDK_kotlinVersion"]
+
     repositories {
-        mavenCentral()
         google()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.2'
+        classpath "com.android.tools.build:gradle:8.2.2"
+        // noinspection DifferentKotlinGradleVersion
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+def isNewArchitectureEnabled() {
+    return rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true"
+}
+
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+
+if (isNewArchitectureEnabled()) {
+    apply plugin: "com.facebook.react"
+}
+
+def getExtOrDefault(name) {
+    return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties["MarigoldRNSDK_" + name]
+}
+
+def getExtOrIntegerDefault(name) {
+    return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties["MarigoldRNSDK_" + name]).toInteger()
+}
+
+static def supportsNamespace() {
+    def parsed = Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')
+    def major = parsed[0].toInteger()
+    def minor = parsed[1].toInteger()
+
+    // Namespace support was added in 7.3.0
+    return (major == 7 && minor >= 3) || major >= 8
+}
+
 
 android {
-    compileSdk 34
-    buildToolsVersion '34.0.0'
+    if (supportsNamespace()) {
+        namespace "com.marigold.rnsdk"
 
-    defaultConfig {
-        minSdk 21
-        targetSdk 34
-    }
-    testOptions {
-        unitTests {
-            returnDefaultValues = true
-            includeAndroidResources = true
-            all { test ->
-                test.testLogging {
-                    events('passed', 'skipped', 'failed', 'standardOut', 'standardError')
-                }
+        sourceSets {
+            main {
+                manifest.srcFile "src/main/AndroidManifestNew.xml"
             }
         }
+    }
+
+    compileSdkVersion getExtOrIntegerDefault("compileSdkVersion")
+
+    defaultConfig {
+        minSdkVersion getExtOrIntegerDefault("minSdkVersion")
+        targetSdkVersion getExtOrIntegerDefault("targetSdkVersion")
+
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 repositories {
     mavenCentral()
+    google()
     maven {
         url "https://github.com/sailthru/maven-repository/raw/master/"
     }
-    google()
-    maven {
-        url "$rootDir/../node_modules/react-native/android"
-    }
 }
+
+def kotlin_version = getExtOrDefault("kotlinVersion")
 
 dependencies {
     //noinspection GradleDynamicVersion
-    api ("com.facebook.react:react-native:+") { // From node_modules
-        exclude group:'com.facebook.fbjni'
-        exclude group:'com.facebook.yoga'
-    }
-    implementation 'com.marigold.sdk:marigold:20.2.0'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
-    testImplementation 'org.mockito.kotlin:mockito-kotlin:4.0.0'
+    api "com.facebook.react:react-android:+"
+    api "com.marigold.sdk:marigold:21.0.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.3.1'
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-inline:4.1.0'
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
     testImplementation 'org.json:json:20220320'
 }

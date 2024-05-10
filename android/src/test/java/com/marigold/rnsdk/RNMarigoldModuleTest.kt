@@ -9,6 +9,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
+import org.mockito.Captor
 import org.mockito.Mock
 import org.mockito.MockedConstruction
 import org.mockito.Mockito.mockConstruction
@@ -27,6 +28,12 @@ class RNMarigoldModuleTest {
 
     @Mock
     private lateinit var staticMarigold: MockedConstruction<Marigold>
+
+    @Captor
+    private lateinit var marigoldVoidCaptor: ArgumentCaptor<Marigold.MarigoldHandler<Void?>>
+
+    @Captor
+    private lateinit var marigoldStringCaptor: ArgumentCaptor<Marigold.MarigoldHandler<String?>>
 
     private lateinit var marigold: Marigold
 
@@ -108,10 +115,8 @@ class RNMarigoldModuleTest {
         rnMarigoldModule.getDeviceID(promise)
 
         // Capture handler for verification
-        @SuppressWarnings("unchecked")
-        val argumentCaptor = ArgumentCaptor.forClass(Marigold.MarigoldHandler::class.java)
-        verify(marigold).getDeviceId(capture(argumentCaptor) as Marigold.MarigoldHandler<String?>?)
-        val marigoldHandler = argumentCaptor.value as Marigold.MarigoldHandler<String>
+        verify(marigold).getDeviceId(capture(marigoldStringCaptor))
+        val marigoldHandler = marigoldStringCaptor.value
 
         // Test success
         marigoldHandler.onSuccess(deviceID)
@@ -150,38 +155,8 @@ class RNMarigoldModuleTest {
         rnMarigoldModule.setGeoIPTrackingEnabled(false, promise)
 
         // Verify result
-        @SuppressWarnings("unchecked")
-        val argumentCaptor: ArgumentCaptor<Marigold.MarigoldHandler<*>>? = ArgumentCaptor.forClass(Marigold.MarigoldHandler::class.java)
-        verify(marigold).setGeoIpTrackingEnabled(eq(false), capture(argumentCaptor as ArgumentCaptor<Marigold.MarigoldHandler<Void?>>))
-        val clearHandler = argumentCaptor.value
-
-        // Test success handler
-        clearHandler.onSuccess(null)
-        verify(promise).resolve(true)
-
-        // Setup error
-        val errorMessage = "error message"
-        doReturn(errorMessage).whenever(error).message
-
-        // Test error handler
-        clearHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, errorMessage)
-    }
-
-    @Test
-    fun testClearDevice() {
-        // Create input
-        val clearValue = Marigold.CLEAR_ALL
-        val promise: Promise = mock()
-        val error: Error = mock()
-
-        // Initiate test
-        rnMarigoldModule.clearDevice(clearValue, promise)
-
-        // Verify result
-        @SuppressWarnings("unchecked") val argumentCaptor: ArgumentCaptor<Marigold.MarigoldHandler<*>>? = ArgumentCaptor.forClass(Marigold.MarigoldHandler::class.java)
-        verify(marigold).clearDevice(eq(clearValue), capture(argumentCaptor as ArgumentCaptor<Marigold.MarigoldHandler<Void?>>))
-        val clearHandler = argumentCaptor.value
+        verify(marigold).setGeoIpTrackingEnabled(eq(false), capture(marigoldVoidCaptor))
+        val clearHandler = marigoldVoidCaptor.value
 
         // Test success handler
         clearHandler.onSuccess(null)

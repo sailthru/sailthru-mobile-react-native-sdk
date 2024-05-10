@@ -7,7 +7,6 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
 import com.marigold.sdk.EngageBySailthru
 import com.marigold.sdk.Marigold
-import com.marigold.sdk.model.AttributeMap
 import com.marigold.sdk.model.Purchase
 import org.json.JSONArray
 import org.json.JSONException
@@ -21,7 +20,6 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
 import org.mockito.Captor
 import org.mockito.Mock
-import org.mockito.MockedConstruction
 import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
@@ -33,7 +31,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.net.URI
-import java.util.Date
 
 @RunWith(MockitoJUnitRunner::class)
 class RNEngageBySailthruModuleTest {
@@ -44,16 +41,22 @@ class RNEngageBySailthruModuleTest {
     private lateinit var jsonConverter: JsonConverter
 
     @Mock
-    private lateinit var staticEngageBySailthru: MockedConstruction<EngageBySailthru>
-
-    @Mock
     private lateinit var engage: EngageBySailthru
 
     @Mock
     private lateinit var promise: Promise
 
     @Captor
-    private lateinit var attributeCaptor: ArgumentCaptor<AttributeMap>
+    private lateinit var marigoldVoidCaptor: ArgumentCaptor<Marigold.MarigoldHandler<Void?>>
+
+    @Captor
+    private lateinit var marigoldJsonCaptor: ArgumentCaptor<Marigold.MarigoldHandler<JSONObject?>>
+
+    @Captor
+    private lateinit var stringListCaptor: ArgumentCaptor<List<String>>
+
+    @Captor
+    private lateinit var uriListCaptor: ArgumentCaptor<List<URI>>
 
     private lateinit var rnEngageBySailthruModule: RNEngageBySailthruModule
     private lateinit var rnEngageBySailthruModuleSpy: RNEngageBySailthruModule
@@ -121,9 +124,8 @@ class RNEngageBySailthruModuleTest {
         rnEngageBySailthruModuleSpy.clearEvents(promise)
 
         // Verify result
-        val argumentCaptor = ArgumentCaptor.forClass(Marigold.MarigoldHandler::class.java)
-        verify(engage).clearEvents(capture(argumentCaptor) as Marigold.MarigoldHandler<Void?>?)
-        val clearHandler = argumentCaptor.value as Marigold.MarigoldHandler<Void?>
+        verify(engage).clearEvents(capture(marigoldVoidCaptor))
+        val clearHandler = marigoldVoidCaptor.value
 
         // Test success handler
         clearHandler.onSuccess(null)
@@ -136,76 +138,6 @@ class RNEngageBySailthruModuleTest {
         // Test error handler
         clearHandler.onFailure(error)
         verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, errorMessage)
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testClearAttributes() {
-        // Create input
-        val error: Error = mock()
-
-        // Initiate test
-        rnEngageBySailthruModuleSpy.clearAttributes(promise)
-
-        // Verify result
-        @SuppressWarnings("unchecked")
-        val argumentCaptor = ArgumentCaptor.forClass(Marigold.MarigoldHandler::class.java)
-        verify(engage).clearAttributes(capture(argumentCaptor) as Marigold.MarigoldHandler<Void?>?)
-        val clearHandler = argumentCaptor.value as Marigold.MarigoldHandler<Void?>
-
-        // Test success handler
-        clearHandler.onSuccess(null)
-        verify(promise).resolve(true)
-
-        // Setup error
-        val errorMessage = "error message"
-        doReturn(errorMessage).whenever(error).message
-
-        // Test error handler
-        clearHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, errorMessage)
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testSetAttributes() {
-        val stringAttributeJson = JSONObject()
-                .put("type", "string")
-                .put("value", "test string")
-        val intAttributeJson = JSONObject()
-                .put("type", "integer")
-                .put("value", 123)
-        val attributesJson = JSONObject()
-                .put("string key", stringAttributeJson)
-                .put("int key", intAttributeJson)
-        val attributeMapJson = JSONObject()
-                .put("mergeRule", AttributeMap.RULE_UPDATE)
-                .put("attributes", attributesJson)
-        val error = Error("test error")
-
-        // setup mocks
-        val readableMap: ReadableMap = mock()
-
-        // setup mocking for conversion from ReadableMap to JSON
-        doReturn(attributeMapJson).whenever(jsonConverter).convertMapToJson(readableMap)
-
-        // Capture Attributes to verify
-        val handlerCaptor = ArgumentCaptor.forClass(EngageBySailthru.AttributesHandler::class.java)
-
-        // Initiate test
-        rnEngageBySailthruModuleSpy.setAttributes(readableMap, promise)
-
-        // Verify results
-        verify(engage).setAttributes(capture(attributeCaptor), capture(handlerCaptor))
-        val attributes: AttributeMap = attributeCaptor.value
-        Assert.assertEquals(AttributeMap.RULE_UPDATE, attributes.getMergeRules())
-        Assert.assertEquals("test string", attributes.getString("string key"))
-        Assert.assertEquals(123, attributes.getInt("int key", 0))
-        val handler: EngageBySailthru.AttributesHandler = handlerCaptor.value
-        handler.onSuccess()
-        verify(promise).resolve(null)
-        handler.onFailure(error)
-        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, error.message)
     }
 
     @Test
@@ -216,10 +148,8 @@ class RNEngageBySailthruModuleTest {
         rnEngageBySailthruModuleSpy.setUserId(userID, promise)
 
         // Capture MarigoldHandler to verify behaviour
-        @SuppressWarnings("unchecked")
-        val argumentCaptor = ArgumentCaptor.forClass(Marigold.MarigoldHandler::class.java)
-        verify(engage).setUserId(eq(userID), capture(argumentCaptor) as Marigold.MarigoldHandler<Void?>?)
-        val handler = argumentCaptor.value as Marigold.MarigoldHandler<Void?>
+        verify(engage).setUserId(eq(userID), capture(marigoldVoidCaptor))
+        val handler = marigoldVoidCaptor.value
 
         // Test success handler
         handler.onSuccess(null)
@@ -242,10 +172,8 @@ class RNEngageBySailthruModuleTest {
         rnEngageBySailthruModuleSpy.setUserEmail(userEmail, promise)
 
         // Capture MarigoldHandler to verify behaviour
-        @SuppressWarnings("unchecked")
-        val argumentCaptor = ArgumentCaptor.forClass(Marigold.MarigoldHandler::class.java)
-        verify(engage).setUserEmail(eq(userEmail), capture(argumentCaptor) as Marigold.MarigoldHandler<Void?>?)
-        val handler = argumentCaptor.value as Marigold.MarigoldHandler<Void?>
+        verify(engage).setUserEmail(eq(userEmail), capture(marigoldVoidCaptor))
+        val handler = marigoldVoidCaptor.value
 
         // Test success handler
         handler.onSuccess(null)
@@ -317,13 +245,12 @@ class RNEngageBySailthruModuleTest {
 
         // Capture arguments to verify behaviour
         val uriCaptor: ArgumentCaptor<URI> = ArgumentCaptor.forClass(URI::class.java)
-        val arrayCaptor: ArgumentCaptor<List<*>>? = ArgumentCaptor.forClass(List::class.java)
         val handlerCaptor: ArgumentCaptor<EngageBySailthru.TrackHandler> = ArgumentCaptor.forClass(EngageBySailthru.TrackHandler::class.java)
 
         // Verify result
-        verify(engage).trackPageview(capture(uriCaptor), capture(arrayCaptor as ArgumentCaptor<List<String>>), capture(handlerCaptor))
+        verify(engage).trackPageview(capture(uriCaptor), capture(stringListCaptor), capture(handlerCaptor))
         val uri = uriCaptor.value
-        val tags = arrayCaptor.value
+        val tags = stringListCaptor.value
         val trackHandler = handlerCaptor.value
         Assert.assertEquals(urlString, uri.toString())
         Assert.assertEquals(testTag, tags[0])
@@ -375,12 +302,11 @@ class RNEngageBySailthruModuleTest {
         rnEngageBySailthruModuleSpy.trackImpression(sectionID, readableArray, promise)
 
         // Capture arguments to verify behaviour
-        val uriCaptor: ArgumentCaptor<List<*>>? = ArgumentCaptor.forClass(List::class.java)
         val handlerCaptor: ArgumentCaptor<EngageBySailthru.TrackHandler> = ArgumentCaptor.forClass(EngageBySailthru.TrackHandler::class.java)
 
         // Verify result
-        verify(engage).trackImpression(eq(sectionID), capture(uriCaptor as ArgumentCaptor<List<URI>>), capture(handlerCaptor))
-        val uriList = uriCaptor.value
+        verify(engage).trackImpression(eq(sectionID), capture(uriListCaptor), capture(handlerCaptor))
+        val uriList = uriListCaptor.value
         val trackHandler = handlerCaptor.value
         Assert.assertEquals(urlString, uriList[0].toString())
         trackHandler.onSuccess()
@@ -436,9 +362,8 @@ class RNEngageBySailthruModuleTest {
         rnEngageBySailthruModuleSpy.setProfileVars(vars, promise)
 
         // Verify result
-        @SuppressWarnings("unchecked") val argumentCaptor: ArgumentCaptor<Marigold.MarigoldHandler<*>>? = ArgumentCaptor.forClass(Marigold.MarigoldHandler::class.java)
-        verify(engage).setProfileVars(eq(varsJson), capture(argumentCaptor as ArgumentCaptor<Marigold.MarigoldHandler<Void?>>))
-        val setVarsHandler = argumentCaptor.value
+        verify(engage).setProfileVars(eq(varsJson), capture(marigoldVoidCaptor))
+        val setVarsHandler = marigoldVoidCaptor.value
 
         // Test success handler
         setVarsHandler.onSuccess(null)
@@ -488,10 +413,8 @@ class RNEngageBySailthruModuleTest {
         rnEngageBySailthruModuleSpy.getProfileVars(promise)
 
         // Verify result
-        @SuppressWarnings("unchecked")
-        val argumentCaptor: ArgumentCaptor<Marigold.MarigoldHandler<*>>? = ArgumentCaptor.forClass(Marigold.MarigoldHandler::class.java)
-        verify(engage).getProfileVars(capture(argumentCaptor as ArgumentCaptor<Marigold.MarigoldHandler<JSONObject?>>))
-        val getVarsHandler = Mockito.spy(argumentCaptor.value)
+        verify(engage).getProfileVars(capture(marigoldJsonCaptor))
+        val getVarsHandler = Mockito.spy(marigoldJsonCaptor.value)
 
         // Test success handler
         getVarsHandler.onSuccess(varsJson)
@@ -522,10 +445,8 @@ class RNEngageBySailthruModuleTest {
         rnEngageBySailthruModuleSpy.logPurchase(purchaseMap, promise)
 
         // Verify result
-        @SuppressWarnings("unchecked")
-        val argumentCaptor: ArgumentCaptor<Marigold.MarigoldHandler<*>>? = ArgumentCaptor.forClass(Marigold.MarigoldHandler::class.java)
-        verify(engage).logPurchase(eq(purchase), capture(argumentCaptor as ArgumentCaptor<Marigold.MarigoldHandler<Void?>>))
-        val purchaseHandler = argumentCaptor.value
+        verify(engage).logPurchase(eq(purchase), capture(marigoldVoidCaptor))
+        val purchaseHandler = marigoldVoidCaptor.value
 
         // Test success handler
         purchaseHandler.onSuccess(null)
@@ -575,10 +496,8 @@ class RNEngageBySailthruModuleTest {
         rnEngageBySailthruModuleSpy.logAbandonedCart(purchaseMap, promise)
 
         // Verify result
-        @SuppressWarnings("unchecked")
-        val argumentCaptor: ArgumentCaptor<Marigold.MarigoldHandler<*>>? = ArgumentCaptor.forClass(Marigold.MarigoldHandler::class.java)
-        verify(engage).logAbandonedCart(eq(purchase), capture(argumentCaptor as ArgumentCaptor<Marigold.MarigoldHandler<Void?>>))
-        val purchaseHandler = argumentCaptor.value
+        verify(engage).logAbandonedCart(eq(purchase), capture(marigoldVoidCaptor))
+        val purchaseHandler = marigoldVoidCaptor.value
 
         // Test success handler
         purchaseHandler.onSuccess(null)
@@ -661,29 +580,6 @@ class RNEngageBySailthruModuleTest {
         Assert.assertEquals(-234, adjustment.price)
     }
 
-    @Test
-    @Throws(Exception::class)
-    fun testGetAttributeMap() {
-        val date = Date()
-
-        // Mock methods
-        val readableMap: ReadableMap = mock()
-        val attributeJson = createAttributeMapJson(date)
-        doReturn(attributeJson).whenever(jsonConverter).convertMapToJson(readableMap)
-
-        // Initiate test
-        val attributeMap = rnEngageBySailthruModuleSpy.getAttributeMap(readableMap)
-
-        // Verify result
-        verify(jsonConverter).convertMapToJson(readableMap)
-        Assert.assertEquals(AttributeMap.RULE_UPDATE, attributeMap.getMergeRules())
-        Assert.assertEquals("test string", attributeMap.getString("stringKey"))
-        Assert.assertEquals(123, attributeMap.getInt("integerKey", 0))
-        Assert.assertTrue(attributeMap.getBoolean("booleanKey", false))
-        Assert.assertEquals(1.23F, attributeMap.getFloat("floatKey", 0F), 0.001F)
-        Assert.assertEquals(date, attributeMap.getDate("dateKey"))
-    }
-
     /** Helpers  */
     @Throws(Exception::class)
     private fun createPurchaseJson(adjustmentPrice: Int): JSONObject {
@@ -703,33 +599,5 @@ class RNEngageBySailthruModuleTest {
         return JSONObject()
                 .put("items", itemsArray)
                 .put("adjustments", adjustmentsArray)
-    }
-
-    @Throws(Exception::class)
-    private fun createAttributeMapJson(date: Date): JSONObject {
-        val stringObject = JSONObject()
-                .put("type", "string")
-                .put("value", "test string")
-        val integerObject = JSONObject()
-                .put("type", "integer")
-                .put("value", 123)
-        val booleanObject = JSONObject()
-                .put("type", "boolean")
-                .put("value", true)
-        val floatObject = JSONObject()
-                .put("type", "float")
-                .put("value", 1.23)
-        val dateObject = JSONObject()
-                .put("type", "date")
-                .put("value", date.time)
-        val attributesJson = JSONObject()
-                .put("stringKey", stringObject)
-                .put("integerKey", integerObject)
-                .put("booleanKey", booleanObject)
-                .put("floatKey", floatObject)
-                .put("dateKey", dateObject)
-        return JSONObject()
-                .put("attributes", attributesJson)
-                .put("mergeRule", AttributeMap.RULE_UPDATE)
     }
 }

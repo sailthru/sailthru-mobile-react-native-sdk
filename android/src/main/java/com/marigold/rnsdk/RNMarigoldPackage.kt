@@ -8,6 +8,7 @@ import com.facebook.react.uimanager.ViewManager
 
 class RNMarigoldPackage : ReactPackage {
 
+    @SuppressWarnings("WeakerAccess")
     var displayInAppNotifications = true
 
     override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
@@ -22,9 +23,7 @@ class RNMarigoldPackage : ReactPackage {
         return emptyList()
     }
 
-    @SuppressWarnings("rawtypes")
     override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
         return emptyList()
     }
-
 }
