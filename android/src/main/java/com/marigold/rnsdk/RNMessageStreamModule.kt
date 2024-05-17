@@ -9,16 +9,20 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableArray
+import com.facebook.react.bridge.WritableMap
 import com.facebook.react.bridge.WritableNativeArray
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.marigold.sdk.MessageActivity
 import com.marigold.sdk.MessageStream
 import com.marigold.sdk.enums.ImpressionType
 import com.marigold.sdk.model.Message
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.reflect.InvocationTargetException
-import java.util.ArrayList
 
 class RNMessageStreamModule (reactContext: ReactApplicationContext, private val displayInAppNotifications: Boolean) : ReactContextBaseJavaModule(reactContext), MessageStream.OnInAppNotificationDisplayListener  {
     @VisibleForTesting
@@ -27,20 +31,45 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
     @VisibleForTesting
     internal var jsonConverter: JsonConverter = JsonConverter()
 
+    private val eventListener = EventListener()
+    private var showDefaultInAppNotification = true
+
     init {
         messageStream.setOnInAppNotificationDisplayListener(this)
     }
 
     override fun shouldPresentInAppNotification(message: Message): Boolean {
-        try {
+        return runBlocking {
             val writableMap = jsonConverter.convertJsonToMap(message.toJSON())
-            reactApplicationContext
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit("inappnotification", writableMap)
-        } catch (e: JSONException) {
-            e.printStackTrace()
+            val result = async { emitWithTimeout(writableMap) }
+            result.await()
         }
-        return displayInAppNotifications
+    }
+
+    private suspend fun emitWithTimeout(writableMap: WritableMap): Boolean {
+        return withTimeoutOrNull(5000L) {
+            try {
+                val emitter = reactApplicationContext
+                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                emitter.emit("inappnotification", writableMap)
+                waitForAcknowledgment()
+            } catch (e: JSONException) {
+                e.printStackTrace()
+                showDefaultInAppNotification
+            }
+        } ?: showDefaultInAppNotification
+    }
+
+    private suspend fun waitForAcknowledgment(): Boolean {
+        while (showDefaultInAppNotification) {
+            delay(100)
+        }
+        return false
+    }
+
+    @ReactMethod
+    fun acknowledgeEvent() {
+        eventListener.eventAcknowledged()
     }
 
     @ReactMethod
@@ -190,5 +219,11 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
 
     override fun getName(): String {
         return "RNMessageStream"
+    }
+
+    inner class EventListener {
+        fun eventAcknowledged() {
+            showDefaultInAppNotification = false
+        }
     }
 }
