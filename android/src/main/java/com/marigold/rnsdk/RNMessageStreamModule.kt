@@ -40,15 +40,15 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
 
     override fun shouldPresentInAppNotification(message: Message): Boolean {
         return runBlocking {
-            val writableMap = jsonConverter.convertJsonToMap(message.toJSON())
-            val result = async { emitWithTimeout(writableMap) }
+            val result = async { emitWithTimeout(message) }
             result.await()
         }
     }
 
-    private suspend fun emitWithTimeout(writableMap: WritableMap): Boolean {
+    private suspend fun emitWithTimeout(message: Message): Boolean {
         return withTimeoutOrNull(5000L) {
             try {
+                val writableMap = jsonConverter.convertJsonToMap(message.toJSON())
                 val emitter = reactApplicationContext
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                 emitter.emit("inappnotification", writableMap)

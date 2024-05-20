@@ -11,6 +11,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.marigold.sdk.MessageStream
 import com.marigold.sdk.enums.ImpressionType
 import com.marigold.sdk.model.Message
+import kotlinx.coroutines.runBlocking
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert
@@ -90,7 +91,10 @@ class RNMessageStreamModuleTest {
         doReturn(jsonObject).whenever(message).toJSON()
         doThrow(jsonException).whenever(jsonConverter).convertJsonToMap(jsonObject)
 
-        val shouldPresent = rnMessageStreamModuleSpy.shouldPresentInAppNotification(message)
+        val shouldPresent = runBlocking {
+            rnMessageStreamModuleSpy.shouldPresentInAppNotification(message)
+        }
+
         verify(mockContext, Mockito.times(0)).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
         verify(jsonException).printStackTrace()
         Assert.assertTrue(shouldPresent)
