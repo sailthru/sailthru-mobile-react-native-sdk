@@ -8,6 +8,8 @@
 
 @property BOOL displayInAppNotifications;
 
+@property BOOL showDefaultInAppNotification;
+
 /**
  * Initialize RNMarigold and set whether to automatically display in app notifications.\
  *
