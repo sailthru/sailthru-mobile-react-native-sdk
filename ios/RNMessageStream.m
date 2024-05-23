@@ -29,6 +29,7 @@ RCT_EXPORT_MODULE();
     if(self) {
         _displayInAppNotifications = displayNotifications;
         _messageStream = [MARMessageStream new];
+        _showDefaultInAppNotification = YES;
 
         [_messageStream setDelegate:self];
     }
@@ -40,14 +41,48 @@ RCT_EXPORT_MODULE();
 }
 
 - (BOOL)shouldPresentInAppNotificationForMessage:(MARMessage *)message {
-    NSMutableDictionary *payload = [NSMutableDictionary dictionaryWithDictionary:[message dictionary]];
+    __block BOOL result = self.showDefaultInAppNotification;
 
-    if ([message attributes]) {
-        [payload setObject:[message attributes] forKey:@"attributes"];
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        result = [self emitWithTimeout:message];
+
+        dispatch_semaphore_signal(semaphore);
+    });
+
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+
+    return result;
+}
+
+- (BOOL)emitWithTimeout:(MARMessage *)message {
+    __block BOOL result = self.showDefaultInAppNotification;
+
+    dispatch_semaphore_t timeoutSemaphore = dispatch_semaphore_create(0);
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSMutableDictionary *payload = [NSMutableDictionary dictionaryWithDictionary:[message dictionary]];
+
+        if ([message attributes]) {
+            [payload setObject:[message attributes] forKey:@"attributes"];
+        }
+        [self sendEventWithName:@"inappnotification" body:payload];
+        
+        result = [self waitForAcknowledgment];
+        dispatch_semaphore_signal(timeoutSemaphore);
+    });
+
+    dispatch_semaphore_wait(timeoutSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5000 * NSEC_PER_MSEC));
+
+    return result;
+}
+
+- (BOOL)waitForAcknowledgment {
+    while (self.showDefaultInAppNotification) {
+        [NSThread sleepForTimeInterval:0.1];
     }
-
-    [self sendEventWithName:@"inappnotification" body:payload];
-    return self.displayInAppNotifications;
+    return NO;
 }
 
 #pragma mark - Messages
@@ -124,6 +159,10 @@ RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
             resolve(nil);
         }
     }];
+}
+
+RCT_EXPORT_METHOD(acknowledgeEvent) {
+    self.showDefaultInAppNotification = NO;
 }
 
 #pragma mark - Helper Functions
