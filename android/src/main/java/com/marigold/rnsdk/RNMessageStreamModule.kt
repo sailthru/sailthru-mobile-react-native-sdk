@@ -9,7 +9,6 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableArray
-import com.facebook.react.bridge.WritableMap
 import com.facebook.react.bridge.WritableNativeArray
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.marigold.sdk.MessageActivity
@@ -17,7 +16,7 @@ import com.marigold.sdk.MessageStream
 import com.marigold.sdk.enums.ImpressionType
 import com.marigold.sdk.model.Message
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONException
@@ -31,14 +30,17 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
     @VisibleForTesting
     internal var jsonConverter: JsonConverter = JsonConverter()
 
-    private val eventListener = EventListener()
-    private var showDefaultInAppNotification = true
-
+    private val eventChannel = Channel<Boolean>()
+    private var defaultInAppNotification = displayInAppNotifications
     init {
         messageStream.setOnInAppNotificationDisplayListener(this)
     }
 
     override fun shouldPresentInAppNotification(message: Message): Boolean {
+        if (defaultInAppNotification) {
+            return true
+        }
+
         return runBlocking {
             val result = async { emitWithTimeout(message) }
             result.await()
@@ -52,24 +54,32 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
                 val emitter = reactApplicationContext
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                 emitter.emit("inappnotification", writableMap)
-                waitForAcknowledgment()
+                eventChannel.receive()
             } catch (e: JSONException) {
                 e.printStackTrace()
-                showDefaultInAppNotification
+                false
             }
-        } ?: showDefaultInAppNotification
-    }
-
-    private suspend fun waitForAcknowledgment(): Boolean {
-        while (showDefaultInAppNotification) {
-            delay(100)
-        }
-        return false
+        } ?: true
     }
 
     @ReactMethod
     fun acknowledgeEvent() {
-        eventListener.eventAcknowledged()
+        runBlocking {
+            eventChannel.send(false)
+        }
+    }
+
+    @ReactMethod
+    fun useDefaultInAppNotification(useDefault: Boolean) {
+        defaultInAppNotification = useDefault
+    }
+
+    @ReactMethod
+    fun addListener(eventName: String?) {
+    }
+
+    @ReactMethod
+    fun removeListeners(count: Int?) {
     }
 
     @ReactMethod
@@ -219,11 +229,5 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
 
     override fun getName(): String {
         return "RNMessageStream"
-    }
-
-    inner class EventListener {
-        fun eventAcknowledged() {
-            showDefaultInAppNotification = false
-        }
     }
 }
