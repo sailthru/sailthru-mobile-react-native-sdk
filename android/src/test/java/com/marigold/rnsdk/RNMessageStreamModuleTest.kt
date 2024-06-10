@@ -65,6 +65,20 @@ class RNMessageStreamModuleTest {
     }
 
     @Test
+    fun testShouldPresentInAppNotificationUseDefaultTrue() {
+        val message: Message = mock()
+        val module: DeviceEventManagerModule.RCTDeviceEventEmitter = mock()
+        val writableMap: WritableMap = mock()
+
+        val shouldPresent = rnMessageStreamModuleSpy.shouldPresentInAppNotification(message)
+
+        verify(mockContext, Mockito.times(0)).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        verify(module, Mockito.times(0)).emit("inappnotification", writableMap)
+
+        Assert.assertTrue(shouldPresent)
+    }
+
+    @Test
     fun testShouldPresentInAppNotification() {
         val message: Message = mock()
         val module: DeviceEventManagerModule.RCTDeviceEventEmitter = mock()
@@ -75,6 +89,7 @@ class RNMessageStreamModuleTest {
         doReturn(writableMap).whenever(jsonConverter).convertJsonToMap(jsonObject)
         doReturn(module).whenever(mockContext).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
 
+        rnMessageStreamModuleSpy.useDefaultInAppNotification(false)
         val shouldPresent = rnMessageStreamModuleSpy.shouldPresentInAppNotification(message)
 
         verify(mockContext).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
@@ -91,6 +106,7 @@ class RNMessageStreamModuleTest {
         doReturn(jsonObject).whenever(message).toJSON()
         doThrow(jsonException).whenever(jsonConverter).convertJsonToMap(jsonObject)
 
+        rnMessageStreamModuleSpy.useDefaultInAppNotification(false)
         val shouldPresent = runBlocking {
             rnMessageStreamModuleSpy.shouldPresentInAppNotification(message)
         }

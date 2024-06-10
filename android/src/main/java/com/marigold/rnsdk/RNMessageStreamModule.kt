@@ -57,7 +57,7 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
                 eventChannel.receive()
             } catch (e: JSONException) {
                 e.printStackTrace()
-                false
+                true
             }
         } ?: true
     }
