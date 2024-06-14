@@ -17,6 +17,7 @@ var SDK_KEY = ''; // Put your SDK key in here.
 import { NativeEventEmitter } from 'react-native'
 
 const myModuleEvt = new NativeEventEmitter(MessageStream)
+MessageStream.useDefaultInAppNotification(true)
 myModuleEvt.addListener('inappnotification', (data) => {
   console.log('Received message:', data);
   alert(data.title);

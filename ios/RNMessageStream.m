@@ -29,7 +29,8 @@ RCT_EXPORT_MODULE();
     if(self) {
         _displayInAppNotifications = displayNotifications;
         _messageStream = [MARMessageStream new];
-        _showDefaultInAppNotification = YES;
+        _defaultInAppNotification = YES;
+        _eventSemaphore = dispatch_semaphore_create(0);
 
         [_messageStream setDelegate:self];
     }
@@ -41,7 +42,10 @@ RCT_EXPORT_MODULE();
 }
 
 - (BOOL)shouldPresentInAppNotificationForMessage:(MARMessage *)message {
-    __block BOOL result = self.showDefaultInAppNotification;
+    if (self.defaultInAppNotification) {
+        return YES;
+    }
+    __block BOOL result = YES;
 
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
@@ -57,9 +61,7 @@ RCT_EXPORT_MODULE();
 }
 
 - (BOOL)emitWithTimeout:(MARMessage *)message {
-    __block BOOL result = self.showDefaultInAppNotification;
-
-    dispatch_semaphore_t timeoutSemaphore = dispatch_semaphore_create(0);
+    __block BOOL success = YES;
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSMutableDictionary *payload = [NSMutableDictionary dictionaryWithDictionary:[message dictionary]];
@@ -69,20 +71,21 @@ RCT_EXPORT_MODULE();
         }
         [self sendEventWithName:@"inappnotification" body:payload];
         
-        result = [self waitForAcknowledgment];
-        dispatch_semaphore_signal(timeoutSemaphore);
+        success = NO;
+        dispatch_semaphore_signal(self.eventSemaphore);
     });
 
-    dispatch_semaphore_wait(timeoutSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5000 * NSEC_PER_MSEC));
+    dispatch_semaphore_wait(self.eventSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
 
-    return result;
+    return success;
 }
 
-- (BOOL)waitForAcknowledgment {
-    while (self.showDefaultInAppNotification) {
-        [NSThread sleepForTimeInterval:0.1];
-    }
-    return NO;
+RCT_EXPORT_METHOD(acknowledgeEvent) {
+    dispatch_semaphore_signal(self.eventSemaphore);
+}
+
+RCT_EXPORT_METHOD(useDefaultInAppNotification:(BOOL)useDefault) {
+    self.defaultInAppNotification = useDefault;
 }
 
 #pragma mark - Messages
@@ -160,11 +163,6 @@ RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
         }
     }];
 }
-
-RCT_EXPORT_METHOD(acknowledgeEvent) {
-    self.showDefaultInAppNotification = NO;
-}
-
 #pragma mark - Helper Functions
 
 + (void)rejectPromise:(RCTPromiseRejectBlock)reject withError:(NSError *)error {
