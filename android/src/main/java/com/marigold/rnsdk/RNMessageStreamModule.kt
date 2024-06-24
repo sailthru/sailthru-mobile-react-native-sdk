@@ -15,7 +15,6 @@ import com.marigold.sdk.MessageActivity
 import com.marigold.sdk.MessageStream
 import com.marigold.sdk.enums.ImpressionType
 import com.marigold.sdk.model.Message
-import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
@@ -42,8 +41,7 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
         }
 
         return runBlocking {
-            val result = async { emitWithTimeout(message) }
-            result.await()
+            emitWithTimeout(message)
         }
     }
 
@@ -63,23 +61,15 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
     }
 
     @ReactMethod
-    fun acknowledgeEvent() {
+    fun acknowledgeEvent(shouldHandle: Boolean) {
         runBlocking {
-            eventChannel.send(false)
+            eventChannel.send(!shouldHandle)
         }
     }
 
     @ReactMethod
     fun useDefaultInAppNotification(useDefault: Boolean) {
         defaultInAppNotification = useDefault
-    }
-
-    @ReactMethod
-    fun addListener(eventName: String?) {
-    }
-
-    @ReactMethod
-    fun removeListeners(count: Int?) {
     }
 
     @ReactMethod
