@@ -11,6 +11,8 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.marigold.sdk.MessageStream
 import com.marigold.sdk.enums.ImpressionType
 import com.marigold.sdk.model.Message
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert
@@ -95,6 +97,44 @@ class RNMessageStreamModuleTest {
         verify(module).emit("inappnotification", writableMap)
 
         Assert.assertTrue(shouldPresent)
+    }
+
+    @Test
+    fun testShouldPresentInAppNotificationInAppHandledTrue() = runBlocking {
+        val message: Message = mock()
+        val module: DeviceEventManagerModule.RCTDeviceEventEmitter = mock()
+        val writableMap: WritableMap = mock()
+        val jsonObject: JSONObject = mock()
+
+        doReturn(jsonObject).whenever(message).toJSON()
+        doReturn(writableMap).whenever(jsonConverter).convertJsonToMap(jsonObject)
+        doReturn(module).whenever(mockContext).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+
+        rnMessageStreamModuleSpy.useDefaultInAppNotification(false)
+        val job = launch {
+            Assert.assertFalse(rnMessageStreamModuleSpy.shouldPresentInAppNotification(message))
+        }
+        rnMessageStreamModuleSpy.notifyInAppHandled(true)
+        job.join()
+    }
+
+    @Test
+    fun testShouldPresentInAppNotificationInAppHandledFalse() = runBlocking {
+        val message: Message = mock()
+        val module: DeviceEventManagerModule.RCTDeviceEventEmitter = mock()
+        val writableMap: WritableMap = mock()
+        val jsonObject: JSONObject = mock()
+
+        doReturn(jsonObject).whenever(message).toJSON()
+        doReturn(writableMap).whenever(jsonConverter).convertJsonToMap(jsonObject)
+        doReturn(module).whenever(mockContext).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+
+        rnMessageStreamModuleSpy.useDefaultInAppNotification(false)
+        val job = launch {
+            Assert.assertTrue(rnMessageStreamModuleSpy.shouldPresentInAppNotification(message))
+        }
+        rnMessageStreamModuleSpy.notifyInAppHandled(false)
+        job.join()
     }
 
     @Test

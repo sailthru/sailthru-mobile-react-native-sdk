@@ -61,7 +61,7 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
     }
 
     @ReactMethod
-    fun acknowledgeEvent(shouldHandle: Boolean) {
+    fun notifyInAppHandled(shouldHandle: Boolean) {
         runBlocking {
             eventChannel.send(!shouldHandle)
         }
