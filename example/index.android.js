@@ -21,7 +21,7 @@ MessageStream.useDefaultInAppNotification(false)
 myModuleEvt.addListener('inappnotification', (data) => {
   console.log('Received message:', data);
   alert(data.title);
-  MessageStream.acknowledgeEvent(); //Inform native module that react UI was handled
+  MessageStream.acknowledgeEvent(true); //If true, Inform native module that react UI was handled. Show default in-app notification otherwise.
 });
 
 class ReactNativeSampleApp extends Component {
