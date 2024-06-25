@@ -80,8 +80,10 @@ RCT_EXPORT_MODULE();
     return success;
 }
 
-RCT_EXPORT_METHOD(acknowledgeEvent) {
-    dispatch_semaphore_signal(self.eventSemaphore);
+RCT_EXPORT_METHOD(notifyInAppHandled:(BOOL)handled) {
+    if (handled) {
+        dispatch_semaphore_signal(self.eventSemaphore);
+    }
 }
 
 RCT_EXPORT_METHOD(useDefaultInAppNotification:(BOOL)useDefault) {
