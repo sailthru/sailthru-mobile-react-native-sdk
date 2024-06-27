@@ -15,10 +15,12 @@ import com.marigold.sdk.MessageActivity
 import com.marigold.sdk.MessageStream
 import com.marigold.sdk.enums.ImpressionType
 import com.marigold.sdk.model.Message
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.reflect.InvocationTargetException
-import java.util.ArrayList
 
 class RNMessageStreamModule (reactContext: ReactApplicationContext, private val displayInAppNotifications: Boolean) : ReactContextBaseJavaModule(reactContext), MessageStream.OnInAppNotificationDisplayListener  {
     @VisibleForTesting
@@ -27,20 +29,47 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
     @VisibleForTesting
     internal var jsonConverter: JsonConverter = JsonConverter()
 
+    private val eventChannel = Channel<Boolean>()
+    private var defaultInAppNotification = displayInAppNotifications
     init {
         messageStream.setOnInAppNotificationDisplayListener(this)
     }
 
     override fun shouldPresentInAppNotification(message: Message): Boolean {
-        try {
-            val writableMap = jsonConverter.convertJsonToMap(message.toJSON())
-            reactApplicationContext
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit("inappnotification", writableMap)
-        } catch (e: JSONException) {
-            e.printStackTrace()
+        if (defaultInAppNotification) {
+            return true
         }
-        return displayInAppNotifications
+
+        return runBlocking {
+            emitWithTimeout(message)
+        }
+    }
+
+    private suspend fun emitWithTimeout(message: Message): Boolean {
+        return withTimeoutOrNull(5000L) {
+            try {
+                val writableMap = jsonConverter.convertJsonToMap(message.toJSON())
+                val emitter = reactApplicationContext
+                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                emitter.emit("inappnotification", writableMap)
+                eventChannel.receive()
+            } catch (e: JSONException) {
+                e.printStackTrace()
+                true
+            }
+        } ?: true
+    }
+
+    @ReactMethod
+    fun notifyInAppHandled(shouldHandle: Boolean) {
+        runBlocking {
+            eventChannel.send(!shouldHandle)
+        }
+    }
+
+    @ReactMethod
+    fun useDefaultInAppNotification(useDefault: Boolean) {
+        defaultInAppNotification = useDefault
     }
 
     @ReactMethod

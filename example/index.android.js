@@ -16,8 +16,13 @@ var SDK_KEY = ''; // Put your SDK key in here.
 
 import { NativeEventEmitter } from 'react-native'
 
-const myModuleEvt = new NativeEventEmitter(Marigold)
-myModuleEvt.addListener('inappnotification', (data) => console.log(data))
+const myModuleEvt = new NativeEventEmitter(MessageStream)
+MessageStream.useDefaultInAppNotification(false)
+myModuleEvt.addListener('inappnotification', (data) => {
+  console.log('Received message:', data);
+  alert(data.title);
+  MessageStream.notifyInAppHandled(true); //If true, Inform native module that react UI was handled. Show default in-app notification otherwise.
+});
 
 class ReactNativeSampleApp extends Component {
   render() {
