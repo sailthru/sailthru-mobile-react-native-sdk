@@ -14,6 +14,8 @@
 -(void)dismissMessageDetail;
 -(void)registerMessageImpression:(NSInteger)impressionType forMessage:(NSDictionary *)jsDict;
 -(void)clearMessages:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)useDefaultInAppNotification:(BOOL)useDefault;
+-(void)notifyInAppHandled:(BOOL)handled;
 
 @end
 
@@ -231,6 +233,43 @@ describe(@"RNMessageStream", ^{
             
             // Verify result
             [[check should] equal:error];
+        });
+    });
+    context(@"the useDefaultInAppNotification method", ^{
+        it(@"should set the default value as YES", ^{
+            [rnMessageStream useDefaultInAppNotification:YES];
+            
+            [[theValue(rnMessageStream.defaultInAppNotification) should] equal:theValue(YES)];
+        });
+        it(@"should set the default value as NO", ^{
+            [rnMessageStream useDefaultInAppNotification:NO];
+            
+            [[theValue(rnMessageStream.defaultInAppNotification) should] equal:theValue(NO)];
+        });
+    });
+    context(@"the shouldPresentInAppNotificationForMessage method", ^{
+        it(@"should return success", ^{
+            MARMessage *marMessage = [MARMessage new];
+            marMessage.title = @"Testing";
+            marMessage.type = MARMessageTypeText;
+            marMessage.text = @"Test Body";
+            marMessage.attributes = @{@"attributeKey": @"attributeValue"};
+
+            RNMessageStream *rnMessageStream = [RNMessageStream new];
+            
+            rnMessageStream.eventSemaphore = dispatch_semaphore_create(0);
+
+            [rnMessageStream useDefaultInAppNotification:NO];
+
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                BOOL check = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];
+
+                [rnMessageStream notifyInAppHandled:YES];
+
+                dispatch_semaphore_wait(rnMessageStream.eventSemaphore, dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC));
+
+                [[theValue(check) should] equal:theValue(NO)];
+            });
         });
     });
 });
