@@ -61,8 +61,6 @@ RCT_EXPORT_MODULE();
 }
 
 - (BOOL)emitWithTimeout:(MARMessage *)message {
-    __block BOOL inAppNotificationHandled = YES;
-
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSMutableDictionary *payload = [NSMutableDictionary dictionaryWithDictionary:[message dictionary]];
 
@@ -72,7 +70,7 @@ RCT_EXPORT_MODULE();
         [self sendEventWithName:@"inappnotification" body:payload];
         
         @synchronized (self) {
-            inAppNotificationHandled = NO;
+            self.inAppNotificationHandled = NO;
         }
         dispatch_semaphore_signal(self.eventSemaphore);
     });
@@ -80,16 +78,14 @@ RCT_EXPORT_MODULE();
     dispatch_semaphore_wait(self.eventSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
 
     @synchronized (self) {
-        return inAppNotificationHandled;
+        return self.inAppNotificationHandled;
     }
 }
 
 RCT_EXPORT_METHOD(notifyInAppHandled:(BOOL)handled) {
     @synchronized (self) {
         self.inAppNotificationHandled = !handled;
-        if (handled) {
-            dispatch_semaphore_signal(self.eventSemaphore);
-        }
+        dispatch_semaphore_signal(self.eventSemaphore);
     }
 }
 

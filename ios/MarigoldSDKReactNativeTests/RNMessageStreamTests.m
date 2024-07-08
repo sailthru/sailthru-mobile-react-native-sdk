@@ -29,7 +29,7 @@ describe(@"RNMessageStream", ^{
         messageStream = [MARMessageStream mock];
         [messageStream stub:@selector(setDelegate:)];
         [MARMessageStream stub:@selector(new) andReturn:messageStream];
-        rnMessageStream = [RNMessageStream new];
+        rnMessageStream = [[RNMessageStream alloc] init];
     });
     
     context(@"the init method", ^{
@@ -248,27 +248,50 @@ describe(@"RNMessageStream", ^{
         });
     });
     context(@"the shouldPresentInAppNotificationForMessage method", ^{
-        it(@"should return success", ^{
-            MARMessage *marMessage = [MARMessage new];
+        __block MARMessage *marMessage;
+        
+        beforeEach(^{
+            rnMessageStream.eventSemaphore = dispatch_semaphore_create(0);
+
+            marMessage = [[MARMessage alloc] init];
             marMessage.title = @"Testing";
             marMessage.type = MARMessageTypeText;
             marMessage.text = @"Test Body";
             marMessage.attributes = @{@"attributeKey": @"attributeValue"};
+        });
 
-            RNMessageStream *rnMessageStream = [RNMessageStream new];
-            
-            rnMessageStream.eventSemaphore = dispatch_semaphore_create(0);
+        context(@"the shouldPresentInAppNotificationForMessage method", ^{
+            it(@"should return YES when defaultInAppNotification is YES", ^{
+                [rnMessageStream useDefaultInAppNotification:YES];
 
-            [rnMessageStream useDefaultInAppNotification:NO];
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    BOOL check = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];
+                    
+                    [[theValue(check) should] equal:theValue(YES)];
+                });
+            });
+            it(@"should return YES when defaultInAppNotification is NO and notifyInAppHandled is NO", ^{
+                [rnMessageStream useDefaultInAppNotification:NO];
+                
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    BOOL check = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];
 
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                BOOL check = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];
+                    [[theValue(check) should] equal:theValue(YES)];
+                });
+
+                [rnMessageStream notifyInAppHandled:NO];
+                dispatch_semaphore_wait(rnMessageStream.eventSemaphore, dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC));
+            });
+            it(@"should return NO when defaultInAppNotification is NO and notifyInAppHandled is YES", ^{
+                [rnMessageStream useDefaultInAppNotification:NO];
+
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    BOOL check = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];
+                    [[theValue(check) should] equal:theValue(NO)];
+                });
 
                 [rnMessageStream notifyInAppHandled:YES];
-
                 dispatch_semaphore_wait(rnMessageStream.eventSemaphore, dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC));
-
-                [[theValue(check) should] equal:theValue(NO)];
             });
         });
     });
