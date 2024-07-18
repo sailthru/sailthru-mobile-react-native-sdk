@@ -60,7 +60,7 @@ internal class JsonConverter {
         val jsonObject = JSONObject()
         for (key in readableMap.toHashMap().keys) {
             val value = readableMap.getDynamic(key)
-            when (value.getType()) {
+            when (value.type) {
                 ReadableType.Null -> jsonObject.put(key, JSONObject.NULL)
                 ReadableType.Boolean -> jsonObject.put(key, value.asBoolean())
                 ReadableType.Number -> {
@@ -86,7 +86,7 @@ internal class JsonConverter {
         val jsonArray = JSONArray()
         for (i in 0 until readableArray.size()) {
             val value = readableArray.getDynamic(i)
-            when (value.getType()) {
+            when (value.type) {
                 ReadableType.Null -> {
                 }
                 ReadableType.Boolean -> jsonArray.put(value.asBoolean())
