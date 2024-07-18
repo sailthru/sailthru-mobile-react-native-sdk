@@ -30,8 +30,8 @@ RCT_EXPORT_MODULE();
         _displayInAppNotifications = displayNotifications;
         _messageStream = [MARMessageStream new];
         _defaultInAppNotification = YES;
-        _eventSemaphore = dispatch_semaphore_create(0);
-
+        self.eventSemaphore = dispatch_semaphore_create(0);
+        
         [_messageStream setDelegate:self];
     }
     return self;
@@ -67,12 +67,11 @@ RCT_EXPORT_MODULE();
         if ([message attributes]) {
             [payload setObject:[message attributes] forKey:@"attributes"];
         }
-        [self sendEventWithName:@"inappnotification" body:payload];
+        [self emitInAppNotification:payload];
         
         @synchronized (self) {
             self.inAppNotificationHandled = NO;
         }
-        dispatch_semaphore_signal(self.eventSemaphore);
     });
 
     dispatch_semaphore_wait(self.eventSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
@@ -80,6 +79,10 @@ RCT_EXPORT_MODULE();
     @synchronized (self) {
         return self.inAppNotificationHandled;
     }
+}
+
+- (void)emitInAppNotification:(NSDictionary *)payload {
+    [self sendEventWithName:@"inappnotification" body:payload];
 }
 
 RCT_EXPORT_METHOD(notifyInAppHandled:(BOOL)handled) {

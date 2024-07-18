@@ -2,6 +2,8 @@
 #import "RNMessageStream.h"
 #import "Kiwi.h"
 #import <UserNotifications/UserNotifications.h>
+#import <OCMock/OCMock.h>
+
 
 // interface to expose methods for testing
 @interface RNMessageStream ()
@@ -249,10 +251,13 @@ describe(@"RNMessageStream", ^{
     });
     context(@"the shouldPresentInAppNotificationForMessage method", ^{
         __block MARMessage *marMessage;
-        
-        beforeEach(^{
-            rnMessageStream.eventSemaphore = dispatch_semaphore_create(0);
+        __block BOOL check;
+        __block id mockRnMessageStream;
 
+        beforeEach(^{
+            rnMessageStream = [RNMessageStream new];
+            mockRnMessageStream = OCMPartialMock(rnMessageStream);
+            [[mockRnMessageStream stub] emitInAppNotification:[OCMArg any]];
             marMessage = [[MARMessage alloc] init];
             marMessage.title = @"Testing";
             marMessage.type = MARMessageTypeText;
@@ -262,36 +267,37 @@ describe(@"RNMessageStream", ^{
 
         context(@"the shouldPresentInAppNotificationForMessage method", ^{
             it(@"should return YES when defaultInAppNotification is YES", ^{
-                [rnMessageStream useDefaultInAppNotification:YES];
+                [mockRnMessageStream useDefaultInAppNotification:YES];
+                
+                BOOL check = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];
 
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    BOOL check = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];
-                    
-                    [[theValue(check) should] equal:theValue(YES)];
-                });
+                [[theValue(check) should] equal:theValue(YES)];
             });
+
             it(@"should return YES when defaultInAppNotification is NO and notifyInAppHandled is NO", ^{
-                [rnMessageStream useDefaultInAppNotification:NO];
+                [mockRnMessageStream useDefaultInAppNotification:NO];
+
+                [[mockRnMessageStream expect] emitInAppNotification:@{@"title": @"Testing", @"type": @"MARMessageTypeText", @"text": @"Test Body", @"attributes": @{@"attributeKey": @"attributeValue"}}];
                 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    BOOL check = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];
-
-                    [[theValue(check) should] equal:theValue(YES)];
+                    check = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];
                 });
-
-                [rnMessageStream notifyInAppHandled:NO];
-                dispatch_semaphore_wait(rnMessageStream.eventSemaphore, dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC));
+                
+                [mockRnMessageStream notifyInAppHandled:NO];
+                [[expectFutureValue(theValue(check)) shouldEventually] beYes];
             });
+
             it(@"should return NO when defaultInAppNotification is NO and notifyInAppHandled is YES", ^{
-                [rnMessageStream useDefaultInAppNotification:NO];
+                [mockRnMessageStream useDefaultInAppNotification:NO];
 
+                [[mockRnMessageStream expect] emitInAppNotification:@{@"title": @"Testing", @"type": @"MARMessageTypeText", @"text": @"Test Body", @"attributes": @{@"attributeKey": @"attributeValue"}}];
+                
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    BOOL check = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];
-                    [[theValue(check) should] equal:theValue(NO)];
+                    check = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];
                 });
-
-                [rnMessageStream notifyInAppHandled:YES];
-                dispatch_semaphore_wait(rnMessageStream.eventSemaphore, dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC));
+                
+                [mockRnMessageStream notifyInAppHandled:YES];
+                [[expectFutureValue(theValue(check)) shouldEventually] beNo];
             });
         });
     });
