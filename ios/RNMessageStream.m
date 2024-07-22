@@ -29,7 +29,9 @@ RCT_EXPORT_MODULE();
     if(self) {
         _displayInAppNotifications = displayNotifications;
         _messageStream = [MARMessageStream new];
-
+        _defaultInAppNotification = YES;
+        self.eventSemaphore = dispatch_semaphore_create(0);
+        
         [_messageStream setDelegate:self];
     }
     return self;
@@ -40,14 +42,58 @@ RCT_EXPORT_MODULE();
 }
 
 - (BOOL)shouldPresentInAppNotificationForMessage:(MARMessage *)message {
-    NSMutableDictionary *payload = [NSMutableDictionary dictionaryWithDictionary:[message dictionary]];
-
-    if ([message attributes]) {
-        [payload setObject:[message attributes] forKey:@"attributes"];
+    if (self.defaultInAppNotification) {
+        return YES;
     }
+    __block BOOL result = YES;
 
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        result = [self emitWithTimeout:message];
+
+        dispatch_semaphore_signal(semaphore);
+    });
+
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+
+    return result;
+}
+
+- (BOOL)emitWithTimeout:(MARMessage *)message {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSMutableDictionary *payload = [NSMutableDictionary dictionaryWithDictionary:[message dictionary]];
+
+        if ([message attributes]) {
+            [payload setObject:[message attributes] forKey:@"attributes"];
+        }
+        [self emitInAppNotification:payload];
+        
+        @synchronized (self) {
+            self.inAppNotificationHandled = NO;
+        }
+    });
+
+    dispatch_semaphore_wait(self.eventSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+
+    @synchronized (self) {
+        return self.inAppNotificationHandled;
+    }
+}
+
+- (void)emitInAppNotification:(NSDictionary *)payload {
     [self sendEventWithName:@"inappnotification" body:payload];
-    return self.displayInAppNotifications;
+}
+
+RCT_EXPORT_METHOD(notifyInAppHandled:(BOOL)handled) {
+    @synchronized (self) {
+        self.inAppNotificationHandled = !handled;
+        dispatch_semaphore_signal(self.eventSemaphore);
+    }
+}
+
+RCT_EXPORT_METHOD(useDefaultInAppNotification:(BOOL)useDefault) {
+    self.defaultInAppNotification = useDefault;
 }
 
 #pragma mark - Messages
@@ -125,7 +171,6 @@ RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
         }
     }];
 }
-
 #pragma mark - Helper Functions
 
 + (void)rejectPromise:(RCTPromiseRejectBlock)reject withError:(NSError *)error {

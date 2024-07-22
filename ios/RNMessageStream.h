@@ -7,6 +7,10 @@
 @interface RNMessageStream : RCTEventEmitter <RCTBridgeModule, MARMessageStreamDelegate>
 
 @property BOOL displayInAppNotifications;
+@property (nonatomic, strong) dispatch_semaphore_t eventSemaphore;
+@property (nonatomic, assign) BOOL defaultInAppNotification;
+@property (nonatomic, assign) BOOL inAppNotificationHandled;
+- (void)emitInAppNotification:(NSDictionary *)payload;
 
 /**
  * Initialize RNMarigold and set whether to automatically display in app notifications.\
