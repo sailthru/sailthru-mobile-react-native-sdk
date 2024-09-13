@@ -29,7 +29,7 @@ RCT_EXPORT_MODULE();
 
 - (instancetype)init {
     _marigold = [Marigold new];
-    [_marigold setWrapperName:@"React Native" andVersion:@"12.0.0"];
+    [_marigold setWrapperName:@"React Native" andVersion:@"12.0.1"];
     return self;
 }
 
