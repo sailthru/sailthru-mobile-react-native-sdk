@@ -52,5 +52,6 @@
   ],
   "scripts": {
     "test": "jest --verbose"
-  }
+  },
+  "license": "MIT"
 }
