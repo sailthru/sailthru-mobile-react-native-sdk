@@ -5,8 +5,8 @@ PODS:
   - fmt (9.1.0)
   - glog (0.3.5)
   - Kiwi (2.4.0)
-  - Marigold (16.0.1)
-  - Marigold-Extension (16.0.1)
+  - Marigold (18.0.0)
+  - Marigold-Extension (18.0.0)
   - OCMock (3.1.2)
   - RCT-Folly (2024.01.01.00):
     - boost
@@ -911,9 +911,9 @@ PODS:
   - React-Mapbuffer (0.74.1):
     - glog
     - React-debug
-  - react-native-marigold (12.0.0):
-    - Marigold (= 16.0.1)
-    - Marigold-Extension (= 16.0.1)
+  - react-native-marigold (12.0.1):
+    - Marigold (= 18.0.0)
+    - Marigold-Extension (= 18.0.0)
     - React-Core
   - React-nativeconfig (0.74.1)
   - React-NativeModulesApple (0.74.1):
@@ -1312,8 +1312,8 @@ SPEC CHECKSUMS:
   fmt: 4c2741a687cc09f0634a2e2c72a838b99f1ff120
   glog: 3d02b25ca00c2d456734d0bcff864cbc62f6ae1a
   Kiwi: f49c9d54b28917df5928fe44968a39ed198cb8a8
-  Marigold: bb706e287e4a783756d742e170b49004bcca6469
-  Marigold-Extension: 425b46dc1572395aa8e7d36b5ea8bfb949837890
+  Marigold: 9d67073f5e22e36de958493370b70a8a07220cce
+  Marigold-Extension: 9d14531bedcf301133ed570d0ad45f76403e0eef
   OCMock: a10ea9f0a6e921651f96f78b6faee95ebc813b92
   RCT-Folly: 02617c592a293bd6d418e0a88ff4ee1f88329b47
   RCTDeprecation: efb313d8126259e9294dc4ee0002f44a6f676aba
@@ -1339,7 +1339,7 @@ SPEC CHECKSUMS:
   React-jsitracing: 233d1a798fe0ff33b8e630b8f00f62c4a8115fbc
   React-logger: 7e7403a2b14c97f847d90763af76b84b152b6fce
   React-Mapbuffer: 11029dcd47c5c9e057a4092ab9c2a8d10a496a33
-  react-native-marigold: 0fe78359516a2449a398110703429639be0471cd
+  react-native-marigold: 9fdc1c9055d9a2cc8273bced416aa85408b49085
   React-nativeconfig: b0073a590774e8b35192fead188a36d1dca23dec
   React-NativeModulesApple: 81bc2bcb4e7da59a9de76f3b70c796abf049702e
   React-perflogger: 3d31e0d1e8ad891e43a09ac70b7b17a79773003a
@@ -1365,6 +1365,6 @@ SPEC CHECKSUMS:
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
   Yoga: 348f8b538c3ed4423eb58a8e5730feec50bce372
 
-PODFILE CHECKSUM: f62844141e7f9c67fafaedf763ab74d23388188b
+PODFILE CHECKSUM: 5129da6403cb5216d6b77b26ea38ebfa8d913304
 
 COCOAPODS: 1.15.2
