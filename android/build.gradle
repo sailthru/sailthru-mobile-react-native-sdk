@@ -83,7 +83,7 @@ def kotlin_version = getExtOrDefault("kotlinVersion")
 dependencies {
     //noinspection GradleDynamicVersion
     api "com.facebook.react:react-android:+"
-    api "com.marigold.sdk:marigold:21.0.0"
+    api "com.marigold.sdk:marigold:23.0.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     testImplementation 'org.mockito.kotlin:mockito-kotlin:5.3.1'
