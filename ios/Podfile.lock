@@ -5,8 +5,8 @@ PODS:
   - fmt (9.1.0)
   - glog (0.3.5)
   - Kiwi (2.4.0)
-  - Marigold (18.0.0)
-  - Marigold-Extension (18.0.0)
+  - Marigold (18.1.0)
+  - Marigold-Extension (18.1.0)
   - OCMock (3.1.2)
   - RCT-Folly (2024.01.01.00):
     - boost
@@ -911,9 +911,9 @@ PODS:
   - React-Mapbuffer (0.74.1):
     - glog
     - React-debug
-  - react-native-marigold (12.0.1):
-    - Marigold (= 18.0.0)
-    - Marigold-Extension (= 18.0.0)
+  - react-native-marigold (14.0.0):
+    - Marigold (= 18.1.0)
+    - Marigold-Extension (= 18.1.0)
     - React-Core
   - React-nativeconfig (0.74.1)
   - React-NativeModulesApple (0.74.1):
@@ -1157,6 +1157,7 @@ DEPENDENCIES:
   - React-graphics (from `../node_modules/react-native/ReactCommon/react/renderer/graphics`)
   - React-ImageManager (from `../node_modules/react-native/ReactCommon/react/renderer/imagemanager/platform/ios`)
   - React-jsc (from `../node_modules/react-native/ReactCommon/jsc`)
+  - React-jsc/Fabric (from `../node_modules/react-native/ReactCommon/jsc`)
   - React-jserrorhandler (from `../node_modules/react-native/ReactCommon/jserrorhandler`)
   - React-jsi (from `../node_modules/react-native/ReactCommon/jsi`)
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
@@ -1312,8 +1313,8 @@ SPEC CHECKSUMS:
   fmt: 4c2741a687cc09f0634a2e2c72a838b99f1ff120
   glog: 3d02b25ca00c2d456734d0bcff864cbc62f6ae1a
   Kiwi: f49c9d54b28917df5928fe44968a39ed198cb8a8
-  Marigold: 9d67073f5e22e36de958493370b70a8a07220cce
-  Marigold-Extension: 9d14531bedcf301133ed570d0ad45f76403e0eef
+  Marigold: 06fef47547a99bbd338b4bb36d879cb3c70ab244
+  Marigold-Extension: 71b5635be746c3582658dafecfbf780db7ee3344
   OCMock: a10ea9f0a6e921651f96f78b6faee95ebc813b92
   RCT-Folly: 02617c592a293bd6d418e0a88ff4ee1f88329b47
   RCTDeprecation: efb313d8126259e9294dc4ee0002f44a6f676aba
@@ -1339,15 +1340,15 @@ SPEC CHECKSUMS:
   React-jsitracing: 233d1a798fe0ff33b8e630b8f00f62c4a8115fbc
   React-logger: 7e7403a2b14c97f847d90763af76b84b152b6fce
   React-Mapbuffer: 11029dcd47c5c9e057a4092ab9c2a8d10a496a33
-  react-native-marigold: 9fdc1c9055d9a2cc8273bced416aa85408b49085
+  react-native-marigold: 0dbf649962ead55bf180a863668dcccaa032bad9
   React-nativeconfig: b0073a590774e8b35192fead188a36d1dca23dec
   React-NativeModulesApple: 81bc2bcb4e7da59a9de76f3b70c796abf049702e
   React-perflogger: 3d31e0d1e8ad891e43a09ac70b7b17a79773003a
   React-RCTActionSheet: c4a3a134f3434c9d7b0c1054f1a8cfed30c7a093
   React-RCTAnimation: 0e5d15320eeece667fcceb6c785acf9a184e9da1
-  React-RCTAppDelegate: a8ee7c6c5b4f3fa69852bccfb7750cc568ffc673
+  React-RCTAppDelegate: 09a060c3cebd2e1f8e1a994f5ee595144e968c15
   React-RCTBlob: 0148d7e73883c503df8045146dbfa90ac749c4d3
-  React-RCTFabric: f0d9fd5e1b812fa7d0a80fd44344916f73874cab
+  React-RCTFabric: 864a0b36a75f37b40611ae91d6b314c545fbd9e4
   React-RCTImage: a04dba5fcc823244f5822192c130ecf09623a57f
   React-RCTLinking: 533bf13c745fcb2a0c14e0e49fd149586a7f0d14
   React-RCTNetwork: a29e371e0d363d7b4c10ab907bc4d6ae610541e9

@@ -7,6 +7,8 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
 import com.marigold.sdk.EngageBySailthru
 import com.marigold.sdk.Marigold
+import com.marigold.sdk.enums.MergeRules
+import com.marigold.sdk.model.AttributeMap
 import com.marigold.sdk.model.Purchase
 import org.json.JSONArray
 import org.json.JSONException
@@ -31,6 +33,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.net.URI
+import java.util.Date
 
 @RunWith(MockitoJUnitRunner::class)
 class RNEngageBySailthruModuleTest {
@@ -45,6 +48,12 @@ class RNEngageBySailthruModuleTest {
 
     @Mock
     private lateinit var promise: Promise
+
+    @Captor
+    private lateinit var attributeCaptor: ArgumentCaptor<AttributeMap>
+
+    @Captor
+    private lateinit var attributesHandlerCaptor: ArgumentCaptor<EngageBySailthru.AttributesHandler>
 
     @Captor
     private lateinit var marigoldVoidCaptor: ArgumentCaptor<Marigold.MarigoldHandler<Void?>>
@@ -83,7 +92,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testLogEventWithVars() {
         val event = "event string"
         val varsJson = JSONObject()
@@ -99,7 +107,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testLogEventWithVarsException() {
         val event = "event string"
         val jsonException: JSONException = mock()
@@ -115,7 +122,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testClearEvents() {
         // Create input
         val error: Error = mock()
@@ -137,6 +143,86 @@ class RNEngageBySailthruModuleTest {
 
         // Test error handler
         clearHandler.onFailure(error)
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, errorMessage)
+    }
+
+    @Test
+    fun testSetAttributes() {
+        val stringAttributeJson = JSONObject()
+            .put("type", "string")
+            .put("value", "test string")
+        val intAttributeJson = JSONObject()
+            .put("type", "integer")
+            .put("value", 123)
+        val attributesJson = JSONObject()
+            .put("string key", stringAttributeJson)
+            .put("int key", intAttributeJson)
+        val attributeMapJson = JSONObject()
+            .put("mergeRule", MergeRules.RULE_UPDATE.ordinal)
+            .put("attributes", attributesJson)
+        val error = Error("test error")
+
+        // setup mocks
+        val readableMap: ReadableMap = mock()
+
+        // setup mocking for conversion from ReadableMap to JSON
+        doReturn(attributeMapJson).whenever(jsonConverter).convertMapToJson(readableMap)
+
+        // Initiate test
+        rnEngageBySailthruModuleSpy.setAttributes(readableMap, promise)
+
+        // Verify results
+        verify(engage).setAttributes(capture(attributeCaptor), capture(attributesHandlerCaptor))
+        val attributes: AttributeMap = attributeCaptor.value
+        Assert.assertEquals(MergeRules.RULE_UPDATE, attributes.getMergeRules())
+        Assert.assertEquals("test string", attributes.getString("string key"))
+        Assert.assertEquals(123, attributes.getInt("int key", 0))
+        val handler: EngageBySailthru.AttributesHandler = attributesHandlerCaptor.value
+        handler.onSuccess()
+        verify(promise).resolve(null)
+        handler.onFailure(error)
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, error.message)
+    }
+
+    @Test
+    fun testRemoveAttribute() {
+        val key = "testKey"
+        val error = Error("test error")
+
+        // Initiate test
+        rnEngageBySailthruModuleSpy.removeAttribute(key, promise)
+
+        // Verify results
+        verify(engage).removeAttribute(eq(key), capture(attributesHandlerCaptor))
+        val handler: EngageBySailthru.AttributesHandler = attributesHandlerCaptor.value
+        handler.onSuccess()
+        verify(promise).resolve(null)
+        handler.onFailure(error)
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, error.message)
+    }
+
+    @Test
+    fun testClearAttributes() {
+        // Create input
+        val error: Error = mock()
+
+        // Initiate test
+        rnEngageBySailthruModuleSpy.clearAttributes(promise)
+
+        // Verify result
+        verify(engage).clearAttributes(capture(attributesHandlerCaptor))
+        val attributesHandler = attributesHandlerCaptor.value
+
+        // Test success handler
+        attributesHandler.onSuccess()
+        verify(promise).resolve(true)
+
+        // Setup error
+        val errorMessage = "error message"
+        doReturn(errorMessage).whenever(error).message
+
+        // Test error handler
+        attributesHandler.onFailure(error)
         verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, errorMessage)
     }
 
@@ -347,7 +433,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @kotlin.Throws(Exception::class)
     fun testSetProfileVars() {
         val varsJson: JSONObject = JSONObject().put("test var", 123)
 
@@ -379,8 +464,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    @kotlin.Throws(Exception::class)
     fun testSetProfileVarsException() {
         val jsonException = JSONException("test exception")
 
@@ -399,7 +482,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @kotlin.Throws(Exception::class)
     fun testGetProfileVars() {
         // Create input
         val varsJson = JSONObject().put("test var", 123)
@@ -431,7 +513,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @kotlin.Throws(Exception::class)
     fun testLogPurchase() {
         // Create input
         val purchaseMap: ReadableMap = mock()
@@ -462,8 +543,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    @Throws(Exception::class)
     fun testLogPurchaseException() {
         // Create input
         val purchaseMap: ReadableMap = mock()
@@ -482,7 +561,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @kotlin.Throws(Exception::class)
     fun testLogAbandonedCart() {
         // Create input
         val purchaseMap: ReadableMap = mock()
@@ -513,8 +591,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    @Throws(Exception::class)
     fun testLogAbandonedCartException() {
         // Create input
         val purchaseMap: ReadableMap = mock()
@@ -533,7 +609,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testGetPurchaseInstancePositiveAdjustment() {
         // Mock methods
         val readableMap: ReadableMap = mock()
@@ -557,7 +632,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testGetPurchaseInstanceNegativeAdjustment() {
         // Mock methods
         val readableMap: ReadableMap = mock()
@@ -580,8 +654,29 @@ class RNEngageBySailthruModuleTest {
         Assert.assertEquals(-234, adjustment.price)
     }
 
+    @Test
+    fun testGetAttributeMap() {
+        val date = Date()
+
+        // Mock methods
+        val readableMap: ReadableMap = mock()
+        val attributeJson = createAttributeMapJson(date)
+        doReturn(attributeJson).whenever(jsonConverter).convertMapToJson(readableMap)
+
+        // Initiate test
+        val attributeMap = rnEngageBySailthruModuleSpy.getAttributeMap(readableMap)
+
+        // Verify result
+        verify(jsonConverter).convertMapToJson(readableMap)
+        Assert.assertEquals(MergeRules.RULE_REPLACE, attributeMap.getMergeRules())
+        Assert.assertEquals("test string", attributeMap.getString("stringKey"))
+        Assert.assertEquals(123, attributeMap.getInt("integerKey", 0))
+        Assert.assertTrue(attributeMap.getBoolean("booleanKey", false))
+        Assert.assertEquals(1.23F, attributeMap.getFloat("floatKey", 0F), 0.001F)
+        Assert.assertEquals(date, attributeMap.getDate("dateKey"))
+    }
+
     /** Helpers  */
-    @Throws(Exception::class)
     private fun createPurchaseJson(adjustmentPrice: Int): JSONObject {
         val adjustmentJson = JSONObject()
                 .put("title", "tax")
@@ -599,5 +694,32 @@ class RNEngageBySailthruModuleTest {
         return JSONObject()
                 .put("items", itemsArray)
                 .put("adjustments", adjustmentsArray)
+    }
+
+    private fun createAttributeMapJson(date: Date): JSONObject {
+        val stringObject = JSONObject()
+            .put("type", "string")
+            .put("value", "test string")
+        val integerObject = JSONObject()
+            .put("type", "integer")
+            .put("value", 123)
+        val booleanObject = JSONObject()
+            .put("type", "boolean")
+            .put("value", true)
+        val floatObject = JSONObject()
+            .put("type", "float")
+            .put("value", 1.23)
+        val dateObject = JSONObject()
+            .put("type", "date")
+            .put("value", date.time)
+        val attributesJson = JSONObject()
+            .put("stringKey", stringObject)
+            .put("integerKey", integerObject)
+            .put("booleanKey", booleanObject)
+            .put("floatKey", floatObject)
+            .put("dateKey", dateObject)
+        return JSONObject()
+            .put("attributes", attributesJson)
+            .put("mergeRule", MergeRules.RULE_REPLACE.ordinal)
     }
 }
