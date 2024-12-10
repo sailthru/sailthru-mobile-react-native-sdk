@@ -313,7 +313,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
             "stringArray" -> {
                 val array: ArrayList<String> = ArrayList()
                 val values = attribute.getJSONArray("value")
-                for (i in 0..values.length()) {
+                for (i in 0 until values.length()) {
                     array.add(values.get(i) as String)
                 }
                 attributeMap.putStringArray(key, array)
@@ -324,7 +324,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
             "integerArray" -> {
                 val array: ArrayList<Int> = ArrayList()
                 val values = attribute.getJSONArray("value")
-                for (i in 0..values.length()) {
+                for (i in 0 until values.length()) {
                     val j = values.getInt(i)
                     array.add(j)
                 }
@@ -339,7 +339,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
             "floatArray" -> {
                 val array: ArrayList<Float> = ArrayList()
                 val values = attribute.getJSONArray("value")
-                for (i in 0..values.length()) {
+                for (i in 0 until values.length()) {
                     val value = (values.get(i).toString()).toFloat()
                     array.add(value)
                 }
@@ -352,7 +352,7 @@ class RNEngageBySailthruModule (reactContext: ReactApplicationContext) : ReactCo
             "dateArray" -> {
                 val array: ArrayList<Date> = ArrayList()
                 val values = attribute.getJSONArray("value")
-                for (i in 0..values.length()) {
+                for (i in 0 until values.length()) {
                     val dateValue = values.getLong(i)
                     val date = Date(dateValue)
                     array.add(date)
