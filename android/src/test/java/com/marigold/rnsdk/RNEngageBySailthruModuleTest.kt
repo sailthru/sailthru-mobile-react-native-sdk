@@ -7,12 +7,15 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
 import com.marigold.sdk.EngageBySailthru
 import com.marigold.sdk.Marigold
+import com.marigold.sdk.enums.MergeRules
+import com.marigold.sdk.model.AttributeMap
 import com.marigold.sdk.model.Purchase
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,6 +34,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.net.URI
+import java.util.Date
 
 @RunWith(MockitoJUnitRunner::class)
 class RNEngageBySailthruModuleTest {
@@ -47,6 +51,12 @@ class RNEngageBySailthruModuleTest {
     private lateinit var promise: Promise
 
     @Captor
+    private lateinit var attributeCaptor: ArgumentCaptor<AttributeMap>
+
+    @Captor
+    private lateinit var attributesHandlerCaptor: ArgumentCaptor<EngageBySailthru.AttributesHandler>
+
+    @Captor
     private lateinit var marigoldVoidCaptor: ArgumentCaptor<Marigold.MarigoldHandler<Void?>>
 
     @Captor
@@ -60,6 +70,9 @@ class RNEngageBySailthruModuleTest {
 
     private lateinit var rnEngageBySailthruModule: RNEngageBySailthruModule
     private lateinit var rnEngageBySailthruModuleSpy: RNEngageBySailthruModule
+
+    private val date1 = Date()
+    private val date2 = Date().apply { time = time + 1234 }
 
     @Before
     fun setup() {
@@ -83,7 +96,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testLogEventWithVars() {
         val event = "event string"
         val varsJson = JSONObject()
@@ -99,7 +111,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testLogEventWithVarsException() {
         val event = "event string"
         val jsonException: JSONException = mock()
@@ -115,7 +126,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testClearEvents() {
         // Create input
         val error: Error = mock()
@@ -137,6 +147,86 @@ class RNEngageBySailthruModuleTest {
 
         // Test error handler
         clearHandler.onFailure(error)
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, errorMessage)
+    }
+
+    @Test
+    fun testSetAttributes() {
+        val stringAttributeJson = JSONObject()
+            .put("type", "string")
+            .put("value", "test string")
+        val intAttributeJson = JSONObject()
+            .put("type", "integer")
+            .put("value", 123)
+        val attributesJson = JSONObject()
+            .put("string key", stringAttributeJson)
+            .put("int key", intAttributeJson)
+        val attributeMapJson = JSONObject()
+            .put("mergeRule", MergeRules.RULE_UPDATE.ordinal)
+            .put("attributes", attributesJson)
+        val error = Error("test error")
+
+        // setup mocks
+        val readableMap: ReadableMap = mock()
+
+        // setup mocking for conversion from ReadableMap to JSON
+        doReturn(attributeMapJson).whenever(jsonConverter).convertMapToJson(readableMap)
+
+        // Initiate test
+        rnEngageBySailthruModuleSpy.setAttributes(readableMap, promise)
+
+        // Verify results
+        verify(engage).setAttributes(capture(attributeCaptor), capture(attributesHandlerCaptor))
+        val attributes: AttributeMap = attributeCaptor.value
+        assertEquals(MergeRules.RULE_UPDATE, attributes.getMergeRules())
+        assertEquals("test string", attributes.getString("string key"))
+        assertEquals(123, attributes.getInt("int key", 0))
+        val handler: EngageBySailthru.AttributesHandler = attributesHandlerCaptor.value
+        handler.onSuccess()
+        verify(promise).resolve(null)
+        handler.onFailure(error)
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, error.message)
+    }
+
+    @Test
+    fun testRemoveAttribute() {
+        val key = "testKey"
+        val error = Error("test error")
+
+        // Initiate test
+        rnEngageBySailthruModuleSpy.removeAttribute(key, promise)
+
+        // Verify results
+        verify(engage).removeAttribute(eq(key), capture(attributesHandlerCaptor))
+        val handler: EngageBySailthru.AttributesHandler = attributesHandlerCaptor.value
+        handler.onSuccess()
+        verify(promise).resolve(null)
+        handler.onFailure(error)
+        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, error.message)
+    }
+
+    @Test
+    fun testClearAttributes() {
+        // Create input
+        val error: Error = mock()
+
+        // Initiate test
+        rnEngageBySailthruModuleSpy.clearAttributes(promise)
+
+        // Verify result
+        verify(engage).clearAttributes(capture(attributesHandlerCaptor))
+        val attributesHandler = attributesHandlerCaptor.value
+
+        // Test success handler
+        attributesHandler.onSuccess()
+        verify(promise).resolve(true)
+
+        // Setup error
+        val errorMessage = "error message"
+        doReturn(errorMessage).whenever(error).message
+
+        // Test error handler
+        attributesHandler.onFailure(error)
         verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, errorMessage)
     }
 
@@ -206,7 +296,7 @@ class RNEngageBySailthruModuleTest {
         verify(engage).trackClick(eq(sectionID), capture(uriCaptor), capture(handlerCaptor))
         val uri: URI = uriCaptor.value
         val trackHandler: EngageBySailthru.TrackHandler = handlerCaptor.value
-        Assert.assertEquals(urlString, uri.toString())
+        assertEquals(urlString, uri.toString())
         trackHandler.onSuccess()
         verify(promise).resolve(true)
         trackHandler.onFailure(error)
@@ -252,8 +342,8 @@ class RNEngageBySailthruModuleTest {
         val uri = uriCaptor.value
         val tags = stringListCaptor.value
         val trackHandler = handlerCaptor.value
-        Assert.assertEquals(urlString, uri.toString())
-        Assert.assertEquals(testTag, tags[0])
+        assertEquals(urlString, uri.toString())
+        assertEquals(testTag, tags[0])
         trackHandler.onSuccess()
         verify(promise).resolve(true)
         trackHandler.onFailure(error)
@@ -308,7 +398,7 @@ class RNEngageBySailthruModuleTest {
         verify(engage).trackImpression(eq(sectionID), capture(uriListCaptor), capture(handlerCaptor))
         val uriList = uriListCaptor.value
         val trackHandler = handlerCaptor.value
-        Assert.assertEquals(urlString, uriList[0].toString())
+        assertEquals(urlString, uriList[0].toString())
         trackHandler.onSuccess()
         verify(promise).resolve(true)
         trackHandler.onFailure(error)
@@ -347,7 +437,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @kotlin.Throws(Exception::class)
     fun testSetProfileVars() {
         val varsJson: JSONObject = JSONObject().put("test var", 123)
 
@@ -379,8 +468,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    @kotlin.Throws(Exception::class)
     fun testSetProfileVarsException() {
         val jsonException = JSONException("test exception")
 
@@ -399,7 +486,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @kotlin.Throws(Exception::class)
     fun testGetProfileVars() {
         // Create input
         val varsJson = JSONObject().put("test var", 123)
@@ -431,7 +517,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @kotlin.Throws(Exception::class)
     fun testLogPurchase() {
         // Create input
         val purchaseMap: ReadableMap = mock()
@@ -462,8 +547,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    @Throws(Exception::class)
     fun testLogPurchaseException() {
         // Create input
         val purchaseMap: ReadableMap = mock()
@@ -482,7 +565,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @kotlin.Throws(Exception::class)
     fun testLogAbandonedCart() {
         // Create input
         val purchaseMap: ReadableMap = mock()
@@ -513,8 +595,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    @Throws(Exception::class)
     fun testLogAbandonedCartException() {
         // Create input
         val purchaseMap: ReadableMap = mock()
@@ -533,7 +613,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testGetPurchaseInstancePositiveAdjustment() {
         // Mock methods
         val readableMap: ReadableMap = mock()
@@ -546,18 +625,17 @@ class RNEngageBySailthruModuleTest {
         // Verify result
         verify(jsonConverter).convertMapToJson(readableMap, false)
         val item = purchase!!.purchaseItems[0]
-        Assert.assertEquals(1, item.quantity)
-        Assert.assertEquals("test title", item.title)
-        Assert.assertEquals(123, item.price)
-        Assert.assertEquals("456", item.ID)
-        Assert.assertEquals(URI("http://mobile.sailthru.com"), item.url)
+        assertEquals(1, item.quantity)
+        assertEquals("test title", item.title)
+        assertEquals(123, item.price)
+        assertEquals("456", item.ID)
+        assertEquals(URI("http://mobile.sailthru.com"), item.url)
         val adjustment = purchase.purchaseAdjustments[0]
-        Assert.assertEquals("tax", adjustment.title)
-        Assert.assertEquals(234, adjustment.price)
+        assertEquals("tax", adjustment.title)
+        assertEquals(234, adjustment.price)
     }
 
     @Test
-    @Throws(Exception::class)
     fun testGetPurchaseInstanceNegativeAdjustment() {
         // Mock methods
         val readableMap: ReadableMap = mock()
@@ -570,18 +648,41 @@ class RNEngageBySailthruModuleTest {
         // Verify result
         verify(jsonConverter).convertMapToJson(readableMap, false)
         val item = purchase!!.purchaseItems[0]
-        Assert.assertEquals(1, item.quantity)
-        Assert.assertEquals("test title", item.title)
-        Assert.assertEquals(123, item.price)
-        Assert.assertEquals("456", item.ID)
-        Assert.assertEquals(URI("http://mobile.sailthru.com"), item.url)
+        assertEquals(1, item.quantity)
+        assertEquals("test title", item.title)
+        assertEquals(123, item.price)
+        assertEquals("456", item.ID)
+        assertEquals(URI("http://mobile.sailthru.com"), item.url)
         val adjustment = purchase.purchaseAdjustments[0]
-        Assert.assertEquals("tax", adjustment.title)
-        Assert.assertEquals(-234, adjustment.price)
+        assertEquals("tax", adjustment.title)
+        assertEquals(-234, adjustment.price)
+    }
+
+    @Test
+    fun testGetAttributeMap() {
+        // Mock methods
+        val readableMap: ReadableMap = mock()
+        val attributeJson = createAttributesJson()
+        doReturn(attributeJson).whenever(jsonConverter).convertMapToJson(readableMap)
+
+        // Initiate test
+        val attributeMap = rnEngageBySailthruModuleSpy.getAttributeMap(readableMap)
+
+        // Verify result
+        verify(jsonConverter).convertMapToJson(readableMap)
+        assertEquals(MergeRules.RULE_REPLACE, attributeMap.getMergeRules())
+        assertEquals("testme", attributeMap.getString("stringAttr"))
+        assertEquals(arrayListOf("testme1", "testme2"), attributeMap.getStringArray("stringsAttr"))
+        assertEquals(45, attributeMap.getInt("integerAttr", 0))
+        assertEquals(arrayListOf(23, 34), attributeMap.getIntArray("integersAttr"))
+        assertEquals(1.23f, attributeMap.getFloat("floatAttr", 0f))
+        assertEquals(arrayListOf(2.34f, 3.45f), attributeMap.getFloatArray("floatsAttr"))
+        assertTrue(attributeMap.getBoolean("booleanAttr", false))
+        assertEquals(date1, attributeMap.getDate("dateAttr"))
+        assertEquals(arrayListOf(date1, date2), attributeMap.getDateArray("datesAttr"))
     }
 
     /** Helpers  */
-    @Throws(Exception::class)
     private fun createPurchaseJson(adjustmentPrice: Int): JSONObject {
         val adjustmentJson = JSONObject()
                 .put("title", "tax")
@@ -599,5 +700,59 @@ class RNEngageBySailthruModuleTest {
         return JSONObject()
                 .put("items", itemsArray)
                 .put("adjustments", adjustmentsArray)
+    }
+
+    private fun createAttributesJson(): JSONObject = JSONObject().apply {
+        put("mergeRule", 1)
+        put("attributes", JSONObject().apply {
+            put("stringAttr", JSONObject().apply {
+                put("type", "string")
+                put("value", "testme")
+            })
+            put("stringsAttr", JSONObject().apply {
+                put("type", "stringArray")
+                put("value", JSONArray().apply {
+                    put("testme1")
+                    put("testme2")
+                })
+            })
+            put("integerAttr", JSONObject().apply {
+                put("type", "integer")
+                put("value", 45)
+            })
+            put("integersAttr", JSONObject().apply {
+                put("type", "integerArray")
+                put("value", JSONArray().apply {
+                    put(23)
+                    put(34)
+                })
+            })
+            put("floatAttr", JSONObject().apply {
+                put("type", "float")
+                put("value", 1.23f)
+            })
+            put("floatsAttr", JSONObject().apply {
+                put("type", "floatArray")
+                put("value", JSONArray().apply {
+                    put(2.34f)
+                    put(3.45f)
+                })
+            })
+            put("booleanAttr", JSONObject().apply {
+                put("type", "boolean")
+                put("value", true)
+            })
+            put("dateAttr", JSONObject().apply {
+                put("type", "date")
+                put("value", date1.time)
+            })
+            put("datesAttr", JSONObject().apply {
+                put("type", "dateArray")
+                put("value", JSONArray().apply {
+                    put(date1.time)
+                    put(date2.time)
+                })
+            })
+        })
     }
 }

@@ -26,6 +26,115 @@ RCT_EXPORT_MODULE();
     return @[];
 }
 
+#pragma mark - Attributes
+
+RCT_EXPORT_METHOD(setAttributes:(NSDictionary *)attributeMap resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+  {
+    EngageBySailthru *engageBySailthru = [self engageBySailthruWithRejecter:reject];
+    if (!engageBySailthru) {
+        return;
+    }
+
+    MARAttributes *marAttributes = [MARAttributes new];
+    NSInteger mergeRule = [[attributeMap valueForKey:@"mergeRule"] integerValue];
+    [marAttributes setAttributesMergeRule:(MARAttributesMergeRule)mergeRule];
+
+    NSDictionary *attributes = [attributeMap valueForKey:@"attributes"];
+    [attributes enumerateKeysAndObjectsUsingBlock:^(NSString *  _Nonnull key, NSDictionary *  _Nonnull attribute, BOOL * _Nonnull stop) {
+        NSString *type = [attribute valueForKey:@"type"];
+
+        if ([type isEqualToString:@"string"]) {
+            NSString *value = [attribute valueForKey:@"value"];
+            [marAttributes setString:value forKey:key];
+
+        } else if ([type isEqualToString:@"stringArray"]) {
+            NSArray<NSString *> *value = [attribute valueForKey:@"value"];
+            [marAttributes setStrings:value forKey:key];
+
+        } else if ([type isEqualToString:@"integer"]) {
+            NSNumber *value = [attribute objectForKey:@"value"];
+            [marAttributes setInteger:[value integerValue] forKey:key];
+
+        } else if ([type isEqualToString:@"integerArray"]) {
+            NSArray<NSNumber *> *value = [attribute valueForKey:@"value"];
+            [marAttributes setIntegers:value forKey:key];
+
+        } else if ([type isEqualToString:@"boolean"]) {
+            BOOL value = [[attribute valueForKey:@"value"] boolValue];
+            [marAttributes setBool:value forKey:key];
+
+        } else if ([type isEqualToString:@"float"]) {
+            NSNumber *numberValue = [attribute objectForKey:@"value"];
+            [marAttributes setFloat:[numberValue floatValue] forKey:key];
+
+        } else if ([type isEqualToString:@"floatArray"]) {
+            NSArray<NSNumber *> *value = [attribute objectForKey:@"value"];
+            [marAttributes setFloats:value forKey:key];
+
+        } else if ([type isEqualToString:@"date"]) {
+            NSNumber *millisecondsValue = [attribute objectForKey:@"value"];
+            NSNumber *value = @([millisecondsValue doubleValue] / 1000);
+
+            if (![value isKindOfClass:[NSNumber class]]) {
+                return;
+            }
+
+            NSDate *date = [NSDate dateWithTimeIntervalSince1970:[value doubleValue]];
+            if (date) {
+                [marAttributes setDate:date forKey:key];
+            } else {
+                return;
+            }
+
+        } else if ([type isEqualToString:@"dateArray"]) {
+            NSArray<NSNumber *> *value = [attribute objectForKey:@"value"];
+            NSMutableArray<NSDate *> *dates = [[NSMutableArray alloc] init];
+            for (NSNumber *millisecondsValue in value) {
+                NSNumber *secondsValue = @([millisecondsValue doubleValue] / 1000);
+
+                if (![secondsValue isKindOfClass:[NSNumber class]]) {
+                    continue;
+                }
+
+                NSDate *date = [NSDate dateWithTimeIntervalSince1970:[secondsValue doubleValue]];
+                if (date) {
+                    [dates addObject:date];
+                }
+            }
+
+            [marAttributes setDates:dates forKey:key];
+        }
+    }];
+
+    [engageBySailthru setAttributes:marAttributes withCompletion:^(NSError * _Nullable error) {
+        if (error) {
+            [RNEngageBySailthru rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(removeAttribute:(NSString *)key resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    [[self engageBySailthruWithRejecter:reject] removeAttributeWithKey:key withCompletion:^(NSError * _Nullable error) {
+        if (error) {
+            [RNEngageBySailthru rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(clearAttributes:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    [[self engageBySailthruWithRejecter:reject] clearAttributesWithCompletion:^(NSError * _Nullable error) {
+        if (error) {
+            [RNEngageBySailthru rejectPromise:reject withError:error];
+        } else {
+            resolve(nil);
+        }
+    }];
+}
+
 #pragma mark - Events
 
 RCT_EXPORT_METHOD(logEvent:(NSString *)name) {

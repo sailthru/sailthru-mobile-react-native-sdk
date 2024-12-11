@@ -181,7 +181,7 @@ class JsonConverterTest {
 
         val writableArray = jsonConverter.convertJsonToArray(jsonArray)
 
-        assertEquals("thing", writableArray.getMap(0).getString("some"))
+        assertEquals("thing", writableArray.getMap(0)?.getString("some"))
     }
 
     @Test
@@ -195,7 +195,7 @@ class JsonConverterTest {
 
         val writableArray = jsonConverter.convertJsonToArray(jsonArray)
 
-        assertEquals("inner string", writableArray.getArray(0).getString(0))
+        assertEquals("inner string", writableArray.getArray(0)?.getString(0))
     }
 
     @Test
@@ -221,8 +221,8 @@ class JsonConverterTest {
         assertEquals(123, writableArray.getInt(1))
         assertEquals(1.23, writableArray.getDouble(2), 0.001)
         assertEquals("test string", writableArray.getString(3))
-        assertEquals("thing", writableArray.getMap(4).getString("some"))
-        assertEquals("inner string", writableArray.getArray(5).getString(0))
+        assertEquals("thing", writableArray.getMap(4)?.getString("some"))
+        assertEquals("inner string", writableArray.getArray(5)?.getString(0))
     }
 
 
