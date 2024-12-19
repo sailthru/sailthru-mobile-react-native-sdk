@@ -1,4 +1,4 @@
-import { EngageBySailthru } from "../index";
+import { EngageBySailthru } from "../src/index";
 
 describe("PurchaseItem", () => {
   var purchaseItem;
