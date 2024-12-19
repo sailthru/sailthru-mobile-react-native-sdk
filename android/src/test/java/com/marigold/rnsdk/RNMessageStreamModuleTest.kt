@@ -54,13 +54,14 @@ class RNMessageStreamModuleTest {
     private lateinit var messageStream: MessageStream
 
     private lateinit var rnMessageStreamModule: RNMessageStreamModule
-    private lateinit var rnMessageStreamModuleSpy: RNMessageStreamModule
+    private lateinit var rnMessageStreamModuleImplSpy: RNMessageStreamModuleImpl
 
     @Before
     fun setup() {
         rnMessageStreamModule = RNMessageStreamModule(mockContext, true)
-        rnMessageStreamModule.jsonConverter = jsonConverter
-        rnMessageStreamModuleSpy = Mockito.spy(rnMessageStreamModule)
+        rnMessageStreamModule.rnMessageStreamModuleImpl.jsonConverter = jsonConverter
+        rnMessageStreamModuleImplSpy = Mockito.spy(rnMessageStreamModule.rnMessageStreamModuleImpl)
+        rnMessageStreamModule.rnMessageStreamModuleImpl = rnMessageStreamModuleImplSpy
 
         messageStream = staticMessageStream.constructed()[0]
     }
@@ -71,7 +72,7 @@ class RNMessageStreamModuleTest {
         val module: DeviceEventManagerModule.RCTDeviceEventEmitter = mock()
         val writableMap: WritableMap = mock()
 
-        val shouldPresent = rnMessageStreamModuleSpy.shouldPresentInAppNotification(message)
+        val shouldPresent = rnMessageStreamModuleImplSpy.shouldPresentInAppNotification(message)
 
         verify(mockContext, Mockito.times(0)).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
         verify(module, Mockito.times(0)).emit("inappnotification", writableMap)
@@ -90,8 +91,8 @@ class RNMessageStreamModuleTest {
         doReturn(writableMap).whenever(jsonConverter).convertJsonToMap(jsonObject)
         doReturn(module).whenever(mockContext).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
 
-        rnMessageStreamModuleSpy.useDefaultInAppNotification(false)
-        val shouldPresent = rnMessageStreamModuleSpy.shouldPresentInAppNotification(message)
+        rnMessageStreamModule.useDefaultInAppNotification(false)
+        val shouldPresent = rnMessageStreamModuleImplSpy.shouldPresentInAppNotification(message)
 
         verify(mockContext).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
         verify(module).emit("inappnotification", writableMap)
@@ -110,11 +111,11 @@ class RNMessageStreamModuleTest {
         doReturn(writableMap).whenever(jsonConverter).convertJsonToMap(jsonObject)
         doReturn(module).whenever(mockContext).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
 
-        rnMessageStreamModuleSpy.useDefaultInAppNotification(false)
+        rnMessageStreamModule.useDefaultInAppNotification(false)
         val job = launch {
-            Assert.assertFalse(rnMessageStreamModuleSpy.shouldPresentInAppNotification(message))
+            Assert.assertFalse(rnMessageStreamModuleImplSpy.shouldPresentInAppNotification(message))
         }
-        rnMessageStreamModuleSpy.notifyInAppHandled(true)
+        rnMessageStreamModule.notifyInAppHandled(true)
         job.join()
     }
 
@@ -129,11 +130,11 @@ class RNMessageStreamModuleTest {
         doReturn(writableMap).whenever(jsonConverter).convertJsonToMap(jsonObject)
         doReturn(module).whenever(mockContext).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
 
-        rnMessageStreamModuleSpy.useDefaultInAppNotification(false)
+        rnMessageStreamModuleImplSpy.useDefaultInAppNotification(false)
         val job = launch {
-            Assert.assertTrue(rnMessageStreamModuleSpy.shouldPresentInAppNotification(message))
+            Assert.assertTrue(rnMessageStreamModuleImplSpy.shouldPresentInAppNotification(message))
         }
-        rnMessageStreamModuleSpy.notifyInAppHandled(false)
+        rnMessageStreamModule.notifyInAppHandled(false)
         job.join()
     }
 
@@ -145,8 +146,8 @@ class RNMessageStreamModuleTest {
         doReturn(jsonObject).whenever(message).toJSON()
         doThrow(jsonException).whenever(jsonConverter).convertJsonToMap(jsonObject)
 
-        rnMessageStreamModuleSpy.useDefaultInAppNotification(false)
-        val shouldPresent = rnMessageStreamModuleSpy.shouldPresentInAppNotification(message)
+        rnMessageStreamModule.useDefaultInAppNotification(false)
+        val shouldPresent = rnMessageStreamModuleImplSpy.shouldPresentInAppNotification(message)
 
         verify(mockContext, Mockito.times(0)).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
         verify(jsonException).printStackTrace()
@@ -161,7 +162,7 @@ class RNMessageStreamModuleTest {
         val error: Error = mock()
 
         // Initiate test
-        rnMessageStreamModuleSpy.getMessages(promise)
+        rnMessageStreamModule.getMessages(promise)
 
         // Capture MessagesHandler to verify behaviour
         val argumentCaptor = ArgumentCaptor.forClass(MessageStream.MessagesHandler::class.java)
@@ -169,7 +170,7 @@ class RNMessageStreamModuleTest {
         val messagesHandler = argumentCaptor.value
 
         // Replace native array with mock
-        doReturn(writableArray).whenever(rnMessageStreamModuleSpy).getWritableArray()
+        doReturn(writableArray).whenever(rnMessageStreamModuleImplSpy).getWritableArray()
 
         // Setup message array
         val messages: ArrayList<Message> = ArrayList()
@@ -184,7 +185,7 @@ class RNMessageStreamModuleTest {
 
         // Test error handler
         messagesHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, errorMessage)
+        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, errorMessage)
     }
 
     @Test
@@ -193,10 +194,9 @@ class RNMessageStreamModuleTest {
         // Create mocks
         val promise: Promise = mock()
         val error: Error = mock()
-        val moduleSpy = Mockito.spy(rnMessageStreamModule)
 
         // Initiate test
-        moduleSpy.clearMessages(promise)
+        rnMessageStreamModule.clearMessages(promise)
 
         // Capture MarigoldHandler to verify behaviour
         verify(messageStream).clearMessages(capture(messageStreamVoidCaptor))
@@ -212,7 +212,7 @@ class RNMessageStreamModuleTest {
 
         // Test error handler
         handler.onFailure(error)
-        verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, errorMessage)
+        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, errorMessage)
     }
 
     @Test
@@ -240,7 +240,7 @@ class RNMessageStreamModuleTest {
 
         // Test error handler
         countHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, errorMessage)
+        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, errorMessage)
     }
 
     @Test
@@ -251,11 +251,10 @@ class RNMessageStreamModuleTest {
         val error: Error = mock()
         val readableMap: ReadableMap = mock()
         val message: Message = mock()
-        val moduleSpy = Mockito.spy(rnMessageStreamModule)
-        doReturn(message).whenever(moduleSpy).getMessage(readableMap, promise)
+        doReturn(message).whenever(rnMessageStreamModuleImplSpy).getMessage(readableMap, promise)
 
         // Initiate test
-        moduleSpy.removeMessage(readableMap, promise)
+        rnMessageStreamModule.removeMessage(readableMap, promise)
 
         // Capture MarigoldHandler to verify behaviour
         val argumentCaptor = ArgumentCaptor.forClass(MessageStream.MessageDeletedHandler::class.java)
@@ -272,7 +271,7 @@ class RNMessageStreamModuleTest {
 
         // Test error handler
         handler.onFailure(error)
-        verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, errorMessage)
+        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, errorMessage)
     }
 
     @Test
@@ -282,13 +281,12 @@ class RNMessageStreamModuleTest {
         val promise: Promise = mock()
         val readableMap: ReadableMap = mock()
         val jsonException = JSONException("test exception")
-        val moduleSpy = Mockito.spy(rnMessageStreamModule)
-        doThrow(jsonException).whenever(moduleSpy).getMessage(readableMap, promise)
+        doThrow(jsonException).whenever(rnMessageStreamModuleImplSpy).getMessage(readableMap, promise)
 
         // Initiate test
         Assert.assertThrows(JSONException::class.java) {
-            moduleSpy.removeMessage(readableMap, promise)
-            verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, jsonException.message)
+            rnMessageStreamModule.removeMessage(readableMap, promise)
+            verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, jsonException.message)
         }
 
         // Verify result
@@ -302,10 +300,10 @@ class RNMessageStreamModuleTest {
         val typeCode = 0
         val readableMap: ReadableMap = mock()
         val message: Message = mock()
-        doReturn(message).whenever(rnMessageStreamModuleSpy).getMessage(readableMap, null)
+        doReturn(message).whenever(rnMessageStreamModuleImplSpy).getMessage(readableMap, null)
 
         // Initiate test
-        rnMessageStreamModuleSpy.registerMessageImpression(typeCode, readableMap)
+        rnMessageStreamModule.registerMessageImpression(typeCode.toDouble(), readableMap)
 
         // Verify result
         verify(messageStream).registerMessageImpression(ImpressionType.IMPRESSION_TYPE_IN_APP_VIEW, message)
@@ -318,7 +316,7 @@ class RNMessageStreamModuleTest {
         val readableMap: ReadableMap = mock()
 
         // Initiate test
-        rnMessageStreamModuleSpy.registerMessageImpression(typeCode, readableMap)
+        rnMessageStreamModule.registerMessageImpression(typeCode.toDouble(), readableMap)
 
         // Verify result
         verify(messageStream, Mockito.times(0)).registerMessageImpression(any(), any())
@@ -331,11 +329,11 @@ class RNMessageStreamModuleTest {
         val typeCode = 0
         val readableMap: ReadableMap = mock()
         val jsonException: JSONException = mock()
-        doThrow(jsonException).whenever(rnMessageStreamModuleSpy).getMessage(readableMap, null)
+        doThrow(jsonException).whenever(rnMessageStreamModuleImplSpy).getMessage(readableMap, null)
 
         // Initiate test
         Assert.assertThrows(Exception::class.java) {
-            rnMessageStreamModuleSpy.registerMessageImpression(typeCode, readableMap)
+            rnMessageStreamModule.registerMessageImpression(typeCode.toDouble(), readableMap)
             verify(jsonException).printStackTrace()
         }
 
@@ -351,11 +349,10 @@ class RNMessageStreamModuleTest {
         val promise: Promise = mock()
         val message: Message = mock()
         val error: Error = mock()
-        val moduleSpy = Mockito.spy(rnMessageStreamModule)
-        doReturn(message).whenever(moduleSpy).getMessage(readableMap, promise)
+        doReturn(message).whenever(rnMessageStreamModuleImplSpy).getMessage(readableMap, promise)
 
         // Initiate test
-        moduleSpy.markMessageAsRead(readableMap, promise)
+        rnMessageStreamModule.markMessageAsRead(readableMap, promise)
 
         // Capture MarigoldHandler to verify behaviour
         val argumentCaptor: ArgumentCaptor<MessageStream.MessagesReadHandler> = ArgumentCaptor.forClass(MessageStream.MessagesReadHandler::class.java)
@@ -372,7 +369,7 @@ class RNMessageStreamModuleTest {
 
         // Test error handler
         handler.onFailure(error)
-        verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, errorMessage)
+        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, errorMessage)
     }
 
     @Test
@@ -382,13 +379,12 @@ class RNMessageStreamModuleTest {
         val readableMap: ReadableMap = mock()
         val promise: Promise = mock()
         val jsonException = JSONException("test exception")
-        val moduleSpy = Mockito.spy(rnMessageStreamModule)
-        doThrow(jsonException).whenever(moduleSpy).getMessage(readableMap, promise)
+        doThrow(jsonException).whenever(rnMessageStreamModuleImplSpy).getMessage(readableMap, promise)
 
         // Initiate test
         Assert.assertThrows(JSONException::class.java) {
-            moduleSpy.markMessageAsRead(readableMap, promise)
-            verify(promise).reject(RNMarigoldModule.ERROR_CODE_MESSAGES, jsonException.message)
+            rnMessageStreamModule.markMessageAsRead(readableMap, promise)
+            verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, jsonException.message)
         }
 
         // Verify result
@@ -406,12 +402,12 @@ class RNMessageStreamModuleTest {
         val intent: Intent = mock()
 
         // Mock behaviour
-        doReturn(messageID).whenever(message).getString(RNMarigoldModule.MESSAGE_ID)
-        doReturn(activity).whenever(rnMessageStreamModuleSpy).currentActivity()
-        doReturn(intent).whenever(rnMessageStreamModuleSpy).getMessageActivityIntent(any(), any())
+        doReturn(messageID).whenever(message).getString(RNMarigoldModuleImpl.MESSAGE_ID)
+        doReturn(intent).whenever(rnMessageStreamModuleImplSpy).getMessageActivityIntent(any(), any())
+        doReturn(activity).whenever(mockContext).currentActivity
 
         // Initiate test
-        rnMessageStreamModuleSpy.presentMessageDetail(message)
+        rnMessageStreamModule.presentMessageDetail(message)
 
         // Verify result
         verify(activity).startActivity(intent)
@@ -427,7 +423,7 @@ class RNMessageStreamModuleTest {
         doReturn(messageJson).whenever(jsonConverter).convertMapToJson(readableMap)
 
         // Initiate test
-        val message = rnMessageStreamModuleSpy.getMessage(readableMap, promise)
+        val message = rnMessageStreamModuleImplSpy.getMessage(readableMap, promise)
 
         // Verify result
         verify(jsonConverter).convertMapToJson(readableMap)

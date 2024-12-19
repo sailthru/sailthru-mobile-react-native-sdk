@@ -2,8 +2,6 @@
 #import <Foundation/Foundation.h>
 #import <React/RCTBridgeDelegate.h>
 
-#include <Marigold/Marigold.h>
-
 @interface RNMarigoldBridge : NSObject <RCTBridgeDelegate>
 
 @property (strong, nonatomic) NSURL *jsCodeLocation;

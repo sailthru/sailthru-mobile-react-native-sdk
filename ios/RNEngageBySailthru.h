@@ -1,15 +1,8 @@
-
+#ifdef RCT_NEW_ARCH_ENABLED
+#import <ReactNativeMarigoldSpec/ReactNativeMarigoldSpec.h>
+@interface RNEngageBySailthru : NSObject <NativeRNEngageBySailthruSpec>
+#else
 #import <React/RCTBridgeModule.h>
-#import <React/RCTEventEmitter.h>
-
-#include <Marigold/Marigold.h>
-
-@interface RNEngageBySailthru : RCTEventEmitter <RCTBridgeModule>
-
-/**
- * Return array of supported RN events.
- *
- * @return array containing supported events strings.
- */
-- (NSArray<NSString *> *)supportedEvents;
+@interface RNEngageBySailthru : NSObject <RCTBridgeModule>
+#endif
 @end

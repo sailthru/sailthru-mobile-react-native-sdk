@@ -1,10 +1,12 @@
-
-#import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
-
-#include <Marigold/Marigold.h>
-
+#import <Marigold/Marigold.h>
+#ifdef RCT_NEW_ARCH_ENABLED
+#import <ReactNativeMarigoldSpec/ReactNativeMarigoldSpec.h>
+@interface RNMessageStream : RCTEventEmitter <NativeRNMessageStreamSpec, MARMessageStreamDelegate>
+#else
+#import <React/RCTBridgeModule.h>
 @interface RNMessageStream : RCTEventEmitter <RCTBridgeModule, MARMessageStreamDelegate>
+#endif
 
 @property BOOL displayInAppNotifications;
 @property (nonatomic, strong) dispatch_semaphore_t eventSemaphore;

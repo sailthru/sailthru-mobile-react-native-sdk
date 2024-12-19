@@ -2,6 +2,10 @@
 #import "RNMessageStream.h"
 #import <UserNotifications/UserNotifications.h>
 
+@interface RNMessageStream () <MARMessageStreamDelegate>
+
+@end
+
 @interface MARMessage ()
 
 - (nullable instancetype)initWithDictionary:(nonnull NSDictionary *)dictionary;
@@ -99,8 +103,7 @@ RCT_EXPORT_METHOD(useDefaultInAppNotification:(BOOL)useDefault) {
 #pragma mark - Messages
 // Note: We use promises for our return values, not callbacks.
 
-RCT_REMAP_METHOD(getMessages, resolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(getMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     [self.messageStream messages:^(NSArray * _Nullable messages, NSError * _Nullable error) {
         if (error) {
             [RNMessageStream rejectPromise:reject withError:error];
@@ -112,8 +115,7 @@ RCT_REMAP_METHOD(getMessages, resolver:(RCTPromiseResolveBlock)resolve
 
 #pragma mark - Message Stream
 
-RCT_EXPORT_METHOD(getUnreadCount:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(getUnreadCount:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     [self.messageStream unreadCount:^(NSUInteger unreadCount, NSError * _Nullable error) {
         if (error) {
             [RNMessageStream rejectPromise:reject withError:error];
@@ -124,8 +126,8 @@ RCT_EXPORT_METHOD(getUnreadCount:(RCTPromiseResolveBlock)resolve
 }
 
 
-RCT_EXPORT_METHOD(markMessageAsRead:(NSDictionary*)jsDict resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(markMessageAsRead:(NSDictionary*)jsDict resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
     [self.messageStream markMessageAsRead:[RNMessageStream messageFromDict:jsDict] withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNMessageStream rejectPromise:reject withError:error];
@@ -135,8 +137,8 @@ RCT_EXPORT_METHOD(markMessageAsRead:(NSDictionary*)jsDict resolver:(RCTPromiseRe
     }];
 }
 
-RCT_EXPORT_METHOD(removeMessage:(NSDictionary *)jsDict resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(removeMessage:(NSDictionary *)jsDict resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
     [self.messageStream removeMessage:[RNMessageStream messageFromDict:jsDict] withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNMessageStream rejectPromise:reject withError:error];
@@ -158,11 +160,11 @@ RCT_EXPORT_METHOD(dismissMessageDetail) {
     });
 }
 
-RCT_EXPORT_METHOD(registerMessageImpression:(NSInteger)impressionType forMessage:(NSDictionary *)jsDict) {
-    [self.messageStream registerImpressionWithType:impressionType forMessage:[RNMessageStream messageFromDict:jsDict]];
+RCT_EXPORT_METHOD(registerMessageImpression:(double)impressionType message:(NSDictionary *)jsDict) {
+    [self.messageStream registerImpressionWithType:(MARImpressionType)impressionType forMessage:[RNMessageStream messageFromDict:jsDict]];
 }
 
-RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     [self.messageStream clearMessagesWithResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNMessageStream rejectPromise:reject withError:error];
@@ -171,6 +173,14 @@ RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
         }
     }];
 }
+
+#ifdef RCT_NEW_ARCH_ENABLED
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params
+{
+    return std::make_shared<facebook::react::NativeRNMessageStreamSpecJSI>(params);
+}
+#endif
+
 #pragma mark - Helper Functions
 
 + (void)rejectPromise:(RCTPromiseRejectBlock)reject withError:(NSError *)error {

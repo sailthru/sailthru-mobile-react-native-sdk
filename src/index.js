@@ -1,5 +1,6 @@
-import { NativeModules } from 'react-native';
-const { RNMarigold, RNEngageBySailthru, RNMessageStream } = NativeModules;
+import RNMarigold from './NativeRNMarigold'
+import RNMessageStream from './NativeRNMessageStream'
+import RNEngageBySailthru from './NativeRNEngageBySailthru'
 
 /**
  * A map for submitting collections of attributes to the SDK.

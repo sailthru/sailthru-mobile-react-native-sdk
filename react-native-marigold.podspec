@@ -12,9 +12,10 @@ Pod::Spec.new do |s|
   s.platforms    = { :ios => "15.6" }
 
   s.source       = { :git => "https://github.com/sailthru/sailthru-mobile-react-native-sdk.git", :tag => "v#{s.version}" }
-  s.source_files = "ios/*.{h,m}"
+  s.source_files = "ios/**/*.{h,m,mm,cpp}"
 
   s.dependency 'Marigold', '18.1.0'
   s.dependency 'Marigold-Extension', '18.1.0'
-  s.dependency 'React-Core'
+
+  install_modules_dependencies(s)
 end

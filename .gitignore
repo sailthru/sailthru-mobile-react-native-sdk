@@ -21,12 +21,16 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+**/.xcode/env.local
 
 # OS X
 .DS_Store
 
 # Node
 node_modules
+
+# Bundle
+vendor
 
 
 ### Gradle ###

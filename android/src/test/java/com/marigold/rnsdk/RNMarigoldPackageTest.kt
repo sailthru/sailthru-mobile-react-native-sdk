@@ -18,7 +18,7 @@ class RNMarigoldPackageTest {
     @Mock
     private lateinit var staticRnEngageBySailthru: MockedConstruction<RNEngageBySailthruModule>
     @Mock
-    private lateinit var staticRnMessageStreamModule: MockedConstruction<RNMessageStreamModule>
+    private lateinit var staticRnMessageStreamModuleImpl: MockedConstruction<RNMessageStreamModule>
 
     private lateinit var rnSTPackage: RNMarigoldPackage
 
@@ -33,7 +33,7 @@ class RNMarigoldPackageTest {
         Assert.assertEquals(3, nativeModules.size)
         Assert.assertEquals(staticRnMarigoldModule.constructed()[0], nativeModules[0])
         Assert.assertEquals(staticRnEngageBySailthru.constructed()[0], nativeModules[1])
-        Assert.assertEquals(staticRnMessageStreamModule.constructed()[0], nativeModules[2])
+        Assert.assertEquals(staticRnMessageStreamModuleImpl.constructed()[0], nativeModules[2])
     }
 
     @Test
