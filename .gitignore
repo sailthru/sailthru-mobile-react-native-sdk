@@ -21,7 +21,6 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
-**/.xcode/env.local
 
 # OS X
 .DS_Store
