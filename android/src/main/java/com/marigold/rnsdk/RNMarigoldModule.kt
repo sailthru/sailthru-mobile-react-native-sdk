@@ -29,7 +29,7 @@ class RNMarigoldModule(reactContext: ReactApplicationContext) : ReactContextBase
                 val setWrapperMethod = companionClass.getDeclaredMethod("setWrapper", *cArg)
 
                 setWrapperMethod.isAccessible = true
-                setWrapperMethod.invoke(Marigold.Companion, "React Native", "14.0.0")
+                setWrapperMethod.invoke(Marigold.Companion, "React Native", "15.0.0")
             } catch (e: NoSuchMethodException) {
                 e.printStackTrace()
             } catch (e: IllegalAccessException) {
