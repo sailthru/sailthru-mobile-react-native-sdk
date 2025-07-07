@@ -9,6 +9,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableArray
+import com.facebook.react.bridge.WritableMap
 import com.facebook.react.bridge.WritableNativeArray
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.marigold.sdk.MessageActivity
@@ -73,6 +74,33 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
     }
 
     @ReactMethod
+    fun getMessage(messageId: String, promise: Promise) {
+        messageStream.getMessage(messageId, object : MessageStream.MessageStreamHandler<Message> {
+            override fun onSuccess(message: Message) = try {
+                val toJsonMethod = Message::class.java.getDeclaredMethod("toJSON")
+                toJsonMethod.isAccessible = true
+
+                val messageMap = (toJsonMethod.invoke(message) as? JSONObject)?.let { messageJson ->
+                    jsonConverter.convertJsonToMap(messageJson)
+                }
+                promise.resolve(messageMap)
+            } catch (e: NoSuchMethodException) {
+                promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, e.message)
+            } catch (e: IllegalAccessException) {
+                promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, e.message)
+            } catch (e: JSONException) {
+                promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, e.message)
+            } catch (e: InvocationTargetException) {
+                promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, e.message)
+            }
+
+            override fun onFailure(error: Error) {
+                promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, error.message)
+            }
+        })
+    }
+
+    @ReactMethod
     fun getMessages(promise: Promise) {
         messageStream.getMessages(object : MessageStream.MessagesHandler {
             override fun onSuccess(messages: ArrayList<Message>) {
@@ -118,7 +146,7 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
 
     @ReactMethod
     fun removeMessage(messageMap: ReadableMap, promise: Promise) {
-        val message = getMessage(messageMap, promise) ?: return
+        val message = createMessage(messageMap, promise) ?: return
         messageStream.deleteMessage(message, object : MessageStream.MessageDeletedHandler {
             override fun onSuccess() {
                 promise.resolve(null)
@@ -151,13 +179,13 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
             2 -> ImpressionType.IMPRESSION_TYPE_DETAIL_VIEW
             else -> return
         }
-        val message = getMessage(messageMap, null) ?: return
+        val message = createMessage(messageMap, null) ?: return
         messageStream.registerMessageImpression(type, message)
     }
 
     @ReactMethod
     fun markMessageAsRead(messageMap: ReadableMap, promise: Promise) {
-        val message = getMessage(messageMap, promise) ?: return
+        val message = createMessage(messageMap, promise) ?: return
         messageStream.setMessageRead(message, object : MessageStream.MessagesReadHandler {
             override fun onSuccess() {
                 promise.resolve(null)
@@ -193,7 +221,7 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
  * Helper Methods
  */
     @VisibleForTesting
-    fun getMessage(messageMap: ReadableMap, promise: Promise?): Message? = try {
+    fun createMessage(messageMap: ReadableMap, promise: Promise?): Message? = try {
         val messageJson = jsonConverter.convertMapToJson(messageMap)
         val constructor = Message::class.java.getDeclaredConstructor(String::class.java)
         constructor.isAccessible = true

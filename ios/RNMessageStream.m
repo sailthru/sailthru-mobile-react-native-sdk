@@ -99,6 +99,17 @@ RCT_EXPORT_METHOD(useDefaultInAppNotification:(BOOL)useDefault) {
 #pragma mark - Messages
 // Note: We use promises for our return values, not callbacks.
 
+RCT_EXPORT_METHOD(getMessage:(NSString *)messageId resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+    [self.messageStream messageFor:messageId withCompletion:^(MARMessage * _Nullable message, NSError * _Nullable error) {
+        if (error) {
+            [RNMessageStream rejectPromise:reject withError:error];
+        } else {
+            resolve([message dictionary]);
+        }
+    }];
+}
+
 RCT_REMAP_METHOD(getMessages, resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject) {
     [self.messageStream messages:^(NSArray * _Nullable messages, NSError * _Nullable error) {

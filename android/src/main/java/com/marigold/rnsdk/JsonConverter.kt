@@ -56,8 +56,9 @@ internal class JsonConverter {
      */
     @JvmOverloads
     @Throws(JSONException::class)
-    fun convertMapToJson(readableMap: ReadableMap, doubleNumber: Boolean = true): JSONObject {
+    fun convertMapToJson(readableMap: ReadableMap?, doubleNumber: Boolean = true): JSONObject {
         val jsonObject = JSONObject()
+        readableMap ?: return jsonObject
         for (key in readableMap.toHashMap().keys) {
             val value = readableMap.getDynamic(key)
             when (value.type) {
@@ -70,8 +71,6 @@ internal class JsonConverter {
                 ReadableType.String -> jsonObject.put(key, value.asString())
                 ReadableType.Map -> jsonObject.put(key, convertMapToJson(value.asMap(), doubleNumber))
                 ReadableType.Array -> jsonObject.put(key, convertArrayToJson(value.asArray(), doubleNumber))
-                else -> {
-                }
             }
         }
         return jsonObject
@@ -82,8 +81,9 @@ internal class JsonConverter {
      */
     @JvmOverloads
     @Throws(JSONException::class)
-    fun convertArrayToJson(readableArray: ReadableArray, doubleNumber: Boolean = true): JSONArray {
+    fun convertArrayToJson(readableArray: ReadableArray?, doubleNumber: Boolean = true): JSONArray {
         val jsonArray = JSONArray()
+        readableArray ?: return jsonArray
         for (i in 0 until readableArray.size()) {
             val value = readableArray.getDynamic(i)
             when (value.type) {
@@ -97,8 +97,6 @@ internal class JsonConverter {
                 ReadableType.String -> jsonArray.put(value.asString())
                 ReadableType.Map -> jsonArray.put(convertMapToJson(value.asMap(), doubleNumber))
                 ReadableType.Array -> jsonArray.put(convertArrayToJson(value.asArray(), doubleNumber))
-                else -> {
-                }
             }
         }
         return jsonArray
