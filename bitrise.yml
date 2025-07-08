@@ -23,6 +23,10 @@ workflows:
         title: Run iOS Unit Tests
     - install-missing-android-tools: {}
     - gradle-runner:
+        title: Run Android Codegen for React Native New Architecture
+        inputs:
+        - gradle_task: ":generateCodegenArtifactsFromSchema"
+    - gradle-runner:
         title: Run Android Unit Tests
         inputs:
         - gradle_task: ":test"

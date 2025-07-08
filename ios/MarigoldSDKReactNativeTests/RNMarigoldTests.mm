@@ -5,9 +5,9 @@
 #import <UserNotifications/UserNotifications.h>
 #import <Marigold/Marigold.h>
 
+#ifndef RCT_NEW_ARCH_ENABLED
 // interface to expose methods for testing
 @interface RNMarigold ()
-
 -(instancetype)init;
 -(void)updateLocation:(CGFloat)lat lon:(CGFloat)lon;
 -(void)getDeviceID:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
@@ -19,8 +19,8 @@
 -(void)syncNotificationSettings;
 -(void)clearDevice:(NSInteger)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 -(void)setInAppNotificationsEnabled:(BOOL)enabled;
-
 @end
+#endif
 
 
 // interfaces to match RNMarigold

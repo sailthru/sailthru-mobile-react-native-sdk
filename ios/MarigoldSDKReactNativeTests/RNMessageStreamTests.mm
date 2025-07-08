@@ -5,10 +5,9 @@
 #import <OCMock/OCMock.h>
 #import <Marigold/Marigold.h>
 
-
+#ifndef RCT_NEW_ARCH_ENABLED
 // interface to expose methods for testing
 @interface RNMessageStream ()
-
 -(void)getMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 -(void)getUnreadCount:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 -(void)markMessageAsRead:(NSDictionary*)jsDict resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
@@ -19,8 +18,8 @@
 -(void)clearMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 -(void)useDefaultInAppNotification:(BOOL)useDefault;
 -(void)notifyInAppHandled:(BOOL)handled;
-
 @end
+#endif
 
 SPEC_BEGIN(RNMessageStreamSpec)
 

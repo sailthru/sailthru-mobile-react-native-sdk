@@ -4,9 +4,9 @@
 #import <UserNotifications/UserNotifications.h>
 #import <Marigold/Marigold.h>
 
+#ifndef RCT_NEW_ARCH_ENABLED
 // interface to expose methods for testing
 @interface RNEngageBySailthru ()
-
 -(EngageBySailthru *)engageBySailthruWithResolver:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 -(void)setAttributes:(NSDictionary *)attributeMap resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 -(void)removeAttribute:(NSString *)key resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
@@ -23,6 +23,7 @@
 -(void)logAbandonedCart:(NSDictionary *)purchaseDict resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 -(void)clearEvents:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 @end
+#endif
 
 SPEC_BEGIN(RNEngageBySailthruSpec)
 

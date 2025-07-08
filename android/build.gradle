@@ -10,7 +10,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:8.7.3"
+        classpath "com.android.tools.build:gradle:8.9.3"
         // noinspection DifferentKotlinGradleVersion
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.facebook.react:react-native-gradle-plugin"
@@ -106,7 +106,7 @@ repositories {
 dependencies {
     //noinspection GradleDynamicVersion
     api "com.facebook.react:react-android:+"
-    api "com.marigold.sdk:marigold:24.0.0"
+    api "com.marigold.sdk:marigold:25.0.0"
 
     testImplementation 'org.mockito.kotlin:mockito-kotlin:5.3.1'
     testImplementation 'junit:junit:4.13.2'
