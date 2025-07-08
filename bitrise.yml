@@ -26,10 +26,10 @@ workflows:
         title: Run Android Codegen for React Native New Architecture
         inputs:
         - gradle_task: ":generateCodegenArtifactsFromSchema"
-    - gradle-runner:
-        title: Run Android Unit Tests
+    - android-unit-test@1:
         inputs:
-        - gradle_task: ":test"
+        - is_debug: 'true'
+        - variant: debug
     - slack:
         is_always_run: true
         run_if: "{{(not .IsPR) | and .IsBuildFailed}}"
