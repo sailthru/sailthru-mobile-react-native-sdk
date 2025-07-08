@@ -30,6 +30,7 @@ workflows:
         inputs:
         - is_debug: 'true'
         - variant: debug
+        - project_location: android/
     - slack:
         is_always_run: true
         run_if: "{{(not .IsPR) | and .IsBuildFailed}}"
