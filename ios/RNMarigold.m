@@ -71,7 +71,7 @@ RCT_EXPORT_METHOD(setGeoIPTrackingEnabled:(BOOL)enabled) {
     [self.marigold setGeoIPTrackingEnabled:enabled];
 }
 
-RCT_EXPORT_METHOD(setGeoIPTrackingEnabled:(BOOL)enabled resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(setGeoIPTrackingEnabledWithPromise:(BOOL)enabled resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     [self.marigold setGeoIPTrackingEnabled:enabled withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNMarigold rejectPromise:reject withError:error];

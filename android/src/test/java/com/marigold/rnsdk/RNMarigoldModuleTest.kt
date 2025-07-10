@@ -152,7 +152,7 @@ class RNMarigoldModuleTest {
         val error: Error = mock()
 
         // Initiate test
-        rnMarigoldModule.setGeoIPTrackingEnabled(false, promise)
+        rnMarigoldModule.setGeoIPTrackingEnabledWithPromise(false, promise)
 
         // Verify result
         verify(marigold).setGeoIpTrackingEnabled(eq(false), capture(marigoldVoidCaptor))
