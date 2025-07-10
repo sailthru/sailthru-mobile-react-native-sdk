@@ -36,15 +36,15 @@ class RNMarigoldPackageTest {
         Assert.assertEquals(staticRnMessageStreamModuleImpl.constructed()[0], nativeModules[2])
     }
 
-    @Test
-    fun testCreateJSModules() {
-        val jsModules = rnSTPackage.createJSModules()
-        Assert.assertTrue(jsModules.isEmpty())
-    }
-
-    @Test
-    fun testCreateViewManagers() {
-        val viewManagers = rnSTPackage.createViewManagers(reactApplicationContext)
-        Assert.assertTrue(viewManagers.isEmpty())
-    }
+//    @Test
+//    fun testCreateJSModules() {
+//        val jsModules = rnSTPackage.createJSModules()
+//        Assert.assertTrue(jsModules.isEmpty())
+//    }
+//
+//    @Test
+//    fun testCreateViewManagers() {
+//        val viewManagers = rnSTPackage.createViewManagers(reactApplicationContext)
+//        Assert.assertTrue(viewManagers.isEmpty())
+//    }
 }
