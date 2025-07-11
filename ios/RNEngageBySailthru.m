@@ -141,7 +141,7 @@ RCT_EXPORT_METHOD(logEvent:(NSString *)name) {
     [[self engageBySailthruWithRejecter:nil] logEvent:name];
 }
 
-RCT_EXPORT_METHOD(logEvent:(NSString *)name withVars:(NSDictionary*)varsDict) {
+RCT_EXPORT_METHOD(logEventWithVars:(NSString *)name vars:(NSDictionary*)varsDict) {
     [[self engageBySailthruWithRejecter:nil] logEvent:name withVars:varsDict];
 }
 

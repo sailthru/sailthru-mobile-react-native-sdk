@@ -12,7 +12,7 @@
 -(void)removeAttribute:(NSString *)key resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)clearAttributes:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)logEvent:(NSString *)name;
--(void)logEvent:(NSString *)name withVars:(NSDictionary*)varsDict;
+-(void)logEventWithVars:(NSString *)name vars:(NSDictionary*)varsDict;
 -(void)setUserId:(NSString *)userID resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)setUserEmail:(NSString *)userEmail resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)trackClick:(NSString *)sectionID url:(NSString *)url resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
@@ -267,13 +267,13 @@ describe(@"RNEngageBySailthru", ^{
         });
     });
     
-    context(@"the logEvent:withVars method", ^{
+    context(@"the logEventWithVars:vars: method", ^{
         it(@"should call native method", ^{
             NSString *event = @"Test Event";
             NSDictionary* eventVars = @{ @"varKey" : @"varValue" };
             [[engageBySailthru should] receive:@selector(logEvent:withVars:) withArguments:event, eventVars];
             
-            [rnEngageBySailthru logEvent:event withVars:eventVars];
+            [rnEngageBySailthru logEventWithVars:event vars:eventVars];
         });
     });
     
