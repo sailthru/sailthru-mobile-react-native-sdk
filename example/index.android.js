@@ -60,7 +60,7 @@ class ReactNativeSampleApp extends Component {
       var eventVars = {
         "varKey" : "varValue"
       };
-      EngageBySailthru.logEvent("this is my event with vars", eventVars);
+      EngageBySailthru.logEventWithVars("this is my event with vars", eventVars);
 
       MessageStream.getUnreadCount().then(function(count) {
         console.log(count);
