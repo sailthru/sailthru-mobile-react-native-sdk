@@ -13,7 +13,7 @@
 -(void)updateLocation:(CGFloat)lat lon:(CGFloat)lon;
 -(void)getDeviceID:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)setGeoIPTrackingEnabled:(BOOL)enabled;
--(void)setGeoIPTrackingEnabled:(BOOL)enabled resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)setGeoIPTrackingEnabledWithPromise:(BOOL)enabled resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)setGeoIPTrackingDefault:(BOOL)enabled;
 -(void)setCrashHandlersEnabled:(BOOL)enabled;
 -(void)logRegistrationEvent:(NSString * _Nullable)userId;
@@ -142,11 +142,11 @@ describe(@"RNMarigold", ^{
         });
     });
     
-    context(@"the setGeoIPTrackingEnabled:resolver:rejecter: method", ^{
+    context(@"the setGeoIPTrackingEnabledWithPromise:resolver:rejecter: method", ^{
         it(@"should call native method", ^{
             [[marigold should] receive:@selector(setGeoIPTrackingEnabled:withResponse:) withArguments:theValue(YES), any(), any()];
             
-            [rnMarigold setGeoIPTrackingEnabled:YES resolver:nil rejecter:nil];
+            [rnMarigold setGeoIPTrackingEnabledWithPromise:YES resolver:nil rejecter:nil];
         });
         
         it(@"should return success", ^{
@@ -158,7 +158,7 @@ describe(@"RNMarigold", ^{
             KWCaptureSpy *capture = [marigold captureArgument:@selector(setGeoIPTrackingEnabled:withResponse:) atIndex:1];
             
             // Start test
-            [rnMarigold setGeoIPTrackingEnabled:YES resolver:resolve rejecter:nil];
+            [rnMarigold setGeoIPTrackingEnabledWithPromise:YES resolver:resolve rejecter:nil];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
@@ -177,7 +177,7 @@ describe(@"RNMarigold", ^{
             KWCaptureSpy *capture = [marigold captureArgument:@selector(setGeoIPTrackingEnabled:withResponse:) atIndex:1];
             
             // Start test
-            [rnMarigold setGeoIPTrackingEnabled:YES resolver:nil rejecter:reject];
+            [rnMarigold setGeoIPTrackingEnabledWithPromise:YES resolver:nil rejecter:reject];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
