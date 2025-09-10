@@ -25,6 +25,7 @@ workflows:
     - gradle-runner:
         title: Run Android Codegen for React Native New Architecture
         inputs:
+        - build_root_directory: ./android
         - gradle_task: ":generateCodegenArtifactsFromSchema"
     - android-unit-test@1:
         inputs:
