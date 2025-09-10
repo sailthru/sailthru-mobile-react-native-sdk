@@ -21,7 +21,7 @@ class RNMarigoldPackage: BaseReactPackage() {
 
     override fun getReactModuleInfoProvider(): ReactModuleInfoProvider {
         val isTurboModule = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
-        return {
+        return ReactModuleInfoProvider {
             hashMapOf<String, ReactModuleInfo>(
                 RNMarigoldModuleImpl.NAME to ReactModuleInfo(
                     RNMarigoldModuleImpl.NAME,
@@ -48,6 +48,6 @@ class RNMarigoldPackage: BaseReactPackage() {
                     isTurboModule
                 )
             )
-        } as ReactModuleInfoProvider
+        }
     }
 }
