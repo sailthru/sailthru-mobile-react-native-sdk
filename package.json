@@ -20,8 +20,8 @@
     "push notifications",
     "messaging"
   ],
-  "react-native": "src/index",
-  "source": "src/index",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
   "name": "react-native-marigold",
   "optionalDependencies": {},
   "peerDependencies": {
