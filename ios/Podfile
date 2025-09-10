@@ -1,6 +1,8 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
+marigold_version = File.read(File.join(__dir__, '.marigold-ios-version'))
+
 ENV['RCT_NEW_ARCH_ENABLED'] = '1'
 # Uncomment the next line to define a global platform for your project
 platform :ios, '15.6'
@@ -25,8 +27,9 @@ target "MarigoldSDKReactNative" do
 
   target "MarigoldSDKReactNativeTests" do
     # Pods for testing
-    pod "Marigold", "18.1.0"
-    pod "Marigold-Extension", "18.1.0"
+    pod "Marigold", marigold_version
+    pod "Marigold-Extension", marigold_version
+
     pod "Kiwi", "2.4.0"
     pod "OCMock", "3.1.2"
   end

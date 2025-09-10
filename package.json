@@ -48,6 +48,7 @@
   "files": [
     "/src",
     "/ios/RN*",
+    "/ios/.marigold-ios-version",
     "/react-native-marigold.podspec",
     "/android/src/main",
     "/android/src/oldarch",
