@@ -4,11 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import androidx.annotation.VisibleForTesting
 import com.facebook.react.bridge.Promise
-import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableArray
+import com.facebook.react.bridge.WritableMap
 import com.facebook.react.bridge.WritableNativeArray
-import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.marigold.sdk.MessageActivity
 import com.marigold.sdk.MessageStream
 import com.marigold.sdk.enums.ImpressionType
@@ -20,10 +19,17 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.lang.reflect.InvocationTargetException
 
-class RNMessageStreamModuleImpl (private val reactContext: ReactContext, displayInAppNotifications: Boolean) : MessageStream.OnInAppNotificationDisplayListener  {
+class RNMessageStreamModuleImpl (
+    displayInAppNotifications: Boolean,
+    @get:VisibleForTesting internal val inAppNotificationEmitter: InAppNotificationEmitter
+) : MessageStream.OnInAppNotificationDisplayListener  {
 
     companion object {
         const val NAME = "RNMessageStream"
+    }
+
+    fun interface InAppNotificationEmitter {
+        fun emitInAppNotificationMessage(messageData: WritableMap)
     }
 
     @VisibleForTesting
@@ -52,8 +58,7 @@ class RNMessageStreamModuleImpl (private val reactContext: ReactContext, display
         return withTimeoutOrNull(5000L) {
             try {
                 val writableMap = jsonConverter.convertJsonToMap(message.toJSON())
-                val emitter = reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                emitter?.emit("inappnotification", writableMap)
+                inAppNotificationEmitter.emitInAppNotificationMessage(writableMap)
                 eventChannel.receive()
             } catch (e: JSONException) {
                 e.printStackTrace()

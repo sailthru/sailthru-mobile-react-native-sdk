@@ -5,9 +5,13 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
 import org.jetbrains.annotations.VisibleForTesting
 
-class RNMessageStreamModule(reactContext: ReactApplicationContext, displayInAppNotifications: Boolean) : NativeRNMessageStreamSpec(reactContext) {
+class RNMessageStreamModule(private val reactContext: ReactApplicationContext, displayInAppNotifications: Boolean) : NativeRNMessageStreamSpec(reactContext) {
+    private val inAppNotificationEmitter = RNMessageStreamModuleImpl.InAppNotificationEmitter { writableMap ->
+        emitOnInAppNotification(writableMap)
+    }
+
     @VisibleForTesting
-    internal var rnMessageStreamModuleImpl = RNMessageStreamModuleImpl(reactContext, displayInAppNotifications)
+    internal var rnMessageStreamModuleImpl = RNMessageStreamModuleImpl(displayInAppNotifications, inAppNotificationEmitter)
 
     override fun getName(): String {
         return RNMessageStreamModuleImpl.NAME
@@ -38,7 +42,7 @@ class RNMessageStreamModule(reactContext: ReactApplicationContext, displayInAppN
     }
 
     override fun presentMessageDetail(message: ReadableMap?) {
-        rnMessageStreamModuleImpl.presentMessageDetail(message, currentActivity)
+        rnMessageStreamModuleImpl.presentMessageDetail(message, reactContext.currentActivity)
     }
 
     override fun dismissMessageDetail() {

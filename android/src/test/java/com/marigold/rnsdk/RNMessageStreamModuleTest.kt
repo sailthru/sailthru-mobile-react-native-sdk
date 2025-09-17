@@ -8,6 +8,7 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.marigold.rnsdk.RNMessageStreamModuleImpl.InAppNotificationEmitter
 import com.marigold.sdk.MessageStream
 import com.marigold.sdk.enums.ImpressionType
 import com.marigold.sdk.model.Message
@@ -83,19 +84,18 @@ class RNMessageStreamModuleTest {
     @Test
     fun testShouldPresentInAppNotification() {
         val message: Message = mock()
-        val module: DeviceEventManagerModule.RCTDeviceEventEmitter = mock()
+        val emitter: InAppNotificationEmitter = mock()
         val writableMap: WritableMap = mock()
         val jsonObject: JSONObject = mock()
 
         doReturn(jsonObject).whenever(message).toJSON()
         doReturn(writableMap).whenever(jsonConverter).convertJsonToMap(jsonObject)
-        doReturn(module).whenever(mockContext).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        doReturn(emitter).whenever(rnMessageStreamModuleImplSpy).inAppNotificationEmitter
 
         rnMessageStreamModule.useDefaultInAppNotification(false)
         val shouldPresent = rnMessageStreamModuleImplSpy.shouldPresentInAppNotification(message)
 
-        verify(mockContext).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-        verify(module).emit("inappnotification", writableMap)
+        verify(emitter).emitInAppNotificationMessage(writableMap)
 
         Assert.assertTrue(shouldPresent)
     }
@@ -103,13 +103,13 @@ class RNMessageStreamModuleTest {
     @Test
     fun testShouldPresentInAppNotificationInAppHandledTrue() = runBlocking {
         val message: Message = mock()
-        val module: DeviceEventManagerModule.RCTDeviceEventEmitter = mock()
+        val emitter: InAppNotificationEmitter = mock()
         val writableMap: WritableMap = mock()
         val jsonObject: JSONObject = mock()
 
         doReturn(jsonObject).whenever(message).toJSON()
         doReturn(writableMap).whenever(jsonConverter).convertJsonToMap(jsonObject)
-        doReturn(module).whenever(mockContext).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        doReturn(emitter).whenever(rnMessageStreamModuleImplSpy).inAppNotificationEmitter
 
         rnMessageStreamModule.useDefaultInAppNotification(false)
         val job = launch {
@@ -117,18 +117,20 @@ class RNMessageStreamModuleTest {
         }
         rnMessageStreamModule.notifyInAppHandled(true)
         job.join()
+
+        verify(emitter).emitInAppNotificationMessage(writableMap)
     }
 
     @Test
     fun testShouldPresentInAppNotificationInAppHandledFalse() = runBlocking {
         val message: Message = mock()
-        val module: DeviceEventManagerModule.RCTDeviceEventEmitter = mock()
+        val emitter: InAppNotificationEmitter = mock()
         val writableMap: WritableMap = mock()
         val jsonObject: JSONObject = mock()
 
         doReturn(jsonObject).whenever(message).toJSON()
         doReturn(writableMap).whenever(jsonConverter).convertJsonToMap(jsonObject)
-        doReturn(module).whenever(mockContext).getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        doReturn(emitter).whenever(rnMessageStreamModuleImplSpy).inAppNotificationEmitter
 
         rnMessageStreamModuleImplSpy.useDefaultInAppNotification(false)
         val job = launch {
@@ -136,6 +138,8 @@ class RNMessageStreamModuleTest {
         }
         rnMessageStreamModule.notifyInAppHandled(false)
         job.join()
+
+        verify(emitter).emitInAppNotificationMessage(writableMap)
     }
 
     @Test

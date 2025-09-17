@@ -5,7 +5,9 @@
 #import <OCMock/OCMock.h>
 #import <Marigold/Marigold.h>
 
-#ifndef RCT_NEW_ARCH_ENABLED
+#ifdef RCT_NEW_ARCH_ENABLED
+using JS::NativeRNMessageStream::RNMessage;
+#else
 // interface to expose methods for testing
 @interface RNMessageStream ()
 -(void)getMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
@@ -21,11 +23,27 @@
 @end
 #endif
 
+
+NSDictionary* createRNMessageContents() {
+    return @{
+        @"title": @"Test Title",
+        @"text": @"Test Text",
+        @"id": @"1234567890",
+        @"type": @"text_message",
+        @"is_read": @1,
+    };
+}
+
 SPEC_BEGIN(RNMessageStreamSpec)
 
 describe(@"RNMessageStream", ^{
     __block MARMessageStream *messageStream = nil;
     __block RNMessageStream *rnMessageStream = nil;
+#ifdef RCT_NEW_ARCH_ENABLED
+    RNMessage *rnMessage = new RNMessage(createRNMessageContents());
+#else
+    NSDictionary *rnMessage = createRNMessageContents();
+#endif
 
     beforeEach(^{
         messageStream = [MARMessageStream mock];
@@ -33,6 +51,12 @@ describe(@"RNMessageStream", ^{
         [MARMessageStream stub:@selector(new) andReturn:messageStream];
         rnMessageStream = [[RNMessageStream alloc] init];
     });
+
+#ifdef RCT_NEW_ARCH_ENABLED
+    afterAll(^{
+        delete rnMessage;
+    });
+#endif
     
     context(@"the init method", ^{
         it(@"sets the displayInAppNotifications to YES", ^{
@@ -154,24 +178,33 @@ describe(@"RNMessageStream", ^{
     context(@"the markMessageAsRead:resolve:reject: method", ^{
         it(@"calls the native method", ^{
             [[messageStream should] receive:@selector(markMessageAsRead:withResponse:)];
-            
-            [rnMessageStream markMessageAsRead:nil resolve:nil reject:nil];
+#ifdef RCT_NEW_ARCH_ENABLED
+            [rnMessageStream markMessageAsRead:*rnMessage resolve:nil reject:nil];
+#else
+            [rnMessageStream markMessageAsRead:rnMessage resolve:nil reject:nil];
+#endif
         });
     });
     
     context(@"the removeMessage:resolve:reject: method", ^{
         it(@"calls the native method", ^{
             [[messageStream should] receive:@selector(removeMessage:withResponse:)];
-            
-            [rnMessageStream removeMessage:nil resolve:nil reject:nil];
+#ifdef RCT_NEW_ARCH_ENABLED
+            [rnMessageStream removeMessage:*rnMessage resolve:nil reject:nil];
+#else
+            [rnMessageStream removeMessage:rnMessage resolve:nil reject:nil];
+#endif
         });
     });
     
     context(@"the presentMessageDetail: method", ^{
         it(@"calls the native method", ^{
             [[expectFutureValue(messageStream) shouldEventuallyBeforeTimingOutAfter(5)] receive:@selector(presentMessageDetailForMessage:)];
-            
-            [rnMessageStream presentMessageDetail:nil];
+#ifdef RCT_NEW_ARCH_ENABLED
+            [rnMessageStream presentMessageDetail:*rnMessage];
+#else
+            [rnMessageStream presentMessageDetail:rnMessage];
+#endif
         });
     });
     
@@ -186,8 +219,11 @@ describe(@"RNMessageStream", ^{
     context(@"the registerMessageImpression:message: method", ^{
         it(@"calls the native method", ^{
             [[messageStream should] receive:@selector(registerImpressionWithType:forMessage:)];
-            
-            [rnMessageStream registerMessageImpression:1 message:nil];
+#ifdef RCT_NEW_ARCH_ENABLED
+            [rnMessageStream registerMessageImpression:1 message:*rnMessage];
+#else
+            [rnMessageStream registerMessageImpression:1 message:rnMessage];
+#endif
         });
     });
     
@@ -257,7 +293,11 @@ describe(@"RNMessageStream", ^{
         beforeEach(^{
             rnMessageStream = [RNMessageStream new];
             mockRnMessageStream = OCMPartialMock(rnMessageStream);
+#ifdef RCT_NEW_ARCH_ENABLED
+            [[mockRnMessageStream stub] emitOnInAppNotification:[OCMArg any]];
+#else
             [[mockRnMessageStream stub] emitInAppNotification:[OCMArg any]];
+#endif
             marMessage = [[MARMessage alloc] init];
             marMessage.title = @"Testing";
             marMessage.type = MARMessageTypeText;
@@ -277,7 +317,11 @@ describe(@"RNMessageStream", ^{
             it(@"returns YES when defaultInAppNotification is NO and notifyInAppHandled is NO", ^{
                 [mockRnMessageStream useDefaultInAppNotification:NO];
 
+#ifdef RCT_NEW_ARCH_ENABLED
+                [[mockRnMessageStream expect] emitOnInAppNotification:@{@"title": @"Testing", @"type": @"MARMessageTypeText", @"text": @"Test Body", @"attributes": @{@"attributeKey": @"attributeValue"}}];
+#else
                 [[mockRnMessageStream expect] emitInAppNotification:@{@"title": @"Testing", @"type": @"MARMessageTypeText", @"text": @"Test Body", @"attributes": @{@"attributeKey": @"attributeValue"}}];
+#endif
                 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     check = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];
@@ -290,7 +334,11 @@ describe(@"RNMessageStream", ^{
             it(@"returns NO when defaultInAppNotification is NO and notifyInAppHandled is YES", ^{
                 [mockRnMessageStream useDefaultInAppNotification:NO];
 
+#ifdef RCT_NEW_ARCH_ENABLED
+                [[mockRnMessageStream expect] emitOnInAppNotification:@{@"title": @"Testing", @"type": @"MARMessageTypeText", @"text": @"Test Body", @"attributes": @{@"attributeKey": @"attributeValue"}}];
+#else
                 [[mockRnMessageStream expect] emitInAppNotification:@{@"title": @"Testing", @"type": @"MARMessageTypeText", @"text": @"Test Body", @"attributes": @{@"attributeKey": @"attributeValue"}}];
+#endif
                 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     check = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];

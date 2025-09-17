@@ -6,10 +6,16 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.modules.core.DeviceEventManagerModule
 
-class RNMessageStreamModule(reactContext: ReactApplicationContext, displayInAppNotifications: Boolean) : ReactContextBaseJavaModule(reactContext) {
+class RNMessageStreamModule(private val reactContext: ReactApplicationContext, displayInAppNotifications: Boolean) : ReactContextBaseJavaModule(reactContext) {
+    private val inAppNotificationEmitter = RNMessageStreamModuleImpl.InAppNotificationEmitter { writableMap ->
+        val emitter = reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        emitter?.emit("inappnotification", writableMap)
+    }
+
     @VisibleForTesting
-    internal var rnMessageStreamModuleImpl = RNMessageStreamModuleImpl(reactContext, displayInAppNotifications)
+    internal var rnMessageStreamModuleImpl = RNMessageStreamModuleImpl(displayInAppNotifications, inAppNotificationEmitter)
 
     override fun getName(): String {
         return RNMessageStreamModuleImpl.NAME
@@ -57,7 +63,7 @@ class RNMessageStreamModule(reactContext: ReactApplicationContext, displayInAppN
 
     @ReactMethod
     fun presentMessageDetail(message: ReadableMap) {
-        rnMessageStreamModuleImpl.presentMessageDetail(message, currentActivity)
+        rnMessageStreamModuleImpl.presentMessageDetail(message, reactContext.currentActivity)
     }
 
     @ReactMethod

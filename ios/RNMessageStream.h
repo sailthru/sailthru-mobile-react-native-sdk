@@ -2,10 +2,18 @@
 #import <Marigold/Marigold.h>
 #ifdef RCT_NEW_ARCH_ENABLED
 #import <ReactNativeMarigoldSpec/ReactNativeMarigoldSpec.h>
-@interface RNMessageStream : RCTEventEmitter <NativeRNMessageStreamSpec, MARMessageStreamDelegate>
+@interface RNMessageStream : NativeRNMessageStreamSpecBase <NativeRNMessageStreamSpec, MARMessageStreamDelegate>
 #else
 #import <React/RCTBridgeModule.h>
 @interface RNMessageStream : RCTEventEmitter <RCTBridgeModule, MARMessageStreamDelegate>
+
+
+/**
+ * Return array of supported RN events.
+ *
+ * @return array containing supported events strings.
+ */
+- (NSArray<NSString *> *)supportedEvents;
 #endif
 
 @property BOOL displayInAppNotifications;
@@ -21,12 +29,4 @@
  * @return RNMarigold instance.
  */
 -(instancetype)initWithDisplayInAppNotifications:(BOOL)displayInAppNotifications;
-
-
-/**
- * Return array of supported RN events.
- *
- * @return array containing supported events strings.
- */
-- (NSArray<NSString *> *)supportedEvents;
 @end
