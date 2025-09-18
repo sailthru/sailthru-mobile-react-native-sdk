@@ -6,8 +6,8 @@ PODS:
   - fmt (11.0.2)
   - glog (0.3.5)
   - Kiwi (2.4.0)
-  - Marigold (18.1.0)
-  - Marigold-Extension (18.1.0)
+  - Marigold (18.2.0)
+  - Marigold-Extension (18.2.0)
   - OCMock (3.1.2)
   - RCT-Folly (2024.11.18.00):
     - boost
@@ -1467,8 +1467,8 @@ DEPENDENCIES:
   - fmt (from `../node_modules/react-native/third-party-podspecs/fmt.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - Kiwi (= 2.4.0)
-  - Marigold (= 18.1.0)
-  - Marigold-Extension (= 18.1.0)
+  - Marigold (= 18.2.0)
+  - Marigold-Extension (= 18.2.0)
   - OCMock (= 3.1.2)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCT-Folly/Fabric (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
@@ -1678,8 +1678,8 @@ SPEC CHECKSUMS:
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 08b301085f15bcbb6ff8632a8ebaf239aae04e6a
   Kiwi: f49c9d54b28917df5928fe44968a39ed198cb8a8
-  Marigold: 06fef47547a99bbd338b4bb36d879cb3c70ab244
-  Marigold-Extension: 71b5635be746c3582658dafecfbf780db7ee3344
+  Marigold: 07af71147b0f0e92b39b4324991b7c7e0201cf86
+  Marigold-Extension: aed79f942c25888637e772cab1f2fd184625e1d8
   OCMock: a10ea9f0a6e921651f96f78b6faee95ebc813b92
   RCT-Folly: 36fe2295e44b10d831836cc0d1daec5f8abcf809
   RCTDeprecation: 85b72250b63cfb54f29ca96ceb108cb9ef3c2079
