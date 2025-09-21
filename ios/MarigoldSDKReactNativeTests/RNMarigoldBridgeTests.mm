@@ -4,6 +4,7 @@
 #import "RNEngageBySailthru.h"
 #import "RNMessageStream.h"
 #import "Kiwi.h"
+#import <Marigold/Marigold.h>
 
 @interface Marigold ()
 
@@ -22,7 +23,7 @@ describe(@"RNMarigoldBridge", ^{
     });
     
     context(@"the init method", ^{
-        it(@"should throw an exception", ^{
+        it(@"throws an exception", ^{
             BOOL exceptionThrown = NO;
             @try {
                 RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] init];
@@ -42,12 +43,12 @@ describe(@"RNMarigoldBridge", ^{
             jsCodeLocation = [NSURL mock];
         });
         
-        it(@"should set the JS code location", ^{
+        it(@"sets the JS code location", ^{
             RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation];
             [[rnMarigoldBridge.jsCodeLocation should] equal:jsCodeLocation];
         });
         
-        it(@"should set whether to display in app notifications", ^{
+        it(@"sets whether to display in app notifications", ^{
             RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation];
             [[theValue(rnMarigoldBridge.displayInAppNotifications) should] equal:theValue(YES)];
         });
@@ -60,12 +61,12 @@ describe(@"RNMarigoldBridge", ^{
             jsCodeLocation = [NSURL mock];
         });
         
-        it(@"should set the JS code location", ^{
+        it(@"sets the JS code location", ^{
             RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation];
             [[rnMarigoldBridge.jsCodeLocation should] equal:jsCodeLocation];
         });
         
-        it(@"should set whether to display in app notifications", ^{
+        it(@"sets whether to display in app notifications", ^{
             RNMarigoldBridge *rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation];
             [[theValue(rnMarigoldBridge.displayInAppNotifications) should] equal:theValue(YES)];
         });
@@ -81,7 +82,7 @@ describe(@"RNMarigoldBridge", ^{
             rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation];
         });
         
-        it(@"should return jsCodeLocation", ^{
+        it(@"returns jsCodeLocation", ^{
             NSURL *codeLocation = [rnMarigoldBridge sourceURLForBridge:nil];
             [[codeLocation should] equal:jsCodeLocation];
         });
@@ -99,21 +100,21 @@ describe(@"RNMarigoldBridge", ^{
             rnMarigoldBridge = [[RNMarigoldBridge alloc] initWithJSCodeLocation:jsCodeLocation];
         });
         
-        it(@"should return RNMarigold in array", ^{
+        it(@"returns RNMarigold in array", ^{
             NSArray *modules = [rnMarigoldBridge extraModulesForBridge:nil];
             [[theValue(modules.count) should] equal:theValue(3)];
             id<RCTBridgeModule> module = [modules objectAtIndex:0];
             [[theValue([module isKindOfClass:[RNMarigold class]]) should] beYes];
         });
         
-        it(@"should return RNEngageBySailthru in array", ^{
+        it(@"returns RNEngageBySailthru in array", ^{
             NSArray *modules = [rnMarigoldBridge extraModulesForBridge:nil];
             [[theValue(modules.count) should] equal:theValue(3)];
             id<RCTBridgeModule> module = [modules objectAtIndex:1];
             [[theValue([module isKindOfClass:[RNEngageBySailthru class]]) should] beYes];
         });
         
-        it(@"should return RNMessageStream in array", ^{
+        it(@"returns RNMessageStream in array", ^{
             NSArray *modules = [rnMarigoldBridge extraModulesForBridge:nil];
             [[theValue(modules.count) should] equal:theValue(3)];
             id<RCTBridgeModule> module = [modules objectAtIndex:2];

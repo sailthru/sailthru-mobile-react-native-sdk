@@ -1,7 +1,7 @@
 
 #import "RNMarigold.h"
-#import "RNMessageStream.h"
 #import <UserNotifications/UserNotifications.h>
+#import <Marigold/Marigold.h>
 
 @interface Marigold ()
 
@@ -29,22 +29,12 @@ RCT_EXPORT_MODULE();
 
 - (instancetype)init {
     _marigold = [Marigold new];
-    [_marigold setWrapperName:@"React Native" andVersion:@"15.0.0"];
+    [_marigold setWrapperName:@"React Native" andVersion:@"16.0.0-beta"];
     return self;
 }
 
 + (BOOL)requiresMainQueueSetup {
     return NO;
-}
-
-- (NSArray<NSString *> *)supportedEvents {
-    return @[];
-}
-
-RCT_EXPORT_METHOD(startEngine:(NSString *)sdkKey) {
-    [self dispatchOnMainQueue:^{
-        [self.marigold startEngine:sdkKey withAuthorizationOption:MARPushAuthorizationOptionNoRequest error:nil];
-    }];
 }
 
 #pragma mark - Location
@@ -56,7 +46,7 @@ RCT_EXPORT_METHOD(updateLocation:(CGFloat)lat lon:(CGFloat)lon) {
 #pragma mark - IDs
 
 RCT_EXPORT_METHOD(getDeviceID:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
+                  reject:(RCTPromiseRejectBlock)reject) {
     [self.marigold deviceID:^(NSString * _Nullable deviceID, NSError * _Nullable error) {
         if (error) {
             [RNMarigold rejectPromise:reject withError:error];
@@ -67,11 +57,7 @@ RCT_EXPORT_METHOD(getDeviceID:(RCTPromiseResolveBlock)resolve
 }
 
 #pragma mark - Switches
-RCT_EXPORT_METHOD(setGeoIPTrackingEnabled:(BOOL)enabled) {
-    [self.marigold setGeoIPTrackingEnabled:enabled];
-}
-
-RCT_EXPORT_METHOD(setGeoIPTrackingEnabled:(BOOL)enabled resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(setGeoIPTrackingEnabled:(BOOL)enabled resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     [self.marigold setGeoIPTrackingEnabled:enabled withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNMarigold rejectPromise:reject withError:error];
@@ -108,6 +94,13 @@ RCT_EXPORT_METHOD(syncNotificationSettings) {
 RCT_EXPORT_METHOD(setInAppNotificationsEnabled:(BOOL)enabled) {
     [self.marigold setInAppNotificationsEnabled:enabled];
 }
+
+#ifdef RCT_NEW_ARCH_ENABLED
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params
+{
+    return std::make_shared<facebook::react::NativeRNMarigoldSpecJSI>(params);
+}
+#endif
 
 #pragma mark - Helper Functions
 

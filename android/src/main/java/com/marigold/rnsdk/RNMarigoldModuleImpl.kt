@@ -4,16 +4,13 @@ import android.app.Activity
 import android.location.Location
 import androidx.annotation.VisibleForTesting
 import com.facebook.react.bridge.Promise
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
-import com.facebook.react.bridge.ReactMethod
 import com.marigold.sdk.Marigold
 import java.lang.reflect.InvocationTargetException
 
 /**
  * React native module for the Marigold SDK.
  */
-class RNMarigoldModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class RNMarigoldModuleImpl {
 
     companion object {
         const val ERROR_CODE_DEVICE = "marigold.device"
@@ -22,6 +19,7 @@ class RNMarigoldModule(reactContext: ReactApplicationContext) : ReactContextBase
         const val ERROR_CODE_VARS = "marigold.vars"
         const val ERROR_CODE_PURCHASE = "marigold.purchase"
         const val MESSAGE_ID = "id"
+        const val NAME = "RNMarigold"
         fun setWrapperInfo() {
             try {
                 val cArg = arrayOf(String::class.java, String::class.java)
@@ -29,7 +27,7 @@ class RNMarigoldModule(reactContext: ReactApplicationContext) : ReactContextBase
                 val setWrapperMethod = companionClass.getDeclaredMethod("setWrapper", *cArg)
 
                 setWrapperMethod.isAccessible = true
-                setWrapperMethod.invoke(Marigold.Companion, "React Native", "15.0.0")
+                setWrapperMethod.invoke(Marigold.Companion, "React Native", "16.0.0-beta")
             } catch (e: NoSuchMethodException) {
                 e.printStackTrace()
             } catch (e: IllegalAccessException) {
@@ -43,29 +41,19 @@ class RNMarigoldModule(reactContext: ReactApplicationContext) : ReactContextBase
     @VisibleForTesting
     var marigold = Marigold()
 
-    @VisibleForTesting
-    internal var jsonConverter: JsonConverter = JsonConverter()
-
     init {
         setWrapperInfo()
     }
 
-    override fun getName(): String {
-        return "RNMarigold"
-    }
-
-    @ReactMethod
-    fun registerForPushNotifications() {
-        val activity = currentActivity() ?: return
+    fun registerForPushNotifications(activity: Activity?) {
+        activity ?: return
         marigold.requestNotificationPermission(activity)
     }
 
-    @ReactMethod
     fun syncNotificationSettings() {
         marigold.syncNotificationSettings()
     }
 
-    @ReactMethod
     fun updateLocation(latitude: Double, longitude: Double) {
         val location = Location("React-Native").apply {
             this.latitude = latitude
@@ -74,13 +62,12 @@ class RNMarigoldModule(reactContext: ReactApplicationContext) : ReactContextBase
         marigold.updateLocation(location)
     }
 
-    @ReactMethod
-    fun logRegistrationEvent(userId: String) {
+    fun logRegistrationEvent(userId: String?) {
         marigold.logRegistrationEvent(userId)
     }
 
-    @ReactMethod
-    fun getDeviceID(promise: Promise) {
+    fun getDeviceID(promise: Promise?) {
+        promise ?: return
         marigold.getDeviceId(object : Marigold.MarigoldHandler<String?> {
             override fun onSuccess(value: String?) {
                 promise.resolve(value)
@@ -92,35 +79,22 @@ class RNMarigoldModule(reactContext: ReactApplicationContext) : ReactContextBase
         })
     }
 
-    // wrapped to expose for testing
-    fun currentActivity(): Activity? {
-        return currentActivity
-    }
-
-    @ReactMethod
     fun setInAppNotificationsEnabled(enabled: Boolean) {
         marigold.setInAppNotificationsEnabled(enabled)
     }
 
-    @ReactMethod
-    fun setGeoIPTrackingEnabled(enabled: Boolean) {
-        marigold.setGeoIpTrackingEnabled(enabled)
-    }
-
-    @ReactMethod
-    fun setGeoIPTrackingEnabled(enabled: Boolean, promise: Promise) {
+    fun setGeoIPTrackingEnabled(enabled: Boolean, promise: Promise?) {
         marigold.setGeoIpTrackingEnabled(enabled, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
-                promise.resolve(true)
+                promise?.resolve(true)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(ERROR_CODE_DEVICE, error.message)
+                promise?.reject(ERROR_CODE_DEVICE, error.message)
             }
         })
     }
 
-    @ReactMethod
     @Suppress("unused", "unused_parameter")
     fun setCrashHandlersEnabled(enabled: Boolean) {
         // noop. It's here to share signatures with iOS.

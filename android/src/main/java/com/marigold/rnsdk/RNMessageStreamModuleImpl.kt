@@ -4,13 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import androidx.annotation.VisibleForTesting
 import com.facebook.react.bridge.Promise
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
-import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableArray
+import com.facebook.react.bridge.WritableMap
 import com.facebook.react.bridge.WritableNativeArray
-import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.marigold.sdk.MessageActivity
 import com.marigold.sdk.MessageStream
 import com.marigold.sdk.enums.ImpressionType
@@ -22,7 +19,19 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.lang.reflect.InvocationTargetException
 
-class RNMessageStreamModule (reactContext: ReactApplicationContext, private val displayInAppNotifications: Boolean) : ReactContextBaseJavaModule(reactContext), MessageStream.OnInAppNotificationDisplayListener  {
+class RNMessageStreamModuleImpl (
+    displayInAppNotifications: Boolean,
+    @get:VisibleForTesting internal val inAppNotificationEmitter: InAppNotificationEmitter
+) : MessageStream.OnInAppNotificationDisplayListener  {
+
+    companion object {
+        const val NAME = "RNMessageStream"
+    }
+
+    fun interface InAppNotificationEmitter {
+        fun emitInAppNotificationMessage(messageData: WritableMap)
+    }
+
     @VisibleForTesting
     var messageStream = MessageStream()
 
@@ -49,31 +58,27 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
         return withTimeoutOrNull(5000L) {
             try {
                 val writableMap = jsonConverter.convertJsonToMap(message.toJSON())
-                val emitter = reactApplicationContext
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                emitter.emit("inappnotification", writableMap)
+                inAppNotificationEmitter.emitInAppNotificationMessage(writableMap)
                 eventChannel.receive()
             } catch (e: JSONException) {
                 e.printStackTrace()
                 true
             }
-        } ?: true
+        } != false
     }
 
-    @ReactMethod
     fun notifyInAppHandled(shouldHandle: Boolean) {
         runBlocking {
             eventChannel.send(!shouldHandle)
         }
     }
 
-    @ReactMethod
     fun useDefaultInAppNotification(useDefault: Boolean) {
         defaultInAppNotification = useDefault
     }
 
-    @ReactMethod
-    fun getMessages(promise: Promise) {
+    fun getMessages(promise: Promise?) {
+        promise ?: return
         messageStream.getMessages(object : MessageStream.MessagesHandler {
             override fun onSuccess(messages: ArrayList<Message>) {
                 val array = getWritableArray()
@@ -87,64 +92,63 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
                     }
                     promise.resolve(array)
                 } catch (e: NoSuchMethodException) {
-                    promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, e.message)
+                    promise.reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, e.message)
                 } catch (e: IllegalAccessException) {
-                    promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, e.message)
+                    promise.reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, e.message)
                 } catch (e: JSONException) {
-                    promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, e.message)
+                    promise.reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, e.message)
                 } catch (e: InvocationTargetException) {
-                    promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, e.message)
+                    promise.reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, e.message)
                 }
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, error.message)
+                promise.reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, error.message)
             }
         })
     }
 
-    @ReactMethod
-    fun getUnreadCount(promise: Promise) {
+    fun getUnreadCount(promise: Promise?) {
+        promise ?: return
         messageStream.getUnreadMessageCount(object : MessageStream.MessageStreamHandler<Int> {
             override fun onSuccess(value: Int) {
                 promise.resolve(value)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, error.message)
+                promise.reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, error.message)
             }
         })
     }
 
-    @ReactMethod
-    fun removeMessage(messageMap: ReadableMap, promise: Promise) {
+    fun removeMessage(messageMap: ReadableMap?, promise: Promise?) {
+        messageMap ?: return
         val message = getMessage(messageMap, promise) ?: return
         messageStream.deleteMessage(message, object : MessageStream.MessageDeletedHandler {
             override fun onSuccess() {
-                promise.resolve(null)
+                promise?.resolve(null)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, error.message)
+                promise?.reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, error.message)
             }
         })
     }
 
-    @ReactMethod
-    fun clearMessages(promise: Promise) {
+    fun clearMessages(promise: Promise?) {
         messageStream.clearMessages(object : MessageStream.MessageStreamHandler<Void?> {
             override fun onSuccess(value: Void?) {
-                promise.resolve(true)
+                promise?.resolve(true)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, error.message)
+                promise?.reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, error.message)
             }
         })
     }
 
-    @ReactMethod
-    fun registerMessageImpression(typeCode: Int, messageMap: ReadableMap) {
+    fun registerMessageImpression(typeCode: Int, messageMap: ReadableMap?) {
+        messageMap ?: return
         val type = when (typeCode) {
             0 -> ImpressionType.IMPRESSION_TYPE_IN_APP_VIEW
             1 -> ImpressionType.IMPRESSION_TYPE_STREAM_VIEW
@@ -155,25 +159,25 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
         messageStream.registerMessageImpression(type, message)
     }
 
-    @ReactMethod
-    fun markMessageAsRead(messageMap: ReadableMap, promise: Promise) {
+    fun markMessageAsRead(messageMap: ReadableMap?, promise: Promise?) {
+        messageMap ?: return
         val message = getMessage(messageMap, promise) ?: return
         messageStream.setMessageRead(message, object : MessageStream.MessagesReadHandler {
             override fun onSuccess() {
-                promise.resolve(null)
+                promise?.resolve(null)
             }
 
             override fun onFailure(error: Error) {
-                promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, error.message)
+                promise?.reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, error.message)
             }
         })
     }
 
-    @ReactMethod
-    fun presentMessageDetail(message: ReadableMap) {
-        val messageId = message.getString(RNMarigoldModule.MESSAGE_ID)
-        val activity = currentActivity()
-        if (messageId == null || activity == null) return
+    fun presentMessageDetail(message: ReadableMap?, activity: Activity?) {
+        message ?: return
+        activity ?: return
+        val messageId = message.getString(RNMarigoldModuleImpl.MESSAGE_ID)
+        if (messageId == null) return
         val i = getMessageActivityIntent(activity, messageId)
         activity.startActivity(i)
     }
@@ -183,7 +187,6 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
         return MessageActivity.intentForMessage(activity, null, messageId)
     }
 
-    @ReactMethod
     @Suppress("unused")
     fun dismissMessageDetail() {
         // noop. It's here to share signatures with iOS.
@@ -202,7 +205,7 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
         if (promise == null) {
             e.printStackTrace()
         } else {
-            promise.reject(RNMarigoldModule.ERROR_CODE_MESSAGES, e.message)
+            promise.reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, e.message)
         }
         null
     }
@@ -210,14 +213,5 @@ class RNMessageStreamModule (reactContext: ReactApplicationContext, private val 
     // Moved out to separate method for testing as WritableNativeArray cannot be mocked
     fun getWritableArray(): WritableArray {
         return WritableNativeArray()
-    }
-
-    // wrapped to expose for testing
-    fun currentActivity(): Activity? {
-        return currentActivity
-    }
-
-    override fun getName(): String {
-        return "RNMessageStream"
     }
 }

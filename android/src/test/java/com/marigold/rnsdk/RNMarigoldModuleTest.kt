@@ -14,7 +14,6 @@ import org.mockito.Mock
 import org.mockito.MockedConstruction
 import org.mockito.Mockito.mockConstruction
 import org.mockito.Mockito.never
-import org.mockito.Mockito.spy
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.*
 
@@ -22,9 +21,6 @@ import org.mockito.kotlin.*
 class RNMarigoldModuleTest {
     @Mock
     private lateinit var mockContext: ReactApplicationContext
-
-    @Mock
-    private lateinit var jsonConverter: JsonConverter
 
     @Mock
     private lateinit var staticMarigold: MockedConstruction<Marigold>
@@ -38,20 +34,17 @@ class RNMarigoldModuleTest {
     private lateinit var marigold: Marigold
 
     private lateinit var rnMarigoldModule: RNMarigoldModule
-    private lateinit var rnMarigoldModuleSpy: RNMarigoldModule
 
     @Before
     fun setup() {
         rnMarigoldModule = RNMarigoldModule(mockContext)
-        rnMarigoldModule.jsonConverter = jsonConverter
-        rnMarigoldModuleSpy = spy(rnMarigoldModule)
 
         marigold = staticMarigold.constructed()[0]
     }
 
     @Test
     fun testConstructor() {
-        val mockCompanion: RNMarigoldModule.Companion = mock()
+        val mockCompanion: RNMarigoldModuleImpl.Companion = mock()
         mockCompanion.setWrapperInfo()
         verify(mockCompanion).setWrapperInfo()
     }
@@ -74,16 +67,16 @@ class RNMarigoldModuleTest {
         val activity: Activity = mock()
 
         // Mock behaviour
-        doReturn(activity).whenever(rnMarigoldModuleSpy).currentActivity()
-        rnMarigoldModuleSpy.registerForPushNotifications()
+        doReturn(activity).whenever(mockContext).currentActivity
+        rnMarigoldModule.registerForPushNotifications()
         verify(marigold).requestNotificationPermission(activity)
     }
 
     @Test
     fun testRegisterForPushNotificationsNoActivity() {
         // Mock behaviour
-        doReturn(null).whenever(rnMarigoldModuleSpy).currentActivity()
-        rnMarigoldModuleSpy.registerForPushNotifications()
+        doReturn(null).whenever(mockContext).currentActivity
+        rnMarigoldModule.registerForPushNotifications()
         verify(marigold, never()).requestNotificationPermission(any(), any(), any())
     }
 
@@ -124,7 +117,7 @@ class RNMarigoldModuleTest {
 
         // Test failure
         marigoldHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, errorMessage)
+        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_DEVICE, errorMessage)
     }
 
     @Test
@@ -134,15 +127,6 @@ class RNMarigoldModuleTest {
 
         // Verify result
         verify(marigold).setInAppNotificationsEnabled(true)
-    }
-
-    @Test
-    fun testSetGeoIPTrackingEnabled() {
-        // Initiate test
-        rnMarigoldModule.setGeoIPTrackingEnabled(true)
-
-        // Verify result
-        verify(marigold).setGeoIpTrackingEnabled(true)
     }
 
     @Test
@@ -168,6 +152,6 @@ class RNMarigoldModuleTest {
 
         // Test error handler
         clearHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModule.ERROR_CODE_DEVICE, errorMessage)
+        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_DEVICE, errorMessage)
     }
 }

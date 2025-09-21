@@ -10,14 +10,15 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:8.2.2"
+        classpath "com.android.tools.build:gradle:8.9.3"
         // noinspection DifferentKotlinGradleVersion
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.facebook.react:react-native-gradle-plugin"
     }
 }
 
 def isNewArchitectureEnabled() {
-    return rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true"
+    return getExtOrDefault("newArchEnabled") == "true"
 }
 
 apply plugin: "com.android.library"
@@ -61,7 +62,12 @@ android {
     defaultConfig {
         minSdkVersion getExtOrIntegerDefault("minSdkVersion")
         targetSdkVersion getExtOrIntegerDefault("targetSdkVersion")
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     compileOptions {
@@ -70,6 +76,22 @@ android {
     }
     kotlinOptions {
         jvmTarget = "17"
+    }
+
+    sourceSets {
+        main {
+            if (isNewArchitectureEnabled()) {
+                java.srcDirs += [
+                    'src/newarch',
+                    "generated/java",
+                    "generated/jni"
+                ]
+            } else {
+                java.srcDirs += [
+                    'src/oldarch'
+                ]
+            }
+        }
     }
 }
 
@@ -81,16 +103,21 @@ repositories {
     }
 }
 
-def kotlin_version = getExtOrDefault("kotlinVersion")
-
 dependencies {
     //noinspection GradleDynamicVersion
     api "com.facebook.react:react-android:+"
     api "com.marigold.sdk:marigold:25.0.0"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     testImplementation 'org.mockito.kotlin:mockito-kotlin:5.3.1'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-inline:5.2.0'
     testImplementation 'org.json:json:20220320'
+}
+
+if (isNewArchitectureEnabled()) {
+    react {
+        jsRootDir = file("../src/")
+        libraryName = "react-native-marigold"
+        codegenJavaPackageName = "com.marigold.rnsdk"
+    }
 }

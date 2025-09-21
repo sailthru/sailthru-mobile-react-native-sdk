@@ -3,26 +3,24 @@
 #import "RNMarigold.h"
 #import "Kiwi.h"
 #import <UserNotifications/UserNotifications.h>
+#import <Marigold/Marigold.h>
 
+#ifndef RCT_NEW_ARCH_ENABLED
 // interface to expose methods for testing
 @interface RNMarigold ()
-
 -(instancetype)init;
--(void)startEngine:(NSString*)sdkKey;
--(void)resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 -(void)updateLocation:(CGFloat)lat lon:(CGFloat)lon;
--(void)getDeviceID:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
--(void)setGeoIPTrackingEnabled:(BOOL)enabled;
--(void)setGeoIPTrackingEnabled:(BOOL)enabled resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)getDeviceID:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+-(void)setGeoIPTrackingEnabled:(BOOL)enabled resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 -(void)setGeoIPTrackingDefault:(BOOL)enabled;
 -(void)setCrashHandlersEnabled:(BOOL)enabled;
 -(void)logRegistrationEvent:(NSString * _Nullable)userId;
 -(void)registerForPushNotifications;
 -(void)syncNotificationSettings;
--(void)clearDevice:(NSInteger)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)clearDevice:(NSInteger)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 -(void)setInAppNotificationsEnabled:(BOOL)enabled;
-
 @end
+#endif
 
 
 // interfaces to match RNMarigold
@@ -54,23 +52,15 @@ describe(@"RNMarigold", ^{
     });
     
     context(@"the init method", ^{
-        it(@"should set the wrapper name and version", ^{
+        it(@"sets the wrapper name and version", ^{
             [[marigold should] receive:@selector(setWrapperName:andVersion:)];
             RNMarigold *rnMarigold = [[RNMarigold alloc] init];
             (void)rnMarigold;
         });
     });
     
-    context(@"the startEngine: method", ^{
-        it(@"should call native method", ^{
-            NSString *testKey = @"TESTKEY";
-            [[marigold should] receive:@selector(startEngine:withAuthorizationOption:error:) withArguments:testKey, theValue(MARPushAuthorizationOptionNoRequest), nil];
-            [rnMarigold startEngine:testKey];
-        });
-    });
-    
     context(@"the updateLocation method", ^{
-        it(@"should call native method", ^{
+        it(@"calls the native method", ^{
             CGFloat latitude = 10, longitude = 15;
             [[marigold should] receive:@selector(updateLocation:)];
             KWCaptureSpy *capture = [marigold captureArgument:@selector(updateLocation:) atIndex:0];
@@ -83,14 +73,14 @@ describe(@"RNMarigold", ^{
         });
     });
     
-    context(@"the getDeviceID:rejecter: method", ^{
-        it(@"should call native method", ^{
+    context(@"the getDeviceID:reject: method", ^{
+        it(@"calls the native method", ^{
             [[marigold should] receive:@selector(deviceID:)];
             
-            [rnMarigold getDeviceID:nil rejecter:nil];
+            [rnMarigold getDeviceID:nil reject:nil];
         });
         
-        it(@"should return count on success", ^{
+        it(@"returns count on success", ^{
             // Setup variables
             __block NSString *check = nil;
             NSString *deviceID = @"Device ID";
@@ -100,7 +90,7 @@ describe(@"RNMarigold", ^{
             KWCaptureSpy *capture = [marigold captureArgument:@selector(deviceID:) atIndex:0];
             
             // Start test
-            [rnMarigold getDeviceID:resolve rejecter:nil];
+            [rnMarigold getDeviceID:resolve reject:nil];
             
             // Capture argument
             void (^completeBlock)(NSString * _Nullable, NSError * _Nullable) = capture.argument;
@@ -111,7 +101,7 @@ describe(@"RNMarigold", ^{
             [[check should] equal:deviceID];
         });
         
-        it(@"should return error on failure", ^{
+        it(@"returns error on failure", ^{
             // Setup variables
             __block NSError *check = nil;
             RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
@@ -120,7 +110,7 @@ describe(@"RNMarigold", ^{
             KWCaptureSpy *capture = [marigold captureArgument:@selector(deviceID:) atIndex:0];
             
             // Start test
-            [rnMarigold getDeviceID:nil rejecter:reject];
+            [rnMarigold getDeviceID:nil reject:reject];
             
             // Capture argument
             void (^completeBlock)(NSString * _Nullable, NSError * _Nullable) = capture.argument;
@@ -132,24 +122,14 @@ describe(@"RNMarigold", ^{
         });
     });
     
-    
-    
-    context(@"the setGeoIPTrackingEnabled: method", ^{
-        it(@"should call native method", ^{
-            [[marigold should] receive:@selector(setGeoIPTrackingEnabled:)];
-            
-            [rnMarigold setGeoIPTrackingEnabled:YES];
-        });
-    });
-    
-    context(@"the setGeoIPTrackingEnabled:resolver:rejecter: method", ^{
-        it(@"should call native method", ^{
+    context(@"the setGeoIPTrackingEnabled:resolve:reject: method", ^{
+        it(@"calls the native method", ^{
             [[marigold should] receive:@selector(setGeoIPTrackingEnabled:withResponse:) withArguments:theValue(YES), any(), any()];
             
-            [rnMarigold setGeoIPTrackingEnabled:YES resolver:nil rejecter:nil];
+            [rnMarigold setGeoIPTrackingEnabled:YES resolve:nil reject:nil];
         });
         
-        it(@"should return success", ^{
+        it(@"returns success", ^{
             // Setup variables
             __block BOOL check = NO;
             RCTPromiseResolveBlock resolve = ^(NSObject *ignored) {
@@ -158,7 +138,7 @@ describe(@"RNMarigold", ^{
             KWCaptureSpy *capture = [marigold captureArgument:@selector(setGeoIPTrackingEnabled:withResponse:) atIndex:1];
             
             // Start test
-            [rnMarigold setGeoIPTrackingEnabled:YES resolver:resolve rejecter:nil];
+            [rnMarigold setGeoIPTrackingEnabled:YES resolve:resolve reject:nil];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
@@ -168,7 +148,7 @@ describe(@"RNMarigold", ^{
             [[theValue(check) should] equal:theValue(YES)];
         });
         
-        it(@"should return error on failure", ^{
+        it(@"returns error on failure", ^{
             // Setup variables
             __block NSError *check = nil;
             RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
@@ -177,7 +157,7 @@ describe(@"RNMarigold", ^{
             KWCaptureSpy *capture = [marigold captureArgument:@selector(setGeoIPTrackingEnabled:withResponse:) atIndex:1];
             
             // Start test
-            [rnMarigold setGeoIPTrackingEnabled:YES resolver:nil rejecter:reject];
+            [rnMarigold setGeoIPTrackingEnabled:YES resolve:nil reject:reject];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
@@ -190,7 +170,7 @@ describe(@"RNMarigold", ^{
     });
     
     context(@"the setCrashHandlersEnabled: method", ^{
-        it(@"should call native method", ^{
+        it(@"calls the native method", ^{
             [[marigold should] receive:@selector(setCrashHandlersEnabled:)];
             
             [rnMarigold setCrashHandlersEnabled:YES];
@@ -198,7 +178,7 @@ describe(@"RNMarigold", ^{
     });
     
     context(@"the logRegistrationEvent: method", ^{
-        it(@"should call native method", ^{
+        it(@"calls the native method", ^{
             [[marigold should] receive:@selector(logRegistrationEvent:)];
             [rnMarigold logRegistrationEvent:@"event"];
         });
@@ -224,7 +204,7 @@ describe(@"RNMarigold", ^{
             [UNUserNotificationCenter stub:@selector(currentNotificationCenter) andReturn:mockCenter];
         });
         
-        it(@"should request authorization from the UNUserNotificationCenter", ^{
+        it(@"requests authorization from the UNUserNotificationCenter", ^{
             [[mockCenter should] receive:@selector(requestAuthorizationWithOptions:completionHandler:)];
             
             [rnMarigold registerForPushNotifications];
@@ -238,7 +218,7 @@ describe(@"RNMarigold", ^{
                 [UIApplication stub:@selector(sharedApplication) andReturn:mockApplication];
             });
             
-            it(@"should register for remote notifications", ^{
+            it(@"registers for remote notifications", ^{
                 [[mockApplication should] receive:@selector(registerForRemoteNotifications)];
                 
                 [rnMarigold registerForPushNotifications];
@@ -247,7 +227,7 @@ describe(@"RNMarigold", ^{
     });
     
     context(@"the syncNotificationSettings method", ^{
-        it(@"should call native method", ^{
+        it(@"calls the native method", ^{
             [[marigold should] receive:@selector(syncNotificationSettings)];
             
             [rnMarigold syncNotificationSettings];
@@ -255,7 +235,7 @@ describe(@"RNMarigold", ^{
     });
     
     context(@"the setInAppNotificationsEnabled: method", ^{
-        it(@"should call native method", ^{
+        it(@"calls the native method", ^{
             [[marigold should] receive:@selector(setInAppNotificationsEnabled:)];
             
             [rnMarigold setInAppNotificationsEnabled:YES];

@@ -3,29 +3,47 @@
 #import "Kiwi.h"
 #import <UserNotifications/UserNotifications.h>
 #import <OCMock/OCMock.h>
+#import <Marigold/Marigold.h>
 
-
+#ifdef RCT_NEW_ARCH_ENABLED
+using JS::NativeRNMessageStream::RNMessage;
+#else
 // interface to expose methods for testing
 @interface RNMessageStream ()
-
--(void)resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
--(void)getUnreadCount:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
--(void)markMessageAsRead:(NSDictionary*)jsDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
--(void)removeMessage:(NSDictionary *)jsDict resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)getMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+-(void)getUnreadCount:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+-(void)markMessageAsRead:(NSDictionary*)jsDict resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+-(void)removeMessage:(NSDictionary *)jsDict resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 -(void)presentMessageDetail:(NSDictionary *)jsDict;
 -(void)dismissMessageDetail;
--(void)registerMessageImpression:(NSInteger)impressionType forMessage:(NSDictionary *)jsDict;
--(void)clearMessages:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+-(void)registerMessageImpression:(double)impressionType message:(NSDictionary *)jsDict;
+-(void)clearMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 -(void)useDefaultInAppNotification:(BOOL)useDefault;
 -(void)notifyInAppHandled:(BOOL)handled;
-
 @end
+#endif
+
+
+NSDictionary* createRNMessageContents() {
+    return @{
+        @"title": @"Test Title",
+        @"text": @"Test Text",
+        @"id": @"1234567890",
+        @"type": @"text_message",
+        @"is_read": @1,
+    };
+}
 
 SPEC_BEGIN(RNMessageStreamSpec)
 
 describe(@"RNMessageStream", ^{
     __block MARMessageStream *messageStream = nil;
     __block RNMessageStream *rnMessageStream = nil;
+#ifdef RCT_NEW_ARCH_ENABLED
+    RNMessage *rnMessage = new RNMessage(createRNMessageContents());
+#else
+    NSDictionary *rnMessage = createRNMessageContents();
+#endif
 
     beforeEach(^{
         messageStream = [MARMessageStream mock];
@@ -33,34 +51,40 @@ describe(@"RNMessageStream", ^{
         [MARMessageStream stub:@selector(new) andReturn:messageStream];
         rnMessageStream = [[RNMessageStream alloc] init];
     });
+
+#ifdef RCT_NEW_ARCH_ENABLED
+    afterAll(^{
+        delete rnMessage;
+    });
+#endif
     
     context(@"the init method", ^{
-        it(@"should set the displayInAppNotifications to YES", ^{
+        it(@"sets the displayInAppNotifications to YES", ^{
             RNMessageStream *rnMessageStream = [[RNMessageStream alloc] initWithDisplayInAppNotifications:YES];
             [[theValue(rnMessageStream.displayInAppNotifications) should] beYes];
         });
     });
     
     context(@"the initWithDisplayInAppNotifications method", ^{
-        it(@"should set message stream delegate as self", ^{
+        it(@"sets message stream delegate as self", ^{
             [[messageStream should] receive:@selector(setDelegate:)];
             RNMessageStream *rnMessageStream = [[RNMessageStream alloc] initWithDisplayInAppNotifications:YES];
             (void)rnMessageStream;
         });
         
-        it(@"should set the displayInAppNotifications", ^{
+        it(@"sets the displayInAppNotifications", ^{
             RNMessageStream *rnMessageStream = [[RNMessageStream alloc] initWithDisplayInAppNotifications:NO];
             [[theValue(rnMessageStream.displayInAppNotifications) should] beNo];
         });
     });
     
     context(@"the getMessages method", ^{
-        it(@"should call native method", ^{
+        it(@"calls the native method", ^{
             [[messageStream should] receive:@selector(messages:)];
-            [rnMessageStream resolver:nil rejecter:nil];
+            [rnMessageStream getMessages:nil reject:nil];
         });
         
-        it(@"should return message array on success", ^{
+        it(@"returns message array on success", ^{
             // Setup variables
             __block NSArray *check = nil;
             NSArray *inputArray = @[];
@@ -70,7 +94,7 @@ describe(@"RNMessageStream", ^{
             KWCaptureSpy *capture = [messageStream captureArgument:@selector(messages:) atIndex:0];
             
             // Start test
-            [rnMessageStream resolver:resolve rejecter:nil];
+            [rnMessageStream getMessages:resolve reject:nil];
             
             // Capture argument
             void (^completeBlock)(NSArray * _Nullable, NSError * _Nullable) = capture.argument;
@@ -81,7 +105,7 @@ describe(@"RNMessageStream", ^{
             [[check should] beKindOfClass:[NSArray class]];
         });
         
-        it(@"should return error on failure", ^{
+        it(@"returns error on failure", ^{
             // Setup variables
             __block NSError *check = nil;
             RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
@@ -90,7 +114,7 @@ describe(@"RNMessageStream", ^{
             KWCaptureSpy *capture = [messageStream captureArgument:@selector(messages:) atIndex:0];
             
             // Start test
-            [rnMessageStream resolver:nil rejecter:reject];
+            [rnMessageStream getMessages:nil reject:reject];
             
             // Capture argument
             void (^completeBlock)(NSUInteger, NSError * _Nullable) = capture.argument;
@@ -103,13 +127,13 @@ describe(@"RNMessageStream", ^{
     });
     
     context(@"the getUnreadCount method", ^{
-        it(@"should call native method", ^{
+        it(@"calls the native method", ^{
             [[messageStream should] receive:@selector(unreadCount:)];
             
-            [rnMessageStream getUnreadCount:nil rejecter:nil];
+            [rnMessageStream getUnreadCount:nil reject:nil];
         });
         
-        it(@"should return count on success", ^{
+        it(@"returns count on success", ^{
             // Setup variables
             __block NSNumber *check = nil;
             NSUInteger count = 5;
@@ -119,7 +143,7 @@ describe(@"RNMessageStream", ^{
             KWCaptureSpy *capture = [messageStream captureArgument:@selector(unreadCount:) atIndex:0];
             
             // Start test
-            [rnMessageStream getUnreadCount:resolve rejecter:nil];
+            [rnMessageStream getUnreadCount:resolve reject:nil];
             
             // Capture argument
             void (^completeBlock)(NSUInteger, NSError * _Nullable) = capture.argument;
@@ -130,7 +154,7 @@ describe(@"RNMessageStream", ^{
             [[check should] equal:@(count)];
         });
         
-        it(@"should return error on failure", ^{
+        it(@"returns error on failure", ^{
             // Setup variables
             __block NSError *check = nil;
             RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
@@ -139,7 +163,7 @@ describe(@"RNMessageStream", ^{
             KWCaptureSpy *capture = [messageStream captureArgument:@selector(unreadCount:) atIndex:0];
             
             // Start test
-            [rnMessageStream getUnreadCount:nil rejecter:reject];
+            [rnMessageStream getUnreadCount:nil reject:reject];
             
             // Capture argument
             void (^completeBlock)(NSUInteger, NSError * _Nullable) = capture.argument;
@@ -151,54 +175,66 @@ describe(@"RNMessageStream", ^{
         });
     });
     
-    context(@"the markMessageAsRead:resolver:rejecter: method", ^{
-        it(@"should call native method", ^{
+    context(@"the markMessageAsRead:resolve:reject: method", ^{
+        it(@"calls the native method", ^{
             [[messageStream should] receive:@selector(markMessageAsRead:withResponse:)];
-            
-            [rnMessageStream markMessageAsRead:nil resolver:nil rejecter:nil];
+#ifdef RCT_NEW_ARCH_ENABLED
+            [rnMessageStream markMessageAsRead:*rnMessage resolve:nil reject:nil];
+#else
+            [rnMessageStream markMessageAsRead:rnMessage resolve:nil reject:nil];
+#endif
         });
     });
     
-    context(@"the removeMessage:resolver:rejecter: method", ^{
-        it(@"should call native method", ^{
+    context(@"the removeMessage:resolve:reject: method", ^{
+        it(@"calls the native method", ^{
             [[messageStream should] receive:@selector(removeMessage:withResponse:)];
-            
-            [rnMessageStream removeMessage:nil resolver:nil rejecter:nil];
+#ifdef RCT_NEW_ARCH_ENABLED
+            [rnMessageStream removeMessage:*rnMessage resolve:nil reject:nil];
+#else
+            [rnMessageStream removeMessage:rnMessage resolve:nil reject:nil];
+#endif
         });
     });
     
     context(@"the presentMessageDetail: method", ^{
-        it(@"should call native method", ^{
+        it(@"calls the native method", ^{
             [[expectFutureValue(messageStream) shouldEventuallyBeforeTimingOutAfter(5)] receive:@selector(presentMessageDetailForMessage:)];
-            
-            [rnMessageStream presentMessageDetail:nil];
+#ifdef RCT_NEW_ARCH_ENABLED
+            [rnMessageStream presentMessageDetail:*rnMessage];
+#else
+            [rnMessageStream presentMessageDetail:rnMessage];
+#endif
         });
     });
     
     context(@"the dismissMessageDetail method", ^{
-        it(@"should call native method", ^{
+        it(@"calls the native method", ^{
             [[expectFutureValue(messageStream) shouldEventuallyBeforeTimingOutAfter(5)] receive:@selector(dismissMessageDetail)];
             
             [rnMessageStream dismissMessageDetail];
         });
     });
     
-    context(@"the registerMessageImpression:forMessage: method", ^{
-        it(@"should call native method", ^{
+    context(@"the registerMessageImpression:message: method", ^{
+        it(@"calls the native method", ^{
             [[messageStream should] receive:@selector(registerImpressionWithType:forMessage:)];
-            
-            [rnMessageStream registerMessageImpression:1 forMessage:nil];
+#ifdef RCT_NEW_ARCH_ENABLED
+            [rnMessageStream registerMessageImpression:1 message:*rnMessage];
+#else
+            [rnMessageStream registerMessageImpression:1 message:rnMessage];
+#endif
         });
     });
     
     context(@"the clearMessages method", ^{
-        it(@"should call native method", ^{
+        it(@"calls the native method", ^{
             [[messageStream should] receive:@selector(clearMessagesWithResponse:)];
             
-            [rnMessageStream clearMessages:nil rejecter:nil];
+            [rnMessageStream clearMessages:nil reject:nil];
         });
         
-        it(@"should return success", ^{
+        it(@"returns success", ^{
             // Setup variables
             __block BOOL check = NO;
             RCTPromiseResolveBlock resolve = ^(NSObject *ignored) {
@@ -207,7 +243,7 @@ describe(@"RNMessageStream", ^{
             KWCaptureSpy *capture = [messageStream captureArgument:@selector(clearMessagesWithResponse:) atIndex:0];
             
             // Start test
-            [rnMessageStream clearMessages:resolve rejecter:nil];
+            [rnMessageStream clearMessages:resolve reject:nil];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
@@ -217,7 +253,7 @@ describe(@"RNMessageStream", ^{
             [[theValue(check) should] equal:theValue(YES)];
         });
         
-        it(@"should return error on failure", ^{
+        it(@"returns error on failure", ^{
             // Setup variables
             __block NSError *check = nil;
             RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
@@ -226,7 +262,7 @@ describe(@"RNMessageStream", ^{
             KWCaptureSpy *capture = [messageStream captureArgument:@selector(clearMessagesWithResponse:) atIndex:0];
             
             // Start test
-            [rnMessageStream clearMessages:nil rejecter:reject];
+            [rnMessageStream clearMessages:nil reject:reject];
             
             // Capture argument
             void (^completeBlock)(NSError * _Nullable) = capture.argument;
@@ -238,12 +274,12 @@ describe(@"RNMessageStream", ^{
         });
     });
     context(@"the useDefaultInAppNotification method", ^{
-        it(@"should set the default value as YES", ^{
+        it(@"sets the default value as YES", ^{
             [rnMessageStream useDefaultInAppNotification:YES];
             
             [[theValue(rnMessageStream.defaultInAppNotification) should] equal:theValue(YES)];
         });
-        it(@"should set the default value as NO", ^{
+        it(@"sets the default value as NO", ^{
             [rnMessageStream useDefaultInAppNotification:NO];
             
             [[theValue(rnMessageStream.defaultInAppNotification) should] equal:theValue(NO)];
@@ -257,7 +293,11 @@ describe(@"RNMessageStream", ^{
         beforeEach(^{
             rnMessageStream = [RNMessageStream new];
             mockRnMessageStream = OCMPartialMock(rnMessageStream);
+#ifdef RCT_NEW_ARCH_ENABLED
+            [[mockRnMessageStream stub] emitOnInAppNotification:[OCMArg any]];
+#else
             [[mockRnMessageStream stub] emitInAppNotification:[OCMArg any]];
+#endif
             marMessage = [[MARMessage alloc] init];
             marMessage.title = @"Testing";
             marMessage.type = MARMessageTypeText;
@@ -266,7 +306,7 @@ describe(@"RNMessageStream", ^{
         });
 
         context(@"the shouldPresentInAppNotificationForMessage method", ^{
-            it(@"should return YES when defaultInAppNotification is YES", ^{
+            it(@"returns YES when defaultInAppNotification is YES", ^{
                 [mockRnMessageStream useDefaultInAppNotification:YES];
                 
                 BOOL check = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];
@@ -274,10 +314,14 @@ describe(@"RNMessageStream", ^{
                 [[theValue(check) should] equal:theValue(YES)];
             });
 
-            it(@"should return YES when defaultInAppNotification is NO and notifyInAppHandled is NO", ^{
+            it(@"returns YES when defaultInAppNotification is NO and notifyInAppHandled is NO", ^{
                 [mockRnMessageStream useDefaultInAppNotification:NO];
 
+#ifdef RCT_NEW_ARCH_ENABLED
+                [[mockRnMessageStream expect] emitOnInAppNotification:@{@"title": @"Testing", @"type": @"MARMessageTypeText", @"text": @"Test Body", @"attributes": @{@"attributeKey": @"attributeValue"}}];
+#else
                 [[mockRnMessageStream expect] emitInAppNotification:@{@"title": @"Testing", @"type": @"MARMessageTypeText", @"text": @"Test Body", @"attributes": @{@"attributeKey": @"attributeValue"}}];
+#endif
                 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     check = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];
@@ -287,10 +331,14 @@ describe(@"RNMessageStream", ^{
                 [[expectFutureValue(theValue(check)) shouldEventually] beYes];
             });
 
-            it(@"should return NO when defaultInAppNotification is NO and notifyInAppHandled is YES", ^{
+            it(@"returns NO when defaultInAppNotification is NO and notifyInAppHandled is YES", ^{
                 [mockRnMessageStream useDefaultInAppNotification:NO];
 
+#ifdef RCT_NEW_ARCH_ENABLED
+                [[mockRnMessageStream expect] emitOnInAppNotification:@{@"title": @"Testing", @"type": @"MARMessageTypeText", @"text": @"Test Body", @"attributes": @{@"attributeKey": @"attributeValue"}}];
+#else
                 [[mockRnMessageStream expect] emitInAppNotification:@{@"title": @"Testing", @"type": @"MARMessageTypeText", @"text": @"Test Body", @"attributes": @{@"attributeKey": @"attributeValue"}}];
+#endif
                 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     check = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];
