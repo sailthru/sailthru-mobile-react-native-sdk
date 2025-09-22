@@ -23,6 +23,7 @@ declare module 'react-native-marigold' {
      * Enable or disable crash tracking for recording sessions which end in a crash.
      * Warning: This is for advanced uses where in some cases, crash handlers from Test Flight or Fabric (Crashlytics) interrupt our crash detection.
      * If you are not experiencing these issues, do not use this method.
+     * @note iOS only - this is a no-op on Android.
      * @param enabled A boolean value indicating whether or not to install the crash handlers.
      */
     setCrashHandlersEnabled(enabled: boolean): void;
@@ -111,7 +112,7 @@ declare module 'react-native-marigold' {
     presentMessageDetail(message: Message): void;
     /**
      * Dismisses the currently displayed message detail screen.
-     * @note No-op on Android.
+     * @note iOS only - this is a no-op on Android.
      */
     dismissMessageDetail(): void;
     /**
@@ -125,7 +126,9 @@ declare module 'react-native-marigold' {
      */
     clearMessages(): Promise<null>;
 
-    // TODO - remove since it's only in new arch? 
+    /**
+     * Callback for in-app notification events to allow custom handling (new architecture implementation).
+     */
     readonly onInAppNotification?: any;
 
     MessageImpressionType: MessageStreamStatic.MessageImpressionType
