@@ -4,7 +4,7 @@ import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 
 class RNMarigoldModule(reactContext: ReactApplicationContext) : NativeRNMarigoldSpec(reactContext) {
-    private val rnMarigoldModuleImpl = RNMarigoldModuleImpl()
+    private val rnMarigoldModuleImpl = RNMarigoldModuleImpl(reactContext)
 
     override fun getName(): String {
         return RNMarigoldModuleImpl.NAME
@@ -31,7 +31,7 @@ class RNMarigoldModule(reactContext: ReactApplicationContext) : NativeRNMarigold
     }
 
     override fun registerForPushNotifications() {
-        rnMarigoldModuleImpl.registerForPushNotifications(currentActivity)
+        rnMarigoldModuleImpl.registerForPushNotifications()
     }
 
     override fun syncNotificationSettings() {

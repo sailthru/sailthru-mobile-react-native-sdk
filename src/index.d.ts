@@ -88,6 +88,11 @@ declare module 'react-native-marigold' {
      */
     useDefaultInAppNotification(useDefault: boolean): void;
     /**
+     * Asynchronously returns the message for the supplied message ID.
+     * @param messageId The ID of the message to retrieve.
+     */
+    getMessage(messageId: string): Promise<Message>;
+    /**
      * Asynchronously returns an array of messages for the device.
      */
     getMessages(): Promise<Array<Message>>;

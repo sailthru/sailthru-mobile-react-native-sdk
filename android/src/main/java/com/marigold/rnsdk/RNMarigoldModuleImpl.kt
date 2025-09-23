@@ -4,13 +4,14 @@ import android.app.Activity
 import android.location.Location
 import androidx.annotation.VisibleForTesting
 import com.facebook.react.bridge.Promise
+import com.facebook.react.bridge.ReactApplicationContext
 import com.marigold.sdk.Marigold
 import java.lang.reflect.InvocationTargetException
 
 /**
  * React native module for the Marigold SDK.
  */
-class RNMarigoldModuleImpl {
+class RNMarigoldModuleImpl(private val reactContext: ReactApplicationContext) {
 
     companion object {
         const val ERROR_CODE_DEVICE = "marigold.device"
@@ -27,7 +28,7 @@ class RNMarigoldModuleImpl {
                 val setWrapperMethod = companionClass.getDeclaredMethod("setWrapper", *cArg)
 
                 setWrapperMethod.isAccessible = true
-                setWrapperMethod.invoke(Marigold.Companion, "React Native", "16.0.0")
+                setWrapperMethod.invoke(Marigold.Companion, "React Native", "16.1.0")
             } catch (e: NoSuchMethodException) {
                 e.printStackTrace()
             } catch (e: IllegalAccessException) {
@@ -45,8 +46,8 @@ class RNMarigoldModuleImpl {
         setWrapperInfo()
     }
 
-    fun registerForPushNotifications(activity: Activity?) {
-        activity ?: return
+    fun registerForPushNotifications() {
+        val activity = reactContext.currentActivity ?: return
         marigold.requestNotificationPermission(activity)
     }
 
