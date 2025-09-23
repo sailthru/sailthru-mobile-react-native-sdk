@@ -19,6 +19,7 @@ export interface RNMessage {
 export interface Spec extends TurboModule {
   notifyInAppHandled(handled: boolean): void;
   useDefaultInAppNotification(useDefault: boolean): void;
+  getMessage(messageId: string): Promise<RNMessage>;       
   getMessages(): Promise<Array<RNMessage>>;       
   getUnreadCount(): Promise<number>;
   markMessageAsRead(message: RNMessage): Promise<null>;

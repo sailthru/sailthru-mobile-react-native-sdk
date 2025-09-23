@@ -39,18 +39,17 @@ import org.mockito.kotlin.whenever
 class RNMessageStreamModuleTest {
     @Mock
     private lateinit var mockContext: ReactApplicationContext
-
     @Mock
     private lateinit var jsonConverter: JsonConverter
-
     @Mock
     private lateinit var staticMessageStream: MockedConstruction<MessageStream>
 
     @Captor
     private lateinit var messageStreamVoidCaptor: ArgumentCaptor<MessageStream.MessageStreamHandler<Void?>>
-
     @Captor
     private lateinit var messageStreamIntCaptor: ArgumentCaptor<MessageStream.MessageStreamHandler<Int>>
+    @Captor
+    private lateinit var messageStreamMessageCaptor: ArgumentCaptor<MessageStream.MessageStreamHandler<Message>>
 
     private lateinit var messageStream: MessageStream
 
@@ -159,6 +158,40 @@ class RNMessageStreamModuleTest {
     }
 
     @Test
+    fun testGetMessage() {
+        // Setup mocks
+        val message: Message = mock()
+        val jsonObject: JSONObject = mock()
+        val promise: Promise = mock()
+        val writableMap: WritableMap = mock()
+        val error: Error = mock()
+        val messageId = "messageId123456"
+
+        // Initiate test
+        rnMessageStreamModule.getMessage(messageId, promise)
+
+        // Capture handler to verify behaviour
+        verify(messageStream).getMessage(eq(messageId), capture(messageStreamMessageCaptor))
+        val messageHandler = messageStreamMessageCaptor.value
+
+        // Replace native array with mock
+        doReturn(jsonObject).whenever(message).toJSON()
+        doReturn(writableMap).whenever(jsonConverter).convertJsonToMap(jsonObject)
+
+        // Test success handler
+        messageHandler.onSuccess(message)
+        verify(promise).resolve(writableMap)
+
+        // Setup error
+        val errorMessage = "error message"
+        doReturn(errorMessage).whenever(error).message
+
+        // Test error handler
+        messageHandler.onFailure(error)
+        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_MESSAGES, errorMessage)
+    }
+
+    @Test
     fun testGetMessages() {
         // Setup mocks
         val promise: Promise = mock()
@@ -255,7 +288,7 @@ class RNMessageStreamModuleTest {
         val error: Error = mock()
         val readableMap: ReadableMap = mock()
         val message: Message = mock()
-        doReturn(message).whenever(rnMessageStreamModuleImplSpy).getMessage(readableMap, promise)
+        doReturn(message).whenever(rnMessageStreamModuleImplSpy).createMessage(readableMap, promise)
 
         // Initiate test
         rnMessageStreamModule.removeMessage(readableMap, promise)
@@ -285,7 +318,7 @@ class RNMessageStreamModuleTest {
         val promise: Promise = mock()
         val readableMap: ReadableMap = mock()
         val jsonException = JSONException("test exception")
-        doThrow(jsonException).whenever(rnMessageStreamModuleImplSpy).getMessage(readableMap, promise)
+        doThrow(jsonException).whenever(rnMessageStreamModuleImplSpy).createMessage(readableMap, promise)
 
         // Initiate test
         Assert.assertThrows(JSONException::class.java) {
@@ -304,7 +337,7 @@ class RNMessageStreamModuleTest {
         val typeCode = 0
         val readableMap: ReadableMap = mock()
         val message: Message = mock()
-        doReturn(message).whenever(rnMessageStreamModuleImplSpy).getMessage(readableMap, null)
+        doReturn(message).whenever(rnMessageStreamModuleImplSpy).createMessage(readableMap, null)
 
         // Initiate test
         rnMessageStreamModule.registerMessageImpression(typeCode.toDouble(), readableMap)
@@ -333,7 +366,7 @@ class RNMessageStreamModuleTest {
         val typeCode = 0
         val readableMap: ReadableMap = mock()
         val jsonException: JSONException = mock()
-        doThrow(jsonException).whenever(rnMessageStreamModuleImplSpy).getMessage(readableMap, null)
+        doThrow(jsonException).whenever(rnMessageStreamModuleImplSpy).createMessage(readableMap, null)
 
         // Initiate test
         Assert.assertThrows(Exception::class.java) {
@@ -353,7 +386,7 @@ class RNMessageStreamModuleTest {
         val promise: Promise = mock()
         val message: Message = mock()
         val error: Error = mock()
-        doReturn(message).whenever(rnMessageStreamModuleImplSpy).getMessage(readableMap, promise)
+        doReturn(message).whenever(rnMessageStreamModuleImplSpy).createMessage(readableMap, promise)
 
         // Initiate test
         rnMessageStreamModule.markMessageAsRead(readableMap, promise)
@@ -383,7 +416,7 @@ class RNMessageStreamModuleTest {
         val readableMap: ReadableMap = mock()
         val promise: Promise = mock()
         val jsonException = JSONException("test exception")
-        doThrow(jsonException).whenever(rnMessageStreamModuleImplSpy).getMessage(readableMap, promise)
+        doThrow(jsonException).whenever(rnMessageStreamModuleImplSpy).createMessage(readableMap, promise)
 
         // Initiate test
         Assert.assertThrows(JSONException::class.java) {
@@ -419,7 +452,7 @@ class RNMessageStreamModuleTest {
 
     @Test
     @Throws(Exception::class)
-    fun testGetMessage() {
+    fun testCreateMessage() {
         // Mock methods
         val readableMap: ReadableMap = mock()
         val promise: Promise = mock()
@@ -427,7 +460,7 @@ class RNMessageStreamModuleTest {
         doReturn(messageJson).whenever(jsonConverter).convertMapToJson(readableMap)
 
         // Initiate test
-        val message = rnMessageStreamModuleImplSpy.getMessage(readableMap, promise)
+        val message = rnMessageStreamModuleImplSpy.createMessage(readableMap, promise)
 
         // Verify result
         verify(jsonConverter).convertMapToJson(readableMap)

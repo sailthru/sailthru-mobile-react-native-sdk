@@ -10,6 +10,7 @@ using JS::NativeRNMessageStream::RNMessage;
 #else
 // interface to expose methods for testing
 @interface RNMessageStream ()
+-(void)getMessage:(NSString *)messageId resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 -(void)getMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 -(void)getUnreadCount:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 -(void)markMessageAsRead:(NSDictionary*)jsDict resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
@@ -75,6 +76,57 @@ describe(@"RNMessageStream", ^{
         it(@"sets the displayInAppNotifications", ^{
             RNMessageStream *rnMessageStream = [[RNMessageStream alloc] initWithDisplayInAppNotifications:NO];
             [[theValue(rnMessageStream.displayInAppNotifications) should] beNo];
+        });
+    });
+    
+    context(@"the getMessage method", ^{
+        it(@"calls the native method", ^{
+            [[messageStream should] receive:@selector(messageFor:withCompletion:)];
+            [rnMessageStream getMessage:@"test" resolve:nil reject:nil];
+        });
+
+        it(@"returns the message on success", ^{
+            // Setup variables
+            __block NSArray *check = nil;
+            MARMessage *message = [MARMessage new];
+            RCTPromiseResolveBlock resolve = ^(NSArray* count) {
+                check = count;
+            };
+            KWCaptureSpy *messageIdCapture = [messageStream captureArgument:@selector(messageFor:withCompletion:) atIndex:0];
+            KWCaptureSpy *completionCapture = [messageStream captureArgument:@selector(messageFor:withCompletion:) atIndex:1];
+
+            // Start test
+            [rnMessageStream getMessage:@"test" resolve:resolve reject:nil];
+
+            // Capture arguments
+            NSString *messageId = messageIdCapture.argument;
+            [[messageId should] equal:@"test"];
+            void (^completeBlock)(MARMessage * _Nullable, NSError * _Nullable) = completionCapture.argument;
+            completeBlock(message, nil);
+
+            // Verify result
+            [[check shouldNot] beNil];
+            [[check should] beKindOfClass:[NSDictionary class]];
+        });
+
+        it(@"returns the error on failure", ^{
+            // Setup variables
+            __block NSError *check = nil;
+            RCTPromiseRejectBlock reject = ^(NSString* e, NSString* f, NSError* error) {
+                check = error;
+            };
+            KWCaptureSpy *capture = [messageStream captureArgument:@selector(messageFor:withCompletion:) atIndex:1];
+
+            // Start test
+            [rnMessageStream getMessage:@"test" resolve:nil reject:reject];
+
+            // Capture argument
+            void (^completeBlock)(NSUInteger, NSError * _Nullable) = capture.argument;
+            NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
+            completeBlock(0, error);
+
+            // Verify result
+            [[check should] equal:error];
         });
     });
     

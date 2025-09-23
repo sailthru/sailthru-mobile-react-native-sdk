@@ -32,6 +32,11 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext, d
     }
 
     @ReactMethod
+    fun getMessage(messageId: String, promise: Promise) {
+        rnMessageStreamModuleImpl.getMessage(messageId, promise)
+    }
+
+    @ReactMethod
     fun getMessages(promise: Promise) {
         rnMessageStreamModuleImpl.getMessages(promise)
     }

@@ -25,6 +25,10 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext, d
         rnMessageStreamModuleImpl.useDefaultInAppNotification(useDefault)
     }
 
+    override fun getMessage(messageId: String, promise: Promise?) {
+        rnMessageStreamModuleImpl.getMessage(messageId, promise)
+    }
+
     override fun getMessages(promise: Promise?) {
         rnMessageStreamModuleImpl.getMessages(promise)
     }
