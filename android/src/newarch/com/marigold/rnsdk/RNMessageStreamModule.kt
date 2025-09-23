@@ -11,7 +11,7 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext, d
     }
 
     @VisibleForTesting
-    internal var rnMessageStreamModuleImpl = RNMessageStreamModuleImpl(displayInAppNotifications, inAppNotificationEmitter)
+    internal var rnMessageStreamModuleImpl = RNMessageStreamModuleImpl(reactContext, displayInAppNotifications, inAppNotificationEmitter)
 
     override fun getName(): String {
         return RNMessageStreamModuleImpl.NAME
@@ -46,7 +46,7 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext, d
     }
 
     override fun presentMessageDetail(message: ReadableMap?) {
-        rnMessageStreamModuleImpl.presentMessageDetail(message, reactContext.currentActivity)
+        rnMessageStreamModuleImpl.presentMessageDetail(message)
     }
 
     override fun dismissMessageDetail() {

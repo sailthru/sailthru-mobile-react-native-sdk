@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import androidx.annotation.VisibleForTesting
 import com.facebook.react.bridge.Promise
+import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
@@ -20,6 +21,7 @@ import org.json.JSONObject
 import java.lang.reflect.InvocationTargetException
 
 class RNMessageStreamModuleImpl (
+    private val reactContext: ReactApplicationContext,
     displayInAppNotifications: Boolean,
     @get:VisibleForTesting internal val inAppNotificationEmitter: InAppNotificationEmitter
 ) : MessageStream.OnInAppNotificationDisplayListener  {
@@ -202,9 +204,9 @@ class RNMessageStreamModuleImpl (
         })
     }
 
-    fun presentMessageDetail(message: ReadableMap?, activity: Activity?) {
+    fun presentMessageDetail(message: ReadableMap?) {
         message ?: return
-        activity ?: return
+        val activity = reactContext.currentActivity ?: return
         val messageId = message.getString(RNMarigoldModuleImpl.MESSAGE_ID)
         if (messageId == null) return
         val i = getMessageActivityIntent(activity, messageId)

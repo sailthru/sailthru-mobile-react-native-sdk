@@ -13,8 +13,8 @@ import java.lang.reflect.InvocationTargetException
 /**
  * React native module for the Marigold SDK.
  */
-class RNMarigoldModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
-    private val rnMarigoldModuleImpl = RNMarigoldModuleImpl()
+class RNMarigoldModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+    private val rnMarigoldModuleImpl = RNMarigoldModuleImpl(reactContext)
 
     override fun getName(): String {
         return RNMarigoldModuleImpl.NAME
@@ -22,7 +22,7 @@ class RNMarigoldModule(reactContext: ReactApplicationContext) : ReactContextBase
 
     @ReactMethod
     fun registerForPushNotifications() {
-        rnMarigoldModuleImpl.registerForPushNotifications(currentActivity)
+        rnMarigoldModuleImpl.registerForPushNotifications()
     }
 
     @ReactMethod
