@@ -277,6 +277,28 @@ class RNEngageBySailthruModuleImpl() {
         }
     }
 
+    fun setCustomFullScreenMessageHandler(handler: (Message, Context) -> Unit) {
+        customFullScreenMessageHandler = handler
+    }
+
+    fun presentFullScreenMessage(message: Message, context: Context) {
+        if (customFullScreenMessageHandler != null) {
+            customFullScreenMessageHandler?.invoke(message, context)
+        } else {
+            // Default behavior
+            val intent = Intent(context, FullScreenMessageActivity::class.java)
+            intent.putExtra(Marigold.EXTRA_PARCELABLE_MESSAGE, message)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.startActivity(intent)
+        }
+    }
+
+//    sdkInstance.setCustomFullScreenMessageHandler { message, context ->
+//        val intent = Intent(context, CustomFullScreenActivity::class.java)
+//        intent.putExtra("custom_message", message)
+//        context.startActivity(intent)
+//    }
+
     @VisibleForTesting
     @Throws(JSONException::class)
     fun getAttributeMap(readableMap: ReadableMap): AttributeMap {
