@@ -27,6 +27,8 @@ class RNEngageBySailthruModuleImpl() {
         const val NAME = "RNEngageBySailthru"
     }
 
+    private var customFullScreenMessageHandler: ((Message, Context) -> Unit)? = null
+
     @VisibleForTesting
     internal var jsonConverter = JsonConverter()
 
