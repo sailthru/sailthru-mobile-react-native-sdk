@@ -658,39 +658,6 @@ class RNEngageBySailthruModuleTest {
     }
 
     @Test
-    fun `test presentFullScreenMessage with custom handler`() {
-        // Mock methods
-        var handlerInvoked = false
-        rnEngageBySailthruModuleImplSpy.setCustomFullScreenMessageHandler { message, context ->
-            handlerInvoked = true
-            assertEquals(mockMessage, message)
-            assertEquals(mockContext, context)
-        }
-
-        // Initiate test
-        rnEngageBySailthruModuleImplSpy.presentFullScreenMessage(mockMessage, mockContext)
-
-        // Verify result
-        assertTrue(handlerInvoked)
-    }
-
-    @Test
-    fun `test presentFullScreenMessage with default behavior`() {
-        // Mock methods
-        val intentCaptor = ArgumentCaptor.forClass(Intent::class.java)
-
-        // Initiate test
-        rnEngageBySailthruModuleImplSpy.presentFullScreenMessage(mockMessage, mockContext)
-
-        // Verify result
-        verify(mockContext).startActivity(capture(intentCaptor))
-        val capturedIntent = intentCaptor.value
-        assertNotNull(capturedIntent)
-        assertEquals(FullScreenMessageActivity::class.java.name, capturedIntent.component?.className)
-        assertEquals(mockMessage, capturedIntent.getParcelableExtra(Marigold.EXTRA_PARCELABLE_MESSAGE))
-    }
-
-    @Test
     fun testGetAttributeMap() {
         // Mock methods
         val readableMap: ReadableMap = mock()

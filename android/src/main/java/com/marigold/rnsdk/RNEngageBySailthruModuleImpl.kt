@@ -1,7 +1,5 @@
 package com.marigold.rnsdk
 
-import android.content.Context
-import android.content.Intent
 import androidx.annotation.VisibleForTesting
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableArray
@@ -10,7 +8,6 @@ import com.marigold.sdk.EngageBySailthru
 import com.marigold.sdk.Marigold
 import com.marigold.sdk.enums.MergeRules
 import com.marigold.sdk.model.AttributeMap
-import com.marigold.sdk.model.Message
 import com.marigold.sdk.model.Purchase
 import org.json.JSONException
 import org.json.JSONObject
@@ -29,8 +26,6 @@ class RNEngageBySailthruModuleImpl() {
         const val ERROR_CODE_KEY = "marigold.key"
         const val NAME = "RNEngageBySailthru"
     }
-
-    private var customFullScreenMessageHandler: ((Message, Context) -> Unit)? = null
 
     @VisibleForTesting
     internal var jsonConverter = JsonConverter()
@@ -282,27 +277,11 @@ class RNEngageBySailthruModuleImpl() {
         }
     }
 
-    fun setCustomFullScreenMessageHandler(handler: (Message, Context) -> Unit) {
-        customFullScreenMessageHandler = handler
+    fun triggerMessageBroadcast(context: Context, messageId: String) {
+        val intent = Intent("com.marigold.rnsdk.MESSAGE_BROADCAST")
+        intent.putExtra(MessageStream.EXTRA_MESSAGE_ID, messageId)
+        context.sendBroadcast(intent)
     }
-
-    fun presentFullScreenMessage(message: Message, context: Context) {
-        if (customFullScreenMessageHandler != null) {
-            customFullScreenMessageHandler?.invoke(message, context)
-        } else {
-            // Default behavior
-            val intent = Intent(context, FullScreenMessageActivity::class.java)
-            intent.putExtra(Marigold.EXTRA_PARCELABLE_MESSAGE, message)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            context.startActivity(intent)
-        }
-    }
-
-//    sdkInstance.setCustomFullScreenMessageHandler { message, context ->
-//        val intent = Intent(context, CustomFullScreenActivity::class.java)
-//        intent.putExtra("custom_message", message)
-//        context.startActivity(intent)
-//    }
 
     @VisibleForTesting
     @Throws(JSONException::class)
