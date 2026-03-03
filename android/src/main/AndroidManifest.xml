@@ -1,10 +1,12 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.marigold.rnsdk">
-    <receiver android:name=".MessageBroadcastReceiver">
-        <intent-filter>
-            <action android:name="com.marigold.rnsdk.MESSAGE_BROADCAST" />
-        </intent-filter>
-    </receiver>
+    <application>
+        <receiver android:name="com.marigold.rnsdk.MessageBroadcastReceiver">
+            <intent-filter>
+                <action android:name="com.marigold.rnsdk.MESSAGE_BROADCAST" />
+            </intent-filter>
+        </receiver>
+    </application>
 </manifest>
   
