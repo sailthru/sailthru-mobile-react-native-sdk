@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.marigold.sdk.model.Message
-import com.marigold.sdk.stream.MessageStream
+import com.marigold.sdk.MessageStream
 
 class MessageBroadcastReceiver : BroadcastReceiver() {
 

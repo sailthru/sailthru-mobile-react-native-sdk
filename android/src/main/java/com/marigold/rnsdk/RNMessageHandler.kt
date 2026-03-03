@@ -9,6 +9,6 @@ object RNMessageHandler {
     fun sendMessageToReactNative(context: Context, message: Message) {
         val reactContext = context as? ReactContext
         reactContext?.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-            ?.emit("onMessageReceived", message.toJson())
+            ?.emit("onMessageReceived", message.toJSON())
     }
 }

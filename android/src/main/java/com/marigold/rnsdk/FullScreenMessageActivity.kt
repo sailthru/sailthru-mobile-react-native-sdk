@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.marigold.sdk.Marigold
+import com.marigold.sdk.MessageStream
 import com.marigold.sdk.model.Message
 
 class FullScreenMessageActivity : AppCompatActivity() {
