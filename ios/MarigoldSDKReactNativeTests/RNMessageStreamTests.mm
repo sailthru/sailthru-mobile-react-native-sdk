@@ -21,6 +21,7 @@ using JS::NativeRNMessageStream::RNMessage;
 -(void)clearMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 -(void)useDefaultInAppNotification:(BOOL)useDefault;
 -(void)notifyInAppHandled:(BOOL)handled;
+-(void)notifyFullScreenHandled:(BOOL)handled;
 @end
 #endif
 

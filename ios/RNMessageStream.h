@@ -18,9 +18,12 @@
 
 @property BOOL displayInAppNotifications;
 @property (nonatomic, strong) dispatch_semaphore_t eventSemaphore;
+@property (nonatomic, strong) dispatch_semaphore_t fullScreenEventSemaphore;
 @property (nonatomic, assign) BOOL defaultInAppNotification;
 @property (nonatomic, assign) BOOL inAppNotificationHandled;
+@property (nonatomic, assign) BOOL fullScreenMessageHandled;
 - (void)emitInAppNotification:(NSDictionary *)payload;
+- (void)notifyFullScreenHandled:(BOOL)handled;
 
 /**
  * Initialize RNMarigold and set whether to automatically display in app notifications.\

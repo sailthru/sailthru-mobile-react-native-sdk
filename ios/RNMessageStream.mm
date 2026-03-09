@@ -38,6 +38,7 @@ RCT_EXPORT_MODULE();
         _messageStream = [MARMessageStream new];
         _defaultInAppNotification = YES;
         self.eventSemaphore = dispatch_semaphore_create(0);
+        self.fullScreenEventSemaphore = dispatch_semaphore_create(0);
         
         [_messageStream setDelegate:self];
     }
@@ -102,6 +103,13 @@ RCT_EXPORT_METHOD(notifyInAppHandled:(BOOL)handled) {
     @synchronized (self) {
         self.inAppNotificationHandled = !handled;
         dispatch_semaphore_signal(self.eventSemaphore);
+    }
+}
+
+RCT_EXPORT_METHOD(notifyFullScreenHandled:(BOOL)handled) {
+    @synchronized (self) {
+        self.fullScreenMessageHandled = !handled;
+        dispatch_semaphore_signal(self.fullScreenEventSemaphore);
     }
 }
 
