@@ -21,6 +21,10 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext, d
         rnMessageStreamModuleImpl.notifyInAppHandled(handled)
     }
 
+    override fun notifyFullScreenHandled(handled: Boolean) {
+        rnMessageStreamModuleImpl.notifyFullScreenHandled(handled)
+    }
+
     override fun useDefaultInAppNotification(useDefault: Boolean) {
         rnMessageStreamModuleImpl.useDefaultInAppNotification(useDefault)
     }

@@ -4,9 +4,10 @@
     <application>
         <receiver android:name="com.marigold.rnsdk.MessageBroadcastReceiver">
             <intent-filter>
-                <action android:name="com.marigold.rnsdk.MESSAGE_BROADCAST" />
+                <action android:name="com.marigold.rnsdk.FULL_SCREEN_MESSAGE" />
             </intent-filter>
         </receiver>
+        <activity android:name="com.marigold.rnsdk.FullScreenMessageActivity"
+                  android:exported="true" />
     </application>
 </manifest>
-  

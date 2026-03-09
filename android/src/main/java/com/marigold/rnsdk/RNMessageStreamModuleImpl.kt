@@ -75,6 +75,10 @@ class RNMessageStreamModuleImpl (
         }
     }
 
+    fun notifyFullScreenHandled(shouldHandle: Boolean) {
+        MessageBroadcastReceiver.notifyFullScreenHandled(shouldHandle)
+    }
+
     fun useDefaultInAppNotification(useDefault: Boolean) {
         defaultInAppNotification = useDefault
     }
