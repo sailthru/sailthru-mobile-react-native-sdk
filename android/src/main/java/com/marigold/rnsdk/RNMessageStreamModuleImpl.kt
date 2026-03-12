@@ -23,7 +23,8 @@ import java.lang.reflect.InvocationTargetException
 class RNMessageStreamModuleImpl (
     private val reactContext: ReactApplicationContext,
     displayInAppNotifications: Boolean,
-    @get:VisibleForTesting internal val inAppNotificationEmitter: InAppNotificationEmitter
+    @get:VisibleForTesting internal val inAppNotificationEmitter: InAppNotificationEmitter,
+    @get:VisibleForTesting internal val onInAppFullscreenEmitter: OnInAppFullscreenEmitter
 ) : MessageStream.OnInAppNotificationDisplayListener  {
 
     companion object {
@@ -32,6 +33,10 @@ class RNMessageStreamModuleImpl (
 
     fun interface InAppNotificationEmitter {
         fun emitInAppNotificationMessage(messageData: WritableMap)
+    }
+
+    fun interface OnInAppFullscreenEmitter {
+        fun emitOnInAppFullscreen(messageData: WritableMap)
     }
 
     @VisibleForTesting

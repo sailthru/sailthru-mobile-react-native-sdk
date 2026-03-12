@@ -10,8 +10,12 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext, d
         emitOnInAppNotification(writableMap)
     }
 
+    private val onInAppFullscreenEmitter = RNMessageStreamModuleImpl.OnInAppFullscreenEmitter { writableMap ->
+        emitOnInAppNotification(writableMap)
+    }
+
     @VisibleForTesting
-    internal var rnMessageStreamModuleImpl = RNMessageStreamModuleImpl(reactContext, displayInAppNotifications, inAppNotificationEmitter)
+    internal var rnMessageStreamModuleImpl = RNMessageStreamModuleImpl(reactContext, displayInAppNotifications, inAppNotificationEmitter, onInAppFullscreenEmitter)
 
     override fun getName(): String {
         return RNMessageStreamModuleImpl.NAME

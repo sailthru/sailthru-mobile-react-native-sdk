@@ -7,7 +7,5 @@
                 <action android:name="com.marigold.rnsdk.FULL_SCREEN_MESSAGE" />
             </intent-filter>
         </receiver>
-        <activity android:name="com.marigold.rnsdk.FullScreenMessageActivity"
-                  android:exported="true" />
     </application>
 </manifest>
