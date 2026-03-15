@@ -19,6 +19,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.reflect.InvocationTargetException
+import android.util.Log
 
 class RNMessageStreamModuleImpl (
     private val reactContext: ReactApplicationContext,
@@ -34,6 +35,10 @@ class RNMessageStreamModuleImpl (
         fun emitInAppNotificationMessage(messageData: WritableMap)
     }
 
+    fun interface FullScreenMessageEmitter {
+        fun emitFullScreenMessage(messageData: WritableMap)
+    }
+
     @VisibleForTesting
     var messageStream = MessageStream()
 
@@ -41,7 +46,14 @@ class RNMessageStreamModuleImpl (
     internal var jsonConverter: JsonConverter = JsonConverter()
 
     private val eventChannel = Channel<Boolean>()
+
+    private val fullScreenEventChannel = Channel<Boolean>()
+
     private var defaultInAppNotification = displayInAppNotifications
+
+    @VisibleForTesting
+    internal var fullScreenMessageEmitter: FullScreenMessageEmitter? = null
+
     init {
         messageStream.setOnInAppNotificationDisplayListener(this)
     }
@@ -75,7 +87,14 @@ class RNMessageStreamModuleImpl (
         }
     }
 
+    fun notifyFullScreenHandled(shouldHandle: Boolean) {
+        runBlocking {
+            fullScreenEventChannel.send(!shouldHandle)
+        }
+    }
+
     fun useDefaultInAppNotification(useDefault: Boolean) {
+        Log.d("RNMessageStream", "useDefaultInAppNotification called with useDefault: $useDefault")
         defaultInAppNotification = useDefault
     }
 
@@ -205,6 +224,7 @@ class RNMessageStreamModuleImpl (
     }
 
     fun presentMessageDetail(message: ReadableMap?) {
+        Log.d("RNMessageStream", "presentMessageDetail called with message: $message")
         message ?: return
         val activity = reactContext.currentActivity ?: return
         val messageId = message.getString(RNMarigoldModuleImpl.MESSAGE_ID)
@@ -213,8 +233,52 @@ class RNMessageStreamModuleImpl (
         activity.startActivity(i)
     }
 
-    // wrapped for testing
+    //Used by BroadcastReceiver
+    fun handleFullScreenMessage(activity: Activity, messageId: String) {
+
+        Log.d("RNMessageStream", "handleFullScreenMessage called with id: $messageId")
+
+        messageStream.getMessage(messageId, object : MessageStream.MessageStreamHandler<Message> {
+
+            override fun onSuccess(value: Message) {
+
+                try {
+
+                    val toJsonMethod = Message::class.java.getDeclaredMethod("toJSON")
+                    toJsonMethod.isAccessible = true
+
+                    val messageJson = toJsonMethod.invoke(value) as? JSONObject ?: return
+                    val writableMap = jsonConverter.convertJsonToMap(messageJson)
+
+                    Log.d("RNMessageStream", "Sending fullscreen message to RN")
+
+                    inAppNotificationEmitter.emitInAppNotificationMessage(writableMap)
+
+                } catch (e: Exception) {
+
+                    Log.e("RNMessageStream", "RN fullscreen handling failed: ${e.message}")
+
+                    val fallbackIntent =
+                        MessageActivity.intentForMessage(activity, null, messageId)
+
+                    activity.startActivity(fallbackIntent)
+                }
+            }
+
+            override fun onFailure(error: Error) {
+
+                Log.e("RNMessageStream", "Failed to load message: ${error.message}")
+
+                val fallbackIntent =
+                    MessageActivity.intentForMessage(activity, null, messageId)
+
+                activity.startActivity(fallbackIntent)
+            }
+        })
+    }
+
     fun getMessageActivityIntent(activity: Activity, messageId: String): Intent {
+        Log.d("RNMessageStream", "getMessageActivityIntent called with messageId: $messageId")
         return MessageActivity.intentForMessage(activity, null, messageId)
     }
 
@@ -223,9 +287,6 @@ class RNMessageStreamModuleImpl (
         // noop. It's here to share signatures with iOS.
     }
 
-    /*
-     * Helper Methods
-     */
     @VisibleForTesting
     fun createMessage(messageMap: ReadableMap, promise: Promise?): Message? = try {
         val messageJson = jsonConverter.convertMapToJson(messageMap)
@@ -241,7 +302,6 @@ class RNMessageStreamModuleImpl (
         null
     }
 
-    // Moved out to separate method for testing as WritableNativeArray cannot be mocked
     fun getWritableArray(): WritableArray {
         return WritableNativeArray()
     }

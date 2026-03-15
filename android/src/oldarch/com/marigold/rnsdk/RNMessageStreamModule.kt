@@ -17,6 +17,11 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext, d
     @VisibleForTesting
     internal var rnMessageStreamModuleImpl = RNMessageStreamModuleImpl(reactContext, displayInAppNotifications, inAppNotificationEmitter)
 
+    init {
+        RNMessageStreamBridge.reactContext = reactContext
+        RNMessageStreamBridge.messageStreamModuleImpl = rnMessageStreamModuleImpl
+    }
+
     override fun getName(): String {
         return RNMessageStreamModuleImpl.NAME
     }
@@ -24,6 +29,11 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext, d
     @ReactMethod
     fun notifyInAppHandled(shouldHandle: Boolean) {
         rnMessageStreamModuleImpl.notifyInAppHandled(shouldHandle)
+    }
+
+    @ReactMethod
+    fun notifyFullScreenHandled(shouldHandle: Boolean) {
+        rnMessageStreamModuleImpl.notifyFullScreenHandled(shouldHandle)
     }
 
     @ReactMethod

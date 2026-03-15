@@ -13,12 +13,21 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext, d
     @VisibleForTesting
     internal var rnMessageStreamModuleImpl = RNMessageStreamModuleImpl(reactContext, displayInAppNotifications, inAppNotificationEmitter)
 
+    init {
+        RNMessageStreamBridge.reactContext = reactContext
+        RNMessageStreamBridge.messageStreamModuleImpl = rnMessageStreamModuleImpl
+    }
+
     override fun getName(): String {
         return RNMessageStreamModuleImpl.NAME
     }
 
     override fun notifyInAppHandled(handled: Boolean) {
         rnMessageStreamModuleImpl.notifyInAppHandled(handled)
+    }
+
+    override fun notifyFullScreenHandled(handled: Boolean) {
+        rnMessageStreamModuleImpl.notifyFullScreenHandled(handled)
     }
 
     override fun useDefaultInAppNotification(useDefault: Boolean) {
