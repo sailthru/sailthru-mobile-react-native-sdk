@@ -235,32 +235,34 @@ class RNMessageStreamModuleImpl (
 
     //Used by BroadcastReceiver
     fun handleFullScreenMessage(activity: Activity, messageId: String) {
-
         Log.d("RNMessageStream", "handleFullScreenMessage called with id: $messageId")
-
         messageStream.getMessage(messageId, object : MessageStream.MessageStreamHandler<Message> {
-
             override fun onSuccess(value: Message) {
-
                 try {
-
                     val toJsonMethod = Message::class.java.getDeclaredMethod("toJSON")
                     toJsonMethod.isAccessible = true
-
                     val messageJson = toJsonMethod.invoke(value) as? JSONObject ?: return
                     val writableMap = jsonConverter.convertJsonToMap(messageJson)
 
-                    Log.d("RNMessageStream", "Sending fullscreen message to RN")
-
-                    inAppNotificationEmitter.emitInAppNotificationMessage(writableMap)
-
+                    Log.d("RNMessageStream", "Emitting fullscreen message to RN")
+                    val handledByRN = runBlocking {
+                        withTimeoutOrNull(5000L) {
+                            fullScreenMessageEmitter?.emitFullScreenMessage(writableMap)
+                            fullScreenEventChannel.receive()
+                        }
+                    }
+                    if (handledByRN == null || handledByRN) {
+                        Log.d("RNMessageStream", "RN did not handle fullscreen, opening default MessageActivity")
+                        val fallbackIntent =
+                            MessageActivity.intentForMessage(activity, null, messageId)
+                        activity.startActivity(fallbackIntent)
+                    } else {
+                        Log.d("RNMessageStream", "RN handled fullscreen message")
+                    }
                 } catch (e: Exception) {
-
-                    Log.e("RNMessageStream", "RN fullscreen handling failed: ${e.message}")
-
+                    Log.e("RNMessageStream", "Fullscreen handling failed: ${e.message}")
                     val fallbackIntent =
                         MessageActivity.intentForMessage(activity, null, messageId)
-
                     activity.startActivity(fallbackIntent)
                 }
             }

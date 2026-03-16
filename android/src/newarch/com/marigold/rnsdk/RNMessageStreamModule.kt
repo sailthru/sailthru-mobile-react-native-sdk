@@ -10,8 +10,14 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext, d
         emitOnInAppNotification(writableMap)
     }
 
+    private val fullScreenEmitter = RNMessageStreamModuleImpl.FullScreenMessageEmitter { writableMap ->
+        emitOnFullScreenMessage(writableMap)
+    }
+
     @VisibleForTesting
-    internal var rnMessageStreamModuleImpl = RNMessageStreamModuleImpl(reactContext, displayInAppNotifications, inAppNotificationEmitter)
+    internal var rnMessageStreamModuleImpl = RNMessageStreamModuleImpl(reactContext, displayInAppNotifications, inAppNotificationEmitter).apply {
+        fullScreenMessageEmitter = fullScreenEmitter
+    }
 
     init {
         RNMessageStreamBridge.reactContext = reactContext

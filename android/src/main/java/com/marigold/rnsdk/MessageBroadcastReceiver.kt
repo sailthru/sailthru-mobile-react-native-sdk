@@ -12,11 +12,23 @@ class MessageBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
         Log.d("RNMessageStream", "MessageBroadcastReceiver triggered")
+        Log.d("RNMessageStream", "Intent action: ${intent.action}")
+        Log.d("RNMessageStream", "Intent extras: ${intent.extras}")
 
         val messageId = intent.getStringExtra(MessageStream.EXTRA_MESSAGE_ID)
 
         if (messageId == null) {
-            Log.e("RNMessageStream", "Message ID missing")
+
+            Log.e("RNMessageStream", "Message ID missing, fallback to MessageActivity")
+
+            val fallbackIntent = Intent(context, MessageActivity::class.java)
+            fallbackIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+
+            if (intent.extras != null) {
+                fallbackIntent.putExtras(intent.extras!!)
+            }
+
+            context.startActivity(fallbackIntent)
             return
         }
 
