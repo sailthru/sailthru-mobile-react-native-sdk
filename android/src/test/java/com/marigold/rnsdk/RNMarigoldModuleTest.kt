@@ -5,7 +5,6 @@ import android.location.Location
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.marigold.sdk.Marigold
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,15 +37,9 @@ class RNMarigoldModuleTest {
 
     @Before
     fun setup() {
-        staticMarigold = mockConstruction(Marigold::class.java)
         rnMarigoldModule = RNMarigoldModule(mockContext)
 
         marigold = staticMarigold.constructed()[0]
-    }
-
-    @After
-    fun tearDown() {
-        staticMarigold.close()
     }
 
     @Test
