@@ -466,4 +466,69 @@ class RNMessageStreamModuleTest {
         verify(jsonConverter).convertMapToJson(readableMap)
         Assert.assertEquals("test title", message!!.title)
     }
+
+    @Test
+    fun testHandleFullScreenMessageRNHandles() {
+        val activity: Activity = mock()
+        val message: Message = mock()
+        val jsonObject: JSONObject = mock()
+        val writableMap: WritableMap = mock()
+        val messageId = "fullscreen123"
+
+        val fullScreenEmitter: RNMessageStreamModuleImpl.FullScreenMessageEmitter = mock()
+
+        rnMessageStreamModuleImplSpy.fullScreenMessageEmitter = fullScreenEmitter
+
+        doReturn(jsonObject).whenever(message).toJSON()
+        doReturn(writableMap).whenever(jsonConverter).convertJsonToMap(jsonObject)
+
+        rnMessageStreamModuleImplSpy.handleFullScreenMessage(activity, messageId)
+
+        // Verify result
+        verify(messageStream).getMessage(eq(messageId), capture(messageStreamMessageCaptor))
+        val handler = messageStreamMessageCaptor.value
+        handler.onSuccess(message)
+        verify(fullScreenEmitter).emitFullScreenMessage(writableMap)
+    }
+
+    @Test
+    fun testHandleFullScreenMessageFallbackWhenRNDoesNotHandle() {
+        val activity: Activity = mock()
+        val message: Message = mock()
+        val jsonObject: JSONObject = mock()
+        val writableMap: WritableMap = mock()
+        val messageId = "fullscreenFallback"
+
+        val fullScreenEmitter: RNMessageStreamModuleImpl.FullScreenMessageEmitter = mock()
+
+        rnMessageStreamModuleImplSpy.fullScreenMessageEmitter = fullScreenEmitter
+
+        doReturn(jsonObject).whenever(message).toJSON()
+        doReturn(writableMap).whenever(jsonConverter).convertJsonToMap(jsonObject)
+
+        rnMessageStreamModuleImplSpy.handleFullScreenMessage(activity, messageId)
+
+        // Verify result
+        verify(messageStream).getMessage(eq(messageId), capture(messageStreamMessageCaptor))
+        val handler = messageStreamMessageCaptor.value
+        handler.onSuccess(message)
+        verify(fullScreenEmitter).emitFullScreenMessage(writableMap)
+    }
+
+    @Test
+    fun testHandleFullScreenMessageFailureFallback() {
+        val activity: Activity = mock()
+        val error: Error = mock()
+        val messageId = "fullscreenError"
+
+        rnMessageStreamModuleImplSpy.handleFullScreenMessage(activity, messageId)
+
+        // Verify result
+        verify(messageStream).getMessage(eq(messageId), capture(messageStreamMessageCaptor))
+        val handler = messageStreamMessageCaptor.value
+        val errorMessage = "failed to load"
+        doReturn(errorMessage).whenever(error).message
+        handler.onFailure(error)
+        verify(activity).startActivity(any())
+    }
 }
