@@ -46,7 +46,11 @@ class RNMarigoldModuleImpl(private val reactContext: ReactApplicationContext) {
 
     init {
         setWrapperInfo()
-        configureFullScreenIntent()
+        try {
+            configureFullScreenIntent()
+        } catch (_: Exception) {
+            // Ignore in unit tests (no Android runtime)
+        }
     }
 
     /**
