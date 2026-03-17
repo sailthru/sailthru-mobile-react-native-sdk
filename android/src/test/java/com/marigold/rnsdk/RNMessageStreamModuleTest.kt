@@ -16,7 +16,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.json.JSONException
 import org.json.JSONObject
-import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -59,18 +58,12 @@ class RNMessageStreamModuleTest {
 
     @Before
     fun setup() {
-        staticMessageStream = Mockito.mockConstruction(MessageStream::class.java)
         rnMessageStreamModule = RNMessageStreamModule(mockContext, true)
         rnMessageStreamModule.rnMessageStreamModuleImpl.jsonConverter = jsonConverter
         rnMessageStreamModuleImplSpy = Mockito.spy(rnMessageStreamModule.rnMessageStreamModuleImpl)
         rnMessageStreamModule.rnMessageStreamModuleImpl = rnMessageStreamModuleImplSpy
 
         messageStream = staticMessageStream.constructed()[0]
-    }
-
-    @After
-    fun tearDown() {
-        staticMessageStream.close()
     }
 
     @Test
