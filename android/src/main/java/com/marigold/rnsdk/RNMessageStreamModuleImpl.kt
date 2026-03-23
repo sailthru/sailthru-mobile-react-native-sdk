@@ -19,7 +19,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.reflect.InvocationTargetException
-import android.util.Log
 
 class RNMessageStreamModuleImpl (
     private val reactContext: ReactApplicationContext,
@@ -40,7 +39,7 @@ class RNMessageStreamModuleImpl (
     }
 
     @VisibleForTesting
-    var messageStream = MessageStream()
+    var messageStream: MessageStream = MessageStream()
 
     @VisibleForTesting
     internal var jsonConverter: JsonConverter = JsonConverter()
@@ -94,7 +93,6 @@ class RNMessageStreamModuleImpl (
     }
 
     fun useDefaultInAppNotification(useDefault: Boolean) {
-        Log.d("RNMessageStream", "useDefaultInAppNotification called with useDefault: $useDefault")
         defaultInAppNotification = useDefault
     }
 
@@ -224,7 +222,6 @@ class RNMessageStreamModuleImpl (
     }
 
     fun presentMessageDetail(message: ReadableMap?) {
-        Log.d("RNMessageStream", "presentMessageDetail called with message: $message")
         message ?: return
         val activity = reactContext.currentActivity ?: return
         val messageId = message.getString(RNMarigoldModuleImpl.MESSAGE_ID)
@@ -233,9 +230,7 @@ class RNMessageStreamModuleImpl (
         activity.startActivity(i)
     }
 
-    //Used by BroadcastReceiver
     fun handleFullScreenMessage(activity: Activity, messageId: String) {
-        Log.d("RNMessageStream", "handleFullScreenMessage called with id: $messageId")
         messageStream.getMessage(messageId, object : MessageStream.MessageStreamHandler<Message> {
             override fun onSuccess(value: Message) {
                 try {
@@ -243,8 +238,6 @@ class RNMessageStreamModuleImpl (
                     toJsonMethod.isAccessible = true
                     val messageJson = toJsonMethod.invoke(value) as? JSONObject ?: return
                     val writableMap = jsonConverter.convertJsonToMap(messageJson)
-
-                    Log.d("RNMessageStream", "Emitting fullscreen message to RN")
                     val handledByRN = runBlocking {
                         withTimeoutOrNull(5000L) {
                             fullScreenMessageEmitter?.emitFullScreenMessage(writableMap)
@@ -252,35 +245,23 @@ class RNMessageStreamModuleImpl (
                         }
                     }
                     if (handledByRN == null || handledByRN) {
-                        Log.d("RNMessageStream", "RN did not handle fullscreen, opening default MessageActivity")
-                        val fallbackIntent =
-                            MessageActivity.intentForMessage(activity, null, messageId)
+                        val fallbackIntent = getMessageActivityIntent(activity, messageId)
                         activity.startActivity(fallbackIntent)
-                    } else {
-                        Log.d("RNMessageStream", "RN handled fullscreen message")
                     }
-                } catch (e: Exception) {
-                    Log.e("RNMessageStream", "Fullscreen handling failed: ${e.message}")
-                    val fallbackIntent =
-                        MessageActivity.intentForMessage(activity, null, messageId)
+                } catch (_: Exception) {
+                    val fallbackIntent = getMessageActivityIntent(activity, messageId)
                     activity.startActivity(fallbackIntent)
                 }
             }
 
             override fun onFailure(error: Error) {
-
-                Log.e("RNMessageStream", "Failed to load message: ${error.message}")
-
-                val fallbackIntent =
-                    MessageActivity.intentForMessage(activity, null, messageId)
-
+                val fallbackIntent = getMessageActivityIntent(activity, messageId)
                 activity.startActivity(fallbackIntent)
             }
         })
     }
 
     fun getMessageActivityIntent(activity: Activity, messageId: String): Intent {
-        Log.d("RNMessageStream", "getMessageActivityIntent called with messageId: $messageId")
         return MessageActivity.intentForMessage(activity, null, messageId)
     }
 
