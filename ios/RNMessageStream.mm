@@ -1,31 +1,35 @@
-
 #import "RNMessageStream.h"
 #import <UserNotifications/UserNotifications.h>
 
 @interface RNMessageStream () <MARMessageStreamDelegate>
-
 @end
 
 @interface MARMessage ()
-
 - (nullable instancetype)initWithDictionary:(nonnull NSDictionary *)dictionary;
 - (nonnull NSDictionary *)dictionary;
-
 @end
 
 @interface RNMessageStream()
-
 @property (nonatomic, strong) MARMessageStream *messageStream;
-
 @end
 
 #ifdef RCT_NEW_ARCH_ENABLED
 using JS::NativeRNMessageStream::RNMessage;
 #endif
 
+static __weak RNMessageStream *RNMessageStreamSharedInstance = nil;
+
 @implementation RNMessageStream
 
 RCT_EXPORT_MODULE();
+
++ (RNMessageStream * _Nullable)sharedInstance {
+    return RNMessageStreamSharedInstance;
+}
+
++ (void)setSharedInstance:(RNMessageStream * _Nullable)instance {
+    RNMessageStreamSharedInstance = instance;
+}
 
 - (instancetype)init {
     return [self initWithDisplayInAppNotifications:YES];
@@ -37,16 +41,26 @@ RCT_EXPORT_MODULE();
         _displayInAppNotifications = displayNotifications;
         _messageStream = [MARMessageStream new];
         _defaultInAppNotification = YES;
+        _inAppNotificationHandled = NO;
+        _fullScreenMessageHandled = NO;
         self.eventSemaphore = dispatch_semaphore_create(0);
-        
+        self.fullScreenSemaphore = dispatch_semaphore_create(0);
+
         [_messageStream setDelegate:self];
+        [RNMessageStream setSharedInstance:self];
     }
     return self;
 }
 
+- (void)dealloc {
+    if ([RNMessageStream sharedInstance] == self) {
+        [RNMessageStream setSharedInstance:nil];
+    }
+}
+
 #ifndef RCT_NEW_ARCH_ENABLED
 - (NSArray<NSString *> *)supportedEvents {
-    return @[@"inappnotification"];
+    return @[@"inappnotification", @"fullscreenmessage"];
 }
 #endif
 
@@ -54,6 +68,7 @@ RCT_EXPORT_MODULE();
     if (self.defaultInAppNotification) {
         return YES;
     }
+
     __block BOOL result = YES;
 
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
@@ -76,8 +91,9 @@ RCT_EXPORT_MODULE();
         if ([message attributes]) {
             [payload setObject:[message attributes] forKey:@"attributes"];
         }
+
         [self emitInAppNotification:payload];
-        
+
         @synchronized (self) {
             self.inAppNotificationHandled = NO;
         }
@@ -92,9 +108,17 @@ RCT_EXPORT_MODULE();
 
 - (void)emitInAppNotification:(NSDictionary *)payload {
 #ifdef RCT_NEW_ARCH_ENABLED
-    [self emitOnInAppNotification: payload];
+    [self emitOnInAppNotification:payload];
 #else
     [self sendEventWithName:@"inappnotification" body:payload];
+#endif
+}
+
+- (void)emitFullScreenMessage:(NSDictionary *)payload {
+#ifdef RCT_NEW_ARCH_ENABLED
+    [self emitOnFullScreenMessage:payload];
+#else
+    [self sendEventWithName:@"fullscreenmessage" body:payload];
 #endif
 }
 
@@ -105,8 +129,85 @@ RCT_EXPORT_METHOD(notifyInAppHandled:(BOOL)handled) {
     }
 }
 
+RCT_EXPORT_METHOD(notifyFullScreenHandled:(BOOL)handled) {
+    @synchronized (self) {
+        self.fullScreenMessageHandled = !handled;
+        dispatch_semaphore_signal(self.fullScreenSemaphore);
+    }
+}
+
 RCT_EXPORT_METHOD(useDefaultInAppNotification:(BOOL)useDefault) {
     self.defaultInAppNotification = useDefault;
+}
+
+#pragma mark - Fullscreen Handling
+
+- (void)handleFullScreenMessage:(MARMessage *)message fallback:(dispatch_block_t)fallback {
+    if (!message) {
+        if (fallback) {
+            fallback();
+        }
+        return;
+    }
+
+    NSMutableDictionary *payload = [NSMutableDictionary dictionaryWithDictionary:[message dictionary]];
+    if ([message attributes]) {
+        [payload setObject:[message attributes] forKey:@"attributes"];
+    }
+
+    @synchronized (self) {
+        self.fullScreenMessageHandled = NO;
+    }
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self emitFullScreenMessage:payload];
+    });
+
+    dispatch_semaphore_wait(self.fullScreenSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+
+    BOOL handledByRN = NO;
+    @synchronized (self) {
+        handledByRN = self.fullScreenMessageHandled;
+    }
+
+    if (!handledByRN && fallback) {
+        fallback();
+    }
+}
+
+- (void)handleFullScreenMessageWithUserInfo:(NSDictionary *)userInfo fallback:(dispatch_block_t)fallback {
+    if (![userInfo isKindOfClass:[NSDictionary class]]) {
+        if (fallback) {
+            fallback();
+        }
+        return;
+    }
+
+    NSString *messageId = userInfo[@"id"];
+    if (messageId == nil) {
+        messageId = userInfo[@"message_id"];
+    }
+
+    if (messageId == nil) {
+        MARMessage *message = [[MARMessage alloc] initWithDictionary:userInfo];
+        if (message) {
+            [self handleFullScreenMessage:message fallback:fallback];
+        } else if (fallback) {
+            fallback();
+        }
+        return;
+    }
+
+    [self.messageStream messageFor:messageId withCompletion:^(MARMessage * _Nullable message, NSError * _Nullable error) {
+        if (error || message == nil) {
+            if (fallback) {
+                fallback();
+            }
+            return;
+        }
+
+        [self handleFullScreenMessage:message fallback:fallback];
+    }];
 }
 
 #pragma mark - Messages
@@ -253,7 +354,7 @@ RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromi
         messageDict[@"text"] = message.text();
     }
     if (message.type() != nil) {
-        messageDict[@"html_text"] = message.type();
+        messageDict[@"type"] = message.type();
     }
     if (message.html_text() != nil) {
         messageDict[@"html_text"] = message.html_text();
