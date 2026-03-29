@@ -18,6 +18,7 @@ export interface RNMessage {
 
 export interface Spec extends TurboModule {
   notifyInAppHandled(handled: boolean): void;
+  notifyFullScreenHandled(handled: boolean): void;
   useDefaultInAppNotification(useDefault: boolean): void;
   getMessage(messageId: string): Promise<RNMessage>;
   getMessages(): Promise<Array<RNMessage>>;
@@ -30,6 +31,7 @@ export interface Spec extends TurboModule {
   clearMessages(): Promise<null>;
 
   readonly onInAppNotification: EventEmitter<RNMessage>;
+  readonly onFullScreenMessage: EventEmitter<RNMessage>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>(
