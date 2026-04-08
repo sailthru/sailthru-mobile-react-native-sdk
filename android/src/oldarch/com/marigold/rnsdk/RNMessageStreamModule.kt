@@ -17,7 +17,7 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext, d
     private val fullScreenEmitter = RNMessageStreamModuleImpl.FullScreenMessageEmitter { writableMap ->
         val emitter =
             reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-        emitter.emit("fullscreenmessage", writableMap)
+        emitter?.emit("fullscreenmessage", writableMap)
     }
 
     @VisibleForTesting
