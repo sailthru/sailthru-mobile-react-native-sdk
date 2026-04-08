@@ -30,8 +30,12 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext, d
     }
 
     init {
-        RNMessageStreamBridge.reactContext = reactContext
-        RNMessageStreamBridge.messageStreamModuleImpl = rnMessageStreamModuleImpl
+        RNMessageStreamBridge.set(reactContext, rnMessageStreamModuleImpl)
+    }
+
+    override fun invalidate() {
+        RNMessageStreamBridge.clear()
+        super.invalidate()
     }
 
     override fun getName(): String {

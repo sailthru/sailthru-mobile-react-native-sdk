@@ -46,11 +46,7 @@ class RNMarigoldModuleImpl(private val reactContext: ReactApplicationContext) {
 
     init {
         setWrapperInfo()
-        try {
-            configureFullScreenIntent()
-        } catch (_: Exception) {
-            // Ignore in unit tests (no Android runtime)
-        }
+        configureFullScreenIntent()
     }
 
     /**
@@ -68,7 +64,8 @@ class RNMarigoldModuleImpl(private val reactContext: ReactApplicationContext) {
         config.setDefaultContentIntent(
             intent,
             requestCode,
-            android.app.PendingIntent.FLAG_UPDATE_CURRENT
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or
+                    android.app.PendingIntent.FLAG_IMMUTABLE
         )
 
         marigold.setNotificationConfig(config)

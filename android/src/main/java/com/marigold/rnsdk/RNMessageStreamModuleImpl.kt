@@ -13,12 +13,14 @@ import com.marigold.sdk.MessageActivity
 import com.marigold.sdk.MessageStream
 import com.marigold.sdk.enums.ImpressionType
 import com.marigold.sdk.model.Message
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.reflect.InvocationTargetException
+import java.util.concurrent.atomic.AtomicReference
 
 class RNMessageStreamModuleImpl (
     private val reactContext: ReactApplicationContext,
@@ -46,7 +48,7 @@ class RNMessageStreamModuleImpl (
 
     private val eventChannel = Channel<Boolean>()
 
-    private val fullScreenEventChannel = Channel<Boolean>()
+    private val activeFullScreenRequest = AtomicReference<CompletableDeferred<Boolean>?>(null)
 
     private var defaultInAppNotification = displayInAppNotifications
 
@@ -87,9 +89,7 @@ class RNMessageStreamModuleImpl (
     }
 
     fun notifyFullScreenHandled(shouldHandle: Boolean) {
-        runBlocking {
-            fullScreenEventChannel.send(!shouldHandle)
-        }
+        activeFullScreenRequest.getAndSet(null)?.complete(shouldHandle)
     }
 
     fun useDefaultInAppNotification(useDefault: Boolean) {
@@ -230,33 +230,66 @@ class RNMessageStreamModuleImpl (
         activity.startActivity(i)
     }
 
-    fun handleFullScreenMessage(activity: Activity, messageId: String) {
+    fun handleFullScreenMessage(
+        activity: Activity,
+        messageId: String,
+        onComplete: (() -> Unit)? = null
+    ) {
         messageStream.getMessage(messageId, object : MessageStream.MessageStreamHandler<Message> {
             override fun onSuccess(value: Message) {
                 try {
                     val toJsonMethod = Message::class.java.getDeclaredMethod("toJSON")
                     toJsonMethod.isAccessible = true
-                    val messageJson = toJsonMethod.invoke(value) as? JSONObject ?: return
+                    val messageJson = toJsonMethod.invoke(value) as? JSONObject
+
+                    if (messageJson == null) {
+                        val fallbackIntent = getMessageActivityIntent(activity, messageId)
+                        activity.startActivity(fallbackIntent)
+                        return
+                    }
+
                     val writableMap = jsonConverter.convertJsonToMap(messageJson)
+
+                    val emitter = fullScreenMessageEmitter
+                    if (emitter == null) {
+                        val fallbackIntent = getMessageActivityIntent(activity, messageId)
+                        activity.startActivity(fallbackIntent)
+                        return
+                    }
+
+                    val request = CompletableDeferred<Boolean>()
+                    activeFullScreenRequest.set(request)
+
                     val handledByRN = runBlocking {
+                        emitter.emitFullScreenMessage(writableMap)
                         withTimeoutOrNull(5000L) {
-                            fullScreenMessageEmitter?.emitFullScreenMessage(writableMap)
-                            fullScreenEventChannel.receive()
+                            request.await()
                         }
                     }
-                    if (handledByRN == null || handledByRN) {
+
+                    activeFullScreenRequest.compareAndSet(request, null)
+
+                    if (handledByRN != true) {
                         val fallbackIntent = getMessageActivityIntent(activity, messageId)
                         activity.startActivity(fallbackIntent)
                     }
                 } catch (_: Exception) {
                     val fallbackIntent = getMessageActivityIntent(activity, messageId)
                     activity.startActivity(fallbackIntent)
+                } finally {
+                    activeFullScreenRequest.set(null)
+                    onComplete?.invoke()
                 }
             }
 
             override fun onFailure(error: Error) {
-                val fallbackIntent = getMessageActivityIntent(activity, messageId)
-                activity.startActivity(fallbackIntent)
+                try {
+                    val fallbackIntent = getMessageActivityIntent(activity, messageId)
+                    activity.startActivity(fallbackIntent)
+                } finally {
+                    activeFullScreenRequest.set(null)
+                    onComplete?.invoke()
+                }
             }
         })
     }

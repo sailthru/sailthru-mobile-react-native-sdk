@@ -42,6 +42,9 @@ class MessageBroadcastReceiver : BroadcastReceiver() {
             return
         }
 
-        moduleImpl.handleFullScreenMessage(activity, messageId)
+        val pendingResult = goAsync()
+        moduleImpl.handleFullScreenMessage(activity, messageId) {
+            pendingResult.finish()
+        }
     }
 }
