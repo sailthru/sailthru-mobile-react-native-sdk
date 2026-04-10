@@ -14,6 +14,10 @@ const RNEngageBySailthru = isTurboModuleEnabled ?
 require("./NativeRNEngageBySailthru").default :
 NativeModules.RNEngageBySailthru;
 
+const RNCheetah = isTurboModuleEnabled ?
+require("./NativeRNCheetah").default :
+NativeModules.RNCheetah;
+
 /**
  * A map for submitting collections of attributes to the SDK.
  */
@@ -366,5 +370,6 @@ RNEngageBySailthru.Purchase = function(purchaseItems) {
 module.exports = {
   Marigold: RNMarigold,
   EngageBySailthru: RNEngageBySailthru,
-  MessageStream: RNMessageStream
+  MessageStream: RNMessageStream,
+  Cheetah: RNCheetah
 };

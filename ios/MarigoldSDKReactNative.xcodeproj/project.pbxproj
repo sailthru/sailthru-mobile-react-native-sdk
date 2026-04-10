@@ -13,6 +13,8 @@
 		C6EDFD697D061F17195EEBD5 /* libPods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF9E4D34CEC7B60EA77A6DF5 /* libPods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.a */; };
 		E282D1A92B8581F300EECE61 /* RNEngageBySailthruTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = E282D1A82B8581F300EECE61 /* RNEngageBySailthruTests.mm */; };
 		E2B0BA3B2B96BFE7008A982B /* RNMessageStreamTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = E2B0BA362B96ABB4008A982B /* RNMessageStreamTests.mm */; };
+		FA09EC972F87639B00CB8B32 /* RNCheetah.mm in Sources */ = {isa = PBXBuildFile; fileRef = FA09EC962F87639B00CB8B32 /* RNCheetah.mm */; };
+		FA09EC992F8769F600CB8B32 /* RNCheetahTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = FA09EC982F8769F600CB8B32 /* RNCheetahTests.mm */; };
 		FAD26B542D1261C2000CBDE7 /* RNEngageBySailthru.mm in Sources */ = {isa = PBXBuildFile; fileRef = E282D1AA2B85824300EECE61 /* RNEngageBySailthru.mm */; };
 		FAD26B552D1261C2000CBDE7 /* RNMarigold.mm in Sources */ = {isa = PBXBuildFile; fileRef = B934F55323EA1E68009DE68E /* RNMarigold.mm */; };
 		FAD26B562D1261C2000CBDE7 /* RNMarigoldBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = B934F55223EA1E68009DE68E /* RNMarigoldBridge.mm */; };
@@ -53,6 +55,9 @@
 		E2B0BA362B96ABB4008A982B /* RNMessageStreamTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RNMessageStreamTests.mm; sourceTree = "<group>"; };
 		E7C9BC22FD20DB8F7CEA3615 /* Pods-MarigoldSDKReactNative.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarigoldSDKReactNative.debug.xcconfig"; path = "Target Support Files/Pods-MarigoldSDKReactNative/Pods-MarigoldSDKReactNative.debug.xcconfig"; sourceTree = "<group>"; };
 		F88044D4ACDFC07152DBE25A /* Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.release.xcconfig"; path = "Target Support Files/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.release.xcconfig"; sourceTree = "<group>"; };
+		FA09EC952F8762D700CB8B32 /* RNCheetah.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNCheetah.h; sourceTree = "<group>"; };
+		FA09EC962F87639B00CB8B32 /* RNCheetah.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RNCheetah.mm; sourceTree = "<group>"; };
+		FA09EC982F8769F600CB8B32 /* RNCheetahTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RNCheetahTests.mm; sourceTree = "<group>"; };
 		FA5EF5A7213F41AF00D9E6A9 /* libMarigoldSDKReactNative.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMarigoldSDKReactNative.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA5EF5BB213F433200D9E6A9 /* MarigoldSDKReactNativeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MarigoldSDKReactNativeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA5EF5BF213F433200D9E6A9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -127,6 +132,7 @@
 			isa = PBXGroup;
 			children = (
 				E282D1A82B8581F300EECE61 /* RNEngageBySailthruTests.mm */,
+				FA09EC982F8769F600CB8B32 /* RNCheetahTests.mm */,
 				B934F55923EA1EE3009DE68E /* RNMarigoldBridgeTests.mm */,
 				B934F55823EA1EE3009DE68E /* RNMarigoldTests.mm */,
 				E2B0BA362B96ABB4008A982B /* RNMessageStreamTests.mm */,
@@ -140,6 +146,8 @@
 			children = (
 				E282D1AC2B85825400EECE61 /* RNEngageBySailthru.h */,
 				E282D1AA2B85824300EECE61 /* RNEngageBySailthru.mm */,
+				FA09EC952F8762D700CB8B32 /* RNCheetah.h */,
+				FA09EC962F87639B00CB8B32 /* RNCheetah.mm */,
 				B934F55123EA1E67009DE68E /* RNMarigold.h */,
 				B934F55323EA1E68009DE68E /* RNMarigold.mm */,
 				B934F55023EA1E67009DE68E /* RNMarigoldBridge.h */,
@@ -334,9 +342,11 @@
 				FAD26B562D1261C2000CBDE7 /* RNMarigoldBridge.mm in Sources */,
 				FAD26B572D1261C2000CBDE7 /* RNMessageStream.mm in Sources */,
 				E282D1A92B8581F300EECE61 /* RNEngageBySailthruTests.mm in Sources */,
+				FA09EC992F8769F600CB8B32 /* RNCheetahTests.mm in Sources */,
 				E2B0BA3B2B96BFE7008A982B /* RNMessageStreamTests.mm in Sources */,
 				B934F55A23EA1EE3009DE68E /* RNMarigoldTests.mm in Sources */,
 				B934F55B23EA1EE3009DE68E /* RNMarigoldBridgeTests.mm in Sources */,
+				FA09EC972F87639B00CB8B32 /* RNCheetah.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -28,6 +28,8 @@ declare module 'react-native-marigold' {
      */
     setCrashHandlersEnabled(enabled: boolean): void;
     /**
+     * @deprecated Use logRegistrationEvent on the Cheetah module instead.
+     * 
      * Log a registration event with Marigold. This is used to log users signing in and out of the app.
      * Pass the ID you wish to use for the sign-in or null for a sign-out.
      * @param userId The ID of the user signing in, or null for sign-out.
@@ -413,6 +415,15 @@ declare module 'react-native-marigold' {
       setPurchaseAdjustments(purchaseAdjustments: Array<PurchaseAdjustment>): void;
     }
   }
+
+  export interface CheetahStatic {
+    /**
+     * Log a registration event with Marigold. This is used to log users signing in and out of the app.
+     * Pass the ID you wish to use for the sign-in or null for a sign-out.
+     * @param userId The ID of the user signing in, or null for sign-out.
+     */
+    logRegistrationEvent(userId: string | null): Promise<null>;
+  }
   
   export const Marigold: MarigoldStatic
   export type Marigold = MarigoldStatic
@@ -422,4 +433,7 @@ declare module 'react-native-marigold' {
 
   export const EngageBySailthru: EngageBySailthruStatic
   export type EngageBySailthru = EngageBySailthruStatic
+
+  export const Cheetah: CheetahStatic
+  export type Cheetah = CheetahStatic
 }
