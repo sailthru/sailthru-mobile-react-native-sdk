@@ -1,10 +1,7 @@
 package com.marigold.rnsdk
 
-import androidx.annotation.VisibleForTesting
 import com.facebook.react.bridge.Promise
-import com.marigold.rnsdk.RNEngageBySailthruModuleImpl.Companion.ERROR_CODE_KEY
 import com.marigold.sdk.Cheetah
-import com.marigold.sdk.EngageBySailthru
 import com.marigold.sdk.Marigold
 
 /**
@@ -14,6 +11,7 @@ class RNCheetahModuleImpl() {
 
     companion object {
         const val ERROR_CODE_DEVICE = "marigold.device"
+        const val ERROR_CODE_KEY = "marigold.key"
         const val NAME = "RNCheetah"
     }
 
@@ -29,7 +27,7 @@ class RNCheetahModuleImpl() {
         })
     }
 
-    //Helper method for instantiating EngageBySailthru
+    //Helper method for instantiating Cheetah
     fun createCheetah(promise: Promise? = null): Cheetah? = try {
         Cheetah()
     } catch (e: Exception) {

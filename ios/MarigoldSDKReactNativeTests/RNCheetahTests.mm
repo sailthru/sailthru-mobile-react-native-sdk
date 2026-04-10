@@ -6,7 +6,7 @@
 #ifndef RCT_NEW_ARCH_ENABLED
 // interface to expose methods for testing
 @interface RNCheetah ()
--(void)logRegistrationEvent:(NSString *)userId resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
+-(void)logRegistrationEvent:(NSString *)userId resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 @end
 #endif
 
@@ -26,9 +26,23 @@ describe(@"RNCheetah", ^{
     
     context(@"the logRegistrationEvent:resolve:reject: method", ^{
         it(@"calls the native method", ^{
-            [[cheetah should] receive:@selector(logRegistrationEvent:withResponse:)];
+            KWCaptureSpy *capture = [cheetah captureArgument:@selector(logRegistrationEvent:withResponse:) atIndex:0];
 
             [rnCheetah logRegistrationEvent:testID resolve:nil reject:nil];
+            
+            NSString *userId = capture.argument;
+            [[userId should] equal:testID];
+        });
+        
+        context(@"with nil user ID", ^{
+            it(@"calls the native method", ^{
+                KWCaptureSpy *capture = [cheetah captureArgument:@selector(logRegistrationEvent:withResponse:) atIndex:0];
+
+                [rnCheetah logRegistrationEvent:nil resolve:nil reject:nil];
+                
+                NSString *userId = capture.argument;
+                [[userId should] beNil];
+            });
         });
 
         it(@"returns success", ^{

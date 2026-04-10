@@ -15,7 +15,7 @@ class RNCheetahModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     }
 
     @ReactMethod
-    fun logRegistrationEvent(userId: String?, promise: Promise?) {
+    fun logRegistrationEvent(userId: String?, promise: Promise) {
         rnCheetahModuleImpl.logRegistrationEvent(userId, promise)
     }
 }
