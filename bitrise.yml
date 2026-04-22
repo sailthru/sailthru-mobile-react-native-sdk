@@ -37,7 +37,7 @@ workflows:
         run_if: "{{(not .IsPR) | and .IsBuildFailed}}"
         inputs:
         - channel: "$SLACK_SDK_CHANNEL"
-        - webhook_url: "$SLACK_WEBHOOK_URL"
+        - workspace_slack_integration_id: $SLACK_INTEGRATION_ID
 app:
   envs:
   - opts:
