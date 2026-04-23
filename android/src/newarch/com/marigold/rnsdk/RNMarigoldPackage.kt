@@ -14,6 +14,7 @@ class RNMarigoldPackage: BaseReactPackage() {
         return when (name) {
             RNMarigoldModuleImpl.NAME -> RNMarigoldModule(reactContext)
             RNEngageBySailthruModuleImpl.NAME -> RNEngageBySailthruModule(reactContext)
+            RNCheetahModuleImpl.NAME -> RNCheetahModule(reactContext)
             RNMessageStreamModuleImpl.NAME -> RNMessageStreamModule(reactContext, true)
             else -> null
         }
@@ -34,6 +35,14 @@ class RNMarigoldPackage: BaseReactPackage() {
                 RNEngageBySailthruModuleImpl.NAME to ReactModuleInfo(
                     RNEngageBySailthruModuleImpl.NAME,
                     RNEngageBySailthruModule::class.toString(),
+                    false,
+                    false,
+                    false,
+                    isTurboModule
+                ),
+                RNCheetahModuleImpl.NAME to ReactModuleInfo(
+                    RNCheetahModuleImpl.NAME,
+                    RNCheetahModule::class.toString(),
                     false,
                     false,
                     false,
