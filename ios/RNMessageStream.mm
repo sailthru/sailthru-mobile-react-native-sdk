@@ -38,7 +38,7 @@ RCT_EXPORT_MODULE();
         _messageStream = [MARMessageStream new];
         _defaultInAppNotification = YES;
         self.eventSemaphore = dispatch_semaphore_create(0);
-        
+
         [_messageStream setDelegate:self];
     }
     return self;
@@ -77,7 +77,7 @@ RCT_EXPORT_MODULE();
             [payload setObject:[message attributes] forKey:@"attributes"];
         }
         [self emitInAppNotification:payload];
-        
+
         @synchronized (self) {
             self.inAppNotificationHandled = NO;
         }
@@ -113,7 +113,7 @@ RCT_EXPORT_METHOD(useDefaultInAppNotification:(BOOL)useDefault) {
 // Note: We use promises for our return values, not callbacks.
 
 RCT_EXPORT_METHOD(getMessage:(NSString *)messageId resolve:(RCTPromiseResolveBlock)resolve
-                 reject:(RCTPromiseRejectBlock)reject) {
+        reject:(RCTPromiseRejectBlock)reject) {
     [self.messageStream messageFor:messageId withCompletion:^(MARMessage * _Nullable message, NSError * _Nullable error) {
         if (error) {
             [RNMessageStream rejectPromise:reject withError:error];
@@ -150,8 +150,8 @@ RCT_EXPORT_METHOD(markMessageAsRead:(RNMessage &)message resolve:(RCTPromiseReso
                   reject:(RCTPromiseRejectBlock)reject) {
     MARMessage *marMessage = [RNMessageStream messageFromRNMessage:message];
 #else
-    RCT_EXPORT_METHOD(markMessageAsRead:(NSDictionary*)jsDict resolve:(RCTPromiseResolveBlock)resolve
-                      reject:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(markMessageAsRead:(NSDictionary*)jsDict resolve:(RCTPromiseResolveBlock)resolve
+        reject:(RCTPromiseRejectBlock)reject) {
     MARMessage *marMessage = [RNMessageStream messageFromDict:jsDict];
 #endif
     [self.messageStream markMessageAsRead:marMessage withResponse:^(NSError * _Nullable error) {
@@ -169,7 +169,7 @@ RCT_EXPORT_METHOD(removeMessage:(RNMessage &)message resolve:(RCTPromiseResolveB
     MARMessage *marMessage = [RNMessageStream messageFromRNMessage:message];
 #else
 RCT_EXPORT_METHOD(removeMessage:(NSDictionary*)jsDict resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
+        reject:(RCTPromiseRejectBlock)reject) {
     MARMessage *marMessage = [RNMessageStream messageFromDict:jsDict];
 #endif
     [self.messageStream removeMessage:marMessage withResponse:^(NSError * _Nullable error) {
@@ -194,9 +194,9 @@ RCT_EXPORT_METHOD(presentMessageDetail:(NSDictionary*)jsDict) {
 }
 
 RCT_EXPORT_METHOD(dismissMessageDetail) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.messageStream dismissMessageDetail];
-    });
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.messageStream dismissMessageDetail];
+        });
 }
 
 #ifdef RCT_NEW_ARCH_ENABLED

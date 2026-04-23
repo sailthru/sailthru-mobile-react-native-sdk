@@ -13,12 +13,14 @@ import com.marigold.sdk.MessageActivity
 import com.marigold.sdk.MessageStream
 import com.marigold.sdk.enums.ImpressionType
 import com.marigold.sdk.model.Message
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.reflect.InvocationTargetException
+import java.util.concurrent.atomic.AtomicReference
 
 class RNMessageStreamModuleImpl (
     private val reactContext: ReactApplicationContext,
@@ -34,14 +36,25 @@ class RNMessageStreamModuleImpl (
         fun emitInAppNotificationMessage(messageData: WritableMap)
     }
 
+    fun interface FullScreenMessageEmitter {
+        fun emitFullScreenMessage(messageData: WritableMap)
+    }
+
     @VisibleForTesting
-    var messageStream = MessageStream()
+    var messageStream: MessageStream = MessageStream()
 
     @VisibleForTesting
     internal var jsonConverter: JsonConverter = JsonConverter()
 
     private val eventChannel = Channel<Boolean>()
+
+    private val activeFullScreenRequest = AtomicReference<CompletableDeferred<Boolean>?>(null)
+
     private var defaultInAppNotification = displayInAppNotifications
+
+    @VisibleForTesting
+    internal var fullScreenMessageEmitter: FullScreenMessageEmitter? = null
+
     init {
         messageStream.setOnInAppNotificationDisplayListener(this)
     }
@@ -73,6 +86,10 @@ class RNMessageStreamModuleImpl (
         runBlocking {
             eventChannel.send(!shouldHandle)
         }
+    }
+
+    fun notifyFullScreenHandled(shouldHandle: Boolean) {
+        activeFullScreenRequest.getAndSet(null)?.complete(shouldHandle)
     }
 
     fun useDefaultInAppNotification(useDefault: Boolean) {
@@ -213,7 +230,70 @@ class RNMessageStreamModuleImpl (
         activity.startActivity(i)
     }
 
-    // wrapped for testing
+    fun handleFullScreenMessage(
+        activity: Activity,
+        messageId: String,
+        onComplete: (() -> Unit)? = null
+    ) {
+        messageStream.getMessage(messageId, object : MessageStream.MessageStreamHandler<Message> {
+            override fun onSuccess(value: Message) {
+                try {
+                    val toJsonMethod = Message::class.java.getDeclaredMethod("toJSON")
+                    toJsonMethod.isAccessible = true
+                    val messageJson = toJsonMethod.invoke(value) as? JSONObject
+
+                    if (messageJson == null) {
+                        val fallbackIntent = getMessageActivityIntent(activity, messageId)
+                        activity.startActivity(fallbackIntent)
+                        return
+                    }
+
+                    val writableMap = jsonConverter.convertJsonToMap(messageJson)
+
+                    val emitter = fullScreenMessageEmitter
+                    if (emitter == null) {
+                        val fallbackIntent = getMessageActivityIntent(activity, messageId)
+                        activity.startActivity(fallbackIntent)
+                        return
+                    }
+
+                    val request = CompletableDeferred<Boolean>()
+                    activeFullScreenRequest.set(request)
+
+                    val handledByRN = runBlocking {
+                        emitter.emitFullScreenMessage(writableMap)
+                        withTimeoutOrNull(5000L) {
+                            request.await()
+                        }
+                    }
+
+                    activeFullScreenRequest.compareAndSet(request, null)
+
+                    if (handledByRN != true) {
+                        val fallbackIntent = getMessageActivityIntent(activity, messageId)
+                        activity.startActivity(fallbackIntent)
+                    }
+                } catch (_: Exception) {
+                    val fallbackIntent = getMessageActivityIntent(activity, messageId)
+                    activity.startActivity(fallbackIntent)
+                } finally {
+                    activeFullScreenRequest.set(null)
+                    onComplete?.invoke()
+                }
+            }
+
+            override fun onFailure(error: Error) {
+                try {
+                    val fallbackIntent = getMessageActivityIntent(activity, messageId)
+                    activity.startActivity(fallbackIntent)
+                } finally {
+                    activeFullScreenRequest.set(null)
+                    onComplete?.invoke()
+                }
+            }
+        })
+    }
+
     fun getMessageActivityIntent(activity: Activity, messageId: String): Intent {
         return MessageActivity.intentForMessage(activity, null, messageId)
     }
@@ -223,9 +303,6 @@ class RNMessageStreamModuleImpl (
         // noop. It's here to share signatures with iOS.
     }
 
-    /*
-     * Helper Methods
-     */
     @VisibleForTesting
     fun createMessage(messageMap: ReadableMap, promise: Promise?): Message? = try {
         val messageJson = jsonConverter.convertMapToJson(messageMap)
@@ -241,7 +318,6 @@ class RNMessageStreamModuleImpl (
         null
     }
 
-    // Moved out to separate method for testing as WritableNativeArray cannot be mocked
     fun getWritableArray(): WritableArray {
         return WritableNativeArray()
     }

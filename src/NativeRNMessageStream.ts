@@ -18,18 +18,20 @@ export interface RNMessage {
 
 export interface Spec extends TurboModule {
   notifyInAppHandled(handled: boolean): void;
+  notifyFullScreenHandled(handled: boolean): void;
   useDefaultInAppNotification(useDefault: boolean): void;
-  getMessage(messageId: string): Promise<RNMessage>;       
-  getMessages(): Promise<Array<RNMessage>>;       
+  getMessage(messageId: string): Promise<RNMessage>;
+  getMessages(): Promise<Array<RNMessage>>;
   getUnreadCount(): Promise<number>;
   markMessageAsRead(message: RNMessage): Promise<null>;
   removeMessage(message: RNMessage): Promise<null>;
   presentMessageDetail(message: RNMessage): void;
   dismissMessageDetail(): void;
-  registerMessageImpression(impressionType: number, message: RNMessage): void; 
+  registerMessageImpression(impressionType: number, message: RNMessage): void;
   clearMessages(): Promise<null>;
 
   readonly onInAppNotification: EventEmitter<RNMessage>;
+  readonly onFullScreenMessage: EventEmitter<RNMessage>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>(

@@ -23,7 +23,6 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
 import org.mockito.Mock
-import org.mockito.MockedConstruction
 import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
@@ -32,6 +31,7 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
@@ -39,15 +39,16 @@ import org.mockito.kotlin.whenever
 class RNMessageStreamModuleTest {
     @Mock
     private lateinit var mockContext: ReactApplicationContext
+
     @Mock
     private lateinit var jsonConverter: JsonConverter
-    @Mock
-    private lateinit var staticMessageStream: MockedConstruction<MessageStream>
 
     @Captor
     private lateinit var messageStreamVoidCaptor: ArgumentCaptor<MessageStream.MessageStreamHandler<Void?>>
+
     @Captor
     private lateinit var messageStreamIntCaptor: ArgumentCaptor<MessageStream.MessageStreamHandler<Int>>
+
     @Captor
     private lateinit var messageStreamMessageCaptor: ArgumentCaptor<MessageStream.MessageStreamHandler<Message>>
 
@@ -58,12 +59,16 @@ class RNMessageStreamModuleTest {
 
     @Before
     fun setup() {
+        messageStream = mock()
+
         rnMessageStreamModule = RNMessageStreamModule(mockContext, true)
         rnMessageStreamModule.rnMessageStreamModuleImpl.jsonConverter = jsonConverter
-        rnMessageStreamModuleImplSpy = Mockito.spy(rnMessageStreamModule.rnMessageStreamModuleImpl)
-        rnMessageStreamModule.rnMessageStreamModuleImpl = rnMessageStreamModuleImplSpy
 
-        messageStream = staticMessageStream.constructed()[0]
+        rnMessageStreamModuleImplSpy = Mockito.spy(rnMessageStreamModule.rnMessageStreamModuleImpl)
+        rnMessageStreamModuleImplSpy.messageStream = messageStream
+        rnMessageStreamModuleImplSpy.jsonConverter = jsonConverter
+
+        rnMessageStreamModule.rnMessageStreamModuleImpl = rnMessageStreamModuleImplSpy
     }
 
     @Test
@@ -465,5 +470,87 @@ class RNMessageStreamModuleTest {
         // Verify result
         verify(jsonConverter).convertMapToJson(readableMap)
         Assert.assertEquals("test title", message!!.title)
+    }
+
+    @Test
+    fun testHandleFullScreenMessageRNHandles() {
+        val activity: Activity = mock()
+        val message: Message = mock()
+        val jsonObject: JSONObject = mock()
+        val writableMap: WritableMap = mock()
+        val messageId = "fullscreen123"
+
+        val fullScreenEmitter = RNMessageStreamModuleImpl.FullScreenMessageEmitter { _: WritableMap ->
+            Thread {
+                rnMessageStreamModuleImplSpy.notifyFullScreenHandled(true)
+            }.start()
+        }
+        rnMessageStreamModuleImplSpy.fullScreenMessageEmitter = fullScreenEmitter
+
+        doReturn(jsonObject).whenever(message).toJSON()
+        doReturn(writableMap).whenever(jsonConverter).convertJsonToMap(jsonObject)
+
+        // Initiate test
+        rnMessageStreamModuleImplSpy.handleFullScreenMessage(activity, messageId)
+
+        // Verify result
+        verify(messageStream).getMessage(eq(messageId), capture(messageStreamMessageCaptor))
+        val handler = messageStreamMessageCaptor.value
+
+        handler.onSuccess(message)
+
+        verify(activity, never()).startActivity(any())
+    }
+
+    @Test
+    fun testHandleFullScreenMessageFallbackWhenRNDoesNotHandle() {
+        val activity: Activity = mock()
+        val intent: Intent = mock()
+        val message: Message = mock()
+        val jsonObject: JSONObject = mock()
+        val writableMap: WritableMap = mock()
+        val messageId = "fullscreenFallback"
+
+        val fullScreenEmitter = RNMessageStreamModuleImpl.FullScreenMessageEmitter { _: WritableMap ->
+            Thread {
+                rnMessageStreamModuleImplSpy.notifyFullScreenHandled(false)
+            }.start()
+        }
+        rnMessageStreamModuleImplSpy.fullScreenMessageEmitter = fullScreenEmitter
+
+        doReturn(jsonObject).whenever(message).toJSON()
+        doReturn(writableMap).whenever(jsonConverter).convertJsonToMap(jsonObject)
+        Mockito.doReturn(intent)
+            .`when`(rnMessageStreamModuleImplSpy)
+            .getMessageActivityIntent(activity, messageId)
+
+        // Initiate test
+        rnMessageStreamModuleImplSpy.handleFullScreenMessage(activity, messageId)
+
+        // Verify result
+        verify(messageStream).getMessage(eq(messageId), capture(messageStreamMessageCaptor))
+        val handler = messageStreamMessageCaptor.value
+
+        handler.onSuccess(message)
+
+        verify(activity).startActivity(intent)
+    }
+
+    @Test
+    fun testHandleFullScreenMessageFailureFallback() {
+        val activity: Activity = mock()
+        val messageId = "fullscreenError"
+        val error = Error("failed to load")
+
+        // Initiate test
+        rnMessageStreamModuleImplSpy.handleFullScreenMessage(activity, messageId)
+
+        // Verify result
+        verify(messageStream).getMessage(eq(messageId), capture(messageStreamMessageCaptor))
+        val handler = messageStreamMessageCaptor.value
+
+        Assert.assertThrows(RuntimeException::class.java) {
+            handler.onFailure(error)
+        }
     }
 }
