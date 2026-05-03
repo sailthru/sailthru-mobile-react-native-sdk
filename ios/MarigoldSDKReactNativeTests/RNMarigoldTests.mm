@@ -5,31 +5,12 @@
 #import <UserNotifications/UserNotifications.h>
 #import <Marigold/Marigold.h>
 
-#ifndef RCT_NEW_ARCH_ENABLED
-// interface to expose methods for testing
-@interface RNMarigold ()
--(instancetype)init;
--(void)updateLocation:(CGFloat)lat lon:(CGFloat)lon;
--(void)getDeviceID:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
--(void)setGeoIPTrackingEnabled:(BOOL)enabled resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
--(void)setGeoIPTrackingDefault:(BOOL)enabled;
--(void)setCrashHandlersEnabled:(BOOL)enabled;
--(void)logRegistrationEvent:(NSString * _Nullable)userId;
--(void)registerForPushNotifications;
--(void)syncNotificationSettings;
--(void)clearDevice:(NSInteger)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
--(void)setInAppNotificationsEnabled:(BOOL)enabled;
-@end
-#endif
-
-
 // interfaces to match RNMarigold
 @interface Marigold ()
 
 - (void)setWrapperName:(NSString *)wrapperName andVersion:(NSString *)wrapperVersion;
 
 @end
-
 
 
 SPEC_BEGIN(RNMarigoldSpec)
@@ -174,13 +155,6 @@ describe(@"RNMarigold", ^{
             [[marigold should] receive:@selector(setCrashHandlersEnabled:)];
             
             [rnMarigold setCrashHandlersEnabled:YES];
-        });
-    });
-    
-    context(@"the logRegistrationEvent: method", ^{
-        it(@"calls the native method", ^{
-            [[marigold should] receive:@selector(logRegistrationEvent:)];
-            [rnMarigold logRegistrationEvent:@"event"];
         });
     });
     

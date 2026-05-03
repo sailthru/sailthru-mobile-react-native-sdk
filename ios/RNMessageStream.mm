@@ -19,22 +19,15 @@
 
 @end
 
-#ifdef RCT_NEW_ARCH_ENABLED
 using JS::NativeRNMessageStream::RNMessage;
-#endif
 
 @implementation RNMessageStream
 
 RCT_EXPORT_MODULE();
 
 - (instancetype)init {
-    return [self initWithDisplayInAppNotifications:YES];
-}
-
-- (instancetype)initWithDisplayInAppNotifications:(BOOL)displayNotifications {
     self = [super init];
     if(self) {
-        _displayInAppNotifications = displayNotifications;
         _messageStream = [MARMessageStream new];
         _defaultInAppNotification = YES;
         self.eventSemaphore = dispatch_semaphore_create(0);
@@ -43,12 +36,6 @@ RCT_EXPORT_MODULE();
     }
     return self;
 }
-
-#ifndef RCT_NEW_ARCH_ENABLED
-- (NSArray<NSString *> *)supportedEvents {
-    return @[@"inappnotification"];
-}
-#endif
 
 - (BOOL)shouldPresentInAppNotificationForMessage:(MARMessage *)message {
     if (self.defaultInAppNotification) {
@@ -91,11 +78,7 @@ RCT_EXPORT_MODULE();
 }
 
 - (void)emitInAppNotification:(NSDictionary *)payload {
-#ifdef RCT_NEW_ARCH_ENABLED
     [self emitOnInAppNotification: payload];
-#else
-    [self sendEventWithName:@"inappnotification" body:payload];
-#endif
 }
 
 RCT_EXPORT_METHOD(notifyInAppHandled:(BOOL)handled) {
@@ -145,15 +128,9 @@ RCT_EXPORT_METHOD(getUnreadCount:(RCTPromiseResolveBlock)resolve reject:(RCTProm
     }];
 }
 
-#ifdef RCT_NEW_ARCH_ENABLED
 RCT_EXPORT_METHOD(markMessageAsRead:(RNMessage &)message resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     MARMessage *marMessage = [RNMessageStream messageFromRNMessage:message];
-#else
-    RCT_EXPORT_METHOD(markMessageAsRead:(NSDictionary*)jsDict resolve:(RCTPromiseResolveBlock)resolve
-                      reject:(RCTPromiseRejectBlock)reject) {
-    MARMessage *marMessage = [RNMessageStream messageFromDict:jsDict];
-#endif
     [self.messageStream markMessageAsRead:marMessage withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNMessageStream rejectPromise:reject withError:error];
@@ -163,15 +140,9 @@ RCT_EXPORT_METHOD(markMessageAsRead:(RNMessage &)message resolve:(RCTPromiseReso
     }];
 }
 
-#ifdef RCT_NEW_ARCH_ENABLED
 RCT_EXPORT_METHOD(removeMessage:(RNMessage &)message resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     MARMessage *marMessage = [RNMessageStream messageFromRNMessage:message];
-#else
-RCT_EXPORT_METHOD(removeMessage:(NSDictionary*)jsDict resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
-    MARMessage *marMessage = [RNMessageStream messageFromDict:jsDict];
-#endif
     [self.messageStream removeMessage:marMessage withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNMessageStream rejectPromise:reject withError:error];
@@ -181,13 +152,8 @@ RCT_EXPORT_METHOD(removeMessage:(NSDictionary*)jsDict resolve:(RCTPromiseResolve
     }];
 }
 
-#ifdef RCT_NEW_ARCH_ENABLED
 RCT_EXPORT_METHOD(presentMessageDetail:(RNMessage &)message) {
     MARMessage *marMessage = [RNMessageStream messageFromRNMessage:message];
-#else
-RCT_EXPORT_METHOD(presentMessageDetail:(NSDictionary*)jsDict) {
-    MARMessage *marMessage = [RNMessageStream messageFromDict:jsDict];
-#endif
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.messageStream presentMessageDetailForMessage:marMessage];
     });
@@ -199,13 +165,8 @@ RCT_EXPORT_METHOD(dismissMessageDetail) {
     });
 }
 
-#ifdef RCT_NEW_ARCH_ENABLED
 RCT_EXPORT_METHOD(registerMessageImpression:(double)impressionType message:(RNMessage &)message) {
     MARMessage *marMessage = [RNMessageStream messageFromRNMessage:message];
-#else
-RCT_EXPORT_METHOD(registerMessageImpression:(double)impressionType message:(NSDictionary*)jsDict) {
-    MARMessage *marMessage = [RNMessageStream messageFromDict:jsDict];
-#endif
     [self.messageStream registerImpressionWithType:(MARImpressionType)impressionType forMessage:marMessage];
 }
 
@@ -219,12 +180,10 @@ RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromi
     }];
 }
 
-#ifdef RCT_NEW_ARCH_ENABLED
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params
 {
     return std::make_shared<facebook::react::NativeRNMessageStreamSpecJSI>(params);
 }
-#endif
 
 #pragma mark - Helper Functions
 
@@ -240,7 +199,6 @@ RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromi
     return messageDictionaries;
 }
 
-#ifdef RCT_NEW_ARCH_ENABLED
 + (MARMessage *) messageFromRNMessage:(RNMessage &)message {
     NSMutableDictionary *messageDict = [[NSMutableDictionary alloc] initWithDictionary:@{
         @"id": message.id_(),
@@ -253,7 +211,7 @@ RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromi
         messageDict[@"text"] = message.text();
     }
     if (message.type() != nil) {
-        messageDict[@"html_text"] = message.type();
+        messageDict[@"type"] = message.type();
     }
     if (message.html_text() != nil) {
         messageDict[@"html_text"] = message.html_text();
@@ -275,10 +233,5 @@ RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromi
     }
     return [[MARMessage alloc] initWithDictionary:messageDict];
 }
-#else
-+ (MARMessage *) messageFromDict:(NSDictionary *)jsDict {
-    return [[MARMessage alloc] initWithDictionary:jsDict];
-}
-#endif
 
 @end

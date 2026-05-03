@@ -15,7 +15,6 @@ import {
 
 const { Marigold, EngageBySailthru, MessageStream } = require('react-native-marigold');
 var SDK_KEY = ''; // Put your SDK key in here.
-import { NativeEventEmitter } from 'react-native'
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +

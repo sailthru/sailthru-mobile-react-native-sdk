@@ -2,6 +2,7 @@ package com.marigold.rnsdk
 
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
+import com.marigold.rnsdk.ErrorCodes.Companion.ERROR_CODE_DEVICE
 import com.marigold.sdk.Cheetah
 import com.marigold.sdk.Marigold
 import org.junit.Before
@@ -33,15 +34,11 @@ class RNCheetahModuleTest {
     private lateinit var marigoldVoidCaptor: ArgumentCaptor<Marigold.MarigoldHandler<Void?>>
 
     private lateinit var rnCheetahModule: RNCheetahModule
-    private lateinit var rnCheetahModuleImplSpy: RNCheetahModuleImpl
-
     @Before
     fun setup() {
-        rnCheetahModule = RNCheetahModule(mockContext)
-        rnCheetahModuleImplSpy = Mockito.spy(rnCheetahModule.rnCheetahModuleImpl)
-        rnCheetahModule.rnCheetahModuleImpl = rnCheetahModuleImplSpy
+        rnCheetahModule = Mockito.spy(RNCheetahModule(mockContext))
         // Mock instance creation of Cheetah to return the mocked instance
-        doReturn(cheetah).whenever(rnCheetahModuleImplSpy).createCheetah(promise)
+        doReturn(cheetah).whenever(rnCheetahModule).createCheetah(promise)
     }
 
     @Test
@@ -67,7 +64,7 @@ class RNCheetahModuleTest {
 
         // Test error handler
         registrationHandler.onFailure(error)
-        verify(promise).reject(RNCheetahModuleImpl.ERROR_CODE_DEVICE, errorMessage)
+        verify(promise).reject(ERROR_CODE_DEVICE, errorMessage)
     }
 
     @Test
@@ -92,6 +89,6 @@ class RNCheetahModuleTest {
 
         // Test error handler
         registrationHandler.onFailure(error)
-        verify(promise).reject(RNCheetahModuleImpl.ERROR_CODE_DEVICE, errorMessage)
+        verify(promise).reject(ERROR_CODE_DEVICE, errorMessage)
     }
 }

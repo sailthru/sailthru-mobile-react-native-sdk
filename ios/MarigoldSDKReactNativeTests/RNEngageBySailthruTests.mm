@@ -4,26 +4,6 @@
 #import <UserNotifications/UserNotifications.h>
 #import <Marigold/Marigold.h>
 
-#ifndef RCT_NEW_ARCH_ENABLED
-// interface to expose methods for testing
-@interface RNEngageBySailthru ()
--(EngageBySailthru *)engageBySailthruWithResolver:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
--(void)setAttributes:(NSDictionary *)attributeMap resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
--(void)removeAttribute:(NSString *)key resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
--(void)clearAttributes:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
--(void)logEvent:(NSString *)name vars:(NSDictionary*)varsDict;
--(void)setUserId:(NSString *)userID resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
--(void)setUserEmail:(NSString *)userEmail resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
--(void)trackClick:(NSString *)sectionID url:(NSString *)url resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
--(void)trackPageview:(NSString *)url tags:(NSArray *)tags resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
--(void)trackImpression:(NSString *)sectionID urls:(NSArray *)urls resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
--(void)setProfileVars:(NSDictionary *)vars resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
--(void)getProfileVars:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
--(void)logPurchase:(NSDictionary *)purchaseDict resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
--(void)logAbandonedCart:(NSDictionary *)purchaseDict resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
--(void)clearEvents:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
-@end
-#endif
 
 SPEC_BEGIN(RNEngageBySailthruSpec)
 

@@ -28,14 +28,6 @@ declare module 'react-native-marigold' {
      */
     setCrashHandlersEnabled(enabled: boolean): void;
     /**
-     * @deprecated Use logRegistrationEvent on the Cheetah module instead.
-     * 
-     * Log a registration event with Marigold. This is used to log users signing in and out of the app.
-     * Pass the ID you wish to use for the sign-in or null for a sign-out.
-     * @param userId The ID of the user signing in, or null for sign-out.
-     */
-    logRegistrationEvent(userId: string | null): void;
-    /**
      * Request permission from the user to display notification content.
      */
     registerForPushNotifications(): void;

@@ -3,12 +3,6 @@
 #import "Kiwi.h"
 #import <Marigold/Marigold.h>
 
-#ifndef RCT_NEW_ARCH_ENABLED
-// interface to expose methods for testing
-@interface RNCheetah ()
--(void)logRegistrationEvent:(NSString *)userId resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
-@end
-#endif
 
 SPEC_BEGIN(RNCheetahSpec)
 
