@@ -2,6 +2,8 @@
 
 Wraps the native Marigold SDK for React Native apps.
 
+> **Requires React Native New Architecture.** This SDK uses TurboModules and does not support the legacy architecture. Ensure New Architecture is enabled in your app before installing (React Native 0.76+).
+
 ## Installation
 
 `npm install react-native-marigold --save`
