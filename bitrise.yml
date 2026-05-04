@@ -22,20 +22,23 @@ workflows:
     - xcode-test:
         title: Run iOS Unit Tests
     - install-missing-android-tools: {}
-    - script:
-        title: Fix Android SDK 37 platform path
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            set -ex
-            if [ -d "$ANDROID_HOME/platforms/android-37.0" ] && [ ! -d "$ANDROID_HOME/platforms/android-37" ]; then
-              ln -s "$ANDROID_HOME/platforms/android-37.0" "$ANDROID_HOME/platforms/android-37"
-            fi
     - gradle-runner:
         title: Run Android Codegen for React Native New Architecture
         inputs:
         - build_root_directory: ./android
         - gradle_task: ":generateCodegenArtifactsFromSchema"
+    - script:
+        # TODO: Remove this step once Android SDK 37 is fully released and the Bitrise macOS stack
+        # installs it as 'android-37' rather than 'android-37.0'.
+        title: Fix Android SDK 37 platform path
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+            echo "y" | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37"
+            if [ -d "$ANDROID_HOME/platforms/android-37.0" ] && [ ! -e "$ANDROID_HOME/platforms/android-37" ]; then
+              ln -s "$ANDROID_HOME/platforms/android-37.0" "$ANDROID_HOME/platforms/android-37"
+            fi
     - android-unit-test@1:
         inputs:
         - is_debug: 'true'
