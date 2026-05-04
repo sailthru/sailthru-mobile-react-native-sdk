@@ -3,7 +3,7 @@ format_version: '6'
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 project_type: ios
 tools:
-  ruby: 3.4:installed
+  ruby: 3.3:installed
 workflows:
   primary:
     steps:
