@@ -28,10 +28,10 @@ export default class App extends Component {
   render() {
     MessageStream.getMessages()
       .then(messages => {
-        if (messages.length > 2) {
+        if (messages.length > 0) {
           MessageStream.markMessageAsRead(messages[0]);
           MessageStream.presentMessageDetail(messages[0]);
-          MessageStream.registerMessageImpression(MessageStream.MessageImpressionType.InAppView, messages[1]);
+          MessageStream.registerMessageImpression(MessageStream.MessageImpressionType.DetailView, messages[0]);
         }
       })
       .catch(e => {
