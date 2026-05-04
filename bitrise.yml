@@ -22,6 +22,15 @@ workflows:
     - xcode-test:
         title: Run iOS Unit Tests
     - install-missing-android-tools: {}
+    - script:
+        title: Fix Android SDK 37 platform path
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+            if [ -d "$ANDROID_HOME/platforms/android-37.0" ] && [ ! -d "$ANDROID_HOME/platforms/android-37" ]; then
+              ln -s "$ANDROID_HOME/platforms/android-37.0" "$ANDROID_HOME/platforms/android-37"
+            fi
     - gradle-runner:
         title: Run Android Codegen for React Native New Architecture
         inputs:
