@@ -57,6 +57,13 @@ RCT_EXPORT_MODULE();
 }
 
 - (BOOL)emitWithTimeout:(MARMessage *)message {
+    @synchronized (self) {
+        self.inAppNotificationHandled = NO;
+    }
+
+    // Drain any stale signals from previous or duplicate JS notifyInAppHandled: calls
+    while (dispatch_semaphore_wait(self.eventSemaphore, DISPATCH_TIME_NOW) == 0) {}
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSMutableDictionary *payload = [NSMutableDictionary dictionaryWithDictionary:[message dictionary]];
 
@@ -64,16 +71,12 @@ RCT_EXPORT_MODULE();
             [payload setObject:[message attributes] forKey:@"attributes"];
         }
         [self emitInAppNotification:payload];
-        
-        @synchronized (self) {
-            self.inAppNotificationHandled = NO;
-        }
     });
 
     dispatch_semaphore_wait(self.eventSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
 
     @synchronized (self) {
-        return self.inAppNotificationHandled;
+        return !self.inAppNotificationHandled;
     }
 }
 
@@ -83,7 +86,7 @@ RCT_EXPORT_MODULE();
 
 RCT_EXPORT_METHOD(notifyInAppHandled:(BOOL)handled) {
     @synchronized (self) {
-        self.inAppNotificationHandled = !handled;
+        self.inAppNotificationHandled = handled;
         dispatch_semaphore_signal(self.eventSemaphore);
     }
 }
