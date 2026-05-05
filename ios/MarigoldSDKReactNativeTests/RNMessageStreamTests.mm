@@ -341,6 +341,23 @@ describe(@"RNMessageStream", ^{
 
                 [[expectFutureValue(theValue(check)) shouldEventually] beNo];
             });
+
+            it(@"returns YES after timeout when defaultInAppNotification is NO and JS does not respond", ^{
+                [mockRnMessageStream useDefaultInAppNotification:NO];
+                rnMessageStream.notificationTimeoutSeconds = 0.2;
+
+                [[[mockRnMessageStream stub] andDo:^(NSInvocation *invocation) {
+                    // do nothing — simulate JS not responding
+                }] emitInAppNotification:[OCMArg any]];
+
+                CFTimeInterval start = CFAbsoluteTimeGetCurrent();
+                BOOL result = [rnMessageStream shouldPresentInAppNotificationForMessage:marMessage];
+                CFTimeInterval elapsed = CFAbsoluteTimeGetCurrent() - start;
+
+                [[theValue(result) should] beYes];
+                [[theValue(elapsed) should] beGreaterThan:theValue(0.15)];
+                [[theValue(elapsed) should] beLessThan:theValue(1.2)];
+            });
         });
     });
 });

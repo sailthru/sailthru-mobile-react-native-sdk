@@ -30,6 +30,7 @@ RCT_EXPORT_MODULE();
     if(self) {
         _messageStream = [MARMessageStream new];
         _defaultInAppNotification = YES;
+        _notificationTimeoutSeconds = 2.0;
         self.eventSemaphore = dispatch_semaphore_create(0);
         
         [_messageStream setDelegate:self];
@@ -41,19 +42,7 @@ RCT_EXPORT_MODULE();
     if (self.defaultInAppNotification) {
         return YES;
     }
-    __block BOOL result = YES;
-
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        result = [self emitWithTimeout:message];
-
-        dispatch_semaphore_signal(semaphore);
-    });
-
-    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-
-    return result;
+    return [self emitWithTimeout:message];
 }
 
 - (BOOL)emitWithTimeout:(MARMessage *)message {
@@ -73,7 +62,7 @@ RCT_EXPORT_MODULE();
         [self emitInAppNotification:payload];
     });
 
-    dispatch_semaphore_wait(self.eventSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+    dispatch_semaphore_wait(self.eventSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.notificationTimeoutSeconds * NSEC_PER_SEC)));
 
     @synchronized (self) {
         return !self.inAppNotificationHandled;

@@ -6,6 +6,7 @@
 @property (nonatomic, strong) dispatch_semaphore_t eventSemaphore;
 @property (nonatomic, assign) BOOL defaultInAppNotification;
 @property (nonatomic, assign) BOOL inAppNotificationHandled;
+@property (nonatomic, assign) NSTimeInterval notificationTimeoutSeconds;
 - (void)emitInAppNotification:(NSDictionary *)payload;
 
 @end

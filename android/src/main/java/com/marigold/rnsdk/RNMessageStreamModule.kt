@@ -33,11 +33,11 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext) :
     @VisibleForTesting
     internal var jsonConverter: JsonConverter = JsonConverter()
 
-    private val eventChannel = Channel<Boolean>()
+    private val eventChannel = Channel<Boolean>(1)
     private var defaultInAppNotification = true
 
     @VisibleForTesting
-    internal var notificationTimeoutMs: Long = 5000L
+    internal var notificationTimeoutMs: Long = 2000L
     init {
         messageStream.setOnInAppNotificationDisplayListener(this)
     }
@@ -53,6 +53,8 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext) :
     }
 
     private suspend fun emitWithTimeout(message: Message): Boolean {
+        // Drain any stale signal from a previous or duplicate notifyInAppHandled call
+        eventChannel.tryReceive()
         return withTimeoutOrNull(notificationTimeoutMs) {
             try {
                 val writableMap = jsonConverter.convertJsonToMap(message.toJSON())
