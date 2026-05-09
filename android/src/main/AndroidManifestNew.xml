@@ -1,5 +1,17 @@
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.marigold.rnsdk">
+
+    <application>
+        <receiver
+            android:name="com.marigold.rnsdk.MessageBroadcastReceiver"
+            android:exported="false">
+
+            <intent-filter>
+                <action android:name="com.marigold.sdk.MESSAGE_STREAM_MESSAGE_TAP" />
+            </intent-filter>
+
+        </receiver>
+    </application>
 
 </manifest>
-  

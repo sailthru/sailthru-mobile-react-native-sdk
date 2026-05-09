@@ -1,11 +1,12 @@
 package com.marigold.rnsdk
 
-import android.app.Activity
+import android.content.Intent
 import android.location.Location
 import androidx.annotation.VisibleForTesting
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.marigold.sdk.Marigold
+import com.marigold.sdk.NotificationConfig
 import java.lang.reflect.InvocationTargetException
 
 /**
@@ -21,6 +22,7 @@ class RNMarigoldModuleImpl(private val reactContext: ReactApplicationContext) {
         const val ERROR_CODE_PURCHASE = "marigold.purchase"
         const val MESSAGE_ID = "id"
         const val NAME = "RNMarigold"
+
         fun setWrapperInfo() {
             try {
                 val cArg = arrayOf(String::class.java, String::class.java)
@@ -44,6 +46,29 @@ class RNMarigoldModuleImpl(private val reactContext: ReactApplicationContext) {
 
     init {
         setWrapperInfo()
+        configureFullScreenIntent()
+    }
+
+    /**
+     * Configure push notifications to trigger MessageBroadcastReceiver
+     * instead of the default MessageActivity.
+     */
+    private fun configureFullScreenIntent() {
+
+        val intent = Intent(reactContext, MessageBroadcastReceiver::class.java)
+
+        val requestCode = 123
+
+        val config = NotificationConfig()
+
+        config.setDefaultContentIntent(
+            intent,
+            requestCode,
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or
+                    android.app.PendingIntent.FLAG_IMMUTABLE
+        )
+
+        marigold.setNotificationConfig(config)
     }
 
     fun registerForPushNotifications() {
