@@ -15,7 +15,6 @@ import {
 
 const { Marigold, EngageBySailthru, MessageStream } = require('react-native-marigold');
 var SDK_KEY = ''; // Put your SDK key in here.
-import { NativeEventEmitter } from 'react-native'
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
@@ -29,10 +28,10 @@ export default class App extends Component {
   render() {
     MessageStream.getMessages()
       .then(messages => {
-        if (messages.length > 2) {
+        if (messages.length > 0) {
           MessageStream.markMessageAsRead(messages[0]);
           MessageStream.presentMessageDetail(messages[0]);
-          MessageStream.registerMessageImpression(MessageStream.MessageImpressionType.InAppView, messages[1]);
+          MessageStream.registerMessageImpression(MessageStream.MessageImpressionType.DetailView, messages[0]);
         }
       })
       .catch(e => {

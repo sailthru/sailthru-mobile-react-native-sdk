@@ -19,24 +19,18 @@
 
 @end
 
-#ifdef RCT_NEW_ARCH_ENABLED
 using JS::NativeRNMessageStream::RNMessage;
-#endif
 
 @implementation RNMessageStream
 
 RCT_EXPORT_MODULE();
 
 - (instancetype)init {
-    return [self initWithDisplayInAppNotifications:YES];
-}
-
-- (instancetype)initWithDisplayInAppNotifications:(BOOL)displayNotifications {
     self = [super init];
     if(self) {
-        _displayInAppNotifications = displayNotifications;
         _messageStream = [MARMessageStream new];
         _defaultInAppNotification = YES;
+        _notificationTimeoutSeconds = 2.0;
         self.eventSemaphore = dispatch_semaphore_create(0);
         
         [_messageStream setDelegate:self];
@@ -44,32 +38,21 @@ RCT_EXPORT_MODULE();
     return self;
 }
 
-#ifndef RCT_NEW_ARCH_ENABLED
-- (NSArray<NSString *> *)supportedEvents {
-    return @[@"inappnotification"];
-}
-#endif
-
 - (BOOL)shouldPresentInAppNotificationForMessage:(MARMessage *)message {
     if (self.defaultInAppNotification) {
         return YES;
     }
-    __block BOOL result = YES;
-
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        result = [self emitWithTimeout:message];
-
-        dispatch_semaphore_signal(semaphore);
-    });
-
-    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-
-    return result;
+    return [self emitWithTimeout:message];
 }
 
 - (BOOL)emitWithTimeout:(MARMessage *)message {
+    @synchronized (self) {
+        self.inAppNotificationHandled = NO;
+    }
+
+    // Drain any stale signals from previous or duplicate JS notifyInAppHandled: calls
+    while (dispatch_semaphore_wait(self.eventSemaphore, DISPATCH_TIME_NOW) == 0) {}
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSMutableDictionary *payload = [NSMutableDictionary dictionaryWithDictionary:[message dictionary]];
 
@@ -77,30 +60,22 @@ RCT_EXPORT_MODULE();
             [payload setObject:[message attributes] forKey:@"attributes"];
         }
         [self emitInAppNotification:payload];
-        
-        @synchronized (self) {
-            self.inAppNotificationHandled = NO;
-        }
     });
 
-    dispatch_semaphore_wait(self.eventSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+    dispatch_semaphore_wait(self.eventSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.notificationTimeoutSeconds * NSEC_PER_SEC)));
 
     @synchronized (self) {
-        return self.inAppNotificationHandled;
+        return !self.inAppNotificationHandled;
     }
 }
 
 - (void)emitInAppNotification:(NSDictionary *)payload {
-#ifdef RCT_NEW_ARCH_ENABLED
     [self emitOnInAppNotification: payload];
-#else
-    [self sendEventWithName:@"inappnotification" body:payload];
-#endif
 }
 
 RCT_EXPORT_METHOD(notifyInAppHandled:(BOOL)handled) {
     @synchronized (self) {
-        self.inAppNotificationHandled = !handled;
+        self.inAppNotificationHandled = handled;
         dispatch_semaphore_signal(self.eventSemaphore);
     }
 }
@@ -145,15 +120,9 @@ RCT_EXPORT_METHOD(getUnreadCount:(RCTPromiseResolveBlock)resolve reject:(RCTProm
     }];
 }
 
-#ifdef RCT_NEW_ARCH_ENABLED
 RCT_EXPORT_METHOD(markMessageAsRead:(RNMessage &)message resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     MARMessage *marMessage = [RNMessageStream messageFromRNMessage:message];
-#else
-    RCT_EXPORT_METHOD(markMessageAsRead:(NSDictionary*)jsDict resolve:(RCTPromiseResolveBlock)resolve
-                      reject:(RCTPromiseRejectBlock)reject) {
-    MARMessage *marMessage = [RNMessageStream messageFromDict:jsDict];
-#endif
     [self.messageStream markMessageAsRead:marMessage withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNMessageStream rejectPromise:reject withError:error];
@@ -163,15 +132,9 @@ RCT_EXPORT_METHOD(markMessageAsRead:(RNMessage &)message resolve:(RCTPromiseReso
     }];
 }
 
-#ifdef RCT_NEW_ARCH_ENABLED
 RCT_EXPORT_METHOD(removeMessage:(RNMessage &)message resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     MARMessage *marMessage = [RNMessageStream messageFromRNMessage:message];
-#else
-RCT_EXPORT_METHOD(removeMessage:(NSDictionary*)jsDict resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
-    MARMessage *marMessage = [RNMessageStream messageFromDict:jsDict];
-#endif
     [self.messageStream removeMessage:marMessage withResponse:^(NSError * _Nullable error) {
         if (error) {
             [RNMessageStream rejectPromise:reject withError:error];
@@ -181,13 +144,8 @@ RCT_EXPORT_METHOD(removeMessage:(NSDictionary*)jsDict resolve:(RCTPromiseResolve
     }];
 }
 
-#ifdef RCT_NEW_ARCH_ENABLED
 RCT_EXPORT_METHOD(presentMessageDetail:(RNMessage &)message) {
     MARMessage *marMessage = [RNMessageStream messageFromRNMessage:message];
-#else
-RCT_EXPORT_METHOD(presentMessageDetail:(NSDictionary*)jsDict) {
-    MARMessage *marMessage = [RNMessageStream messageFromDict:jsDict];
-#endif
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.messageStream presentMessageDetailForMessage:marMessage];
     });
@@ -199,13 +157,8 @@ RCT_EXPORT_METHOD(dismissMessageDetail) {
     });
 }
 
-#ifdef RCT_NEW_ARCH_ENABLED
 RCT_EXPORT_METHOD(registerMessageImpression:(double)impressionType message:(RNMessage &)message) {
     MARMessage *marMessage = [RNMessageStream messageFromRNMessage:message];
-#else
-RCT_EXPORT_METHOD(registerMessageImpression:(double)impressionType message:(NSDictionary*)jsDict) {
-    MARMessage *marMessage = [RNMessageStream messageFromDict:jsDict];
-#endif
     [self.messageStream registerImpressionWithType:(MARImpressionType)impressionType forMessage:marMessage];
 }
 
@@ -219,12 +172,10 @@ RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromi
     }];
 }
 
-#ifdef RCT_NEW_ARCH_ENABLED
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params
 {
     return std::make_shared<facebook::react::NativeRNMessageStreamSpecJSI>(params);
 }
-#endif
 
 #pragma mark - Helper Functions
 
@@ -240,7 +191,6 @@ RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromi
     return messageDictionaries;
 }
 
-#ifdef RCT_NEW_ARCH_ENABLED
 + (MARMessage *) messageFromRNMessage:(RNMessage &)message {
     NSMutableDictionary *messageDict = [[NSMutableDictionary alloc] initWithDictionary:@{
         @"id": message.id_(),
@@ -253,7 +203,7 @@ RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromi
         messageDict[@"text"] = message.text();
     }
     if (message.type() != nil) {
-        messageDict[@"html_text"] = message.type();
+        messageDict[@"type"] = message.type();
     }
     if (message.html_text() != nil) {
         messageDict[@"html_text"] = message.html_text();
@@ -275,10 +225,5 @@ RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromi
     }
     return [[MARMessage alloc] initWithDictionary:messageDict];
 }
-#else
-+ (MARMessage *) messageFromDict:(NSDictionary *)jsDict {
-    return [[MARMessage alloc] initWithDictionary:jsDict];
-}
-#endif
 
 @end

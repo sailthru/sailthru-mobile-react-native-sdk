@@ -3,8 +3,9 @@
  * https://github.com/facebook/react-native
  */
 
-import React, { Component } from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
+  Alert,
   AppRegistry,
   StyleSheet,
   Text,
@@ -13,127 +14,130 @@ import {
 
 const { Marigold, EngageBySailthru, MessageStream } = require('react-native-marigold');
 var SDK_KEY = ''; // Put your SDK key in here.
+MessageStream.useDefaultInAppNotification(false); // Handle in-app notifications with JS UI
 
-import { NativeEventEmitter } from 'react-native'
+function ReactNativeSampleApp() {
+  const listenerSubscription = useRef(null);
 
-const myModuleEvt = new NativeEventEmitter(MessageStream)
-MessageStream.useDefaultInAppNotification(false);
-myModuleEvt.addListener('inappnotification', (data) => {
-  console.log('Received message:', data);
-  alert(data.title);
-  MessageStream.notifyInAppHandled(true);
-});
-
-
-export default class ReactNativeSampleApp extends Component {
-  render() {
-    MessageStream.getMessages()
-      .then(messages => {
-        if (messages.length > 2) {
-          MessageStream.markMessageAsRead(messages[0]);
-          MessageStream.presentMessageDetail(messages[0]);
-          setTimeout(function(){ MessageStream.dismissMessageDetail(); }, 5000);
-          MessageStream.registerMessageImpression(MessageStream.MessageImpressionType.InAppView, messages[1]);
-        }
-      })
-      .catch(e => {
-        console.log(e);
+  useEffect(() => {
+    listenerSubscription.current = MessageStream.onInAppNotification((message) => {
+      Alert.alert(`In-App Notification: ${message.title} with text: ${message.text}`);
+      MessageStream.registerMessageImpression(MessageStream.MessageImpressionType.InAppView, message);
+      MessageStream.notifyInAppHandled(true);
     });
 
-    var attrMap = new EngageBySailthru.AttributeMap();
-    attrMap.setString("string_key", "This is the string value");
-    attrMap.setStringArray("strings_key", ["This is first value", "This is the second value"]);
-    attrMap.setDate("date_key", new Date());
-    attrMap.setDateArray("dates_key", [new Date(), new Date(), new Date()]);
-    attrMap.setFloat("float_key", 3.141);
-    attrMap.setFloatArray("floats_key", [1.1, 2.2, 3.3, 4.4]);
-    attrMap.setInteger("integer_key", 3);
-    attrMap.setIntegerArray("integers_key", [1, 2, 3, 4]);
-    attrMap.setBoolean("boolean_key", true);
-
-    EngageBySailthru.setAttributes(attrMap).catch(e => {
-      console.log(e);
-    });
-
-    Marigold.updateLocation(-41.292178, 174.777535); //Marigold Wellington.
-    EngageBySailthru.logEvent("This is my event");
-
-    var eventVars = {
-      "varKey" : "varValue"
+    return () => {
+      listenerSubscription.current?.remove();
+      listenerSubscription.current = null;
     };
-    EngageBySailthru.logEvent("this is my event with vars", eventVars);
+  }, []);
 
-    MessageStream.getUnreadCount().then(function(count) {
-      console.log(count);
-    }, function(e){
+  MessageStream.getMessages()
+    .then(messages => {
+      if (messages.length > 0) {
+        MessageStream.markMessageAsRead(messages[0]);
+        MessageStream.presentMessageDetail(messages[0]);
+        setTimeout(function(){ MessageStream.dismissMessageDetail(); }, 5000);
+        MessageStream.registerMessageImpression(MessageStream.MessageImpressionType.DetailView, messages[0]);
+      }
+    })
+    .catch(e => {
       console.log(e);
     });
 
-    Marigold.getDeviceID().then(function(id) {
-      console.log(id);
-    }, function(e){
-      console.log(e);
-    });
+  var attrMap = new EngageBySailthru.AttributeMap();
+  attrMap.setString("string_key", "This is the string value");
+  attrMap.setStringArray("strings_key", ["This is first value", "This is the second value"]);
+  attrMap.setDate("date_key", new Date());
+  attrMap.setDateArray("dates_key", [new Date(), new Date(), new Date()]);
+  attrMap.setFloat("float_key", 3.141);
+  attrMap.setFloatArray("floats_key", [1.1, 2.2, 3.3, 4.4]);
+  attrMap.setInteger("integer_key", 3);
+  attrMap.setIntegerArray("integers_key", [1, 2, 3, 4]);
+  attrMap.setBoolean("boolean_key", true);
 
-    EngageBySailthru.setUserId("person").then(result => {
-      console.log("Set User ID Success");
-    }, e => {
-      console.log(e);
-    });
+  EngageBySailthru.setAttributes(attrMap).catch(e => {
+    console.log(e);
+  });
 
-    EngageBySailthru.setUserEmail("person@domain.com").then(result => {
-      console.log("Set User Email Success");
-    }, e => {
-      console.log(e);
-    });
+  Marigold.updateLocation(-41.292178, 174.777535); //Marigold Wellington.
+  EngageBySailthru.logEvent("This is my event");
 
-    var profileVars = {
-      "string_key" : "string_value",
-      "boolean_key" : true
-    };
-    EngageBySailthru.setProfileVars(profileVars).then(result => {
-      console.log("Set Profile Vars Success");
-    }).catch(e => {
-      console.log(e);
-    });
+  var eventVars = {
+    "varKey" : "varValue"
+  };
+  EngageBySailthru.logEvent("this is my event with vars", eventVars);
 
-    EngageBySailthru.getProfileVars().then(profileVars => {
-      console.log(profileVars);
-    }).catch(e => {
-      console.log(e);
-    });
+  MessageStream.getUnreadCount().then(function(count) {
+    console.log(count);
+  }, function(e){
+    console.log(e);
+  });
 
-    var purchaseItem1 = new EngageBySailthru.PurchaseItem(1, "title", 1234, "2345", "https://www.example.com/item1");
-    var purchaseItem2 = new EngageBySailthru.PurchaseItem(3, "other item", 1534, "2346", "https://www.example.com/item2");
-    var purchaseItems = [ purchaseItem1, purchaseItem2 ];
-    var purchase = new EngageBySailthru.Purchase(purchaseItems);
-    EngageBySailthru.logPurchase(purchase).then(result => {
-      console.log("Purchase Log Success");
-    }).catch(e => {
-      console.log(e);
-    });
+  Marigold.getDeviceID().then(function(id) {
+    console.log(id);
+  }, function(e){
+    console.log(e);
+  });
 
-    EngageBySailthru.logAbandonedCart(purchase).then(result => {
-      console.log("Abandoned Cart Log Success");
-    }).catch(e => {
-      console.log(e);
-    });
+  EngageBySailthru.setUserId("person").then(result => {
+    console.log("Set User ID Success");
+  }, e => {
+    console.log(e);
+  });
 
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js
-        </Text>
-        <Text style={styles.instructions}>
-          Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
-        </Text>
-      </View>
-    );
-  }
+  EngageBySailthru.setUserEmail("person@domain.com").then(result => {
+    console.log("Set User Email Success");
+  }, e => {
+    console.log(e);
+  });
+
+  var profileVars = {
+    "string_key" : "string_value",
+    "boolean_key" : true
+  };
+  EngageBySailthru.setProfileVars(profileVars).then(result => {
+    console.log("Set Profile Vars Success");
+  }).catch(e => {
+    console.log(e);
+  });
+
+  EngageBySailthru.getProfileVars().then(profileVars => {
+    console.log(profileVars);
+  }).catch(e => {
+    console.log(e);
+  });
+
+  var purchaseItem1 = new EngageBySailthru.PurchaseItem(1, "title", 1234, "2345", "https://www.example.com/item1");
+  var purchaseItem2 = new EngageBySailthru.PurchaseItem(3, "other item", 1534, "2346", "https://www.example.com/item2");
+  var purchaseItems = [ purchaseItem1, purchaseItem2 ];
+  var purchase = new EngageBySailthru.Purchase(purchaseItems);
+  EngageBySailthru.logPurchase(purchase).then(result => {
+    console.log("Purchase Log Success");
+  }).catch(e => {
+    console.log(e);
+  });
+
+  EngageBySailthru.logAbandonedCart(purchase).then(result => {
+    console.log("Abandoned Cart Log Success");
+  }).catch(e => {
+    console.log(e);
+  });
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.welcome}>
+        Welcome to React Native!
+      </Text>
+      <Text style={styles.instructions}>
+        To get started, edit index.ios.js
+      </Text>
+      <Text style={styles.instructions}>
+        Press Cmd+R to reload,{'\n'}
+        Cmd+D or shake for dev menu
+      </Text>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

@@ -1,21 +1,23 @@
 package com.marigold.rnsdk
 
 import com.facebook.react.bridge.Promise
+import com.facebook.react.bridge.ReactApplicationContext
+import com.marigold.rnsdk.ErrorCodes.Companion.ERROR_CODE_DEVICE
+import com.marigold.rnsdk.ErrorCodes.Companion.ERROR_CODE_KEY
 import com.marigold.sdk.Cheetah
 import com.marigold.sdk.Marigold
 
-/**
- * React native module for the Marigold SDK.
- */
-class RNCheetahModuleImpl() {
+class RNCheetahModule(reactContext: ReactApplicationContext) : NativeRNCheetahSpec(reactContext) {
 
     companion object {
-        const val ERROR_CODE_DEVICE = "marigold.device"
-        const val ERROR_CODE_KEY = "marigold.key"
         const val NAME = "RNCheetah"
     }
 
-    fun logRegistrationEvent(userId: String?, promise: Promise?) {
+    override fun getName(): String {
+        return NAME
+    }
+
+    override fun logRegistrationEvent(userId: String?, promise: Promise?) {
         createCheetah(promise)?.logRegistrationEvent(userId, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise?.resolve(null)

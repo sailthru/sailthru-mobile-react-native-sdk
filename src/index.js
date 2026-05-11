@@ -1,22 +1,7 @@
-import { NativeModules } from 'react-native'
-
-const isTurboModuleEnabled = global.__turboModuleProxy != null;
-
-const RNMarigold = isTurboModuleEnabled ?
-require("./NativeRNMarigold").default :
-NativeModules.RNMarigold;
-
-const RNMessageStream = isTurboModuleEnabled ?
-require("./NativeRNMessageStream").default :
-NativeModules.RNMessageStream;
-
-const RNEngageBySailthru = isTurboModuleEnabled ?
-require("./NativeRNEngageBySailthru").default :
-NativeModules.RNEngageBySailthru;
-
-const RNCheetah = isTurboModuleEnabled ?
-require("./NativeRNCheetah").default :
-NativeModules.RNCheetah;
+const RNMarigold = require("./NativeRNMarigold").default;
+const RNMessageStream = require("./NativeRNMessageStream").default;
+const RNEngageBySailthru = require("./NativeRNEngageBySailthru").default;
+const RNCheetah = require("./NativeRNCheetah").default;
 
 /**
  * A map for submitting collections of attributes to the SDK.

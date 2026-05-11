@@ -12,49 +12,48 @@ class RNMarigoldPackage: BaseReactPackage() {
         reactContext: ReactApplicationContext
     ): NativeModule? {
         return when (name) {
-            RNMarigoldModuleImpl.NAME -> RNMarigoldModule(reactContext)
-            RNEngageBySailthruModuleImpl.NAME -> RNEngageBySailthruModule(reactContext)
-            RNCheetahModuleImpl.NAME -> RNCheetahModule(reactContext)
-            RNMessageStreamModuleImpl.NAME -> RNMessageStreamModule(reactContext, true)
+            RNMarigoldModule.NAME -> RNMarigoldModule(reactContext)
+            RNEngageBySailthruModule.NAME -> RNEngageBySailthruModule(reactContext)
+            RNCheetahModule.NAME -> RNCheetahModule(reactContext)
+            RNMessageStreamModule.NAME -> RNMessageStreamModule(reactContext)
             else -> null
         }
     }
 
     override fun getReactModuleInfoProvider(): ReactModuleInfoProvider {
-        val isTurboModule = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
         return ReactModuleInfoProvider {
             hashMapOf<String, ReactModuleInfo>(
-                RNMarigoldModuleImpl.NAME to ReactModuleInfo(
-                    RNMarigoldModuleImpl.NAME,
+                RNMarigoldModule.NAME to ReactModuleInfo(
+                    RNMarigoldModule.NAME,
                     RNMarigoldModule::class.toString(),
                     false,
                     false,
                     false,
-                    isTurboModule
+                    true
                 ),
-                RNEngageBySailthruModuleImpl.NAME to ReactModuleInfo(
-                    RNEngageBySailthruModuleImpl.NAME,
+                RNEngageBySailthruModule.NAME to ReactModuleInfo(
+                    RNEngageBySailthruModule.NAME,
                     RNEngageBySailthruModule::class.toString(),
                     false,
                     false,
                     false,
-                    isTurboModule
+                    true
                 ),
-                RNCheetahModuleImpl.NAME to ReactModuleInfo(
-                    RNCheetahModuleImpl.NAME,
+                RNCheetahModule.NAME to ReactModuleInfo(
+                    RNCheetahModule.NAME,
                     RNCheetahModule::class.toString(),
                     false,
                     false,
                     false,
-                    isTurboModule
+                    true
                 ),
-                RNMessageStreamModuleImpl.NAME to ReactModuleInfo(
-                    RNMessageStreamModuleImpl.NAME,
+                RNMessageStreamModule.NAME to ReactModuleInfo(
+                    RNMessageStreamModule.NAME,
                     RNMessageStreamModule::class.toString(),
                     false,
                     false,
                     false,
-                    isTurboModule
+                    true
                 )
             )
         }

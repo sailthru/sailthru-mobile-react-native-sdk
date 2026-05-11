@@ -2,8 +2,14 @@ package com.marigold.rnsdk
 
 import androidx.annotation.VisibleForTesting
 import com.facebook.react.bridge.Promise
+import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import com.marigold.rnsdk.ErrorCodes.Companion.ERROR_CODE_DEVICE
+import com.marigold.rnsdk.ErrorCodes.Companion.ERROR_CODE_KEY
+import com.marigold.rnsdk.ErrorCodes.Companion.ERROR_CODE_PURCHASE
+import com.marigold.rnsdk.ErrorCodes.Companion.ERROR_CODE_TRACKING
+import com.marigold.rnsdk.ErrorCodes.Companion.ERROR_CODE_VARS
 import com.marigold.sdk.EngageBySailthru
 import com.marigold.sdk.Marigold
 import com.marigold.sdk.enums.MergeRules
@@ -16,46 +22,20 @@ import java.net.URISyntaxException
 import java.util.ArrayList
 import java.util.Date
 
-class RNEngageBySailthruModuleImpl() {
+class RNEngageBySailthruModule(reactContext: ReactApplicationContext) : NativeRNEngageBySailthruSpec(reactContext) {
 
     companion object {
-        const val ERROR_CODE_DEVICE = "marigold.device"
-        const val ERROR_CODE_TRACKING = "marigold.tracking"
-        const val ERROR_CODE_VARS = "marigold.vars"
-        const val ERROR_CODE_PURCHASE = "marigold.purchase"
-        const val ERROR_CODE_KEY = "marigold.key"
         const val NAME = "RNEngageBySailthru"
     }
 
     @VisibleForTesting
     internal var jsonConverter = JsonConverter()
 
-    fun logEvent(eventName: String?, varsMap: ReadableMap?) {
-        eventName ?: return
-        var varsJson: JSONObject? = null
-        if (varsMap != null) {
-            try {
-                varsJson = jsonConverter.convertMapToJson(varsMap)
-            } catch (e: JSONException) {
-                e.printStackTrace()
-            }
-        }
-        createEngageBySailthru()?.logEvent(eventName, varsJson)
+    override fun getName(): String {
+        return NAME
     }
 
-    fun clearEvents(promise: Promise?) {
-        createEngageBySailthru(promise)?.clearEvents(object : Marigold.MarigoldHandler<Void?> {
-            override fun onSuccess(value: Void?) {
-                promise?.resolve(true)
-            }
-
-            override fun onFailure(error: Error) {
-                promise?.reject(ERROR_CODE_DEVICE, error.message)
-            }
-        })
-    }
-
-    fun setAttributes(readableMap: ReadableMap?, promise: Promise?) {
+    override fun setAttributes(readableMap: ReadableMap?, promise: Promise?) {
         readableMap ?: return
         val attributeMap = try {
             getAttributeMap(readableMap)
@@ -74,7 +54,7 @@ class RNEngageBySailthruModuleImpl() {
         })
     }
 
-    fun removeAttribute(key: String?, promise: Promise?) {
+    override fun removeAttribute(key: String?, promise: Promise?) {
         key ?: return
         createEngageBySailthru(promise)?.removeAttribute(key, object : EngageBySailthru.AttributesHandler {
             override fun onSuccess() {
@@ -87,7 +67,7 @@ class RNEngageBySailthruModuleImpl() {
         })
     }
 
-    fun clearAttributes(promise: Promise?) {
+    override fun clearAttributes(promise: Promise?) {
         createEngageBySailthru(promise)?.clearAttributes(object : EngageBySailthru.AttributesHandler {
             override fun onSuccess() {
                 promise?.resolve(true)
@@ -99,7 +79,20 @@ class RNEngageBySailthruModuleImpl() {
         })
     }
 
-    fun setUserId(userId: String?, promise: Promise?) {
+    override fun logEvent(name: String?, vars: ReadableMap?) {
+        name ?: return
+        var varsJson: JSONObject? = null
+        if (vars != null) {
+            try {
+                varsJson = jsonConverter.convertMapToJson(vars)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+        }
+        createEngageBySailthru()?.logEvent(name, varsJson)
+    }
+
+    override fun setUserId(userId: String?, promise: Promise?) {
         createEngageBySailthru(promise)?.setUserId(userId, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise?.resolve(null)
@@ -111,7 +104,7 @@ class RNEngageBySailthruModuleImpl() {
         })
     }
 
-    fun setUserEmail(userEmail: String?, promise: Promise?) {
+    override fun setUserEmail(userEmail: String?, promise: Promise?) {
         createEngageBySailthru(promise)?.setUserEmail(userEmail, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise?.resolve(null)
@@ -123,7 +116,7 @@ class RNEngageBySailthruModuleImpl() {
         })
     }
 
-    fun trackClick(sectionId: String?, url: String?, promise: Promise?) {
+    override fun trackClick(sectionId: String?, url: String?, promise: Promise?) {
         sectionId ?: return
         url ?: return
         try {
@@ -142,7 +135,7 @@ class RNEngageBySailthruModuleImpl() {
         }
     }
 
-    fun trackPageview(url: String?, tags: ReadableArray?, promise: Promise?) {
+    override fun trackPageview(url: String?, tags: ReadableArray?, promise: Promise?) {
         val uri = try {
             URI(url)
         } catch (e: URISyntaxException) {
@@ -167,7 +160,7 @@ class RNEngageBySailthruModuleImpl() {
         })
     }
 
-    fun trackImpression(sectionId: String?, urls: ReadableArray?, promise: Promise?) {
+    override fun trackImpression(sectionId: String?, urls: ReadableArray?, promise: Promise?) {
         sectionId ?: return
         var convertedUrls: List<URI>? = null
         if (urls != null) {
@@ -192,7 +185,7 @@ class RNEngageBySailthruModuleImpl() {
         })
     }
 
-    fun setProfileVars(vars: ReadableMap?, promise: Promise?) {
+    override fun setProfileVars(vars: ReadableMap?, promise: Promise?) {
         vars ?: return
         val varsJson = try {
             jsonConverter.convertMapToJson(vars)
@@ -211,7 +204,7 @@ class RNEngageBySailthruModuleImpl() {
         })
     }
 
-    fun getProfileVars(promise: Promise?) {
+    override fun getProfileVars(promise: Promise?) {
         promise ?: return
         createEngageBySailthru(promise)?.getProfileVars(object : Marigold.MarigoldHandler<JSONObject?> {
             override fun onSuccess(value: JSONObject?) {
@@ -229,7 +222,7 @@ class RNEngageBySailthruModuleImpl() {
         })
     }
 
-    fun logPurchase(purchaseMap: ReadableMap?, promise: Promise?) {
+    override fun logPurchase(purchaseMap: ReadableMap?, promise: Promise?) {
         val purchase = getPurchaseInstance(purchaseMap, promise) ?: return
         createEngageBySailthru(promise)?.logPurchase(purchase, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
@@ -242,7 +235,7 @@ class RNEngageBySailthruModuleImpl() {
         })
     }
 
-    fun logAbandonedCart(purchaseMap: ReadableMap?, promise: Promise?) {
+    override fun logAbandonedCart(purchaseMap: ReadableMap?, promise: Promise?) {
         val purchase = getPurchaseInstance(purchaseMap, promise) ?: return
         createEngageBySailthru(promise)?.logAbandonedCart(purchase, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
@@ -251,6 +244,18 @@ class RNEngageBySailthruModuleImpl() {
 
             override fun onFailure(error: Error) {
                 promise?.reject(ERROR_CODE_PURCHASE, error.message)
+            }
+        })
+    }
+
+    override fun clearEvents(promise: Promise?) {
+        createEngageBySailthru(promise)?.clearEvents(object : Marigold.MarigoldHandler<Void?> {
+            override fun onSuccess(value: Void?) {
+                promise?.resolve(true)
+            }
+
+            override fun onFailure(error: Error) {
+                promise?.reject(ERROR_CODE_DEVICE, error.message)
             }
         })
     }

@@ -4,8 +4,10 @@ import android.app.Activity
 import android.location.Location
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
+import com.marigold.rnsdk.ErrorCodes.Companion.ERROR_CODE_DEVICE
 import com.marigold.sdk.Marigold
 import org.junit.Before
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -17,7 +19,7 @@ import org.mockito.Mockito.never
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.*
 
-@RunWith(MockitoJUnitRunner::class)
+@RunWith(MockitoJUnitRunner.Silent::class)
 class RNMarigoldModuleTest {
     @Mock
     private lateinit var mockContext: ReactApplicationContext
@@ -44,15 +46,19 @@ class RNMarigoldModuleTest {
 
     @Test
     fun testConstructor() {
-        val mockCompanion: RNMarigoldModuleImpl.Companion = mock()
-        mockCompanion.setWrapperInfo()
-        verify(mockCompanion).setWrapperInfo()
+        var setWrapperInfoCalled = false
+        mockObject(RNMarigoldModule.Companion) {
+            on { setWrapperInfo() } doAnswer { setWrapperInfoCalled = true }
+        }.use {
+            RNMarigoldModule(mockContext)
+        }
+        assertTrue(setWrapperInfoCalled)
     }
 
     @Test
     fun testUpdateLocation() {
         val latitude = 10.0
-        val longitude = 10.0
+        val longitude = 15.0
         mockConstruction(Location::class.java).use { staticLocation ->
             rnMarigoldModule.updateLocation(latitude, longitude)
             val location = staticLocation.constructed()[0]
@@ -87,13 +93,6 @@ class RNMarigoldModuleTest {
     }
 
     @Test
-    fun testlogRegistrationEvent() {
-        val userID = "device ID"
-        rnMarigoldModule.logRegistrationEvent(userID)
-        verify(marigold).logRegistrationEvent(userID)
-    }
-
-    @Test
     fun testGetDeviceID() {
         // Setup variables
         val deviceID = "device ID"
@@ -117,7 +116,7 @@ class RNMarigoldModuleTest {
 
         // Test failure
         marigoldHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_DEVICE, errorMessage)
+        verify(promise).reject(ERROR_CODE_DEVICE, errorMessage)
     }
 
     @Test
@@ -152,6 +151,6 @@ class RNMarigoldModuleTest {
 
         // Test error handler
         clearHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_DEVICE, errorMessage)
+        verify(promise).reject(ERROR_CODE_DEVICE, errorMessage)
     }
 }

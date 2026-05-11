@@ -29,7 +29,7 @@ RCT_EXPORT_MODULE();
 
 - (instancetype)init {
     _marigold = [Marigold new];
-    [_marigold setWrapperName:@"React Native" andVersion:@"17.0.0"];
+    [_marigold setWrapperName:@"React Native" andVersion:@"18.0.0"];
     return self;
 }
 
@@ -71,10 +71,6 @@ RCT_EXPORT_METHOD(setCrashHandlersEnabled:(BOOL)enabled) {
     [self.marigold setCrashHandlersEnabled:enabled];
 }
 
-RCT_EXPORT_METHOD(logRegistrationEvent:(NSString * _Nullable)userId) {
-    [self.marigold logRegistrationEvent:userId];
-}
-
 // Push Registration
 RCT_EXPORT_METHOD(registerForPushNotifications) {
     UNAuthorizationOptions options = UNAuthorizationOptionAlert | UNAuthorizationOptionBadge | UNAuthorizationOptionSound;
@@ -95,12 +91,10 @@ RCT_EXPORT_METHOD(setInAppNotificationsEnabled:(BOOL)enabled) {
     [self.marigold setInAppNotificationsEnabled:enabled];
 }
 
-#ifdef RCT_NEW_ARCH_ENABLED
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params
 {
     return std::make_shared<facebook::react::NativeRNMarigoldSpecJSI>(params);
 }
-#endif
 
 #pragma mark - Helper Functions
 

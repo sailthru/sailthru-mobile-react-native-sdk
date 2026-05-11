@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		49144354C21D4B52E09BFF8B /* libPods-MarigoldSDKReactNative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C524A33DA8FC0A5189C0468 /* libPods-MarigoldSDKReactNative.a */; };
 		B934F55A23EA1EE3009DE68E /* RNMarigoldTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = B934F55823EA1EE3009DE68E /* RNMarigoldTests.mm */; };
-		B934F55B23EA1EE3009DE68E /* RNMarigoldBridgeTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = B934F55923EA1EE3009DE68E /* RNMarigoldBridgeTests.mm */; };
 		C6EDFD697D061F17195EEBD5 /* libPods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF9E4D34CEC7B60EA77A6DF5 /* libPods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.a */; };
 		E282D1A92B8581F300EECE61 /* RNEngageBySailthruTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = E282D1A82B8581F300EECE61 /* RNEngageBySailthruTests.mm */; };
 		E2B0BA3B2B96BFE7008A982B /* RNMessageStreamTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = E2B0BA362B96ABB4008A982B /* RNMessageStreamTests.mm */; };
@@ -17,7 +16,6 @@
 		FA09EC992F8769F600CB8B32 /* RNCheetahTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = FA09EC982F8769F600CB8B32 /* RNCheetahTests.mm */; };
 		FAD26B542D1261C2000CBDE7 /* RNEngageBySailthru.mm in Sources */ = {isa = PBXBuildFile; fileRef = E282D1AA2B85824300EECE61 /* RNEngageBySailthru.mm */; };
 		FAD26B552D1261C2000CBDE7 /* RNMarigold.mm in Sources */ = {isa = PBXBuildFile; fileRef = B934F55323EA1E68009DE68E /* RNMarigold.mm */; };
-		FAD26B562D1261C2000CBDE7 /* RNMarigoldBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = B934F55223EA1E68009DE68E /* RNMarigoldBridge.mm */; };
 		FAD26B572D1261C2000CBDE7 /* RNMessageStream.mm in Sources */ = {isa = PBXBuildFile; fileRef = E2B0BA342B96A87D008A982B /* RNMessageStream.mm */; };
 		FAD26B592D127044000CBDE7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD26B582D127044000CBDE7 /* Foundation.framework */; };
 /* End PBXBuildFile section */
@@ -40,12 +38,9 @@
 		6C524A33DA8FC0A5189C0468 /* libPods-MarigoldSDKReactNative.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MarigoldSDKReactNative.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7388405E8688C3BE22E9805D /* Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.debug.xcconfig"; path = "Target Support Files/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.debug.xcconfig"; sourceTree = "<group>"; };
 		A3DBD6F0BEBC8CDC0CBDFC03 /* Pods-MarigoldSDKReactNativeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarigoldSDKReactNativeTests.release.xcconfig"; path = "Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests.release.xcconfig"; sourceTree = "<group>"; };
-		B934F55023EA1E67009DE68E /* RNMarigoldBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNMarigoldBridge.h; sourceTree = "<group>"; };
 		B934F55123EA1E67009DE68E /* RNMarigold.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNMarigold.h; sourceTree = "<group>"; };
-		B934F55223EA1E68009DE68E /* RNMarigoldBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RNMarigoldBridge.mm; sourceTree = "<group>"; };
 		B934F55323EA1E68009DE68E /* RNMarigold.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RNMarigold.mm; sourceTree = "<group>"; };
 		B934F55823EA1EE3009DE68E /* RNMarigoldTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RNMarigoldTests.mm; sourceTree = "<group>"; };
-		B934F55923EA1EE3009DE68E /* RNMarigoldBridgeTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RNMarigoldBridgeTests.mm; sourceTree = "<group>"; };
 		CF9E4D34CEC7B60EA77A6DF5 /* libPods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E282D1A82B8581F300EECE61 /* RNEngageBySailthruTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RNEngageBySailthruTests.mm; sourceTree = "<group>"; };
 		E282D1AA2B85824300EECE61 /* RNEngageBySailthru.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RNEngageBySailthru.mm; sourceTree = "<group>"; };
@@ -133,7 +128,6 @@
 			children = (
 				E282D1A82B8581F300EECE61 /* RNEngageBySailthruTests.mm */,
 				FA09EC982F8769F600CB8B32 /* RNCheetahTests.mm */,
-				B934F55923EA1EE3009DE68E /* RNMarigoldBridgeTests.mm */,
 				B934F55823EA1EE3009DE68E /* RNMarigoldTests.mm */,
 				E2B0BA362B96ABB4008A982B /* RNMessageStreamTests.mm */,
 				FA5EF5BF213F433200D9E6A9 /* Info.plist */,
@@ -150,8 +144,6 @@
 				FA09EC962F87639B00CB8B32 /* RNCheetah.mm */,
 				B934F55123EA1E67009DE68E /* RNMarigold.h */,
 				B934F55323EA1E68009DE68E /* RNMarigold.mm */,
-				B934F55023EA1E67009DE68E /* RNMarigoldBridge.h */,
-				B934F55223EA1E68009DE68E /* RNMarigoldBridge.mm */,
 				E2B0BA332B96A85D008A982B /* RNMessageStream.h */,
 				E2B0BA342B96A87D008A982B /* RNMessageStream.mm */,
 			);
@@ -339,13 +331,11 @@
 			files = (
 				FAD26B542D1261C2000CBDE7 /* RNEngageBySailthru.mm in Sources */,
 				FAD26B552D1261C2000CBDE7 /* RNMarigold.mm in Sources */,
-				FAD26B562D1261C2000CBDE7 /* RNMarigoldBridge.mm in Sources */,
 				FAD26B572D1261C2000CBDE7 /* RNMessageStream.mm in Sources */,
 				E282D1A92B8581F300EECE61 /* RNEngageBySailthruTests.mm in Sources */,
 				FA09EC992F8769F600CB8B32 /* RNCheetahTests.mm in Sources */,
 				E2B0BA3B2B96BFE7008A982B /* RNMessageStreamTests.mm in Sources */,
 				B934F55A23EA1EE3009DE68E /* RNMarigoldTests.mm in Sources */,
-				B934F55B23EA1EE3009DE68E /* RNMarigoldBridgeTests.mm in Sources */,
 				FA09EC972F87639B00CB8B32 /* RNCheetah.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -412,6 +402,14 @@
 				LDPLUSPLUS = "";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(inherited)",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
+				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					" ",
@@ -419,7 +417,8 @@
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
-				USE_HERMES = false;
+				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
+				USE_HERMES = true;
 			};
 			name = Debug;
 		};
@@ -475,13 +474,22 @@
 				LD = "";
 				LDPLUSPLUS = "";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(inherited)",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
+				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					" ",
 				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
-				USE_HERMES = false;
+				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
+				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

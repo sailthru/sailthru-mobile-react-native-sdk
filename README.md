@@ -2,11 +2,12 @@
 
 Wraps the native Marigold SDK for React Native apps.
 
+> **Requires React Native New Architecture.** This SDK uses TurboModules and does not support the legacy architecture. Ensure New Architecture is enabled in your app before installing (React Native 0.76+).
+
 ## Installation
 
 `npm install react-native-marigold --save`
 
-This project supports auto linking!
 Running `pod install` in the `ios` folder should set up everything you need on the iOS side. On the Android side the only manual step required involves adding our maven URL to the repositories in the app level `build.gradle`:
 
 ```
@@ -15,108 +16,63 @@ maven {
 }
 ```
 
-However, if you would like to manually integrate the SDK please follow the steps below.
+You'll then need to call `startEngine` in the native SDKs when the application is created:
 
 
 ### iOS
-
-Open your Project's Xcode Project.
-
-Drag into "Libraries" the following files from node_modules/react-native-marigold:
-
- * RNMarigold.h
- * RNMarigold.m (Make sure this file's Target Membership is your main app's target)
- * RNMarigoldBridge.h
- * RNMarigoldBridge.m (Make sure this file's Target Membership is your main app's target)
-
-Next, Install Marigold iOS SDK from Cocoapods (add `pod 'Marigold'` to your Podfile), Swift Package Manager, Carthage or install the XCFramework [manually](https://docs.mobile.sailthru.com/docs/ios-integration#section-manual-integration) (Marigold.xcframework can be obtained from node_modules/react-native-marigold).
-
-You will then need replace the code that creates your RCTRootView with the code below. This adds the Marigold React Native modules to the root view.
-
-```Objective-C
-#import "RNMarigoldBridge.h"
+Objective-C
+```objc
+#import <Marigold/Marigold.h>
 
 - (BOOL)application:(UIApplication * )application didFinishLaunchingWithOptions:(NSDictionary * )launchOptions {
       ...
-      
       [[Marigold new] startEngine:SDK_KEY withAuthorizationOption:STMPushAuthorizationOptionProvisional]; // Obtain SDK key from your Marigold app settings
-      id<RCTBridgeDelegate> moduleInitialiser = [[RNMarigoldBridge alloc]
-                                                 initWithJSCodeLocation:jsCodeLocation]; // Obtain SDK key from your Marigold app settings
-
-      RCTBridge * bridge = [[RCTBridge alloc] initWithDelegate:moduleInitialiser launchOptions:launchOptions];
-
-      RCTRootView * rootView = [[RCTRootView alloc]
-                                initWithBridge:bridge
-                                moduleName:@"YOUR_MODULE_NAME"
-                                initialProperties:nil];
       ...
 }
 ```
+Swift
+```swift
+import Marigold
 
-Build and Run from Xcode.
-
-## Android
-
-* In `android/settings.gradle`
-
-```gradle
-...
-include ':react-native-marigold'
-project(':react-native-marigold').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-marigold/android')
-```
-
-* In `android/app/build.gradle`
-
-```gradle
-...
-repositories {
-    google()
-
-    maven {
-        url "https://github.com/sailthru/maven-repository/raw/master/"
-    }
-}
-
-dependencies {
+func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     ...
-    implementation project(':react-native-marigold')
+    Marigold().startEngine(SDK_KEY, withAuthorizationOption: .provisional) // Obtain SDK key from your Marigold app settings
+    ...
 }
 ```
 
-
-* Register module (in MainApplication.java)
-
+### Android
+Java
 ```java
-import com.marigold.rnsdk.RNMarigoldPackage; // <--- import
+import com.marigold.sdk.Marigold;
 
 public class MainApplication extends Application implements ReactApplication {
-  ...
-
-    @Override
-    protected List<ReactPackage> getPackages() {
-      List<ReactPackage> packages = new PackageList(this).getPackages();
-      packages.add(new RNMarigoldPackage(getApplicationContext()));
-      return packages;
-    }
-  ...
 
     @Override
     public void onCreate() {
       super.onCreate();
-      SoLoader.init(this, /* native exopackage */ false);
+      ...
+      new Marigold().startEngine(this, SDK_KEY); // Obtain SDK key from your Marigold app settings
+      ...
     }
-  ...
-}
 
 }
 ```
+Kotlin
+```kotlin
+import com.marigold.sdk.Marigold
 
-Finally, make sure your `compileSdkVersion` is set to 26 or higher and buildToolsVersion is "26.0.2" or higher
+class MainApplication : Application(), ReactApplication {
 
+  override fun onCreate() {
+    super.onCreate()
+    ...
+     Marigold().startEngine(this, SDK_KEY) // Obtain SDK key from your Marigold app settings
+    ...
+  }
 
-Note: You may see an error about missing bundle on Android if you don't have the server running first. You an start the server by running `react-native start` and relaunch from Android Studio.
-
-For push set up, follow the usual [Android Integration](https://docs.mobile.sailthru.com/docs/android-integration) documentation.
+}
+```
 
 ## Example
 
@@ -131,7 +87,7 @@ You can setup the project locally for development and running the test suites.
 You will need the following things installed on your system.
 
 * [Git](https://git-scm.com/)
-* [Node.js](https://nodejs.org/) (v18.8.0)
+* [Node.js](https://nodejs.org/) (v24.12.0)
 * [Yarn](https://yarnpkg.com/)
 * [Android Studio](https://developer.android.com/studio)
 * [Xcode](https://developer.apple.com/xcode/)

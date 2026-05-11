@@ -1,25 +1,16 @@
 package com.marigold.rnsdk
 
-import android.app.Activity
 import android.location.Location
 import androidx.annotation.VisibleForTesting
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
+import com.marigold.rnsdk.ErrorCodes.Companion.ERROR_CODE_DEVICE
 import com.marigold.sdk.Marigold
 import java.lang.reflect.InvocationTargetException
 
-/**
- * React native module for the Marigold SDK.
- */
-class RNMarigoldModuleImpl(private val reactContext: ReactApplicationContext) {
+class RNMarigoldModule(private val reactContext: ReactApplicationContext) : NativeRNMarigoldSpec(reactContext) {
 
     companion object {
-        const val ERROR_CODE_DEVICE = "marigold.device"
-        const val ERROR_CODE_MESSAGES = "marigold.messages"
-        const val ERROR_CODE_TRACKING = "marigold.tracking"
-        const val ERROR_CODE_VARS = "marigold.vars"
-        const val ERROR_CODE_PURCHASE = "marigold.purchase"
-        const val MESSAGE_ID = "id"
         const val NAME = "RNMarigold"
         fun setWrapperInfo() {
             try {
@@ -28,7 +19,7 @@ class RNMarigoldModuleImpl(private val reactContext: ReactApplicationContext) {
                 val setWrapperMethod = companionClass.getDeclaredMethod("setWrapper", *cArg)
 
                 setWrapperMethod.isAccessible = true
-                setWrapperMethod.invoke(Marigold.Companion, "React Native", "17.0.0")
+                setWrapperMethod.invoke(Marigold.Companion, "React Native", "18.0.0")
             } catch (e: NoSuchMethodException) {
                 e.printStackTrace()
             } catch (e: IllegalAccessException) {
@@ -46,28 +37,19 @@ class RNMarigoldModuleImpl(private val reactContext: ReactApplicationContext) {
         setWrapperInfo()
     }
 
-    fun registerForPushNotifications() {
-        val activity = reactContext.currentActivity ?: return
-        marigold.requestNotificationPermission(activity)
+    override fun getName(): String {
+        return NAME
     }
 
-    fun syncNotificationSettings() {
-        marigold.syncNotificationSettings()
-    }
-
-    fun updateLocation(latitude: Double, longitude: Double) {
+    override fun updateLocation(lat: Double, lon: Double) {
         val location = Location("React-Native").apply {
-            this.latitude = latitude
-            this.longitude = longitude
+            latitude = lat
+            longitude = lon
         }
         marigold.updateLocation(location)
     }
 
-    fun logRegistrationEvent(userId: String?) {
-        marigold.logRegistrationEvent(userId)
-    }
-
-    fun getDeviceID(promise: Promise?) {
+    override fun getDeviceID(promise: Promise?) {
         promise ?: return
         marigold.getDeviceId(object : Marigold.MarigoldHandler<String?> {
             override fun onSuccess(value: String?) {
@@ -80,11 +62,7 @@ class RNMarigoldModuleImpl(private val reactContext: ReactApplicationContext) {
         })
     }
 
-    fun setInAppNotificationsEnabled(enabled: Boolean) {
-        marigold.setInAppNotificationsEnabled(enabled)
-    }
-
-    fun setGeoIPTrackingEnabled(enabled: Boolean, promise: Promise?) {
+    override fun setGeoIPTrackingEnabled(enabled: Boolean, promise: Promise?) {
         marigold.setGeoIpTrackingEnabled(enabled, object : Marigold.MarigoldHandler<Void?> {
             override fun onSuccess(value: Void?) {
                 promise?.resolve(true)
@@ -96,8 +74,20 @@ class RNMarigoldModuleImpl(private val reactContext: ReactApplicationContext) {
         })
     }
 
-    @Suppress("unused", "unused_parameter")
-    fun setCrashHandlersEnabled(enabled: Boolean) {
+    override fun setCrashHandlersEnabled(enabled: Boolean) {
         // noop. It's here to share signatures with iOS.
+    }
+
+    override fun registerForPushNotifications() {
+        val activity = reactContext.currentActivity ?: return
+        marigold.requestNotificationPermission(activity)
+    }
+
+    override fun syncNotificationSettings() {
+        marigold.syncNotificationSettings()
+    }
+
+    override fun setInAppNotificationsEnabled(enabled: Boolean) {
+        marigold.setInAppNotificationsEnabled(enabled)
     }
 }

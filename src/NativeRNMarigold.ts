@@ -6,7 +6,6 @@ export interface Spec extends TurboModule {
   getDeviceID(): Promise<string>;  
   setGeoIPTrackingEnabled(enabled: boolean): Promise<null>;
   setCrashHandlersEnabled(enabled: boolean): void;
-  logRegistrationEvent(userId: string | null): void; 
   registerForPushNotifications(): void;
   syncNotificationSettings(): void;
   setInAppNotificationsEnabled(enabled: boolean): void;

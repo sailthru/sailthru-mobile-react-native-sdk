@@ -5,6 +5,10 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
+import com.marigold.rnsdk.ErrorCodes.Companion.ERROR_CODE_DEVICE
+import com.marigold.rnsdk.ErrorCodes.Companion.ERROR_CODE_PURCHASE
+import com.marigold.rnsdk.ErrorCodes.Companion.ERROR_CODE_TRACKING
+import com.marigold.rnsdk.ErrorCodes.Companion.ERROR_CODE_VARS
 import com.marigold.sdk.EngageBySailthru
 import com.marigold.sdk.Marigold
 import com.marigold.sdk.enums.MergeRules
@@ -69,20 +73,17 @@ class RNEngageBySailthruModuleTest {
     private lateinit var uriListCaptor: ArgumentCaptor<List<URI>>
 
     private lateinit var rnEngageBySailthruModule: RNEngageBySailthruModule
-    private lateinit var rnEngageBySailthruModuleImplSpy: RNEngageBySailthruModuleImpl
 
     private val date1 = Date()
-    private val date2 = Date().apply { time = time + 1234 }
+    private val date2 = Date().apply { time += 1234 }
 
     @Before
     fun setup() {
-        rnEngageBySailthruModule = RNEngageBySailthruModule(mockContext)
-        rnEngageBySailthruModule.rnEngageBySailthruModuleImpl.jsonConverter = jsonConverter
-        rnEngageBySailthruModuleImplSpy = Mockito.spy(rnEngageBySailthruModule.rnEngageBySailthruModuleImpl)
-        rnEngageBySailthruModule.rnEngageBySailthruModuleImpl = rnEngageBySailthruModuleImplSpy
+        rnEngageBySailthruModule = Mockito.spy(RNEngageBySailthruModule(mockContext))
+        rnEngageBySailthruModule.jsonConverter = jsonConverter
         // Mock instance creation of EngageBySailthru to return the mocked instance
-        doReturn(engage).whenever(rnEngageBySailthruModuleImplSpy).createEngageBySailthru()
-        doReturn(engage).whenever(rnEngageBySailthruModuleImplSpy).createEngageBySailthru(promise)
+        doReturn(engage).whenever(rnEngageBySailthruModule).createEngageBySailthru()
+        doReturn(engage).whenever(rnEngageBySailthruModule).createEngageBySailthru(promise)
     }
 
     @Test
@@ -146,7 +147,7 @@ class RNEngageBySailthruModuleTest {
 
         // Test error handler
         clearHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_DEVICE, errorMessage)
+        verify(promise).reject(ERROR_CODE_DEVICE, errorMessage)
     }
 
     @Test
@@ -184,7 +185,7 @@ class RNEngageBySailthruModuleTest {
         handler.onSuccess()
         verify(promise).resolve(null)
         handler.onFailure(error)
-        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_DEVICE, error.message)
+        verify(promise).reject(ERROR_CODE_DEVICE, error.message)
     }
 
     @Test
@@ -201,7 +202,7 @@ class RNEngageBySailthruModuleTest {
         handler.onSuccess()
         verify(promise).resolve(null)
         handler.onFailure(error)
-        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_DEVICE, error.message)
+        verify(promise).reject(ERROR_CODE_DEVICE, error.message)
     }
 
     @Test
@@ -226,7 +227,7 @@ class RNEngageBySailthruModuleTest {
 
         // Test error handler
         attributesHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_DEVICE, errorMessage)
+        verify(promise).reject(ERROR_CODE_DEVICE, errorMessage)
     }
 
     @Test
@@ -250,7 +251,7 @@ class RNEngageBySailthruModuleTest {
 
         // Test error handler
         handler.onFailure(error)
-        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_DEVICE, errorMessage)
+        verify(promise).reject(ERROR_CODE_DEVICE, errorMessage)
     }
 
     @Test
@@ -274,7 +275,7 @@ class RNEngageBySailthruModuleTest {
 
         // Test error handler
         handler.onFailure(error)
-        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_DEVICE, errorMessage)
+        verify(promise).reject(ERROR_CODE_DEVICE, errorMessage)
     }
 
     @Test
@@ -299,7 +300,7 @@ class RNEngageBySailthruModuleTest {
         trackHandler.onSuccess()
         verify(promise).resolve(true)
         trackHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_TRACKING, error.message)
+        verify(promise).reject(ERROR_CODE_TRACKING, error.message)
     }
 
     @Test
@@ -312,7 +313,7 @@ class RNEngageBySailthruModuleTest {
         rnEngageBySailthruModule.trackClick(sectionID, urlString, promise)
 
         // Verify result
-        verify(promise).reject(eq(RNMarigoldModuleImpl.ERROR_CODE_TRACKING), ArgumentMatchers.anyString())
+        verify(promise).reject(eq(ERROR_CODE_TRACKING), ArgumentMatchers.anyString())
         verify(engage, Mockito.times(0)).trackClick(any(), any(), any())
     }
 
@@ -346,7 +347,7 @@ class RNEngageBySailthruModuleTest {
         trackHandler.onSuccess()
         verify(promise).resolve(true)
         trackHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_TRACKING, error.message)
+        verify(promise).reject(ERROR_CODE_TRACKING, error.message)
     }
 
     @Test
@@ -370,7 +371,7 @@ class RNEngageBySailthruModuleTest {
         rnEngageBySailthruModule.trackPageview(urlString, null, promise)
 
         // Verify result
-        verify(promise).reject(eq(RNMarigoldModuleImpl.ERROR_CODE_TRACKING), ArgumentMatchers.anyString())
+        verify(promise).reject(eq(ERROR_CODE_TRACKING), ArgumentMatchers.anyString())
         verify(engage, Mockito.times(0)).trackPageview(any(), ArgumentMatchers.anyList(), any())
     }
 
@@ -401,7 +402,7 @@ class RNEngageBySailthruModuleTest {
         trackHandler.onSuccess()
         verify(promise).resolve(true)
         trackHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_TRACKING, error.message)
+        verify(promise).reject(ERROR_CODE_TRACKING, error.message)
     }
 
     @Test
@@ -431,7 +432,7 @@ class RNEngageBySailthruModuleTest {
         rnEngageBySailthruModule.trackImpression(sectionID, readableArray, promise)
 
         // Verify result
-        verify(promise).reject(eq(RNMarigoldModuleImpl.ERROR_CODE_TRACKING), ArgumentMatchers.anyString())
+        verify(promise).reject(eq(ERROR_CODE_TRACKING), ArgumentMatchers.anyString())
         verify(engage, Mockito.times(0)).trackImpression(any(), any(), any())
     }
 
@@ -463,7 +464,7 @@ class RNEngageBySailthruModuleTest {
 
         // Test error handler
         setVarsHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_VARS, errorMessage)
+        verify(promise).reject(ERROR_CODE_VARS, errorMessage)
     }
 
     @Test
@@ -480,7 +481,7 @@ class RNEngageBySailthruModuleTest {
         rnEngageBySailthruModule.setProfileVars(vars, promise)
 
         // Verify result
-        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_VARS, jsonException.message)
+        verify(promise).reject(ERROR_CODE_VARS, jsonException.message)
         verify(engage, Mockito.times(0)).setProfileVars(any(), any())
     }
 
@@ -512,7 +513,7 @@ class RNEngageBySailthruModuleTest {
 
         // Test error handler
         getVarsHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_VARS, errorMessage)
+        verify(promise).reject(ERROR_CODE_VARS, errorMessage)
     }
 
     @Test
@@ -523,7 +524,7 @@ class RNEngageBySailthruModuleTest {
         val error: Error = mock()
 
         // Mock methods
-        doReturn(purchase).whenever(rnEngageBySailthruModuleImplSpy).getPurchaseInstance(purchaseMap, promise)
+        doReturn(purchase).whenever(rnEngageBySailthruModule).getPurchaseInstance(purchaseMap, promise)
 
         // Initiate test
         rnEngageBySailthruModule.logPurchase(purchaseMap, promise)
@@ -542,7 +543,7 @@ class RNEngageBySailthruModuleTest {
 
         // Test error handler
         purchaseHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_PURCHASE, errorMessage)
+        verify(promise).reject(ERROR_CODE_PURCHASE, errorMessage)
     }
 
     @Test
@@ -552,12 +553,12 @@ class RNEngageBySailthruModuleTest {
         val jsonException = JSONException("test exception")
 
         // Mock methods
-        doThrow(jsonException).whenever(rnEngageBySailthruModuleImplSpy).getPurchaseInstance(purchaseMap, promise)
+        doThrow(jsonException).whenever(rnEngageBySailthruModule).getPurchaseInstance(purchaseMap, promise)
 
         // Initiate test
         assertThrows(JSONException::class.java) {
             rnEngageBySailthruModule.logPurchase(purchaseMap, promise)
-            verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_PURCHASE, jsonException.message)
+            verify(promise).reject(ERROR_CODE_PURCHASE, jsonException.message)
         }
         // Verify result
         verify(engage, Mockito.times(0)).logPurchase(any(), any())
@@ -571,7 +572,7 @@ class RNEngageBySailthruModuleTest {
         val error: Error = mock()
 
         // Mock methods
-        doReturn(purchase).whenever(rnEngageBySailthruModuleImplSpy).getPurchaseInstance(purchaseMap, promise)
+        doReturn(purchase).whenever(rnEngageBySailthruModule).getPurchaseInstance(purchaseMap, promise)
 
         // Initiate test
         rnEngageBySailthruModule.logAbandonedCart(purchaseMap, promise)
@@ -590,7 +591,7 @@ class RNEngageBySailthruModuleTest {
 
         // Test error handler
         purchaseHandler.onFailure(error)
-        verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_PURCHASE, errorMessage)
+        verify(promise).reject(ERROR_CODE_PURCHASE, errorMessage)
     }
 
     @Test
@@ -600,12 +601,12 @@ class RNEngageBySailthruModuleTest {
         val jsonException = JSONException("test exception")
 
         // Mock methods
-        doThrow(jsonException).whenever(rnEngageBySailthruModuleImplSpy).getPurchaseInstance(purchaseMap, promise)
+        doThrow(jsonException).whenever(rnEngageBySailthruModule).getPurchaseInstance(purchaseMap, promise)
 
         // Initiate test
         assertThrows(JSONException::class.java) {
             rnEngageBySailthruModule.logAbandonedCart(purchaseMap, promise)
-            verify(promise).reject(RNMarigoldModuleImpl.ERROR_CODE_PURCHASE, jsonException.message)
+            verify(promise).reject(ERROR_CODE_PURCHASE, jsonException.message)
         }
         // Verify result
         verify(engage, Mockito.times(0)).logAbandonedCart(any(), any() as Marigold.MarigoldHandler<Void?>?)
@@ -619,7 +620,7 @@ class RNEngageBySailthruModuleTest {
         doReturn(purchaseJson).whenever(jsonConverter).convertMapToJson(readableMap, false)
 
         // Initiate test
-        val purchase: Purchase? = rnEngageBySailthruModuleImplSpy.getPurchaseInstance(readableMap, promise)
+        val purchase: Purchase? = rnEngageBySailthruModule.getPurchaseInstance(readableMap, promise)
 
         // Verify result
         verify(jsonConverter).convertMapToJson(readableMap, false)
@@ -642,7 +643,7 @@ class RNEngageBySailthruModuleTest {
         doReturn(purchaseJson).whenever(jsonConverter).convertMapToJson(readableMap, false)
 
         // Initiate test
-        val purchase = rnEngageBySailthruModuleImplSpy.getPurchaseInstance(readableMap, promise)
+        val purchase = rnEngageBySailthruModule.getPurchaseInstance(readableMap, promise)
 
         // Verify result
         verify(jsonConverter).convertMapToJson(readableMap, false)
@@ -665,7 +666,7 @@ class RNEngageBySailthruModuleTest {
         doReturn(attributeJson).whenever(jsonConverter).convertMapToJson(readableMap)
 
         // Initiate test
-        val attributeMap = rnEngageBySailthruModuleImplSpy.getAttributeMap(readableMap)
+        val attributeMap = rnEngageBySailthruModule.getAttributeMap(readableMap)
 
         // Verify result
         verify(jsonConverter).convertMapToJson(readableMap)
