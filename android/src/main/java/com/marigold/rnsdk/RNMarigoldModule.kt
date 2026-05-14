@@ -19,7 +19,7 @@ class RNMarigoldModule(private val reactContext: ReactApplicationContext) : Nati
                 val setWrapperMethod = companionClass.getDeclaredMethod("setWrapper", *cArg)
 
                 setWrapperMethod.isAccessible = true
-                setWrapperMethod.invoke(Marigold.Companion, "React Native", "18.0.0")
+                setWrapperMethod.invoke(Marigold.Companion, "React Native", "18.0.1")
             } catch (e: NoSuchMethodException) {
                 e.printStackTrace()
             } catch (e: IllegalAccessException) {

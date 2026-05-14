@@ -36,8 +36,9 @@ target "MarigoldSDKReactNative" do
       :mac_catalyst_enabled => false
     )
     installer.pods_project.targets.each do |target|
-      if target.name == 'fmt'
-        target.build_configurations.each do |config|
+      target.build_configurations.each do |config|
+        config.build_settings['SWIFT_VERSION'] = '5.0'
+        if target.name == 'fmt'
           config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
         end
       end
