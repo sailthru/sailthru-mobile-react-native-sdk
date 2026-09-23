@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
 
   s.authors      = package['author']
   s.homepage     = package['homepage']
-  s.platforms    = { :ios => "15.6" }
+  s.platforms    = { :ios => "17.6" }
 
   s.source       = { :git => "https://github.com/sailthru/sailthru-mobile-react-native-sdk.git", :tag => "v#{s.version}" }
   s.source_files = "ios/**/*.{h,m,mm,cpp}"
