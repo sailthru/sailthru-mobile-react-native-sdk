@@ -25,13 +25,13 @@
   "name": "react-native-marigold",
   "optionalDependencies": {},
   "peerDependencies": {
-    "react-native": ">=0.76.0"
+    "react-native": ">=0.80.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sailthru/sailthru-mobile-react-native-sdk.git"
   },
-  "version": "18.0.1",
+  "version": "19.0.0",
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.25.3",
