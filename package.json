@@ -25,7 +25,7 @@
   "name": "react-native-marigold",
   "optionalDependencies": {},
   "peerDependencies": {
-    "react-native": ">=0.76.0"
+    "react-native": ">=0.80.0"
   },
   "repository": {
     "type": "git",

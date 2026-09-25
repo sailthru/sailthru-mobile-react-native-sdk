@@ -10,7 +10,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:8.12.0"
+        classpath "com.android.tools.build:gradle:9.1.1"
         // noinspection DifferentKotlinGradleVersion
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.facebook.react:react-native-gradle-plugin"
@@ -19,7 +19,6 @@ buildscript {
 
 apply plugin: "com.android.library"
 apply plugin: "com.facebook.react"
-apply plugin: "kotlin-android"
 
 def getExtOrIntegerDefault(name) {
     return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties["MarigoldRNSDK_" + name]).toInteger()
@@ -41,7 +40,6 @@ android {
     }
 
     compileSdkVersion getExtOrIntegerDefault("compileSdkVersion")
-    compileSdkMinor getExtOrIntegerDefault("compileSdkMinor")
 
     defaultConfig {
         minSdkVersion getExtOrIntegerDefault("minSdkVersion")
@@ -64,10 +62,6 @@ android {
             }
         }
     }
-
-    kotlinOptions {
-        jvmTarget = "17"
-    }
 }
 
 android.sourceSets.main.java.srcDir('generated/java')
@@ -86,10 +80,10 @@ dependencies {
     api "com.facebook.react:react-android:+"
     api "com.marigold.sdk:marigold:27.0.2"
 
-    testImplementation 'org.mockito.kotlin:mockito-kotlin:6.3.0'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:6.4.0'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-inline:5.2.0'
-    testImplementation 'org.json:json:20251224'
+    testImplementation 'org.json:json:20260814'
 }
 
 react {
