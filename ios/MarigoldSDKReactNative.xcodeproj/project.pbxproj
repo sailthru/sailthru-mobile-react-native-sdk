@@ -7,13 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		49144354C21D4B52E09BFF8B /* libPods-MarigoldSDKReactNative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C524A33DA8FC0A5189C0468 /* libPods-MarigoldSDKReactNative.a */; };
+		28A3369F8F0AB50873F44DF4 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A833BF1DA7F015714F10E881 /* UserNotifications.framework */; };
+		4C7467B6657D20C133E7080F /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 76C324526E06D217DE7EF7D0 /* CoreLocation.framework */; };
+		7FCB589A53B8A45992B093DC /* Pods_MarigoldSDKReactNative_MarigoldSDKReactNativeTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB11C1288E964559FB753F0D /* Pods_MarigoldSDKReactNative_MarigoldSDKReactNativeTests.framework */; };
 		B934F55A23EA1EE3009DE68E /* RNMarigoldTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = B934F55823EA1EE3009DE68E /* RNMarigoldTests.mm */; };
-		C6EDFD697D061F17195EEBD5 /* libPods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF9E4D34CEC7B60EA77A6DF5 /* libPods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.a */; };
 		E282D1A92B8581F300EECE61 /* RNEngageBySailthruTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = E282D1A82B8581F300EECE61 /* RNEngageBySailthruTests.mm */; };
 		E2B0BA3B2B96BFE7008A982B /* RNMessageStreamTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = E2B0BA362B96ABB4008A982B /* RNMessageStreamTests.mm */; };
+		EF9B9CC77184944524BA4FDC /* Pods_MarigoldSDKReactNative.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7066307524497010A8B1FFCC /* Pods_MarigoldSDKReactNative.framework */; };
 		FA09EC972F87639B00CB8B32 /* RNCheetah.mm in Sources */ = {isa = PBXBuildFile; fileRef = FA09EC962F87639B00CB8B32 /* RNCheetah.mm */; };
 		FA09EC992F8769F600CB8B32 /* RNCheetahTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = FA09EC982F8769F600CB8B32 /* RNCheetahTests.mm */; };
+		FA50AC32306C916C0057AB83 /* Marigold in Frameworks */ = {isa = PBXBuildFile; productRef = 159859A402E755359D494A0D /* Marigold */; };
+		FA50AC33306C916C0057AB83 /* MarigoldExtension in Frameworks */ = {isa = PBXBuildFile; productRef = CFA93ACDC91B0FB965A6ED78 /* MarigoldExtension */; };
+		FA50AC34306C916C0057AB83 /* Marigold in Frameworks */ = {isa = PBXBuildFile; productRef = 2D8510DF131D5A1B39940468 /* Marigold */; };
+		FA50AC35306C916C0057AB83 /* MarigoldExtension in Frameworks */ = {isa = PBXBuildFile; productRef = A210635F355697E7772CA602 /* MarigoldExtension */; };
 		FAD26B542D1261C2000CBDE7 /* RNEngageBySailthru.mm in Sources */ = {isa = PBXBuildFile; fileRef = E282D1AA2B85824300EECE61 /* RNEngageBySailthru.mm */; };
 		FAD26B552D1261C2000CBDE7 /* RNMarigold.mm in Sources */ = {isa = PBXBuildFile; fileRef = B934F55323EA1E68009DE68E /* RNMarigold.mm */; };
 		FAD26B572D1261C2000CBDE7 /* RNMessageStream.mm in Sources */ = {isa = PBXBuildFile; fileRef = E2B0BA342B96A87D008A982B /* RNMessageStream.mm */; };
@@ -35,13 +41,15 @@
 /* Begin PBXFileReference section */
 		25517F88D87B3F4F46BEC852 /* Pods-MarigoldSDKReactNative.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarigoldSDKReactNative.release.xcconfig"; path = "Target Support Files/Pods-MarigoldSDKReactNative/Pods-MarigoldSDKReactNative.release.xcconfig"; sourceTree = "<group>"; };
 		64BC6B221EE86DE003751766 /* Pods-MarigoldSDKReactNativeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarigoldSDKReactNativeTests.debug.xcconfig"; path = "Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests.debug.xcconfig"; sourceTree = "<group>"; };
-		6C524A33DA8FC0A5189C0468 /* libPods-MarigoldSDKReactNative.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MarigoldSDKReactNative.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7066307524497010A8B1FFCC /* Pods_MarigoldSDKReactNative.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MarigoldSDKReactNative.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7388405E8688C3BE22E9805D /* Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.debug.xcconfig"; path = "Target Support Files/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.debug.xcconfig"; sourceTree = "<group>"; };
+		76C324526E06D217DE7EF7D0 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		A3DBD6F0BEBC8CDC0CBDFC03 /* Pods-MarigoldSDKReactNativeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarigoldSDKReactNativeTests.release.xcconfig"; path = "Target Support Files/Pods-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNativeTests.release.xcconfig"; sourceTree = "<group>"; };
+		A833BF1DA7F015714F10E881 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		B934F55123EA1E67009DE68E /* RNMarigold.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNMarigold.h; sourceTree = "<group>"; };
 		B934F55323EA1E68009DE68E /* RNMarigold.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RNMarigold.mm; sourceTree = "<group>"; };
 		B934F55823EA1EE3009DE68E /* RNMarigoldTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RNMarigoldTests.mm; sourceTree = "<group>"; };
-		CF9E4D34CEC7B60EA77A6DF5 /* libPods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB11C1288E964559FB753F0D /* Pods_MarigoldSDKReactNative_MarigoldSDKReactNativeTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MarigoldSDKReactNative_MarigoldSDKReactNativeTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E282D1A82B8581F300EECE61 /* RNEngageBySailthruTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RNEngageBySailthruTests.mm; sourceTree = "<group>"; };
 		E282D1AA2B85824300EECE61 /* RNEngageBySailthru.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RNEngageBySailthru.mm; sourceTree = "<group>"; };
 		E282D1AC2B85825400EECE61 /* RNEngageBySailthru.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNEngageBySailthru.h; sourceTree = "<group>"; };
@@ -64,8 +72,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA50AC33306C916C0057AB83 /* MarigoldExtension in Frameworks */,
+				FA50AC32306C916C0057AB83 /* Marigold in Frameworks */,
 				FAD26B592D127044000CBDE7 /* Foundation.framework in Frameworks */,
-				49144354C21D4B52E09BFF8B /* libPods-MarigoldSDKReactNative.a in Frameworks */,
+				EF9B9CC77184944524BA4FDC /* Pods_MarigoldSDKReactNative.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -73,19 +83,33 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C6EDFD697D061F17195EEBD5 /* libPods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.a in Frameworks */,
+				FA50AC35306C916C0057AB83 /* MarigoldExtension in Frameworks */,
+				FA50AC34306C916C0057AB83 /* Marigold in Frameworks */,
+				4C7467B6657D20C133E7080F /* CoreLocation.framework in Frameworks */,
+				28A3369F8F0AB50873F44DF4 /* UserNotifications.framework in Frameworks */,
+				7FCB589A53B8A45992B093DC /* Pods_MarigoldSDKReactNative_MarigoldSDKReactNativeTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0D30E1BFE57431624F816A00 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				76C324526E06D217DE7EF7D0 /* CoreLocation.framework */,
+				A833BF1DA7F015714F10E881 /* UserNotifications.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
 		ED2C36BC0E717A5C93B654B9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				FAD26B582D127044000CBDE7 /* Foundation.framework */,
-				6C524A33DA8FC0A5189C0468 /* libPods-MarigoldSDKReactNative.a */,
-				CF9E4D34CEC7B60EA77A6DF5 /* libPods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests.a */,
+				0D30E1BFE57431624F816A00 /* iOS */,
+				7066307524497010A8B1FFCC /* Pods_MarigoldSDKReactNative.framework */,
+				BB11C1288E964559FB753F0D /* Pods_MarigoldSDKReactNative_MarigoldSDKReactNativeTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -167,6 +191,10 @@
 			dependencies = (
 			);
 			name = MarigoldSDKReactNative;
+			packageProductDependencies = (
+				159859A402E755359D494A0D /* Marigold */,
+				CFA93ACDC91B0FB965A6ED78 /* MarigoldExtension */,
+			);
 			productName = CarnivalSDKReactNative;
 			productReference = FA5EF5A7213F41AF00D9E6A9 /* libMarigoldSDKReactNative.a */;
 			productType = "com.apple.product-type.library.static";
@@ -175,6 +203,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FA5EF5C3213F433200D9E6A9 /* Build configuration list for PBXNativeTarget "MarigoldSDKReactNativeTests" */;
 			buildPhases = (
+				CBA1F8047EAA4BDCA2BF3200 /* Check Marigold SDK Version */,
 				0C2D7AE8AD14D14C706564A6 /* [CP] Check Pods Manifest.lock */,
 				FA5EF5B7213F433200D9E6A9 /* Sources */,
 				FA5EF5B8213F433200D9E6A9 /* Frameworks */,
@@ -187,6 +216,10 @@
 			dependencies = (
 			);
 			name = MarigoldSDKReactNativeTests;
+			packageProductDependencies = (
+				2D8510DF131D5A1B39940468 /* Marigold */,
+				A210635F355697E7772CA602 /* MarigoldExtension */,
+			);
 			productName = CarnivalSDKReactNativeTests;
 			productReference = FA5EF5BB213F433200D9E6A9 /* MarigoldSDKReactNativeTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -216,6 +249,9 @@
 				en,
 			);
 			mainGroup = FA5EF59E213F41AF00D9E6A9;
+			packageReferences = (
+				6FEF09DAE96687B0C0E73F0B /* XCRemoteSwiftPackageReference "sailthru-mobile-ios-sdk" */,
+			);
 			productRefGroup = FA5EF5A8213F41AF00D9E6A9 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -281,6 +317,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		CBA1F8047EAA4BDCA2BF3200 /* Check Marigold SDK Version */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.marigold-ios-version",
+				"$(SRCROOT)/check-marigold-version.rb",
+				"$(SRCROOT)/MarigoldSDKReactNative.xcodeproj/project.pbxproj",
+				"$(SRCROOT)/MarigoldSDKReactNative.xcworkspace/xcshareddata/swiftpm/Package.resolved",
+			);
+			name = "Check Marigold SDK Version";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "ruby \"${SRCROOT}/check-marigold-version.rb\"\n";
+		};
 		D2C9B1B49761852FFB23457B /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -289,9 +343,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -306,9 +364,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -397,6 +459,21 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_ROOT}/ReactCommon",
+					"${PODS_ROOT}/ReactCommon/react/nativemodule/core",
+					"${PODS_ROOT}/React-runtimeexecutor",
+					"${PODS_ROOT}/React-runtimeexecutor/platform/ios",
+					"${PODS_ROOT}/ReactCommon-Samples",
+					"${PODS_ROOT}/ReactCommon-Samples/platform/ios",
+					"${PODS_ROOT}/React-Fabric/react/renderer/components/view/platform/cxx",
+					"${PODS_ROOT}/React-NativeModulesApple",
+					"${PODS_ROOT}/React-graphics",
+					"${PODS_ROOT}/React-graphics/react/renderer/graphics/platform/ios",
+					"${PODS_ROOT}/React-featureflags",
+					"${PODS_ROOT}/React-renderercss",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD = "";
 				LDPLUSPLUS = "";
@@ -410,10 +487,7 @@
 					"$(inherited)",
 					"-DRCT_REMOVE_LEGACY_ARCH=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -470,6 +544,21 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_ROOT}/ReactCommon",
+					"${PODS_ROOT}/ReactCommon/react/nativemodule/core",
+					"${PODS_ROOT}/React-runtimeexecutor",
+					"${PODS_ROOT}/React-runtimeexecutor/platform/ios",
+					"${PODS_ROOT}/ReactCommon-Samples",
+					"${PODS_ROOT}/ReactCommon-Samples/platform/ios",
+					"${PODS_ROOT}/React-Fabric/react/renderer/components/view/platform/cxx",
+					"${PODS_ROOT}/React-NativeModulesApple",
+					"${PODS_ROOT}/React-graphics",
+					"${PODS_ROOT}/React-graphics/react/renderer/graphics/platform/ios",
+					"${PODS_ROOT}/React-featureflags",
+					"${PODS_ROOT}/React-renderercss",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD = "";
 				LDPLUSPLUS = "";
@@ -482,10 +571,7 @@
 					"$(inherited)",
 					"-DRCT_REMOVE_LEGACY_ARCH=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
@@ -605,6 +691,40 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		6FEF09DAE96687B0C0E73F0B /* XCRemoteSwiftPackageReference "sailthru-mobile-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sailthru/sailthru-mobile-ios-sdk.git";
+			requirement = {
+				kind = exactVersion;
+				version = 20.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		159859A402E755359D494A0D /* Marigold */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6FEF09DAE96687B0C0E73F0B /* XCRemoteSwiftPackageReference "sailthru-mobile-ios-sdk" */;
+			productName = Marigold;
+		};
+		2D8510DF131D5A1B39940468 /* Marigold */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6FEF09DAE96687B0C0E73F0B /* XCRemoteSwiftPackageReference "sailthru-mobile-ios-sdk" */;
+			productName = Marigold;
+		};
+		A210635F355697E7772CA602 /* MarigoldExtension */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6FEF09DAE96687B0C0E73F0B /* XCRemoteSwiftPackageReference "sailthru-mobile-ios-sdk" */;
+			productName = MarigoldExtension;
+		};
+		CFA93ACDC91B0FB965A6ED78 /* MarigoldExtension */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6FEF09DAE96687B0C0E73F0B /* XCRemoteSwiftPackageReference "sailthru-mobile-ios-sdk" */;
+			productName = MarigoldExtension;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FA5EF59F213F41AF00D9E6A9 /* Project object */;
 }

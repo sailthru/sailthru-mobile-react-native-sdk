@@ -5,15 +5,12 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
-marigold_version = File.read(File.join(__dir__, '.marigold-ios-version'))
-
 # Uncomment the next line to define a global platform for your project
 platform :ios, '17.6'
 prepare_react_native_project!
 
 target "MarigoldSDKReactNative" do
-  # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
-  # use_frameworks!
+  use_frameworks! :linkage => :dynamic
   config = use_native_modules!
   use_react_native!(
     :path => config[:reactNativePath],
@@ -22,9 +19,6 @@ target "MarigoldSDKReactNative" do
 
   target "MarigoldSDKReactNativeTests" do
     # Pods for testing
-    pod "Marigold", marigold_version
-    pod "Marigold-Extension", marigold_version
-
     pod "Kiwi", "2.4.0"
     pod "OCMock", "3.1.2"
   end
