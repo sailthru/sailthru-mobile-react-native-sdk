@@ -4,8 +4,8 @@ PODS:
     - hermes-engine/Pre-built (= 250829098.0.10)
   - hermes-engine/Pre-built (250829098.0.10)
   - Kiwi (2.4.0)
-  - Marigold (19.0.0)
-  - Marigold-Extension (19.0.0)
+  - Marigold (20.0.0)
+  - Marigold-Extension (20.0.0)
   - OCMock (3.1.2)
   - RCTDeprecation (0.85.3)
   - RCTRequired (0.85.3)
@@ -1797,8 +1797,8 @@ DEPENDENCIES:
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - Kiwi (= 2.4.0)
-  - Marigold (= 19.0.0)
-  - Marigold-Extension (= 19.0.0)
+  - Marigold (= 20.0.0)
+  - Marigold-Extension (= 20.0.0)
   - OCMock (= 3.1.2)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
   - RCTRequired (from `../node_modules/react-native/Libraries/Required`)
@@ -2036,8 +2036,8 @@ SPEC CHECKSUMS:
   FBLazyVector: 24e62c765683b8d89006a88a2c8f5cf019f0074d
   hermes-engine: c73e373b3a778d5cf74c2316d3528f2a2493517a
   Kiwi: f49c9d54b28917df5928fe44968a39ed198cb8a8
-  Marigold: 4897c4b4ae812a5fe4a33112157dac6f5282f0ab
-  Marigold-Extension: 9bc3664c8e211405c1398fcf140e091072ae0ef2
+  Marigold: 742d33e9ef534b533f0a06c95ba66ac7c5203757
+  Marigold-Extension: dcf33a566cb2b92d6cdc194b2b67c884ef343ad0
   OCMock: a10ea9f0a6e921651f96f78b6faee95ebc813b92
   RCTDeprecation: a4c521821fab57cbb125b36effe84d897d0dfa12
   RCTRequired: 9f3a7e5645d4bc3f551593de7550bb66ab6e42bc
@@ -2112,6 +2112,6 @@ SPEC CHECKSUMS:
   ReactNativeDependencies: 7709b93c94e2ccfceba3ca63cd76a1fa46a3fc27
   Yoga: 77dfa8673de2874e1855002ae59c68b8be9b007b
 
-PODFILE CHECKSUM: 025caad5cbf1f6f882effbba6adac42797d4e822
+PODFILE CHECKSUM: 0435f57386a4c2c96bb86e4ba7059e3a72392d24
 
 COCOAPODS: 1.16.2
