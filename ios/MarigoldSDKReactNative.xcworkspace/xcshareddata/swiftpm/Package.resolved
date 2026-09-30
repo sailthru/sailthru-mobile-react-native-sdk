@@ -1,0 +1,15 @@
+{
+  "originHash" : "90d5f61c43a0cbb6d0a2a71afb85a047f836105c845c367af51ff91ca90e06a0",
+  "pins" : [
+    {
+      "identity" : "sailthru-mobile-ios-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sailthru/sailthru-mobile-ios-sdk.git",
+      "state" : {
+        "revision" : "4093abdf6419d65ff319b02092e0c9a38e701ea2",
+        "version" : "20.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}

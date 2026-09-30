@@ -1,7 +1,7 @@
 require 'json'
 
 package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
-marigold_version = File.read(File.join(__dir__, 'ios', '.marigold-ios-version'))
+marigold_version = File.read(File.join(__dir__, 'ios', '.marigold-ios-version')).strip
 
 Pod::Spec.new do |s|
   s.name         = package['name']
@@ -15,8 +15,11 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/sailthru/sailthru-mobile-react-native-sdk.git", :tag => "v#{s.version}" }
   s.source_files = "ios/**/*.{h,m,mm,cpp}"
 
-  s.dependency 'Marigold', marigold_version
-  s.dependency 'Marigold-Extension', marigold_version
+  spm_dependency(s,
+    url: 'https://github.com/sailthru/sailthru-mobile-ios-sdk.git',
+    requirement: { kind: 'exactVersion', version: marigold_version },
+    products: ['Marigold', 'MarigoldExtension']
+  )
 
   install_modules_dependencies(s)
 end

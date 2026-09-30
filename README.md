@@ -2,13 +2,21 @@
 
 Wraps the native Marigold SDK for React Native apps.
 
-> **Requires React Native New Architecture.** This SDK uses TurboModules and does not support the legacy architecture. Ensure New Architecture is enabled in your app before installing (React Native 0.76+).
+> **Requires React Native 0.80+ with New Architecture enabled.** This SDK uses TurboModules and does not support the legacy architecture.
 
 ## Installation
 
 `npm install react-native-marigold --save`
 
-Running `pod install` in the `ios` folder should set up everything you need on the iOS side. On the Android side the only manual step required involves adding our maven URL to the repositories in the app level `build.gradle`:
+For iOS:
+
+1. Enable dynamic frameworks in your app's Podfile with `use_frameworks! :linkage => :dynamic`, then run `pod install` in the `ios` folder.
+2. Open the app's `.xcworkspace` in Xcode and add the Swift package `https://github.com/sailthru/sailthru-mobile-ios-sdk.git`. Select the exact version in `node_modules/react-native-marigold/ios/.marigold-ios-version`.
+3. Add both `Marigold` and `MarigoldExtension` products to the **app target** under **Frameworks, Libraries, and Embedded Content**, with **Embed & Sign** selected.
+
+The podspec's `spm_dependency` links these products to the wrapper, but React Native does not add them to the app target automatically. The app target needs them to link native Marigold calls and embed the dynamic frameworks.
+
+On Android, add our Maven URL to the repositories in the app-level `build.gradle`:
 
 ```
 maven {
@@ -96,7 +104,7 @@ You will need the following things installed on your system.
 
 Run `yarn` in the project root to install the required node dependencies.
 
-Move into the `ios` folder and run `pod install --repo-update` to install the iOS dependencies, you can then open `MarigoldSDKReactNative.xcworkspace` in Xcode.
+Move into the `ios` folder and run `pod install --repo-update` to install React Native, Kiwi, and OCMock. Then open `MarigoldSDKReactNative.xcworkspace` in Xcode; the native Marigold SDK is resolved through Swift Package Manager for the wrapper and iOS tests. When upgrading the SDK, update the Xcode project's exact package version and resolve packages so `Package.resolved` matches `ios/.marigold-ios-version`. The test target checks both versions when it builds; you can also run `ruby ios/check-marigold-version.rb` from the repo root.
 
 Open the `android` folder in Android Studio and perform a gradle sync to install the Android dependencies.
 
