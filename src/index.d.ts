@@ -65,6 +65,8 @@ declare module 'react-native-marigold' {
     is_read: boolean;
     /** The time at which the message was created. */
     created_at?: string;
+    /** Raw campaign presentation settings. Use MessageStream.getMessagePresentationConfiguration to read validated settings. */
+    _st_inapp_presentation?: unknown;
   }
 
   export interface MessageStreamStatic {

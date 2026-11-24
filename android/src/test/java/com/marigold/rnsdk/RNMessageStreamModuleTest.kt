@@ -2,6 +2,8 @@ package com.marigold.rnsdk
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import com.facebook.react.bridge.ActivityEventListener
 import com.facebook.react.bridge.LifecycleEventListener
 import com.facebook.react.bridge.Promise
@@ -475,6 +477,45 @@ class RNMessageStreamModuleTest {
         Assert.assertEquals(false, second?.configuration?.showsCloseButton)
         rnMessageStreamModule.completePresentation("one", "handled", null)
         Assert.assertEquals(InAppPresentationAction.HANDLED, first?.action)
+    }
+
+    @Test
+    fun `invalidation discards queued and late presentation requests`() {
+        val module = RNMessageStreamModule(mockContext)
+        module.jsonConverter = jsonConverter
+        val stream = staticMessageStream.constructed().last()
+        val uiQueue = mutableListOf<Runnable>()
+        doAnswer { invocation ->
+            uiQueue.add(invocation.getArgument<Runnable>(0))
+            null
+        }.whenever(mockContext).runOnUiQueueThread(any())
+
+        module.setPresentationCallbacksEnabled(true, false)
+        uiQueue.removeAt(0).run()
+        val listener = argumentCaptor<MessageStream.OnInAppPresentationListener>()
+        verify(stream).setInAppNotificationPreparationListener(listener.capture())
+
+        val message: Message = mock()
+        val completion: InAppPresentationCompletion = mock()
+        val looper: Looper = mock()
+        Mockito.mockStatic(Looper::class.java).use { loopers ->
+            loopers.`when`<Looper> { Looper.getMainLooper() }.thenReturn(looper)
+            Mockito.mockConstruction(Handler::class.java).use {
+                listener.firstValue.prepare(message, "queued", completion)
+                Assert.assertEquals(1, uiQueue.size)
+                module.invalidate()
+                listener.firstValue.prepare(message, "late", completion)
+
+                Assert.assertEquals(2, uiQueue.size)
+                uiQueue.forEach { it.run() }
+            }
+        }
+
+        verify(stream).removeInAppNotificationPreparationListener(listener.firstValue)
+        Mockito.verifyNoInteractions(jsonConverter)
+        module.completePresentation("queued", "display", null)
+        module.completePresentation("late", "display", null)
+        Mockito.verifyNoInteractions(completion)
     }
 
     @Test

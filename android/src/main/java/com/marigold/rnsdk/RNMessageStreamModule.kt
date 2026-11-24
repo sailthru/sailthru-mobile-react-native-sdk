@@ -128,6 +128,7 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext) :
 
     @Synchronized
     private fun updatePresentationCallbacks(notification: Boolean, detail: Boolean) {
+        if (invalidated && (notification || detail)) return
         if (notification != notificationPreparationEnabled) {
             notificationPreparationEnabled = notification
             if (notification) messageStream.setInAppNotificationPreparationListener(notificationListener)
@@ -141,20 +142,27 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext) :
     }
 
     private fun emitPresentationRequest(kind: String, message: Message, id: String, completion: InAppPresentationCompletion) {
-        pendingPresentations[id] = completion
+        synchronized(this) {
+            if (invalidated) return
+            pendingPresentations[id] = completion
+        }
         // The native decision deadline is two seconds; discard abandoned bridge replies.
         mainHandler.postDelayed({ pendingPresentations.remove(id, completion) }, 2100)
         reactContext.runOnUiQueueThread {
-            if (!pendingPresentations.containsKey(id)) return@runOnUiQueueThread
+            if (invalidated || pendingPresentations[id] !== completion) return@runOnUiQueueThread
             try {
                 val event = jsonConverter.createNativeMap().apply {
                     putString("requestId", id)
                     putString("kind", kind)
                     putMap("message", jsonConverter.convertJsonToMap(message.toJSON()))
                 }
-                emitOnPresentationRequest(event)
+                synchronized(this) {
+                    if (!invalidated && pendingPresentations[id] === completion) {
+                        emitOnPresentationRequest(event)
+                    }
+                }
             } catch (e: Exception) {
-                pendingPresentations.remove(id)?.complete(InAppPresentationDecision.display())
+                if (pendingPresentations.remove(id, completion)) completion.complete(InAppPresentationDecision.display())
             }
         }
     }
@@ -173,11 +181,13 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext) :
     }
 
     override fun invalidate() {
-        invalidated = true
+        synchronized(this) {
+            invalidated = true
+            pendingPresentations.clear()
+        }
         reactContext.removeActivityEventListener(notificationTapListener)
         reactContext.removeLifecycleEventListener(lifecycleListener)
         eventChannel.close()
-        pendingPresentations.clear()
         reactContext.runOnUiQueueThread {
             updatePresentationCallbacks(false, false)
         }
