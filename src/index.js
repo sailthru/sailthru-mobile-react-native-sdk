@@ -134,6 +134,9 @@ RNEngageBySailthru.AttributeMap = function() {
   }
 }
 
+/** Returns parsed message-specific settings, before local defaults are applied. */
+RNMessageStream.getMessagePresentationConfiguration = require('./presentation');
+
 RNMessageStream.MessageImpressionType = {StreamView: 1, DetailView: 2, InAppView: 0};
 
 /**

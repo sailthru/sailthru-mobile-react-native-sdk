@@ -7,6 +7,15 @@
 
 using JS::NativeRNMessageStream::RNMessage;
 
+@interface RNMessageStream (PresentationTests)
++ (MARMessage *)messageFromRNMessage:(RNMessage &)message;
+@end
+
+@interface MARMessage (PresentationTests)
+- (NSDictionary *)dictionary;
+@end
+
+
 NSDictionary* createRNMessageContents() {
     return @{
         @"title": @"Test Title",
@@ -285,6 +294,57 @@ describe(@"RNMessageStream", ^{
             
             [[theValue(rnMessageStream.defaultInAppNotification) should] equal:theValue(NO)];
         });
+    });
+    context(@"asynchronous presentation decisions", ^{
+        it(@"preserves reserved presentation settings when a message returns from JavaScript", ^{
+            NSMutableDictionary *input = [createRNMessageContents() mutableCopy];
+            NSDictionary *settings = @{@"version": @1, @"notification": @{@"style": @"modal"}};
+            input[@"_st_inapp_presentation"] = settings;
+            RNMessage message(input);
+            MARMessage *nativeMessage = [RNMessageStream messageFromRNMessage:message];
+            [[[nativeMessage dictionary][@"_st_inapp_presentation"] should] equal:settings];
+        });
+        it(@"enables callbacks independently and correlates one response per request", ^{
+            id mockStream = OCMPartialMock(rnMessageStream);
+            OCMStub([mockStream emitOnPresentationRequest:[OCMArg any]]);
+            [rnMessageStream setPresentationCallbacksEnabled:YES detail:NO];
+            [[theValue([rnMessageStream respondsToSelector:@selector(prepareInAppNotificationForMessage:requestID:completion:)]) should] beYes];
+            [[theValue([rnMessageStream respondsToSelector:@selector(prepareMessageDetailForMessage:requestID:completion:)]) should] beNo];
+            MARMessage *message = [MARMessage new];
+            message.title = @"Test";
+            __block MARInAppPresentationDecision *first = nil;
+            __block MARInAppPresentationDecision *second = nil;
+            [rnMessageStream prepareInAppNotificationForMessage:message requestID:@"one" completion:^(MARInAppPresentationDecision *decision) { first = decision; }];
+            [rnMessageStream prepareInAppNotificationForMessage:message requestID:@"two" completion:^(MARInAppPresentationDecision *decision) { second = decision; }];
+            [rnMessageStream completePresentation:@"two" action:@"display" configuration:@{@"style": @"modal", @"shows_close_button": @NO}];
+            [rnMessageStream completePresentation:@"two" action:@"suppress" configuration:nil];
+            [[first should] beNil];
+            [[theValue(second.action) should] equal:theValue(MARInAppPresentationActionDisplay)];
+            [[theValue(second.configuration.presentationStyle) should] equal:theValue(MARInAppPresentationStyleModal)];
+            [[second.configuration.showsCloseButton should] equal:@NO];
+            [rnMessageStream completePresentation:@"one" action:@"handled" configuration:nil];
+            [[theValue(first.action) should] equal:theValue(MARInAppPresentationActionHandled)];
+            [mockStream stopMocking];
+        });
+    });
+    it(@"cancels only the disabled presentation callback", ^{
+        id mockStream = OCMPartialMock(rnMessageStream);
+        OCMStub([mockStream emitOnPresentationRequest:[OCMArg any]]);
+        [rnMessageStream setPresentationCallbacksEnabled:YES detail:YES];
+        MARMessage *message = [MARMessage new];
+        message.title = @"Test";
+        __block MARInAppPresentationDecision *popup = nil;
+        __block MARInAppPresentationDecision *detail = nil;
+        [rnMessageStream prepareInAppNotificationForMessage:message requestID:@"popup" completion:^(MARInAppPresentationDecision *decision) { popup = decision; }];
+        [rnMessageStream prepareMessageDetailForMessage:message requestID:@"detail" completion:^(MARInAppPresentationDecision *decision) { detail = decision; }];
+        [rnMessageStream setPresentationCallbacksEnabled:NO detail:YES];
+        [[theValue(popup.action) should] equal:theValue(MARInAppPresentationActionSuppress)];
+        [[detail should] beNil];
+        [rnMessageStream completePresentation:@"popup" action:@"display" configuration:nil];
+        [rnMessageStream completePresentation:@"detail" action:@"handled" configuration:nil];
+        [[theValue(popup.action) should] equal:theValue(MARInAppPresentationActionSuppress)];
+        [[theValue(detail.action) should] equal:theValue(MARInAppPresentationActionHandled)];
+        [mockStream stopMocking];
     });
     context(@"the shouldPresentInAppNotificationForMessage method", ^{
         __block MARMessage *marMessage;

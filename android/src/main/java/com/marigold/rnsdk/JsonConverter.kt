@@ -56,7 +56,7 @@ internal class JsonConverter {
      */
     @JvmOverloads
     @Throws(JSONException::class)
-    fun convertMapToJson(readableMap: ReadableMap?, doubleNumber: Boolean = true): JSONObject {
+    fun convertMapToJson(readableMap: ReadableMap?, doubleNumber: Boolean = true, omitNonFinite: Boolean = false): JSONObject {
         val jsonObject = JSONObject()
         readableMap ?: return jsonObject
         for (key in readableMap.toHashMap().keys) {
@@ -66,11 +66,11 @@ internal class JsonConverter {
                 ReadableType.Boolean -> jsonObject.put(key, value.asBoolean())
                 ReadableType.Number -> {
                     val numberValue = if (doubleNumber) value.asDouble() else value.asInt()
-                    jsonObject.put(key, numberValue)
+                    if (!omitNonFinite || numberValue.toDouble().isFinite()) jsonObject.put(key, numberValue)
                 }
                 ReadableType.String -> jsonObject.put(key, value.asString())
-                ReadableType.Map -> jsonObject.put(key, convertMapToJson(value.asMap(), doubleNumber))
-                ReadableType.Array -> jsonObject.put(key, convertArrayToJson(value.asArray(), doubleNumber))
+                ReadableType.Map -> jsonObject.put(key, convertMapToJson(value.asMap(), doubleNumber, omitNonFinite))
+                ReadableType.Array -> jsonObject.put(key, convertArrayToJson(value.asArray(), doubleNumber, omitNonFinite))
             }
         }
         return jsonObject
@@ -81,7 +81,7 @@ internal class JsonConverter {
      */
     @JvmOverloads
     @Throws(JSONException::class)
-    fun convertArrayToJson(readableArray: ReadableArray?, doubleNumber: Boolean = true): JSONArray {
+    fun convertArrayToJson(readableArray: ReadableArray?, doubleNumber: Boolean = true, omitNonFinite: Boolean = false): JSONArray {
         val jsonArray = JSONArray()
         readableArray ?: return jsonArray
         for (i in 0 until readableArray.size()) {
@@ -92,11 +92,12 @@ internal class JsonConverter {
                 ReadableType.Boolean -> jsonArray.put(value.asBoolean())
                 ReadableType.Number -> {
                     val numberValue = if (doubleNumber) value.asDouble() else value.asInt()
-                    jsonArray.put(numberValue)
+                    if (!omitNonFinite || numberValue.toDouble().isFinite()) jsonArray.put(numberValue)
+                    else jsonArray.put(JSONObject.NULL)
                 }
                 ReadableType.String -> jsonArray.put(value.asString())
-                ReadableType.Map -> jsonArray.put(convertMapToJson(value.asMap(), doubleNumber))
-                ReadableType.Array -> jsonArray.put(convertArrayToJson(value.asArray(), doubleNumber))
+                ReadableType.Map -> jsonArray.put(convertMapToJson(value.asMap(), doubleNumber, omitNonFinite))
+                ReadableType.Array -> jsonArray.put(convertArrayToJson(value.asArray(), doubleNumber, omitNonFinite))
             }
         }
         return jsonArray

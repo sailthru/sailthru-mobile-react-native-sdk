@@ -1,16 +1,22 @@
 package com.marigold.rnsdk
 
-import android.app.Activity
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import androidx.annotation.VisibleForTesting
+import com.facebook.react.bridge.BaseActivityEventListener
+import com.facebook.react.bridge.LifecycleEventListener
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableNativeArray
+import com.facebook.react.common.LifecycleState
 import com.marigold.rnsdk.ErrorCodes.Companion.ERROR_CODE_MESSAGES
-import com.marigold.sdk.MessageActivity
 import com.marigold.sdk.MessageStream
+import com.marigold.sdk.InAppPresentationConfiguration
+import com.marigold.sdk.InAppPresentationCompletion
+import com.marigold.sdk.InAppPresentationDecision
 import com.marigold.sdk.enums.ImpressionType
 import com.marigold.sdk.model.Message
 import kotlinx.coroutines.channels.Channel
@@ -18,7 +24,9 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONException
 import org.json.JSONObject
+import java.lang.ref.WeakReference
 import java.lang.reflect.InvocationTargetException
+import java.util.concurrent.ConcurrentHashMap
 
 class RNMessageStreamModule(private val reactContext: ReactApplicationContext) : NativeRNMessageStreamSpec(reactContext), MessageStream.OnInAppNotificationDisplayListener {
 
@@ -33,17 +41,48 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext) :
     @VisibleForTesting
     internal var jsonConverter: JsonConverter = JsonConverter()
 
+    private val pendingPresentations = ConcurrentHashMap<String, InAppPresentationCompletion>()
+    private val notificationListener = MessageStream.OnInAppPresentationListener { message, id, completion ->
+        emitPresentationRequest("notification", message, id, completion)
+    }
+    private val detailListener = MessageStream.OnInAppPresentationListener { message, id, completion ->
+        emitPresentationRequest("detail", message, id, completion)
+    }
+    private var notificationPreparationEnabled = false
+    private var detailPreparationEnabled = false
+    private var presentationCallbacksConfigured = false
+    private var pendingDetailIntent: Intent? = null
+    private val notificationTapListener = object : BaseActivityEventListener() {
+        override fun onNewIntent(intent: Intent) {
+            if (invalidated || !HostFirstMessageDetail.isPending(intent)) return
+            pendingDetailIntent = intent
+            presentPendingNotificationDetail()
+        }
+    }
+    private val lifecycleListener = object : LifecycleEventListener {
+        override fun onHostResume() = presentPendingNotificationDetail()
+        override fun onHostPause() = Unit
+        override fun onHostDestroy() = Unit
+    }
+    private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
     private val eventChannel = Channel<Boolean>(1)
-    private var defaultInAppNotification = true
+    @Volatile private var defaultInAppNotification = true
+    @Volatile private var invalidated = false
 
     @VisibleForTesting
     internal var notificationTimeoutMs: Long = 2000L
     init {
-        messageStream.setOnInAppNotificationDisplayListener(this)
+        // The SDK retains the legacy listener and has no owner-checked removal for it.
+        val module = WeakReference(this)
+        messageStream.setOnInAppNotificationDisplayListener { message ->
+            module.get()?.shouldPresentInAppNotification(message) ?: true
+        }
+        reactContext.addActivityEventListener(notificationTapListener)
+        reactContext.addLifecycleEventListener(lifecycleListener)
     }
 
     override fun shouldPresentInAppNotification(message: Message): Boolean {
-        if (defaultInAppNotification) {
+        if (invalidated || defaultInAppNotification) {
             return true
         }
 
@@ -58,13 +97,91 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext) :
         return withTimeoutOrNull(notificationTimeoutMs) {
             try {
                 val writableMap = jsonConverter.convertJsonToMap(message.toJSON())
+                if (invalidated) return@withTimeoutOrNull true
                 emitOnInAppNotification(writableMap)
-                eventChannel.receive()
+                eventChannel.receiveCatching().getOrNull()
             } catch (e: JSONException) {
                 e.printStackTrace()
                 true
             }
-        } != false
+        } != false || invalidated
+    }
+
+    override fun setPresentationCallbacksEnabled(notification: Boolean, detail: Boolean) {
+        reactContext.runOnUiQueueThread {
+            if (invalidated) return@runOnUiQueueThread
+            updatePresentationCallbacks(notification, detail)
+            presentationCallbacksConfigured = true
+            presentPendingNotificationDetail()
+        }
+    }
+
+    private fun presentPendingNotificationDetail() {
+        if (invalidated || !presentationCallbacksConfigured || reactContext.lifecycleState != LifecycleState.RESUMED) return
+        val host = reactContext.currentActivity ?: return
+        if (host.isFinishing || host.isDestroyed) return
+        val messageId = HostFirstMessageDetail.takeLatest(host.intent, pendingDetailIntent)
+        pendingDetailIntent = null
+        if (messageId == null) return
+        messageStream.presentMessageDetail(host, messageId)
+    }
+
+    @Synchronized
+    private fun updatePresentationCallbacks(notification: Boolean, detail: Boolean) {
+        if (notification != notificationPreparationEnabled) {
+            notificationPreparationEnabled = notification
+            if (notification) messageStream.setInAppNotificationPreparationListener(notificationListener)
+            else messageStream.removeInAppNotificationPreparationListener(notificationListener)
+        }
+        if (detail != detailPreparationEnabled) {
+            detailPreparationEnabled = detail
+            if (detail) messageStream.setMessageDetailPreparationListener(detailListener)
+            else messageStream.removeMessageDetailPreparationListener(detailListener)
+        }
+    }
+
+    private fun emitPresentationRequest(kind: String, message: Message, id: String, completion: InAppPresentationCompletion) {
+        pendingPresentations[id] = completion
+        // The native decision deadline is two seconds; discard abandoned bridge replies.
+        mainHandler.postDelayed({ pendingPresentations.remove(id, completion) }, 2100)
+        reactContext.runOnUiQueueThread {
+            if (!pendingPresentations.containsKey(id)) return@runOnUiQueueThread
+            try {
+                val event = jsonConverter.createNativeMap().apply {
+                    putString("requestId", id)
+                    putString("kind", kind)
+                    putMap("message", jsonConverter.convertJsonToMap(message.toJSON()))
+                }
+                emitOnPresentationRequest(event)
+            } catch (e: Exception) {
+                pendingPresentations.remove(id)?.complete(InAppPresentationDecision.display())
+            }
+        }
+    }
+
+    override fun completePresentation(requestId: String, action: String, configuration: ReadableMap?) {
+        val completion = pendingPresentations.remove(requestId) ?: return
+        val decision = when (action) {
+            "suppress" -> InAppPresentationDecision.suppress()
+            "handled" -> InAppPresentationDecision.handled()
+            "display" -> try {
+                InAppPresentationDecision.display(configuration?.let { InAppPresentationConfiguration.fromJSON(jsonConverter.convertMapToJson(it, omitNonFinite = true)) })
+            } catch (e: JSONException) { InAppPresentationDecision.display() }
+            else -> InAppPresentationDecision.display()
+        }
+        completion.complete(decision)
+    }
+
+    override fun invalidate() {
+        invalidated = true
+        reactContext.removeActivityEventListener(notificationTapListener)
+        reactContext.removeLifecycleEventListener(lifecycleListener)
+        eventChannel.close()
+        pendingPresentations.clear()
+        reactContext.runOnUiQueueThread {
+            updatePresentationCallbacks(false, false)
+        }
+        super.invalidate()
     }
 
     override fun getName(): String {
@@ -184,9 +301,8 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext) :
         message ?: return
         val activity = reactContext.currentActivity ?: return
         val messageId = message.getString(MESSAGE_ID)
-        if (messageId.isNullOrEmpty()) return
-        val i = getMessageActivityIntent(activity, messageId)
-        activity.startActivity(i)
+        if (messageId.isNullOrBlank()) return
+        reactContext.runOnUiQueueThread { messageStream.presentMessageDetail(activity, messageId) }
     }
 
     override fun dismissMessageDetail() {
@@ -238,10 +354,5 @@ class RNMessageStreamModule(private val reactContext: ReactApplicationContext) :
     // Moved out to separate method for testing as WritableNativeArray cannot be mocked
     fun getWritableArray(): WritableArray {
         return WritableNativeArray()
-    }
-
-    // wrapped for testing
-    fun getMessageActivityIntent(activity: Activity, messageId: String): Intent {
-        return MessageActivity.intentForMessage(activity, null, messageId)
     }
 }

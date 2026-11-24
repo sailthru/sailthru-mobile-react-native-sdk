@@ -2,17 +2,25 @@ package com.marigold.rnsdk
 
 import android.app.Activity
 import android.content.Intent
+import com.facebook.react.bridge.ActivityEventListener
+import com.facebook.react.bridge.LifecycleEventListener
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
+import com.facebook.react.common.LifecycleState
 import com.marigold.rnsdk.ErrorCodes.Companion.ERROR_CODE_MESSAGES
 import com.marigold.rnsdk.RNMessageStreamModule.Companion.MESSAGE_ID
 import com.marigold.sdk.MessageStream
+import com.marigold.sdk.InAppPresentationCompletion
+import com.marigold.sdk.InAppPresentationDecision
+import com.marigold.sdk.enums.InAppPresentationAction
+import com.marigold.sdk.enums.InAppPresentationStyle
 import com.marigold.sdk.enums.ImpressionType
 import com.marigold.sdk.model.Message
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ConcurrentHashMap
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert
@@ -26,6 +34,8 @@ import org.mockito.MockedConstruction
 import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.capture
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doNothing
@@ -72,6 +82,23 @@ class RNMessageStreamModuleTest {
 
         verify(rnMessageStreamModule, Mockito.times(0)).emitOnInAppNotification(any())
         Assert.assertTrue(shouldPresent)
+    }
+
+    @Test
+    fun `retired legacy listener allows SDK display without emitting to React Native`() {
+        val module = RNMessageStreamModule(mockContext).apply {
+            this.jsonConverter = this@RNMessageStreamModuleTest.jsonConverter
+            useDefaultInAppNotification(false)
+        }
+        val stream = staticMessageStream.constructed().last()
+        val listener = argumentCaptor<MessageStream.OnInAppNotificationDisplayListener>()
+        verify(stream).setOnInAppNotificationDisplayListener(listener.capture())
+
+        module.invalidate()
+
+        Assert.assertTrue(listener.firstValue.shouldPresentInAppNotification(mock()))
+        Mockito.verifyNoInteractions(jsonConverter)
+        verify(stream).setOnInAppNotificationDisplayListener(anyOrNull())
     }
 
     @Test
@@ -430,6 +457,79 @@ class RNMessageStreamModuleTest {
     }
 
     @Test
+    fun `presentation replies match their request and ignore duplicates`() {
+        val field = RNMessageStreamModule::class.java.getDeclaredField("pendingPresentations").apply { isAccessible = true }
+        @Suppress("UNCHECKED_CAST")
+        val pending = field.get(rnMessageStreamModule) as ConcurrentHashMap<String, InAppPresentationCompletion>
+        var first: InAppPresentationDecision? = null
+        var second: InAppPresentationDecision? = null
+        pending["one"] = InAppPresentationCompletion { first = it }
+        pending["two"] = InAppPresentationCompletion { second = it }
+        val config: ReadableMap = mock()
+        whenever(jsonConverter.convertMapToJson(config, omitNonFinite = true)).thenReturn(JSONObject("""{"style":"modal","shows_close_button":false}"""))
+        rnMessageStreamModule.completePresentation("two", "display", config)
+        rnMessageStreamModule.completePresentation("two", "suppress", null)
+        Assert.assertNull(first)
+        Assert.assertEquals(InAppPresentationAction.DISPLAY, second?.action)
+        Assert.assertEquals(InAppPresentationStyle.MODAL, second?.configuration?.presentationStyle)
+        Assert.assertEquals(false, second?.configuration?.showsCloseButton)
+        rnMessageStreamModule.completePresentation("one", "handled", null)
+        Assert.assertEquals(InAppPresentationAction.HANDLED, first?.action)
+    }
+
+    @Test
+    fun `presentation listeners can be enabled independently`() {
+        doAnswer { invocation -> invocation.getArgument<Runnable>(0).run(); null }
+            .whenever(mockContext).runOnUiQueueThread(any())
+        rnMessageStreamModule.setPresentationCallbacksEnabled(true, false)
+        verify(messageStream).setInAppNotificationPreparationListener(any())
+        verify(messageStream, org.mockito.kotlin.never()).setMessageDetailPreparationListener(any())
+    }
+
+    @Test
+    fun `a newer notification supersedes the launch tap before callbacks and host resume`() {
+        val module = RNMessageStreamModule(mockContext)
+        val nativeStream = staticMessageStream.constructed().last()
+        val host: Activity = mock()
+        fun tap(messageId: String): Intent {
+            val intent: Intent = mock()
+            val extras = mutableMapOf<String, String>()
+            whenever(intent.putExtra(any<String>(), any<String>())).thenAnswer { invocation ->
+                extras[invocation.getArgument(0)] = invocation.getArgument(1)
+                intent
+            }
+            whenever(intent.getStringExtra(any())).thenAnswer { extras[it.getArgument<String>(0)] }
+            HostFirstMessageDetail.mark(intent, messageId)
+            return intent
+        }
+        val launchIntent = tap("older")
+        whenever(mockContext.currentActivity).thenReturn(host)
+        whenever(host.intent).thenReturn(launchIntent)
+        doAnswer { invocation -> invocation.getArgument<Runnable>(0).run(); null }
+            .whenever(mockContext).runOnUiQueueThread(any())
+        val lifecycle = argumentCaptor<LifecycleEventListener>()
+        verify(mockContext, Mockito.times(2)).addLifecycleEventListener(lifecycle.capture())
+        val hostLifecycle = lifecycle.lastValue
+        val activityEvents = argumentCaptor<ActivityEventListener>()
+        verify(mockContext, Mockito.times(2)).addActivityEventListener(activityEvents.capture())
+        activityEvents.lastValue.onNewIntent(tap("newer"))
+
+        whenever(mockContext.lifecycleState).thenReturn(LifecycleState.RESUMED)
+        hostLifecycle.onHostResume()
+        verify(nativeStream, Mockito.never()).presentMessageDetail(any(), any())
+
+        whenever(mockContext.lifecycleState).thenReturn(LifecycleState.BEFORE_RESUME)
+        module.setPresentationCallbacksEnabled(false, true)
+        verify(nativeStream, Mockito.never()).presentMessageDetail(any(), any())
+
+        whenever(mockContext.lifecycleState).thenReturn(LifecycleState.RESUMED)
+        hostLifecycle.onHostResume()
+        hostLifecycle.onHostResume()
+        verify(nativeStream).presentMessageDetail(host, "newer")
+        verify(nativeStream, Mockito.never()).presentMessageDetail(host, "older")
+    }
+
+    @Test
     fun testPresentMessageDetail() {
         // Setup input
         val messageID = "message ID"
@@ -437,18 +537,18 @@ class RNMessageStreamModuleTest {
         // Setup mocks
         val message: ReadableMap = mock()
         val activity: Activity = mock()
-        val intent: Intent = mock()
 
         // Mock behaviour
         doReturn(messageID).whenever(message).getString(MESSAGE_ID)
-        doReturn(intent).whenever(rnMessageStreamModule).getMessageActivityIntent(any(), any())
+        doAnswer { invocation -> invocation.getArgument<Runnable>(0).run(); null }
+            .whenever(mockContext).runOnUiQueueThread(any())
         doReturn(activity).whenever(mockContext).currentActivity
 
         // Initiate test
         rnMessageStreamModule.presentMessageDetail(message)
 
         // Verify result
-        verify(activity).startActivity(intent)
+        verify(messageStream).presentMessageDetail(activity, messageID)
     }
 
     @Test
