@@ -14,10 +14,13 @@ export interface RNMessage {
   card_media_url?: string,
   is_read: boolean,
   created_at?: string,
+  _st_inapp_presentation?: Object,
 }
 
 export interface Spec extends TurboModule {
   notifyInAppHandled(handled: boolean): void;
+  setPresentationCallbacksEnabled(notification: boolean, detail: boolean): void;
+  completePresentation(requestId: string, action: string, configuration: Object | null): void;
   useDefaultInAppNotification(useDefault: boolean): void;
   getMessage(messageId: string): Promise<RNMessage>;       
   getMessages(): Promise<Array<RNMessage>>;       
@@ -30,6 +33,7 @@ export interface Spec extends TurboModule {
   clearMessages(): Promise<null>;
 
   readonly onInAppNotification: EventEmitter<RNMessage>;
+  readonly onPresentationRequest: EventEmitter<{requestId: string, kind: string, message: RNMessage}>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>(

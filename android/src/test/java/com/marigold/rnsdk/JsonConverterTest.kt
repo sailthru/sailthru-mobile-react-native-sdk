@@ -273,6 +273,21 @@ class JsonConverterTest {
     }
 
     @Test
+    fun `presentation conversion ignores invalid numbers and keeps valid siblings`() {
+        val settings = JavaOnlyMap().apply {
+            putDouble("display_duration", Double.NaN)
+            putBoolean("shows_close_button", false)
+            putMap("title_font", JavaOnlyMap().apply { putDouble("size", Double.POSITIVE_INFINITY) })
+        }
+
+        val converted = jsonConverter.convertMapToJson(settings, omitNonFinite = true)
+
+        assertFalse(converted.has("display_duration"))
+        assertFalse(converted.getBoolean("shows_close_button"))
+        assertFalse(converted.getJSONObject("title_font").has("size"))
+    }
+
+    @Test
     fun testConvertMapToJsonString() {
         val readableMap = JavaOnlyMap().apply {
             putString(TEST_KEY, "test string")

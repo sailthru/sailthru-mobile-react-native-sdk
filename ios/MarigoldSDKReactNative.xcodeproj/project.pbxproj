@@ -203,8 +203,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FA5EF5C3213F433200D9E6A9 /* Build configuration list for PBXNativeTarget "MarigoldSDKReactNativeTests" */;
 			buildPhases = (
-				CBA1F8047EAA4BDCA2BF3200 /* Check Marigold SDK Version */,
 				0C2D7AE8AD14D14C706564A6 /* [CP] Check Pods Manifest.lock */,
+				CBA1F8047EAA4BDCA2BF3200 /* Check Marigold SDK Version */,
 				FA5EF5B7213F433200D9E6A9 /* Sources */,
 				FA5EF5B8213F433200D9E6A9 /* Frameworks */,
 				FA5EF5B9213F433200D9E6A9 /* Resources */,
@@ -343,13 +343,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -364,13 +360,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests/Pods-MarigoldSDKReactNative-MarigoldSDKReactNativeTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -487,7 +479,10 @@
 					"$(inherited)",
 					"-DRCT_REMOVE_LEGACY_ARCH=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -571,7 +566,10 @@
 					"$(inherited)",
 					"-DRCT_REMOVE_LEGACY_ARCH=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
@@ -698,7 +696,7 @@
 			repositoryURL = "https://github.com/sailthru/sailthru-mobile-ios-sdk.git";
 			requirement = {
 				kind = exactVersion;
-				version = 20.0.0;
+				version = 21.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

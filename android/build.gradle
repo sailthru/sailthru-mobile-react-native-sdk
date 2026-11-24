@@ -20,6 +20,10 @@ buildscript {
 apply plugin: "com.android.library"
 apply plugin: "com.facebook.react"
 
+if (Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0].toInteger() < 9) {
+    apply plugin: "org.jetbrains.kotlin.android"
+}
+
 def getExtOrIntegerDefault(name) {
     return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties["MarigoldRNSDK_" + name]).toInteger()
 }
@@ -78,7 +82,7 @@ repositories {
 dependencies {
     //noinspection GradleDynamicVersion
     api "com.facebook.react:react-android:+"
-    api "com.marigold.sdk:marigold:27.0.2"
+    api "com.marigold.sdk:marigold:28.0.0"
 
     testImplementation 'org.mockito.kotlin:mockito-kotlin:6.4.0'
     testImplementation 'junit:junit:4.13.2'

@@ -1,8 +1,9 @@
 
 #import "RNMessageStream.h"
+#import <React/RCTInvalidating.h>
 #import <UserNotifications/UserNotifications.h>
 
-@interface RNMessageStream () <MARMessageStreamDelegate>
+@interface RNMessageStream () <MARMessageStreamDelegate, RCTInvalidating>
 
 @end
 
@@ -16,6 +17,10 @@
 @interface RNMessageStream()
 
 @property (nonatomic, strong) MARMessageStream *messageStream;
+@property (nonatomic, assign) BOOL presentationInvalidated;
+@property (atomic, assign) BOOL notificationPreparationEnabled;
+@property (atomic, assign) BOOL detailPreparationEnabled;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSDictionary *> *pendingPresentations;
 
 @end
 
@@ -29,6 +34,7 @@ RCT_EXPORT_MODULE();
     self = [super init];
     if(self) {
         _messageStream = [MARMessageStream new];
+        _pendingPresentations = [NSMutableDictionary dictionary];
         _defaultInAppNotification = YES;
         _notificationTimeoutSeconds = 2.0;
         self.eventSemaphore = dispatch_semaphore_create(0);
@@ -36,6 +42,92 @@ RCT_EXPORT_MODULE();
         [_messageStream setDelegate:self];
     }
     return self;
+}
+
+- (BOOL)respondsToSelector:(SEL)selector {
+    if (selector == @selector(prepareInAppNotificationForMessage:requestID:completion:)) return self.notificationPreparationEnabled;
+    if (selector == @selector(prepareMessageDetailForMessage:requestID:completion:)) return self.detailPreparationEnabled;
+    return [super respondsToSelector:selector];
+}
+
+RCT_EXPORT_METHOD(setPresentationCallbacksEnabled:(BOOL)notification detail:(BOOL)detail) {
+    @synchronized (self) {
+        if (self.presentationInvalidated) return;
+        BOOL cancelNotification = self.notificationPreparationEnabled && !notification;
+        BOOL cancelDetail = self.detailPreparationEnabled && !detail;
+        self.notificationPreparationEnabled = notification;
+        self.detailPreparationEnabled = detail;
+        if (cancelNotification) [self cancelPendingPresentationRequestsOfKind:@"notification"];
+        if (cancelDetail) [self cancelPendingPresentationRequestsOfKind:@"detail"];
+    }
+}
+
+- (void)invalidate {
+    @synchronized (self) {
+        self.presentationInvalidated = YES;
+        self.notificationPreparationEnabled = NO;
+        self.detailPreparationEnabled = NO;
+        [self.pendingPresentations removeAllObjects];
+    }
+    [self.messageStream removeDelegateIfCurrent:self];
+}
+
+- (void)cancelPendingPresentationRequestsOfKind:(NSString *)kind {
+    NSMutableArray *completions = [NSMutableArray array];
+    @synchronized (self) {
+        for (NSString *requestID in self.pendingPresentations.allKeys) {
+            NSDictionary *pending = self.pendingPresentations[requestID];
+            if ([pending[@"kind"] isEqualToString:kind]) {
+                [completions addObject:pending[@"completion"]];
+                [self.pendingPresentations removeObjectForKey:requestID];
+            }
+        }
+    }
+    for (void (^completion)(MARInAppPresentationDecision *) in completions) completion([MARInAppPresentationDecision suppress]);
+}
+
+- (void)prepareInAppNotificationForMessage:(MARMessage *)message requestID:(NSString *)requestID
+                                completion:(void (^)(MARInAppPresentationDecision *))completion {
+    [self emitPresentationRequest:message requestID:requestID kind:@"notification" completion:completion];
+}
+
+- (void)prepareMessageDetailForMessage:(MARMessage *)message requestID:(NSString *)requestID
+                            completion:(void (^)(MARInAppPresentationDecision *))completion {
+    [self emitPresentationRequest:message requestID:requestID kind:@"detail" completion:completion];
+}
+
+- (void)emitPresentationRequest:(MARMessage *)message requestID:(NSString *)requestID kind:(NSString *)kind
+                     completion:(void (^)(MARInAppPresentationDecision *))completion {
+    @synchronized (self) {
+        BOOL enabled = [kind isEqualToString:@"notification"] ? self.notificationPreparationEnabled : self.detailPreparationEnabled;
+        if (!enabled) { completion([MARInAppPresentationDecision suppress]); return; }
+        self.pendingPresentations[requestID] = @{@"kind": kind, @"completion": [completion copy]};
+    }
+    __weak RNMessageStream *weakSelf = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        RNMessageStream *stream = weakSelf;
+        @synchronized (stream) { [stream.pendingPresentations removeObjectForKey:requestID]; }
+    });
+    NSDictionary *event = @{@"requestId": requestID, @"kind": kind, @"message": [message dictionary]};
+    @synchronized (self) {
+        if (self.pendingPresentations[requestID]) [self emitOnPresentationRequest:event];
+    }
+}
+
+RCT_EXPORT_METHOD(completePresentation:(NSString *)requestID action:(NSString *)action configuration:(NSDictionary *)configuration) {
+    void (^completion)(MARInAppPresentationDecision *);
+    @synchronized (self) {
+        completion = self.pendingPresentations[requestID][@"completion"];
+        [self.pendingPresentations removeObjectForKey:requestID];
+    }
+    if (!completion) return;
+    MARInAppPresentationDecision *decision;
+    if ([action isEqualToString:@"suppress"]) decision = [MARInAppPresentationDecision suppress];
+    else if ([action isEqualToString:@"handled"]) decision = [MARInAppPresentationDecision handled];
+    else if ([action isEqualToString:@"display"] && [configuration isKindOfClass:[NSDictionary class]]) {
+        decision = [MARInAppPresentationDecision displayWithConfiguration:[MARInAppPresentationConfiguration configurationWithDictionary:configuration]];
+    } else decision = [MARInAppPresentationDecision display];
+    completion(decision);
 }
 
 - (BOOL)shouldPresentInAppNotificationForMessage:(MARMessage *)message {
@@ -222,6 +314,9 @@ RCT_EXPORT_METHOD(clearMessages:(RCTPromiseResolveBlock)resolve reject:(RCTPromi
     }
     if (message.created_at() != nil) {
         messageDict[@"created_at"] = message.created_at();
+    }
+    if (message._st_inapp_presentation() != nil) {
+        messageDict[@"_st_inapp_presentation"] = message._st_inapp_presentation();
     }
     return [[MARMessage alloc] initWithDictionary:messageDict];
 }

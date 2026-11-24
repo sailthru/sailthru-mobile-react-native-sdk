@@ -65,6 +65,8 @@ declare module 'react-native-marigold' {
     is_read: boolean;
     /** The time at which the message was created. */
     created_at?: string;
+    /** Raw campaign presentation settings. Use MessageStream.getMessagePresentationConfiguration to read validated settings. */
+    _st_inapp_presentation?: unknown;
   }
 
   export interface MessageStreamStatic {
@@ -73,12 +75,15 @@ declare module 'react-native-marigold' {
      * the React Native level.
      * @param handled A boolean value indicating whether or not the in-app notification has been handled.
      * Return false to fallback on the default handling.
+     * @deprecated Answer an `onPresentationRequest` event with `completePresentation`.
+     * Use `handled` for app-owned UI or `display` to let the SDK present it.
      */
     notifyInAppHandled(handled: boolean): void;
     /**
      * Set whether the SDK should pass the in-app notification to the React Native layer for handling, or
      * just pass straight to the default.
      * @param useDefault A boolean to indicate whether use the default in-app notification handling.
+     * @deprecated Subscribe to onPresentationRequest and enable popup decisions with setPresentationCallbacksEnabled(true, detailEnabled).
      */
     useDefaultInAppNotification(useDefault: boolean): void;
     /**
@@ -105,7 +110,11 @@ declare module 'react-native-marigold' {
      */
     removeMessage(message: Message): Promise<null>;
     /**
-     * Shows the message detail screen for a given message
+     * Requests full-screen presentation for a given message.
+     * If a detail presentation callback is registered, a `suppress` or
+     * `handled` decision leaves presentation to the host app. Without a callback,
+     * the SDK uses its normal presentation behavior.
+     * On Android, the host also stays visible if the message ID cannot be resolved.
      * @param message The message to display.
      */
     presentMessageDetail(message: Message): void;
@@ -127,11 +136,68 @@ declare module 'react-native-marigold' {
 
     /**
      * Callback for in-app notification events to allow custom handling (new architecture implementation).
+     * @deprecated Use onPresentationRequest and handle requests whose kind is 'notification'.
      */
     readonly onInAppNotification?: any;
 
+    /**
+     * Enable asynchronous decisions separately for popups and full-screen details.
+     * Subscribe to `onPresentationRequest` before enabling either callback.
+     * To route Android system notification taps through React Native, apply
+     * `com.marigold.rnsdk.withHostFirstMessageDetail` to your Android
+     * `NotificationConfig` after starting Marigold, passing your React Activity class.
+     * If that Activity overrides `onNewIntent`, call `super.onNewIntent(intent)`.
+     * Call this method once the host can present detail, even if both flags are false
+     * and the SDK renders the UI.
+     */
+    setPresentationCallbacksEnabled(notification: boolean, detail: boolean): void;
+    /**
+     * Reply within two seconds. Unanswered requests use native defaults. Duplicate
+     * or late replies are ignored. Use `display` for SDK UI, `suppress` to skip
+     * presentation, or `handled` when the app renders the message and registers its
+     * own impression. Configuration applies to `display`.
+     */
+    completePresentation(requestId: string, action: InAppPresentationDecision['action'], configuration: InAppPresentationConfiguration | null): void;
+    readonly onPresentationRequest: (listener: (request: InAppPresentationRequest) => void) => { remove(): void };
+
+    /** Parsed message-specific settings, before local defaults are applied. */
+    getMessagePresentationConfiguration(message: Message, kind: 'notification' | 'detail'): InAppPresentationConfiguration | null;
+
     MessageImpressionType: MessageStreamStatic.MessageImpressionType
   }
+
+  /** Portable per-message fields; omitted values inherit. Colours are #RRGGBB or #RRGGBBAA. */
+  export interface InAppPresentationConfiguration {
+    style?: 'banner' | 'modal' | 'full_screen';
+    banner_position?: 'top' | 'bottom';
+    link_behavior?: 'follow_link' | 'show_message_with_button';
+    link_button_title?: string;
+    background_color?: PresentationColor;
+    title_color?: PresentationColor;
+    body_text_color?: PresentationColor;
+    close_button_color?: PresentationColor;
+    backdrop_color?: PresentationColor;
+    /** Modal backdrop opacity, from 0 to 1. */
+    backdrop_opacity?: number;
+    title_font?: PresentationFont;
+    body_font?: PresentationFont;
+    corner_radius?: number;
+    outer_spacing?: number;
+    image_content_mode?: 'aspect_fit' | 'aspect_fill';
+    shows_image?: boolean;
+    shows_close_button?: boolean;
+    allows_gesture_dismissal?: boolean;
+    /** Popup display duration in seconds. Zero means manual dismissal. */
+    display_duration?: number;
+  }
+  /** A decision for one presentation request. */
+  export interface InAppPresentationDecision {
+    action: 'display' | 'suppress' | 'handled';
+    configuration?: InAppPresentationConfiguration;
+  }
+  export type PresentationColor = string | { light: string; dark: string };
+  export interface PresentationFont { size: number; weight?: 'ultralight' | 'thin' | 'light' | 'regular' | 'medium' | 'semibold' | 'bold' | 'heavy' | 'black'; name?: string }
+  export interface InAppPresentationRequest { requestId: string; kind: 'notification' | 'detail'; message: Message }
 
   export namespace MessageStreamStatic {
     export type MessageImpressionType = { StreamView: 1, DetailView: 2, InAppView: 0 };
