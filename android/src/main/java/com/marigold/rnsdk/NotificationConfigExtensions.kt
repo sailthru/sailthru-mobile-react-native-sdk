@@ -25,7 +25,6 @@ fun NotificationConfig.withHostFirstMessageDetail(hostActivity: Class<out Activi
             ?.takeUnless { it.isBlank() || it == "null" } ?: return@setContentIntentBuilder null
 
         val intent = Intent(context, hostActivity).apply {
-            action = "com.marigold.rnsdk.HOST_FIRST_MESSAGE_DETAIL"
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             putExtras(extras)
             HostFirstMessageDetail.mark(this, messageId)
@@ -39,21 +38,22 @@ fun NotificationConfig.withHostFirstMessageDetail(hostActivity: Class<out Activi
     }
 
 internal object HostFirstMessageDetail {
-    private const val TOKEN = "com.marigold.rnsdk.HOST_FIRST_TOKEN"
+    private const val ACTION = "com.marigold.rnsdk.HOST_FIRST_MESSAGE_DETAIL"
     private const val TAP = "com.marigold.rnsdk.HOST_FIRST_TAP"
     private const val MESSAGE = "com.marigold.rnsdk.HOST_FIRST_MESSAGE"
-    private val processToken = UUID.randomUUID().toString()
     private val consumedTaps = mutableSetOf<String>()
 
     fun mark(intent: Intent, messageId: String) {
-        intent.putExtra(TOKEN, processToken)
+        intent.action = ACTION
         intent.putExtra(TAP, UUID.randomUUID().toString())
         intent.putExtra(MESSAGE, messageId)
     }
 
-    fun isPending(intent: Intent?): Boolean =
-        intent != null && intent.getStringExtra(TOKEN) == processToken &&
-            intent.getStringExtra(TAP)?.let { it !in consumedTaps } == true
+    fun isPending(intent: Intent?): Boolean {
+        if (intent == null || intent.action != ACTION) return false
+        val tap = intent.getStringExtra(TAP) ?: return false
+        return tap.isNotBlank() && tap !in consumedTaps && !intent.getStringExtra(MESSAGE).isNullOrBlank()
+    }
 
     fun takeLatest(launchIntent: Intent?, newIntent: Intent?): String? {
         if (newIntent == null) return take(launchIntent)
@@ -67,7 +67,6 @@ internal object HostFirstMessageDetail {
         val tap = intent.getStringExtra(TAP) ?: return null
         val messageId = intent.getStringExtra(MESSAGE) ?: return null
         if (!consumedTaps.add(tap)) return null
-        intent.removeExtra(TOKEN)
         intent.removeExtra(TAP)
         intent.removeExtra(MESSAGE)
         return messageId

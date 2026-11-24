@@ -53,6 +53,12 @@ class NotificationConfigExtensionsTest {
 
         mockConstruction(Intent::class.java) { intent, constructor ->
             assertEquals(listOf(context, Activity::class.java), constructor.arguments())
+            var action: String? = null
+            whenever(intent.setAction(any())).thenAnswer {
+                action = it.getArgument(0)
+                intent
+            }
+            whenever(intent.action).thenAnswer { action }
             val intentExtras = mutableMapOf<String, String>()
             whenever(intent.putExtra(any<String>(), any<String>())).thenAnswer {
                 intentExtras[it.getArgument(0)] = it.getArgument(1)
@@ -70,6 +76,11 @@ class NotificationConfigExtensionsTest {
                 val intent = intents.constructed().single()
                 verify(intent).putExtras(extras)
                 verify(intent).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                val detailAction = "com.marigold.rnsdk.HOST_FIRST_MESSAGE_DETAIL"
+                assertEquals(detailAction, intent.action)
+                intent.action = Intent.ACTION_MAIN
+                assertNull(HostFirstMessageDetail.take(intent))
+                intent.action = detailAction
                 assertEquals("campaign", HostFirstMessageDetail.take(intent))
                 assertNull(HostFirstMessageDetail.take(intent))
             }

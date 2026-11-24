@@ -499,6 +499,12 @@ class RNMessageStreamModuleTest {
                 intent
             }
             whenever(intent.getStringExtra(any())).thenAnswer { extras[it.getArgument<String>(0)] }
+            var action: String? = null
+            whenever(intent.setAction(any())).thenAnswer {
+                action = it.getArgument(0)
+                intent
+            }
+            whenever(intent.action).thenAnswer { action }
             HostFirstMessageDetail.mark(intent, messageId)
             return intent
         }
